@@ -1,0 +1,95 @@
+{
+  "patchId": "000005_springmaster_project_new_tool_foundation",
+  "patchNumber": "000005",
+  "archiveName": "000005_springmaster_project_new_tool_foundation.zip",
+  "name": "springmaster_project_new_tool_foundation",
+  "scope": "root",
+  "status": "applied",
+  "createdAt": "2026-06-24T10:55:32.062132+02:00",
+  "projectRoot": "/opt/cocondo/springmaster",
+  "summary": {
+    "new": 3,
+    "modified": 7,
+    "unchanged": 0,
+    "deleted": 0,
+    "delete_missing": 0
+  },
+  "entries": [
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md",
+      "status": "modified",
+      "sha256Before": "fc3457b08fadf96fd782a46e4a1c26e34114507d19c357bbf79bf27facfe5974",
+      "sha256After": "4de6638ed51944c4dae278bcee0ff0137f9786d1e8d93dc0a73591c7475957d5"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/README.md",
+      "status": "modified",
+      "sha256Before": "5696cd3fe2f26714c6665cd8186b78058054256bdfeb72ed45382f2824590baf",
+      "sha256After": "f31e1aeb38f178a6ff99a2c19085b4666144545e3822e76cfe1602f39de484e6"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl",
+      "status": "modified",
+      "sha256Before": "1c74a9804edc44c69dd4aa277202be8bc3c3d9b5d023ce7818f59d910fe747d8",
+      "sha256After": "a8284274b38dc1b2ac8975d0ef342cc2c830135505177379b62e32ead7939475"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/.gitignore.tpl",
+      "status": "modified",
+      "sha256Before": "f4396637a55ec1d629d2dd205f7d8837380b83c86cfd5bd2dfb99160edf62bb4",
+      "sha256After": "baa426b95b1b87254428effcc0b8ea875ad1afe0d31a7ef54dbb0c22d9458f56"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/README.md.tpl",
+      "status": "modified",
+      "sha256Before": "d5ef8a57c1cd5bb3cb9958b310417a252182c7ba70167d3c902a623d7944c372",
+      "sha256After": "92bc184037f293c6d2a374dc6552b40a10441752fe89816cca4c36d3d9afb572"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl",
+      "status": "modified",
+      "sha256Before": "094cc2fbf878cc8969d63de8562b7082602b57ad59474f51bb261bc7175b523b",
+      "sha256After": "25ee1fae4af2e394235e4dc766371a28ac4c83574cd7b8d851f8ddb815f6d88b"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/skeleton.manifest.json",
+      "status": "modified",
+      "sha256Before": "22757e7b3ff396479b63e0b8889443647b6286f8ba39cc86c3ef8c7afbdd0a91",
+      "sha256After": "856ad8f15a24f6248ced9b399e4d9c3d0fbdb681c9a4724d7e54a7d6f510ac6e"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/PROJECT_NEW.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "6cc792f83babcc79bec4735ce66ba25c81160c62083622e9c6173f5cb4746f25"
+    },
+    {
+      "operation": "file",
+      "path": "bin/project-new.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "b69a37c28d283417c9a89240d73399bdc96e66fa4425395fc2bbe8cfc99185f7"
+    },
+    {
+      "operation": "file",
+      "path": "patches/logs/root/CHANGELOG-000005-springmaster-project-new-tool-foundation.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "e293afd09fc256e0c8cd2498a130baa3b4dd880ceb2b3b917dbc9ae03c9caee9"
+    }
+  ],
+  "manifest": {
+    "name": "springmaster_project_new_tool_foundation",
+    "scope": "root",
+    "description": "Adds the conservative project-new foundation tool for generating new backend projects from the project skeleton.",
+    "version": "000005"
+  }
+}

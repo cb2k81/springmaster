@@ -1,0 +1,20 @@
+{
+  "id": "000003-springmaster-tooling-baseline-from-idm",
+  "name": "springmaster tooling baseline from idm",
+  "scope": "tooling",
+  "createdAt": "2026-06-24T10:15:00+02:00",
+  "sourceBaseline": {
+    "project": "springmaster",
+    "requiredPatches": [
+      "000001_springmaster_project_foundation_bootstrap",
+      "000002_springmaster_project_skeleton_template"
+    ],
+    "referenceExport": "idm_export_full_parts_baseline_2026-06-24_05-45-34-337Z.zip"
+  },
+  "includesJavaCodeChanges": false,
+  "includesToolingChanges": true,
+  "includesDbToolChanges": true,
+  "includesExportProfileChanges": true,
+  "implementsProjectNewTool": false,
+  "implementsPlatformUpdateTool": false
+}

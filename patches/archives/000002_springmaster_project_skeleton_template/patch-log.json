@@ -1,0 +1,139 @@
+{
+  "patchId": "000002_springmaster_project_skeleton_template",
+  "patchNumber": "000002",
+  "archiveName": "000002_springmaster_project_skeleton_template.zip",
+  "name": "springmaster project skeleton template",
+  "scope": "docs",
+  "status": "applied",
+  "createdAt": "2026-06-24T10:03:11.891831+02:00",
+  "projectRoot": "/opt/cocondo/springmaster",
+  "summary": {
+    "new": 14,
+    "modified": 1,
+    "unchanged": 0,
+    "deleted": 0,
+    "delete_missing": 0
+  },
+  "entries": [
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "c4fb6c636d42a3dcbc1e66cc34ce0ef52ae3aac2df2a72ce0b181364c401f7aa"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/README.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "5696cd3fe2f26714c6665cd8186b78058054256bdfeb72ed45382f2824590baf"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "1c74a9804edc44c69dd4aa277202be8bc3c3d9b5d023ce7818f59d910fe747d8"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/.gitignore.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "f4396637a55ec1d629d2dd205f7d8837380b83c86cfd5bd2dfb99160edf62bb4"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/README.md.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "d5ef8a57c1cd5bb3cb9958b310417a252182c7ba70167d3c902a623d7944c372"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "094cc2fbf878cc8969d63de8562b7082602b57ad59474f51bb261bc7175b523b"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/pom.xml.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "49581c6a923c493be2b32396c5622032bbf2af9eb87733ce4c84585edecc84fb"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/java/__BASE_PACKAGE_PATH__/app/__APPLICATION_CLASS__.java.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "f2af475eca8e04a9069ae9e38e728a94b2624105a61dcdd261fb5305f8d2e13a"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/java/__BASE_PACKAGE_PATH__/app/api/PlatformInfoController.java.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "aeda3fda4c2a10e1c5f577044b6d013239e009bbb30fe2a72abca2fc8b112d79"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/resources/application.yml.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "78ca83b2f17bd512f5f9719ccaba02046b58c6cb07226d0537fb3277015eea22"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/resources/db/changelog/db.changelog-master.xml.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "d39fa5d807e688fe6234f87fb8a0da5fcf2fd22ab2ccf6766ad94f17ac2a8555"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/test/java/__BASE_PACKAGE_PATH__/app/__APPLICATION_CLASS__Tests.java.tpl",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "bdb9a15a14e893ce99cf8cebd7d755c04a86f7935a637cb08559f732700e4e2d"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TEMPLATES/project-skeleton/skeleton.manifest.json",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "22757e7b3ff396479b63e0b8889443647b6286f8ba39cc86c3ef8c7afbdd0a91"
+    },
+    {
+      "operation": "file",
+      "path": "docs/Masterkonzept.md",
+      "status": "modified",
+      "sha256Before": "e9a134f8da5c9bdff35ff4dd4bc4ec4c765bf2276fd295d7387cff41107691e6",
+      "sha256After": "65c5c18663189ec7f0f6f0e4b888b5e837053735225982f74334f3f1bbaee933"
+    },
+    {
+      "operation": "file",
+      "path": "patches/logs/docs/CHANGELOG-000002-springmaster-project-skeleton-template.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "55f4e756548d743c8484786bf178df244d5ee45e798f6b9f112d97995f52e956"
+    }
+  ],
+  "manifest": {
+    "id": "000002-springmaster-project-skeleton-template",
+    "name": "springmaster project skeleton template",
+    "scope": "docs",
+    "createdAt": "2026-06-24T09:55:00+02:00",
+    "sourceBaseline": {
+      "project": "springmaster",
+      "requiredState": "bootstrap 000001 applied successfully",
+      "docs": "docs.zip / docs/Masterkonzept.md"
+    },
+    "includesJavaCodeChanges": false,
+    "includesToolingChanges": false,
+    "includesTemplateFiles": true,
+    "implementsProjectNewTool": false
+  }
+}

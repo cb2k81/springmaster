@@ -1,0 +1,7 @@
+{
+  "id": "000001-springmaster-project-foundation",
+  "name": "springmaster project foundation bootstrap",
+  "scope": "bootstrap",
+  "status": "registered-after-self-applying-bootstrap",
+  "packageType": "self-applying-bootstrap-archive"
+}

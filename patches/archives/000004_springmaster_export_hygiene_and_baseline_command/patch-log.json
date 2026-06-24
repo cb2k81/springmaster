@@ -1,0 +1,66 @@
+{
+  "patchId": "000004_springmaster_export_hygiene_and_baseline_command",
+  "patchNumber": "000004",
+  "archiveName": "000004_springmaster_export_hygiene_and_baseline_command.zip",
+  "name": "springmaster_export_hygiene_and_baseline_command",
+  "scope": "root",
+  "status": "applied",
+  "createdAt": "2026-06-24T10:21:29.852537+02:00",
+  "projectRoot": "/opt/cocondo/springmaster",
+  "summary": {
+    "new": 1,
+    "modified": 4,
+    "unchanged": 0,
+    "deleted": 1,
+    "delete_missing": 0
+  },
+  "entries": [
+    {
+      "operation": "delete",
+      "path": "bin/__pycache__/patch.cpython-312.pyc",
+      "status": "deleted",
+      "sha256Before": "1b476c7e28a0edabc7231ea553ecd74b4b695b40701dda6962d68dd9cca50198",
+      "sha256After": null
+    },
+    {
+      "operation": "file",
+      "path": ".gitignore",
+      "status": "modified",
+      "sha256Before": "f18d723443068fc08e4d45d4daf5cd111c111e9d4cfccb14627816c9166e2a06",
+      "sha256After": "84afab2df705550c7763a9187a7f3dffcce86ab7200ee8cfc12979eb9d717c02"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md",
+      "status": "modified",
+      "sha256Before": "c4fb6c636d42a3dcbc1e66cc34ce0ef52ae3aac2df2a72ce0b181364c401f7aa",
+      "sha256After": "fc3457b08fadf96fd782a46e4a1c26e34114507d19c357bbf79bf27facfe5974"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/EXPORT_TOOL.md",
+      "status": "modified",
+      "sha256Before": "7869b6ea21da8132f814589d0a4c5addc53a1f12b09bb1bd9bbbd3975259530a",
+      "sha256After": "9172560a4989722a20db3499e938f877ea0d8b62404d8eb539ccbac44b03e115"
+    },
+    {
+      "operation": "file",
+      "path": "export.config.json",
+      "status": "modified",
+      "sha256Before": "d67380443a16e94795478ad5e6a3f5f092e170a39dc4e8d6d2634ced6af8e848",
+      "sha256After": "0ed700eacf7093302b25874b669e08b86b2c91b5981f838e3c124fed819343bf"
+    },
+    {
+      "operation": "file",
+      "path": "patches/logs/root/CHANGELOG-000004-springmaster-export-hygiene-and-baseline-command.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "f022d4f08840f9e426567eb30682d94d6285ad3bb60e4311c861e2f76a910d71"
+    }
+  ],
+  "manifest": {
+    "name": "springmaster_export_hygiene_and_baseline_command",
+    "scope": "root",
+    "description": "Exclude generated Python/tooling caches from exports and document the standard baseline export command."
+  }
+}

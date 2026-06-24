@@ -1,0 +1,27 @@
+{
+  "projectKey": "springmaster",
+  "defaultProfile": "full",
+  "outputDirectory": "exports/text",
+  "metaFile": true,
+  "maxFileSizeBytes": 2097152,
+  "globalExclude": "target/** build/** tmp/** exports/** .env .env.* !**/.env.example patches/archives/** .idea/** *.iml *.class *.jar *.war *.zip *.tar *.gz",
+  "profiles": {
+    "full": {"include": ["**/*"], "exclude": []},
+    "root": {"include": ["*", ".*", "bin/**"], "exclude": ["src/**", "docs/**", "PROJECT_DOCS/**", "patches/**", "platform/**"]},
+    "docs": {"include": ["docs/**", "PROJECT_DOCS/**"], "exclude": []},
+    "patches": {"include": ["patches/logs/**"], "exclude": ["patches/archives/**"]},
+    "java": {"include": ["src/main/java/**"], "exclude": []},
+    "resources": {"include": ["src/main/resources/**"], "exclude": []},
+    "tests": {"include": ["src/test/**"], "exclude": []},
+    "db": {"include": ["src/main/resources/db/**"], "exclude": []},
+    "platform": {"include": ["platform/**"], "exclude": []},
+    "core": {"include": ["src/main/java/de/cocondo/platform/core/**", "src/test/java/de/cocondo/platform/core/**", "PROJECT_DOCS/CORE/**"], "exclude": []},
+    "demo": {"include": ["src/main/java/de/cocondo/platform/demo/**", "src/test/java/de/cocondo/platform/demo/**", "PROJECT_DOCS/DEMO/**"], "exclude": []},
+    "tooling": {"include": ["bin/**", "export.config.json", ".env.example", "PROJECT_DOCS/TOOLING/**", "PROJECT_DOCS/CONFIG/**"], "exclude": []}
+  },
+  "splitProfiles": {
+    "baseline": ["root", "docs", "patches", "platform", "java", "resources", "tests"],
+    "review": ["root", "docs", "patches", "platform"],
+    "runtime": ["root", "java", "resources"]
+  }
+}

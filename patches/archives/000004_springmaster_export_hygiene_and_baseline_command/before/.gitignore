@@ -1,0 +1,16 @@
+target/
+build/
+tmp/
+exports/
+.env
+.env.*
+!.env.example
+*.class
+*.jar
+*.war
+*.zip
+*.tar
+*.gz
+.idea/
+*.iml
+.DS_Store

@@ -1,0 +1,6 @@
+{
+  "name": "springmaster_project_new_tool_foundation",
+  "scope": "root",
+  "description": "Adds the conservative project-new foundation tool for generating new backend projects from the project skeleton.",
+  "version": "000005"
+}

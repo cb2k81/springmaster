@@ -1,0 +1,25 @@
+{
+  "patchId": "000001_springmaster_project_foundation_bootstrap",
+  "patchNumber": "000001",
+  "archiveName": "springmaster_bootstrap_000001.zip",
+  "name": "springmaster project foundation bootstrap",
+  "scope": "bootstrap",
+  "status": "applied",
+  "createdAt": "2026-06-24T09:40:20+02:00",
+  "projectRoot": "/opt/cocondo/springmaster",
+  "summary": {
+    "new": 0,
+    "modified": 0,
+    "unchanged": 0,
+    "deleted": 0,
+    "delete_missing": 0
+  },
+  "entries": [],
+  "manifest": {
+    "id": "000001-springmaster-project-foundation",
+    "name": "springmaster project foundation bootstrap",
+    "scope": "bootstrap",
+    "status": "registered-after-self-applying-bootstrap",
+    "packageType": "self-applying-bootstrap-archive"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "templateId": "project-skeleton",
+  "templateVersion": "0.1.0",
+  "status": "planned-template-baseline",
+  "automaticGenerationImplemented": false,
+  "description": "Initial declarative skeleton for future creation of new Cocondo Java backend projects.",
+  "requiredTokens": [
+    "__PROJECT_NAME__",
+    "__ARTIFACT_ID__",
+    "__GROUP_ID__",
+    "__BASE_PACKAGE__",
+    "__BASE_PACKAGE_PATH__",
+    "__APPLICATION_CLASS__",
+    "__HTTP_PORT__",
+    "__DB_NAME__",
+    "__STAGE_DB_NAME__",
+    "__PLATFORM_VERSION__",
+    "__CORE_VERSION__",
+    "__TOOLING_VERSION__"
+  ],
+  "validationPlan": [
+    "generated project contains pom.xml",
+    "generated project contains bin/patch.sh",
+    "generated project contains bin/export.sh",
+    "generated project contains bin/dbtool.sh",
+    "generated project passes mvn test",
+    "generated project can run ./bin/export.sh full --zip",
+    "generated project can run ./bin/dbtool.sh status"
+  ]
+}

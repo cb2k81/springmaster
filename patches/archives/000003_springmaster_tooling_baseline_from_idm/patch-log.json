@@ -1,0 +1,200 @@
+{
+  "patchId": "000003_springmaster_tooling_baseline_from_idm",
+  "patchNumber": "000003",
+  "archiveName": "000003_springmaster_tooling_baseline_from_idm.zip",
+  "name": "springmaster tooling baseline from idm",
+  "scope": "tooling",
+  "status": "applied",
+  "createdAt": "2026-06-24T10:09:18.751169+02:00",
+  "projectRoot": "/opt/cocondo/springmaster",
+  "summary": {
+    "new": 11,
+    "modified": 12,
+    "unchanged": 0,
+    "deleted": 0,
+    "delete_missing": 0
+  },
+  "entries": [
+    {
+      "operation": "file",
+      "path": ".env.example",
+      "status": "modified",
+      "sha256Before": "82e42794e3db90c8c23072af85a2bae7edc6577fb450b5b43a1849f06015c7c3",
+      "sha256After": "cb64e7b8006419d143b5c62647ccef98d662ea0eba0329c87b8c394e776851bf"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env",
+      "status": "modified",
+      "sha256Before": "a38eac737af53546ef9dc7593514b94600dd4b57d6d250d6435abb2158eeb738",
+      "sha256After": "cb64e7b8006419d143b5c62647ccef98d662ea0eba0329c87b8c394e776851bf"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/BUILD_TOOL.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "46d1795890d946be601aa95d6cc4e75c4e5513da47f1b49f92a8e576106ecde8"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/DBTOOL.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "085bd4e0a7039973aeeb2c47c4e2d0e520dbf3c861cce3b5756106115d2b6988"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/EXPORT_TOOL.md",
+      "status": "modified",
+      "sha256Before": "d520b34cce42ca5df6d6048f2e2d870e3f2844b15c9966ae4a33f8ead4749e8f",
+      "sha256After": "7869b6ea21da8132f814589d0a4c5addc53a1f12b09bb1bd9bbbd3975259530a"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md",
+      "status": "modified",
+      "sha256Before": "7fc77943b73657b8f7a094ffb8f4628741934e9f3367c0d71806287ca3dffd1b",
+      "sha256After": "8210bdb70775742921b34069fdf4e1c45ba05b9471e5a62c903b4827f89a59ea"
+    },
+    {
+      "operation": "file",
+      "path": "PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "101aad631d8c0c455a4fbe858cfe74461de96a89a6e93a53d4150cde861ded19"
+    },
+    {
+      "operation": "file",
+      "path": "bin/build.sh",
+      "status": "modified",
+      "sha256Before": "dbe3b108b5e1a874e9b6adc0f7ee51b87ff7c8ba170e2d0c83b48363915361de",
+      "sha256After": "2a0e7185ae70b6fc5bcd2561a005b3b2075a125f22595bd005ebb6fb8fb7464d"
+    },
+    {
+      "operation": "file",
+      "path": "bin/dbtool.sh",
+      "status": "modified",
+      "sha256Before": "9a734c519b20c82658dd48924e1125131dd18d671b5698a555765f94d2930e93",
+      "sha256After": "d1aa4f25941ea69b6dc572d48cf5c29a33c1a7cf563a8fe9b9abff5650110439"
+    },
+    {
+      "operation": "file",
+      "path": "bin/export-completion.bash",
+      "status": "modified",
+      "sha256Before": "8d11eeab89d157ca7af84c21dc34b677c3f3669692eb1163c1aa9dc6a8e93d3a",
+      "sha256After": "db6edbdac85d6d27202ab12f234854da2298682c0efa9ae6a9f2e5b9e933203a"
+    },
+    {
+      "operation": "file",
+      "path": "bin/export.sh",
+      "status": "modified",
+      "sha256Before": "76fdcf4d358c71e298af718cbb1d2ee9669f79eec5da11da1d862454b7f35c5b",
+      "sha256After": "98f3f59019d5df2bcc84dd5c895e83345f278358692ba9ec8af7064211d0f8ec"
+    },
+    {
+      "operation": "file",
+      "path": "bin/init.env.sh",
+      "status": "modified",
+      "sha256Before": "fcfc4eb04075401789a284b69edf429ba984279374963e8f068fa6f819fbf5cc",
+      "sha256After": "680232206d8cd0fc43940c0021bf200169729123fb165b7261ad68a38bd136b1"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/core/env.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "7ea9aa69da13fd2468bfdcd3ef00c41cfbb7a48502e36422bf3e9af33ca9727b"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/core/log.sh",
+      "status": "modified",
+      "sha256Before": "bf7f16f41da0e9c1a39efb58961058d8aabb69c04497e260b1930bdf1303b85e",
+      "sha256After": "1d756c6564669c51761bc0b8012d5f1f7b13f968c88561839e3beffc1c8ed246"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/dbtool/changelog.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "d52792a75c73d8430056e49723b480ed808deb437cf0007bfbd801a084dfc334"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/dbtool/commands.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "b9ae694e6aba37ecb2396bf7cad72ad7b78c005161f5de1fb7cd769c2e9a44f1"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/dbtool/config.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "d9bda8d3276f3dca9d262e1636cefd3e9e93b3eccae00c78294dd604a6ddb73b"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/dbtool/liquibase.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "ce7c5851c0730b4196f6a65143c311307c1206aacddcbf7daa3c6b2c06d147bb"
+    },
+    {
+      "operation": "file",
+      "path": "bin/lib/dbtool/mariadb.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "5a1f69b71f3c8f6f8d0980bf360e502f0591f4da3adfff6cc9848a646b63f42a"
+    },
+    {
+      "operation": "file",
+      "path": "bin/patch.py",
+      "status": "modified",
+      "sha256Before": "aa767e2d7f67f786cfe37ce56c0648db4591652a9f6af4869ccd33103922cc0a",
+      "sha256After": "ca711c8c558aae51ead2c9392d437838b74db11c0a616b176b64e3762b5ecf95"
+    },
+    {
+      "operation": "file",
+      "path": "bin/tooling-selfcheck.sh",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "ab86d813c64fae95a78eb2d0c750b7be8d27815899728a4cc09ed7a369dd96c4"
+    },
+    {
+      "operation": "file",
+      "path": "export.config.json",
+      "status": "modified",
+      "sha256Before": "92673a16dd8f4374b75a5ea1e3aec74f8e09ca3d4a6422c62d097b8692e9711d",
+      "sha256After": "d67380443a16e94795478ad5e6a3f5f092e170a39dc4e8d6d2634ced6af8e848"
+    },
+    {
+      "operation": "file",
+      "path": "patches/logs/tooling/CHANGELOG-000003-springmaster-tooling-baseline-from-idm.md",
+      "status": "new",
+      "sha256Before": null,
+      "sha256After": "05fbf1240c57020800abd07ea966bef8ed37f249c599e8a29f7ee50e1f2495c3"
+    }
+  ],
+  "manifest": {
+    "id": "000003-springmaster-tooling-baseline-from-idm",
+    "name": "springmaster tooling baseline from idm",
+    "scope": "tooling",
+    "createdAt": "2026-06-24T10:15:00+02:00",
+    "sourceBaseline": {
+      "project": "springmaster",
+      "requiredPatches": [
+        "000001_springmaster_project_foundation_bootstrap",
+        "000002_springmaster_project_skeleton_template"
+      ],
+      "referenceExport": "idm_export_full_parts_baseline_2026-06-24_05-45-34-337Z.zip"
+    },
+    "includesJavaCodeChanges": false,
+    "includesToolingChanges": true,
+    "includesDbToolChanges": true,
+    "includesExportProfileChanges": true,
+    "implementsProjectNewTool": false,
+    "implementsPlatformUpdateTool": false
+  }
+}

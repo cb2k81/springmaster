@@ -1,0 +1,15 @@
+{
+  "id": "000002-springmaster-project-skeleton-template",
+  "name": "springmaster project skeleton template",
+  "scope": "docs",
+  "createdAt": "2026-06-24T09:55:00+02:00",
+  "sourceBaseline": {
+    "project": "springmaster",
+    "requiredState": "bootstrap 000001 applied successfully",
+    "docs": "docs.zip / docs/Masterkonzept.md"
+  },
+  "includesJavaCodeChanges": false,
+  "includesToolingChanges": false,
+  "includesTemplateFiles": true,
+  "implementsProjectNewTool": false
+}

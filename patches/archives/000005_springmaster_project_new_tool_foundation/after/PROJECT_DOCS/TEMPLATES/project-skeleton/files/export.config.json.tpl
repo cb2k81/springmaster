@@ -1,0 +1,183 @@
+{
+  "projectKey": "__PROJECT_NAME__",
+  "defaultProfile": "full",
+  "outputDirectory": "exports/text",
+  "metaFile": true,
+  "maxFileSizeBytes": 2097152,
+  "globalExclude": [
+    "target/**",
+    "build/**",
+    "tmp/**",
+    "exports/**",
+    ".env",
+    ".env.*",
+    "!.env.example",
+    "!**/.env.example",
+    "patches/archives/**",
+    ".idea/**",
+    "**/__pycache__/**",
+    "__pycache__/**",
+    "*.pyc",
+    "*.pyo",
+    ".pytest_cache/**",
+    ".mypy_cache/**",
+    ".ruff_cache/**",
+    "*.iml",
+    "*.class",
+    "*.jar",
+    "*.war",
+    "*.zip",
+    "*.tar",
+    "*.gz",
+    ".DS_Store"
+  ],
+  "profiles": {
+    "full": {
+      "include": [
+        "**/*",
+        ".*"
+      ],
+      "exclude": []
+    },
+    "root": {
+      "include": [
+        "README.md",
+        "pom.xml",
+        ".gitignore",
+        ".env.example",
+        "export.config.json",
+        "bin/**"
+      ],
+      "exclude": []
+    },
+    "docs": {
+      "include": [
+        "docs/**",
+        "PROJECT_DOCS/**"
+      ],
+      "exclude": []
+    },
+    "patches": {
+      "include": [
+        "patches/logs/**"
+      ],
+      "exclude": [
+        "patches/archives/**"
+      ]
+    },
+    "java": {
+      "include": [
+        "src/main/java/**"
+      ],
+      "exclude": []
+    },
+    "resources": {
+      "include": [
+        "src/main/resources/**"
+      ],
+      "exclude": []
+    },
+    "tests": {
+      "include": [
+        "src/test/**"
+      ],
+      "exclude": []
+    },
+    "db": {
+      "include": [
+        "src/main/resources/db/**"
+      ],
+      "exclude": []
+    },
+    "platform": {
+      "include": [
+        "platform/**"
+      ],
+      "exclude": []
+    },
+    "core": {
+      "include": [
+        "src/main/java/__BASE_PACKAGE_PATH__/core/**",
+        "src/test/java/__BASE_PACKAGE_PATH__/core/**",
+        "PROJECT_DOCS/CORE/**"
+      ],
+      "exclude": []
+    },
+    "demo": {
+      "include": [
+        "src/main/java/__BASE_PACKAGE_PATH__/demo/**",
+        "src/test/java/__BASE_PACKAGE_PATH__/demo/**",
+        "PROJECT_DOCS/DEMO/**"
+      ],
+      "exclude": []
+    },
+    "tooling": {
+      "include": [
+        "bin/**",
+        "export.config.json",
+        ".env.example",
+        "PROJECT_DOCS/TOOLING/**",
+        "PROJECT_DOCS/CONFIG/**"
+      ],
+      "exclude": []
+    },
+    "templates": {
+      "include": [
+        "PROJECT_DOCS/TEMPLATES/**",
+        "platform/templates/**"
+      ],
+      "exclude": []
+    },
+    "planning": {
+      "include": [
+        "PROJECT_DOCS/PLANNING/**"
+      ],
+      "exclude": []
+    },
+    "target-registry": {
+      "include": [
+        "platform/update/targets/**",
+        "PROJECT_DOCS/TARGET_UPDATES/**"
+      ],
+      "exclude": []
+    },
+    "platform-update": {
+      "include": [
+        "bin/platform-update.sh",
+        "platform/update/**",
+        "PROJECT_DOCS/TARGET_UPDATES/**",
+        "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md"
+      ],
+      "exclude": []
+    }
+  },
+  "splitProfiles": {
+    "baseline": [
+      "root",
+      "docs",
+      "patches",
+      "tooling",
+      "platform",
+      "templates",
+      "planning",
+      "java",
+      "resources",
+      "tests"
+    ],
+    "review": [
+      "root",
+      "docs",
+      "patches",
+      "tooling",
+      "platform",
+      "templates",
+      "planning"
+    ],
+    "runtime": [
+      "root",
+      "java",
+      "resources"
+    ]
+  }
+}
+

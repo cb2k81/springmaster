@@ -1,0 +1,5 @@
+{
+  "name": "springmaster_export_hygiene_and_baseline_command",
+  "scope": "root",
+  "description": "Exclude generated Python/tooling caches from exports and document the standard baseline export command."
+}
