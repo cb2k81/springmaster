@@ -280,4 +280,4 @@ Der lokale Write-Lock liegt standardmäßig unter `patches/runtime/locks/project
 
 Zielprojekte konfigurieren abweichende Runtime-Kommandos in ihrer lokalen `.env`, z. B. `PATCH_FULL_TEST_COMMAND`, `PATCH_EXPORT_COMMAND` und `PATCH_TOOLING_SELFCHECK_COMMAND`. Projektspezifische Scopes bleiben ebenfalls lokal über `PATCH_LOCAL_SCOPES` und `PATCH_SCOPE_<NAME>_PATHS` definiert.
 
-Nach erfolgreichem Accept erzeugt das Patchsystem ein projektlokales `git-commit.sh` im Accept-Logverzeichnis. Dieses Skript staged ausschließlich patchbezogene Dateien aus dem Patch-Log und verwendet kein pauschales `git add .`.
+Nach erfolgreichem Accept erzeugt das Patchsystem ein projektlokales `git-commit.sh` im Accept-Logverzeichnis. Dieses Skript staged ausschließlich patchbezogene Dateien aus dem Patch-Log und verwendet kein pauschales `git add .`. Seit `000084` ist zusätzlich ein Index-Guard verpflichtend: Das Commit-Skript darf nicht fortfahren, wenn bereits fremde Dateien im Git-Index vorgestaged sind. Der Lauf muss dann mit `GIT_INDEX_DIRTY` abbrechen und die fremden staged Dateien ausgeben.

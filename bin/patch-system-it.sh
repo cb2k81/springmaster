@@ -63,6 +63,19 @@ PATCH_EXPORT_COMMAND=bash -lc 'mkdir -p exports/text && printf export > exports/
 PATCH_TOOLING_SELFCHECK_COMMAND=none
 ENV
 
+if command -v git >/dev/null 2>&1; then
+  (
+    cd "${FIXTURE}"
+    git init -q
+    git config user.email "patch-fixture@example.invalid"
+    git config user.name "Patch Fixture"
+    git add .env custom/existing.txt custom/deleted.txt
+    git commit -qm "fixture baseline"
+  ) >>"${LOG}" 2>&1
+else
+  log "SKIP: git fixture setup (git not available)"
+fi
+
 PATCH1="${PATCHES}/fixture_mixed.zip"
 PATCH2="${PATCHES}/fixture_background.zip"
 make_patch "fixture_mixed" "${PATCH1}" mixed
@@ -75,6 +88,20 @@ test -f "${FIXTURE}/custom/new-file.txt"
 grep -qx 'changed' "${FIXTURE}/custom/existing.txt"
 test ! -e "${FIXTURE}/custom/deleted.txt"
 find "${FIXTURE}/patches/logs/accept" -name git-commit.sh -type f | grep -q .
+
+if command -v git >/dev/null 2>&1; then
+  GIT_SCRIPT="$(find "${FIXTURE}/patches/logs/accept" -name git-commit.sh -type f | sort | tail -1)"
+  printf '%s\n' 'foreign' > "${FIXTURE}/foreign-staged.txt"
+  (cd "${FIXTURE}" && git add foreign-staged.txt) >>"${LOG}" 2>&1
+  if bash "${GIT_SCRIPT}" >>"${LOG}" 2>&1; then
+    log "ERROR: git commit script accepted foreign pre-staged file"
+    exit 1
+  fi
+  grep -q 'GIT_INDEX_DIRTY' "${LOG}"
+  (cd "${FIXTURE}" && git reset -q HEAD foreign-staged.txt && rm -f foreign-staged.txt) >>"${LOG}" 2>&1
+else
+  log "SKIP: git index guard fixture test (git not available)"
+fi
 
 run python3 "${ENGINE}" "${FIXTURE}" rollback --dry-run latest
 run python3 "${ENGINE}" "${FIXTURE}" rollback latest

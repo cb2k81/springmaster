@@ -271,4 +271,4 @@ STATUS.txt
 git-commit.sh
 ```
 
-`git-commit.sh` wird nur nach erfolgreichem Accept erzeugt. Das Skript verwendet eine konkrete Dateiliste aus dem Patch-Log und niemals `git add .`.
+`git-commit.sh` wird nur nach erfolgreichem Accept erzeugt. Das Skript verwendet eine konkrete Dateiliste aus dem Patch-Log und niemals `git add .`. Seit `000084` prüft das Skript zusätzlich den bereits gestagten Git-Index vor dem eigenen `git add`: Sind dort Dateien vorgemerkt, die nicht zur Patch-Dateiliste gehören, bricht es mit `GIT_INDEX_DIRTY` ab. Dadurch können vorbereitete Änderungen aus parallelen Chats oder manuellen Arbeiten nicht versehentlich im Patch-Commit landen.

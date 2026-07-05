@@ -296,3 +296,9 @@ Rollback darf nicht parallel zu einem laufenden mutierenden Patchlauf ausgeführ
 ## Zielprojekt-Portabilität
 
 Ein nach Zielprojekten deployedes Patchsystem muss dort konsistent mit lokalen Scopes, lokalen Tests, lokalen Logs, lokalem Lock und lokalem Export funktionieren. Springmaster darf keine projektspezifischen Zielprojekt-Scopes zentral hart kodieren. Zielprojekte definieren Abweichungen über `.env` und Scope-Konfiguration.
+
+## Git-Index-Guard seit 000084
+
+Der durch `patch.sh accept` erzeugte Git-Commit-Vorschlag darf nie fremde staged Änderungen übernehmen. Deshalb muss das generierte `git-commit.sh` vor dem eigenen `git add` den bestehenden Git-Index prüfen. Enthält der Index Dateien, die nicht in der patchbezogenen Dateiliste stehen, muss das Skript mit `GIT_INDEX_DIRTY` abbrechen.
+
+Die Patchsystem-Integrationstests müssen dieses Szenario über ein Fixture-Projekt prüfen: Eine fremde Datei wird vor Ausführung des Commit-Skripts gestaged, das Commit-Skript wird gestartet und muss kontrolliert fehlschlagen, ohne patchbezogene Dateien zu stagen oder einen Commit zu erzeugen.
