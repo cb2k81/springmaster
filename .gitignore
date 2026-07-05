@@ -1,23 +1,37 @@
+# Build and runtime artifacts
 target/
 build/
 tmp/
 exports/
+
+# Patch archives and generated platform-update artifacts
+patches/archives/
+patches/runtime/
+platform/update/generated/
+platform/update/manifests/
+
+# Local environment and IDE files
 .env
 .env.*
 !.env.example
-*.class
-*.jar
-*.war
-*.zip
-*.tar
-*.gz
 .idea/
 *.iml
-.DS_Store
 
+# Python/cache artifacts
 __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Packaged/binary artifacts
+*.class
+*.jar
+*.war
+*.zip
+*.tar
+*.gz
+.DS_Store
+
+

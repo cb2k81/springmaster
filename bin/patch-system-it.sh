@@ -25,15 +25,20 @@ make_patch() {
   local name="$1"
   local zip_path="$2"
   local mode="$3"
-  python3 - "$name" "$zip_path" "$mode" <<'PY'
+  local expected_sha="${4:-}"
+  python3 - "$name" "$zip_path" "$mode" "$expected_sha" <<'PY'
 import json
 import sys
 import zipfile
 from pathlib import Path
 
-name, zip_path, mode = sys.argv[1:4]
+name, zip_path, mode, expected_sha = sys.argv[1:5]
 zip_path = Path(zip_path)
 manifest = {"scope": "custom", "name": name}
+if mode == "hash-conflict":
+    if not expected_sha:
+        raise SystemExit("hash-conflict mode requires expected sha")
+    manifest["expectedBeforeSha256"] = {"custom/existing.txt": expected_sha}
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
     z.writestr("manifest.json", json.dumps(manifest, indent=2) + "\n")
     z.writestr(f"logs/CHANGELOG-{name}.md", f"# {name}\n\nFixture patch-system integration test.\n")
@@ -43,10 +48,13 @@ with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
         z.writestr("delete/custom/deleted.txt", "")
     elif mode == "new-only":
         z.writestr(f"files/custom/{name}.txt", f"{name}\n")
+    elif mode == "hash-conflict":
+        z.writestr("files/custom/existing.txt", "guarded-change\n")
     else:
         raise SystemExit(f"unknown mode: {mode}")
 PY
 }
+
 
 log "Fixture: ${FIXTURE}"
 mkdir -p "${FIXTURE}/custom" "${FIXTURE}/patches/logs/custom"
@@ -78,6 +86,7 @@ fi
 
 PATCH1="${PATCHES}/fixture_mixed.zip"
 PATCH2="${PATCHES}/fixture_background.zip"
+PATCH3="${PATCHES}/fixture_hash_guard.zip"
 make_patch "fixture_mixed" "${PATCH1}" mixed
 make_patch "fixture_background" "${PATCH2}" new-only
 
@@ -117,6 +126,17 @@ if python3 "${ENGINE}" "${FIXTURE}" rollback latest >>"${LOG}" 2>&1; then
   exit 1
 fi
 
+EXPECTED_SHA="$(sha256sum "${FIXTURE}/custom/existing.txt" | awk '{print $1}')"
+make_patch "fixture_hash_guard" "${PATCH3}" hash-conflict "${EXPECTED_SHA}"
+printf 'foreign-change\n' > "${FIXTURE}/custom/existing.txt"
+if python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH3}" >>"${LOG}" 2>&1; then
+  log "ERROR: baseline hash conflict was not detected"
+  exit 1
+fi
+grep -q 'BASELINE_CONFLICT' "${LOG}"
+printf 'original\n' > "${FIXTURE}/custom/existing.txt"
+run python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH3}"
+
 LOCK_DIR="${FIXTURE}/patches/runtime/locks"
 mkdir -p "${LOCK_DIR}"
 python3 - "${LOCK_DIR}/project-write.lock" <<PY
@@ -140,6 +160,7 @@ if python3 "${ENGINE}" "${FIXTURE}" accept "${PATCH2}" --profile docs --no-full-
 fi
 grep -q 'Status:       BUSY' "${LOG}"
 rm -f "${LOCK_DIR}/project-write.lock"
+
 
 if [[ "${PATCH_SYSTEM_IT_WITH_BACKGROUND:-0}" == "1" ]]; then
 BG_OUT="${WORK_ROOT}/${RUN_ID}/background.out"
@@ -169,3 +190,5 @@ fi
 
 log "PASS: patch-system integration and rollback fixture"
 log "Log: ${LOG}"
+
+

@@ -9,11 +9,15 @@
     "build/**",
     "tmp/**",
     "exports/**",
+    ".git/**",
+    "**/.git/**",
     ".env",
     ".env.*",
     "!.env.example",
-    "!**/.env.example",
     "patches/archives/**",
+    "patches/runtime/**",
+    "platform/update/generated/**",
+    "platform/update/manifests/**",
     ".idea/**",
     "**/__pycache__/**",
     "__pycache__/**",
@@ -97,8 +101,8 @@
     },
     "core": {
       "include": [
-        "src/main/java/de/cocondo/platform/core/**",
-        "src/test/java/de/cocondo/platform/core/**",
+        "src/main/java/de/cocondo/system/**",
+        "src/test/java/de/cocondo/system/**",
         "PROJECT_DOCS/CORE/**"
       ],
       "exclude": []
@@ -107,7 +111,9 @@
       "include": [
         "src/main/java/de/cocondo/platform/demo/**",
         "src/test/java/de/cocondo/platform/demo/**",
-        "PROJECT_DOCS/DEMO/**"
+        "PROJECT_DOCS/DEMO/**",
+        "platform/versions/platform.env",
+        "PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md"
       ],
       "exclude": []
     },
@@ -145,8 +151,10 @@
       "include": [
         "bin/platform-update.sh",
         "platform/update/**",
+        "platform/versions/platform.env",
+        "PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md",
         "PROJECT_DOCS/TARGET_UPDATES/**",
-        "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md"
+        "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE*.md"
       ],
       "exclude": []
     }
@@ -180,3 +188,5 @@
     ]
   }
 }
+
+

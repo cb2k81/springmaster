@@ -274,10 +274,32 @@ Mutierende Kommandos sind projektweit exklusiv:
 ./bin/patch.sh rollback --wait latest
 ```
 
-Der lokale Write-Lock liegt standardmäßig unter `patches/runtime/locks/project-write.lock`. Er schützt insbesondere Patchnummern, Arbeitsbaum, Tests, Exporte, Rollbacks und Git-Abschluss vor parallelen KI-Chat-Läufen im selben Projektverzeichnis.
+Der lokale Write-Lock liegt standardmäßig unter `patches/runtime/locks/project-write.lock`. Er schützt insbesondere Patchnummern, Arbeitsbaum, Tests, Exporte, Rollbacks und Git-Abschluss vor parallelen KI-Chat-Läufen im selben Projektverzeichnis. Runtime-Locks sind Laufzeitartefakte und dürfen weder versioniert noch in Full-Exporte übernommen werden.
 
 `accept` und `verify` können mit `--background` gestartet werden. Die vollständige Ausgabe landet in Logdateien, während die Konsole nur Status, PID, Summary, Logpfad und Folgekommando ausgibt.
 
 Zielprojekte konfigurieren abweichende Runtime-Kommandos in ihrer lokalen `.env`, z. B. `PATCH_FULL_TEST_COMMAND`, `PATCH_EXPORT_COMMAND` und `PATCH_TOOLING_SELFCHECK_COMMAND`. Projektspezifische Scopes bleiben ebenfalls lokal über `PATCH_LOCAL_SCOPES` und `PATCH_SCOPE_<NAME>_PATHS` definiert.
 
 Nach erfolgreichem Accept erzeugt das Patchsystem ein projektlokales `git-commit.sh` im Accept-Logverzeichnis. Dieses Skript staged ausschließlich patchbezogene Dateien aus dem Patch-Log und verwendet kein pauschales `git add .`. Seit `000084` ist zusätzlich ein Index-Guard verpflichtend: Das Commit-Skript darf nicht fortfahren, wenn bereits fremde Dateien im Git-Index vorgestaged sind. Der Lauf muss dann mit `GIT_INDEX_DIRTY` abbrechen und die fremden staged Dateien ausgeben.
+
+## Baseline-Hash-Konfliktprüfung seit 000085
+
+Patch-ZIPs können im `manifest.json` einen erwarteten Vorzustand für betroffene Dateien deklarieren. Die Patch-Engine prüft diese Werte bereits im `apply --dry-run` und erneut vor dem mutierenden `apply`. Passt der aktuelle Dateistand nicht zum erwarteten Vorzustand, bricht der Lauf mit `BASELINE_CONFLICT` ab und verändert keine Dateien.
+
+Unterstützte Manifest-Formate:
+
+```json
+{
+  "scope": "tooling",
+  "name": "example",
+  "expectedBeforeSha256": {
+    "bin/patch.py": "<sha256>",
+    "PROJECT_DOCS/TOOLING/new-file.md": null
+  }
+}
+```
+
+Alternativ kann die Information unter `baseline.expectedBeforeSha256` oder als Liste unter `baseline.expectedBefore` stehen. Ein Wert `null`, `missing` oder `absent` bedeutet: Die Datei darf vor dem Patch noch nicht existieren.
+
+Diese Prüfung ergänzt den projektweiten Write-Lock. Der Lock verhindert parallele Mutationen im selben Projektverzeichnis. Die Hash-Prüfung erkennt zusätzlich stale Patches, die zwar nacheinander ausgeführt werden, aber gegen eine ältere Baseline vorbereitet wurden.
+

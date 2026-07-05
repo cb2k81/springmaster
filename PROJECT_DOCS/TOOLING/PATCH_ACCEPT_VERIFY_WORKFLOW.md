@@ -272,3 +272,19 @@ git-commit.sh
 ```
 
 `git-commit.sh` wird nur nach erfolgreichem Accept erzeugt. Das Skript verwendet eine konkrete Dateiliste aus dem Patch-Log und niemals `git add .`. Seit `000084` prüft das Skript zusätzlich den bereits gestagten Git-Index vor dem eigenen `git add`: Sind dort Dateien vorgemerkt, die nicht zur Patch-Dateiliste gehören, bricht es mit `GIT_INDEX_DIRTY` ab. Dadurch können vorbereitete Änderungen aus parallelen Chats oder manuellen Arbeiten nicht versehentlich im Patch-Commit landen.
+
+## Baseline-Konflikte im Accept-Workflow seit 000085
+
+Wenn ein Patch im Manifest `expectedBeforeSha256`-Preconditions enthält, prüft `accept` diese im Dry-run-Schritt. Bei Abweichungen endet der Lauf mit Fehlerstatus; Details stehen in `dry-run.log` und enthalten `BASELINE_CONFLICT` mit erwartetem und tatsächlichem SHA-256-Wert.
+
+Typischer Fall:
+
+```text
+BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vorzustand.
+  bin/patch.py
+    expectedBeforeSha256: ...
+    actualSha256:         ...
+```
+
+Ein solcher Patch muss gegen die aktuelle Baseline neu erzeugt oder fachlich rebased werden. Ein erzwungenes Apply ohne passende Baseline ist nicht zulässig.
+

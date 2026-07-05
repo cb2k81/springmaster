@@ -302,3 +302,14 @@ Ein nach Zielprojekten deployedes Patchsystem muss dort konsistent mit lokalen S
 Der durch `patch.sh accept` erzeugte Git-Commit-Vorschlag darf nie fremde staged Änderungen übernehmen. Deshalb muss das generierte `git-commit.sh` vor dem eigenen `git add` den bestehenden Git-Index prüfen. Enthält der Index Dateien, die nicht in der patchbezogenen Dateiliste stehen, muss das Skript mit `GIT_INDEX_DIRTY` abbrechen.
 
 Die Patchsystem-Integrationstests müssen dieses Szenario über ein Fixture-Projekt prüfen: Eine fremde Datei wird vor Ausführung des Commit-Skripts gestaged, das Commit-Skript wird gestartet und muss kontrolliert fehlschlagen, ohne patchbezogene Dateien zu stagen oder einen Commit zu erzeugen.
+
+## Baseline-Hash-Preconditions seit 000085
+
+Patchsystem-Änderungen und andere Patches mit Kollisionsrisiko sollen den erwarteten Vorzustand der betroffenen Dateien im Manifest deklarieren. Das Patchsystem unterstützt dafür `expectedBeforeSha256`, `baseline.expectedBeforeSha256` und `baseline.expectedBefore`.
+
+Die Prüfung ist Bestandteil von `apply --dry-run`, `apply` und damit auch von `accept`, weil `accept` den Dry-run vor dem Apply ausführt. Ein Konflikt muss mit `BASELINE_CONFLICT` abbrechen. Der Lauf darf keine Patchnummer verbrauchen und keine Dateien verändern.
+
+Die Integrationstests des Patchsystems müssen mindestens einen Fixture-Fall enthalten, in dem ein Patch mit gültigem erwarteten SHA erzeugt wird, die Datei anschließend extern verändert wird und `apply --dry-run` den Patch kontrolliert ablehnt. Danach muss derselbe Patch gegen den erwarteten Vorzustand wieder erfolgreich im Dry-run laufen.
+
+Baseline-Hash-Preconditions ersetzen nicht den projektweiten Write-Lock. Beide Schutzmechanismen sind komplementär: Locking verhindert gleichzeitige Mutationen, Hash-Preconditions verhindern stale sequentielle Patches.
+

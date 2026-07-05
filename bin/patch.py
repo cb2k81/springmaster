@@ -624,6 +624,97 @@ def collect_patch(tmp_dir):
     validate_scope(scope, [op["target"] for op in operations])
     return manifest, scope, name, operations
 
+
+BASELINE_MISSING_MARKERS = {"", "-", "missing", "absent", "none", "null", "not-exists", "not_exists"}
+
+def normalize_expected_before_sha256(value, path):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        normalized = value.strip()
+        if normalized.lower() in BASELINE_MISSING_MARKERS:
+            return None
+        if re.fullmatch(r"[A-Fa-f0-9]{64}", normalized):
+            return normalized.lower()
+    fail(f"Ungültiger expectedBeforeSha256-Wert für {path}: {value!r}. Erwartet: 64-stelliger SHA-256 oder null/missing.")
+
+def expected_before_sha256_map(manifest):
+    raw = None
+    if isinstance(manifest.get("baseline"), dict):
+        baseline = manifest.get("baseline")
+        raw = baseline.get("expectedBeforeSha256")
+        if raw is None:
+            raw = baseline.get("expectedBefore")
+    if raw is None:
+        raw = manifest.get("expectedBeforeSha256")
+    if raw is None:
+        raw = manifest.get("expectedBefore")
+    if raw is None:
+        return {}
+
+    expected = {}
+    if isinstance(raw, dict):
+        for path, value in raw.items():
+            rel = validate_relpath(path)
+            expected[rel] = normalize_expected_before_sha256(value, rel)
+        return expected
+
+    if isinstance(raw, list):
+        for item in raw:
+            if not isinstance(item, dict):
+                fail("baseline.expectedBefore muss eine Liste von JSON-Objekten sein.")
+            if "path" not in item:
+                fail("baseline.expectedBefore-Einträge benötigen ein Feld 'path'.")
+            rel = validate_relpath(item.get("path"))
+            if "sha256" in item:
+                value = item.get("sha256")
+            elif "sha256Before" in item:
+                value = item.get("sha256Before")
+            elif "expectedBeforeSha256" in item:
+                value = item.get("expectedBeforeSha256")
+            elif item.get("exists") is False:
+                value = None
+            else:
+                fail(f"baseline.expectedBefore-Eintrag für {rel} benötigt sha256/sha256Before/expectedBeforeSha256 oder exists=false.")
+            expected[rel] = normalize_expected_before_sha256(value, rel)
+        return expected
+
+    fail("manifest.expectedBeforeSha256 bzw. baseline.expectedBeforeSha256 muss ein Objekt oder baseline.expectedBefore eine Liste sein.")
+
+def format_expected_sha(value):
+    return "<missing>" if value is None else value
+
+def validate_baseline_preconditions(manifest, operations):
+    expected = expected_before_sha256_map(manifest)
+    if not expected:
+        return expected
+
+    operation_targets = {op["target"] for op in operations}
+    unsupported = sorted(path for path in expected if path not in operation_targets)
+    if unsupported:
+        fail(
+            "BASELINE_CONFLICT: expectedBeforeSha256 enthält Pfade ohne Patch-Operation:\n  "
+            + "\n  ".join(unsupported)
+        )
+
+    conflicts = []
+    for rel in sorted(expected):
+        target = ensure_inside_root(PROJECT_ROOT / rel)
+        expected_sha = expected[rel]
+        actual_sha = sha256_file(target)
+        if actual_sha != expected_sha:
+            conflicts.append((rel, expected_sha, actual_sha))
+
+    if conflicts:
+        lines = ["BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vorzustand."]
+        for rel, expected_sha, actual_sha in conflicts:
+            lines.append(f"  {rel}")
+            lines.append(f"    expectedBeforeSha256: {format_expected_sha(expected_sha)}")
+            lines.append(f"    actualSha256:         {format_expected_sha(actual_sha)}")
+        fail("\n".join(lines))
+
+    return expected
+
 def classify_operation(op, tmp_dir):
     target = ensure_inside_root(PROJECT_ROOT / op["target"])
     if op["type"] == "delete":
@@ -724,7 +815,18 @@ def apply_command(args):
             shutil.copy2(zip_path, archive_dir / "source" / zip_path.name)
             write_json(archive_dir / "manifest.json", manifest)
 
-        summary, entries = apply_operations(operations, tmp_dir, archive_dir, dry_run)
+        preview_summary, preview_entries = apply_operations(operations, tmp_dir, archive_dir, True)
+        expected_before = {}
+        if summary_has_effect(preview_summary):
+            expected_before = validate_baseline_preconditions(manifest, operations)
+        if dry_run:
+            summary, entries = preview_summary, preview_entries
+        else:
+            summary, entries = apply_operations(operations, tmp_dir, archive_dir, False)
+        if expected_before:
+            for entry in entries:
+                if entry.get("path") in expected_before:
+                    entry["expectedBeforeSha256"] = expected_before[entry["path"]]
 
         log = {
             "patchId": patch_id,
@@ -1584,5 +1686,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
 
