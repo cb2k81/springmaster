@@ -1,0 +1,46 @@
+Fehler: BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vorzustand.
+  .env.example
+    expectedBeforeSha256: bae6c82ab2a9e74ebba13727b1dee0a615c067c478975102ff655b68561dc990
+    actualSha256:         d52532aa4ac5a36bd19ac28b8f794e1d676a9dd0832dcb90dbe7344523ca5380
+  PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+    expectedBeforeSha256: c0ffe6af5ba1711845c331cd75ddd5838bc6d264cb7ac98f3d7e3706aa14691d
+    actualSha256:         e28848269d5dbd8e038034d234b66522c73cddd07bbf40c5f7d7f2893ec81f4c
+  PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+    expectedBeforeSha256: f0df990908ae77dd52be6a6cff3a166a9338db9cef7f21cc2590ab3edc507c8c
+    actualSha256:         8616e680230c92bd6da99a6368200f518ce68054c09697c18e9331505c68674e
+  PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+    expectedBeforeSha256: 6135c5d2fd3faf175a12e7df74b316fdb324d6f69df34ee38f67a3f4e83cb17e
+    actualSha256:         25ee1fae4af2e394235e4dc766371a28ac4c83574cd7b8d851f8ddb815f6d88b
+  PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+    expectedBeforeSha256: b708c2bbaff40672c190ca9b3643bbb1093c8755d78f164192bb7fcab713f4fc
+    actualSha256:         964e3a93ced35913c7113e2cb2233b2dc6af0c1127e262ea82065313ee46f7b2
+  PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+    expectedBeforeSha256: 8c0a39e11a41f9db986788f3833b7f045fb5894657d8799072ff61d410564863
+    actualSha256:         9ccebdacb382d2caec3df9f0a67fc52f66e1db53299dee9c77db722ea768709b
+  PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+    expectedBeforeSha256: 2e3a5c4a8bc64bb4e514a964db51ff35b518dc01c34b51fd80b44af4c194bdbe
+    actualSha256:         6f2adbc443b227ddd983e6074c2aebd7d17027faf9e589b1afef042bc1e2969e
+  bin/export.sh
+    expectedBeforeSha256: da3ba0856f9fac77425f93d1829fd88aa76a90ed79b5124eea6c7982cfbafe8f
+    actualSha256:         98f3f59019d5df2bcc84dd5c895e83345f278358692ba9ec8af7064211d0f8ec
+  bin/lib/core/env.sh
+    expectedBeforeSha256: 8941db4ec106f91955e151b3235b347d7879fdf5e102ff189f1cf37734dee6fe
+    actualSha256:         7ea9aa69da13fd2468bfdcd3ef00c41cfbb7a48502e36422bf3e9af33ca9727b
+  bin/patch.py
+    expectedBeforeSha256: c34e64a5146e318f5b3875a66b4d5709a11eba0d626beea4b27f87650e1b7f4e
+    actualSha256:         23a8798ca1b3120f9ab5fa45f9dc050fafe30a85984380c35bddc3d8a42bbc2f
+  bin/platform-update.sh
+    expectedBeforeSha256: a29f7c9ba103614e508c8ffd6b1584e61d0ed4096de5c974c461fe4033d4df52
+    actualSha256:         43c880ffc739997550bcf4e5754c77f5f9ce98d9ca057770113da313e90d4019
+  bin/project-new-acceptance.sh
+    expectedBeforeSha256: e5e34c6907a7926d25abe3512572c0816fe62548d4dcc5655cb683e40ad98f72
+    actualSha256:         a9f5950eb32dfa1f0bb6d40f5d891611c71c474bdb838575813374c1ca512d23
+  bin/project-new.sh
+    expectedBeforeSha256: 890d111317c63736857972efe6270bc7c6866ad20c78a37f269220e477428a06
+    actualSha256:         abee2e27c23c90ca94f6db335575cf5da3fe2c8e07e36161cbaf6456b846861d
+  export.config.json
+    expectedBeforeSha256: 3ebd81e63fa7c092d887f446e865fe1efd612c37e4e8976b8c9316196dbd62c8
+    actualSha256:         92c1155e5a9c71293b090c0545da5b8f309628e828a8e49848d89502799b3e93
+  platform/versions/platform.env
+    expectedBeforeSha256: 4c2a2e637fb00855fbb038a84c16212e1dbd36e67826df11f46bc924ee3dbd72
+    actualSha256:         e6af28a961d9cdfc73c52e1423605359c59d0f21f9a039f814404648dd18e67c

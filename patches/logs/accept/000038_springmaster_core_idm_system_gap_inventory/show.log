@@ -1,0 +1,22 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000038_springmaster_core_idm_system_gap_inventory
+Archiv:        000038_springmaster_core_idm_system_gap_inventory.zip
+Erstellt am:   2026-06-26T10:55:34.313586+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 3
+  modified: 3
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  new           PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000038-springmaster-core-idm-system-gap-inventory.md

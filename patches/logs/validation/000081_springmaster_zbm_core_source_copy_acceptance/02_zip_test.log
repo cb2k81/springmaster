@@ -1,0 +1,22 @@
+Archive:  /home/cb/Downloads/000081_springmaster_zbm_core_source_copy_acceptance.zip
+    testing: manifest.json            OK
+    testing: files/                   OK
+    testing: files/bin/               OK
+    testing: files/bin/platform-update.sh   OK
+    testing: files/platform/          OK
+    testing: files/platform/versions/   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: files/PROJECT_DOCS/      OK
+    testing: files/PROJECT_DOCS/CONCEPT/   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/PROJECT_DOCS/TARGET_UPDATES/   OK
+    testing: files/PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/   OK
+    testing: files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md   OK
+    testing: logs/                    OK
+    testing: logs/CHANGELOG-000081-springmaster-zbm-core-source-copy-acceptance.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000081_springmaster_zbm_core_source_copy_acceptance.zip.

@@ -1,0 +1,19 @@
+== 02_zip_test ==
+START 2026-07-05T16:54:23+02:00
+$ unzip -t /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+
+Archive:  /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+    testing: files/.env.example       OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md   OK
+    testing: files/bin/patch-system-it.sh   OK
+    testing: files/bin/patch.py       OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000082_springmaster_patch_runtime_locking_background_git_rollback.md   OK
+    testing: manifest.json            OK
+No errors detected in compressed data of /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip.
+
+EXIT 0
+END 2026-07-05T16:54:23+02:00

@@ -1,0 +1,28 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000063_springmaster_adr_0003_application_layer_transaction_boundary
+Archiv:        000063_springmaster_adr_0003_application_layer_transaction_boundary.zip
+Erstellt am:   2026-06-30T14:07:17.451527+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 10
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  new           PROJECT_DOCS/ADR/ADR-0003-application-layer-and-transaction-boundary.md
+  modified      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  modified      PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  modified      PROJECT_DOCS/ADR/README.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000063-springmaster-adr-0003-application-layer-transaction-boundary.md

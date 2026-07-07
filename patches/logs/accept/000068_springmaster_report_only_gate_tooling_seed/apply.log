@@ -1,0 +1,32 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000068_springmaster_report_only_gate_tooling_seed.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000068_springmaster_report_only_gate_tooling_seed.zip
+  Patch-ID:     000068_springmaster_report_only_gate_tooling_seed
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+  [NEW]           PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [NEW]           bin/springmaster-gates-selfcheck.sh
+  [NEW]           bin/springmaster-gates.py
+  [NEW]           bin/springmaster-gates.sh
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000068-springmaster-report-only-gate-tooling-seed.md
+
+Zusammenfassung:
+  new: 5
+  modified: 8
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000068_springmaster_report_only_gate_tooling_seed/patch-log.json

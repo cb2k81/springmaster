@@ -1,0 +1,28 @@
+Archive:  /home/cb/Downloads/000070_springmaster_report_only_gate_findings_baseline_review.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  2026-07-01 07:17   files/
+        0  2026-07-01 07:17   files/PROJECT_DOCS/
+        0  2026-07-01 07:17   files/PROJECT_DOCS/TOOLING/
+    10499  2026-07-01 07:17   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+     6146  2026-07-01 07:17   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+    14993  2026-07-01 07:17   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+     8338  2026-07-01 07:17   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+        0  2026-07-01 07:17   files/PROJECT_DOCS/ADR/
+    15300  2026-07-01 07:17   files/PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+        0  2026-07-01 07:17   files/PROJECT_DOCS/STANDARDS/
+        0  2026-07-01 07:17   files/PROJECT_DOCS/STANDARDS/API/
+    21621  2026-07-01 07:17   files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+    19905  2026-07-01 07:17   files/PROJECT_DOCS/STANDARDS/README.md
+        0  2026-07-01 07:17   files/PROJECT_DOCS/PLANNING/
+    33782  2026-07-01 07:17   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+        0  2026-07-01 07:17   files/PROJECT_DOCS/CONCEPT/
+    62386  2026-07-01 07:17   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+        0  2026-07-01 07:17   files/platform/
+        0  2026-07-01 07:17   files/platform/versions/
+      412  2026-07-01 07:17   files/platform/versions/platform.env
+        0  2026-07-01 07:17   logs/
+     1732  2026-07-01 07:17   logs/CHANGELOG-000070-springmaster-report-only-gate-findings-baseline-review.md
+      457  2026-07-01 07:17   manifest.json
+---------                     -------
+   195571                     23 files

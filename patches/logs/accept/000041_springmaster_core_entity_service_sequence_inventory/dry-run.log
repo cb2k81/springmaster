@@ -1,0 +1,26 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000041_springmaster_core_entity_service_sequence_inventory.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000041_springmaster_core_entity_service_sequence_inventory.zip
+  Patch-ID:     000041_springmaster_core_entity_service_sequence_inventory
+  Scope:        core
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/core/CHANGELOG-000041-springmaster-core-entity-service-sequence-inventory.md
+
+Zusammenfassung:
+  new: 2
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

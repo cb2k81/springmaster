@@ -1,0 +1,18 @@
+{
+  "scope": "root",
+  "name": "springmaster_zbm_target_registry_and_lifecycle_alignment",
+  "description": "Align Springmaster target delivery configuration to the first planned Java backend target zbm, defer running projects, and distinguish initialization from Core/Tooling/Defaults updates.",
+  "baseline": "springmaster_export_full_2026-07-02T09-37-13-895573Z.zip",
+  "afterPatch": "000078_springmaster_generated_service_slice_readiness_marker_alignment",
+  "type": "tooling-configuration",
+  "mavenTestRequired": false,
+  "shellValidationRequired": true,
+  "changes": [
+    "Adds zbm as INITIALIZATION_CANDIDATE in the target registry",
+    "Marks IDM and Personnel as deferred non-delivery targets",
+    "Adds descriptor lifecycle fields for initialization versus updates",
+    "Adds a TARGET_DELIVERY_ENABLED guard to platform-update target-apply",
+    "Adds the defaults payload profile for baseline configuration defaults",
+    "Renumbers generated service slice blueprint follow-up to 000080"
+  ]
+}

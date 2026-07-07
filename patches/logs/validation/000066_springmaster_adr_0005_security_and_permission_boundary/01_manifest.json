@@ -1,0 +1,9 @@
+{
+    "scope": "root",
+    "name": "springmaster_adr_0005_security_and_permission_boundary",
+    "description": "Accept ADR-0005 for Springmaster security and permission boundary before strict security gate tooling is implemented.",
+    "baseline": "springmaster_export_full_2026-06-30T13-21-34-653403Z.zip",
+    "afterPatch": "000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy",
+    "type": "documentation-only",
+    "mavenTestRequired": false
+}

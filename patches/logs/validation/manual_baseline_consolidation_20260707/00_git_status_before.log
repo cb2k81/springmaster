@@ -1,0 +1,171 @@
+ M .env.example
+ M PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+ M PROJECT_DOCS/CORE/README.md
+ M PROJECT_DOCS/DEMO/README.md
+ M PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+ M PROJECT_DOCS/TARGET_UPDATES/TARGET_REGISTRY.md
+ M PROJECT_DOCS/TEMPLATES/project-skeleton/README.md
+ M PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+ M PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/java/__BASE_PACKAGE_PATH__/app/__APPLICATION_CLASS__.java.tpl
+ M PROJECT_DOCS/TEMPLATES/project-skeleton/skeleton.manifest.json
+ M PROJECT_DOCS/TOOLING/EXPORT_TOOL.md
+ M PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+ M PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+ M PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+ M PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+ M PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+ M README.md
+ M bin/export.sh
+ M bin/lib/core/env.sh
+ M bin/patch-system-it.sh
+ M bin/patch.py
+ M bin/platform-update.sh
+ M bin/project-new.sh
+ M bin/tooling-selfcheck.sh
+ M docs/Empfehlung-Patchsystem.md
+ M docs/Masterkonzept.md
+ M export.config.json
+ M platform/update/README.md
+ M platform/update/targets/contacts.env
+ M platform/update/targets/idm.env
+ M platform/update/targets/orders.env
+ M platform/update/targets/personnel.env
+ M platform/versions/platform.env
+ M pom.xml
+ M src/main/java/de/cocondo/platform/app/SpringmasterApplication.java
+ M src/test/java/de/cocondo/platform/app/SpringmasterApplicationTests.java
+?? PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md
+?? PROJECT_DOCS/ADR/ADR-0003-application-layer-and-transaction-boundary.md
+?? PROJECT_DOCS/ADR/ADR-0004-persistence-identity-and-domainentity-strategy.md
+?? PROJECT_DOCS/ADR/ADR-0005-security-and-permission-boundary.md
+?? PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+?? PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md
+?? PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md
+?? PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+?? PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+?? PROJECT_DOCS/ADR/ADR_TEMPLATE.md
+?? PROJECT_DOCS/ADR/README.md
+?? PROJECT_DOCS/CONCEPT/PATCH_ARCHIVE_AND_ROLLBACK_POLICY.md
+?? PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+?? PROJECT_DOCS/CORE/CORE_APP_SCAN_ALIGNMENT.md
+?? PROJECT_DOCS/CORE/CORE_BASIC_TYPES_FOUNDATION.md
+?? PROJECT_DOCS/CORE/CORE_DOMAIN_ENTITY_SERVICE_SUPPORT.md
+?? PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md
+?? PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+?? PROJECT_DOCS/CORE/CORE_ID_GENERATOR_IMPLEMENTATION.md
+?? PROJECT_DOCS/CORE/CORE_MIGRATION_RULES.md
+?? PROJECT_DOCS/CORE/CORE_NAMESPACE_STRATEGY.md
+?? PROJECT_DOCS/CORE/CORE_PERSISTENCE_BASIC_TYPES.md
+?? PROJECT_DOCS/CORE/CORE_PERSISTENCE_PREPARATION.md
+?? PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_CLASSIFICATION.json
+?? PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_CLASSIFICATION.md
+?? PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+?? PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+?? PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+?? PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+?? PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md
+?? PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md
+?? PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_DTO_VALIDATION_CLEANUP.md
+?? PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md
+?? PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+?? PROJECT_DOCS/DEMO/DEMO_CATALOG_API_CONTROLLER.md
+?? PROJECT_DOCS/DEMO/DEMO_CATALOG_BASIC_DOMAIN.md
+?? PROJECT_DOCS/PLANNING/PROJECT_STATE_REVIEW_000012.md
+?? PROJECT_DOCS/STANDARDS/
+?? PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md
+?? PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md
+?? PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+?? PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md
+?? PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
+?? PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_BUILD_WORKSPACE.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_REVIEW_GATE.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+?? PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_SCOPE_PREFLIGHT.md
+?? PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md
+?? PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md
+?? PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+?? PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+?? PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+?? bin/project-new-acceptance.sh
+?? bin/springmaster-gates-regression.sh
+?? bin/springmaster-gates-selfcheck.sh
+?? bin/springmaster-gates.py
+?? bin/springmaster-gates.sh
+?? patches/logs/accept/
+?? patches/logs/core/
+?? patches/logs/demo/
+?? patches/logs/docs/CHANGELOG-000006-springmaster-core-baseline-preparation.md
+?? patches/logs/docs/CHANGELOG-000007-springmaster-core-namespace-strategy.md
+?? patches/logs/docs/CHANGELOG-000008-springmaster-patch-validation-policy.md
+?? patches/logs/platform-update/
+?? patches/logs/root/CHANGELOG-000009-springmaster-core-scope-alignment.md
+?? patches/logs/root/CHANGELOG-000011-springmaster-core-app-scan-alignment.md
+?? patches/logs/root/CHANGELOG-000012-springmaster-core-persistence-dependency-preparation.md
+?? patches/logs/root/CHANGELOG-000013-springmaster-project-state-review-and-version-policy.md
+?? patches/logs/root/CHANGELOG-000014-springmaster-core-version-scope-alignment.md
+?? patches/logs/root/CHANGELOG-000016-springmaster-demo-version-scope-alignment.md
+?? patches/logs/root/CHANGELOG-000022-springmaster-patch-accept-verify-workflow.md
+?? patches/logs/root/CHANGELOG-000023-springmaster-patch-accept-workflow-hardening.md
+?? patches/logs/root/CHANGELOG-000024-springmaster-patch-accept-export-hygiene.md
+?? patches/logs/root/CHANGELOG-000025-springmaster-platform-update-foundation.md
+?? patches/logs/root/CHANGELOG-000026-springmaster-platform-update-patch-generation-plan.md
+?? patches/logs/root/CHANGELOG-000029-springmaster-patch-accept-noop-guard-and-state-alignment.md
+?? patches/logs/root/CHANGELOG-000030-springmaster-patch-project-local-scope-env.md
+?? patches/logs/root/CHANGELOG-000031-springmaster-platform-update-target-patch-apply-plan.md
+?? patches/logs/root/CHANGELOG-000033-springmaster-platform-update-target-compatibility-plan.md
+?? patches/logs/root/CHANGELOG-000034-springmaster-export-and-build-artifact-hygiene.md
+?? patches/logs/root/CHANGELOG-000035-springmaster-platform-update-build-workspace.md
+?? patches/logs/root/CHANGELOG-000036-springmaster-platform-update-review-gate.md
+?? patches/logs/root/CHANGELOG-000037-springmaster-platform-update-payload-profiles.md
+?? patches/logs/root/CHANGELOG-000038-springmaster-core-idm-system-gap-inventory.md
+?? patches/logs/root/CHANGELOG-000043-springmaster-reference-project-and-standards-strategy.md
+?? patches/logs/root/CHANGELOG-000044-springmaster-api-standards-adr-extraction.md
+?? patches/logs/root/CHANGELOG-000045-springmaster-api-endpoint-contract-definition-backlog.md
+?? patches/logs/root/CHANGELOG-000046-springmaster-api-endpoint-contract-standard.md
+?? patches/logs/root/CHANGELOG-000047-springmaster-real-app-pattern-forensics.md
+?? patches/logs/root/CHANGELOG-000048-springmaster-api-error-contract-standard.md
+?? patches/logs/root/CHANGELOG-000049-springmaster-dto-boundary-and-validation-standard.md
+?? patches/logs/root/CHANGELOG-000050-springmaster-controller-service-usecase-transaction-standard.md
+?? patches/logs/root/CHANGELOG-000051-springmaster-domain-entity-persistence-standard.md
+?? patches/logs/root/CHANGELOG-000052-springmaster-security-permission-boundary-standard.md
+?? patches/logs/root/CHANGELOG-000053-springmaster-command-relationship-endpoint-standard.md
+?? patches/logs/root/CHANGELOG-000054-springmaster-mapping-standard.md
+?? patches/logs/root/CHANGELOG-000055-springmaster-api-contract-gate-concept.md
+?? patches/logs/root/CHANGELOG-000056-springmaster-catalog-demo-readiness-plan.md
+?? patches/logs/root/CHANGELOG-000057-springmaster-standard-consistency-and-adr-gap-review.md
+?? patches/logs/root/CHANGELOG-000058-springmaster-api-query-reference-data-consistency-standard.md
+?? patches/logs/root/CHANGELOG-000059-springmaster-api-error-identity-and-statuscode-consistency-standard.md
+?? patches/logs/root/CHANGELOG-000060-springmaster-adr-governance-and-backlog-alignment.md
+?? patches/logs/root/CHANGELOG-000061-springmaster-adr-0002-api-boundary-and-endpoint-contract.md
+?? patches/logs/root/CHANGELOG-000062-springmaster-adr-0006-verification-and-gate-strategy.md
+?? patches/logs/root/CHANGELOG-000063-springmaster-adr-0003-application-layer-transaction-boundary.md
+?? patches/logs/root/CHANGELOG-000064-springmaster-adr-0004-persistence-identity-domainentity-strategy.md
+?? patches/logs/root/CHANGELOG-000065-springmaster-adr-0007-catalog-demo-canonicalization-strategy.md
+?? patches/logs/root/CHANGELOG-000066-springmaster-adr-0005-security-and-permission-boundary.md
+?? patches/logs/root/CHANGELOG-000067-springmaster-report-only-gate-seed-plan.md
+?? patches/logs/root/CHANGELOG-000068-springmaster-report-only-gate-tooling-seed.md
+?? patches/logs/root/CHANGELOG-000069-springmaster-report-only-gate-regression-and-maven-profile.md
+?? patches/logs/root/CHANGELOG-000070-springmaster-report-only-gate-findings-baseline-review.md
+?? patches/logs/root/CHANGELOG-000071-springmaster-catalog-demo-candidate-slice-contract-plan.md
+?? patches/logs/root/CHANGELOG-000073-springmaster-catalog-demo-candidate-slice-forensic-review.md
+?? patches/logs/root/CHANGELOG-000074-springmaster-catalog-demo-candidate-slice-alignment.md
+?? patches/logs/root/CHANGELOG-000076-springmaster-project-new-instantiation-acceptance-review.md
+?? patches/logs/root/CHANGELOG-000077-springmaster-generated-service-slice-readiness-plan.md
+?? patches/logs/root/CHANGELOG-000078-springmaster-generated-service-slice-readiness-marker-alignment.md
+?? patches/logs/root/CHANGELOG-000079-springmaster-zbm-target-registry-and-lifecycle-alignment.md
+?? patches/logs/root/CHANGELOG-000080-springmaster-generated-service-slice-blueprint-spec.md
+?? patches/logs/root/CHANGELOG-000081-springmaster-zbm-core-source-copy-acceptance.md
+?? patches/logs/root/CHANGELOG-000082-springmaster-command-precheck-capability-standard.md
+?? patches/logs/root/CHANGELOG-000088_springmaster_self_scope_target_namespace_hardening_rebased.md
+?? patches/logs/root/CHANGELOG-000089_springmaster_patch_accept_git_commit_opt_in.md
+?? patches/logs/validation/
+?? src/main/java/de/cocondo/platform/demo/
+?? src/main/java/de/cocondo/system/
+?? src/test/java/de/cocondo/platform/demo/
+?? src/test/java/de/cocondo/platform/tooling/
+?? src/test/java/de/cocondo/system/

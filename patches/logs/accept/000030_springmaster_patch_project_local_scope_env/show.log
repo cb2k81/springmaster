@@ -1,0 +1,29 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000030_springmaster_patch_project_local_scope_env
+Archiv:        000030_springmaster_patch_project_local_scope_env.zip
+Erstellt am:   2026-06-25T13:36:50.150622+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 10
+  unchanged: 1
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      .env.example
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+  unchanged     PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+  modified      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  new           PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      bin/patch.py
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000030-springmaster-patch-project-local-scope-env.md

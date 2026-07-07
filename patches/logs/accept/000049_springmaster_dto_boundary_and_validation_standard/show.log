@@ -1,0 +1,24 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000049_springmaster_dto_boundary_and_validation_standard
+Archiv:        000049_springmaster_dto_boundary_and_validation_standard.zip
+Erstellt am:   2026-06-29T14:02:34.380647+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  modified      PROJECT_DOCS/STANDARDS/API/REQUIRED_FIELDS_OPENAPI_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000049-springmaster-dto-boundary-and-validation-standard.md

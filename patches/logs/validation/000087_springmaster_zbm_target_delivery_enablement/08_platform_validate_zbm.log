@@ -1,0 +1,6 @@
+START 2026-07-06T08:01:37+02:00
+[WARN] zbm: status is DELIVERY_ENABLED; descriptor is not verified for automatic updates.
+[OK] zbm: target path exists and local patch system is executable.
+[OK] zbm: descriptor syntax valid.
+EXIT 0
+END 2026-07-06T08:01:37+02:00

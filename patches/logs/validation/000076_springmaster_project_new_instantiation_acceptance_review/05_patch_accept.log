@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000076_springmaster_project_new_instantiation_acceptance_review
+  Profile:      code
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000076_springmaster_project_new_instantiation_acceptance_review

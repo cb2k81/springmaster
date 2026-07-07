@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation
+  Profile:      code
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation

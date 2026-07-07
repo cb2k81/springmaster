@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000068_springmaster_report_only_gate_tooling_seed
+FAILED_STEP=-
+PROFILE=tooling
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000068_springmaster_report_only_gate_tooling_seed
+LATEST_EXPORT=-

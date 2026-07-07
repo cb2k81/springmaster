@@ -1,0 +1,28 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000051_springmaster_domain_entity_persistence_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000051_springmaster_domain_entity_persistence_standard.zip
+  Patch-ID:     000051_springmaster_domain_entity_persistence_standard
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/CORE_PERSISTENCE_BASIC_TYPES.md
+  [MODIFIED]      PROJECT_DOCS/CORE/README.md
+  [NEW]           PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000051-springmaster-domain-entity-persistence-standard.md
+
+Zusammenfassung:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000051_springmaster_domain_entity_persistence_standard/patch-log.json

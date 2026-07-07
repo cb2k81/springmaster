@@ -1,0 +1,35 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000058_springmaster_api_query_reference_data_consistency_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000058_springmaster_api_query_reference_data_consistency_standard.zip
+  Patch-ID:     000058_springmaster_api_query_reference_data_consistency_standard
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_DEFINITION_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/LIST_FILTER_QUERY_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000058-springmaster-api-query-reference-data-consistency-standard.md
+
+Zusammenfassung:
+  new: 2
+  modified: 14
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

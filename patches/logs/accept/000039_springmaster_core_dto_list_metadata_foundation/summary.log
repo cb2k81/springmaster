@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000039_springmaster_core_dto_list_metadata_foundation
+FAILED_STEP=-
+PROFILE=auto
+FULL_TEST=True
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000039_springmaster_core_dto_list_metadata_foundation
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-26T09-41-32-641661Z.zip

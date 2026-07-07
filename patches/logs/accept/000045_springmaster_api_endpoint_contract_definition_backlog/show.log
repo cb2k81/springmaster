@@ -1,0 +1,22 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000045_springmaster_api_endpoint_contract_definition_backlog
+Archiv:        000045_springmaster_api_endpoint_contract_definition_backlog.zip
+Erstellt am:   2026-06-29T11:54:01.446962+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 4
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_DEFINITION_BACKLOG.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000045-springmaster-api-endpoint-contract-definition-backlog.md

@@ -1,0 +1,27 @@
+== 03_zip_content ==
+START 2026-07-05T17:04:48+02:00
+$ unzip -l /home/cb/Downloads/000084_springmaster_patch_git_commit_script_index_guard.zip
+
+Archive:  /home/cb/Downloads/000084_springmaster_patch_git_commit_script_index_guard.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  2026-07-05 17:02   files/
+        0  2026-07-05 17:02   files/bin/
+    59098  2026-07-05 17:02   files/bin/patch.py
+     6042  2026-07-05 17:02   files/bin/patch-system-it.sh
+        0  2026-07-05 17:02   files/PROJECT_DOCS/
+        0  2026-07-05 17:02   files/PROJECT_DOCS/TOOLING/
+     7921  2026-07-05 17:02   files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+    10643  2026-07-05 17:02   files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+    14546  2026-07-05 17:02   files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+        0  2026-07-05 17:02   files/platform/
+        0  2026-07-05 17:02   files/platform/versions/
+      406  2026-07-05 17:02   files/platform/versions/platform.env
+        0  2026-07-05 17:02   logs/
+     1066  2026-07-05 17:02   logs/CHANGELOG-000084_springmaster_patch_git_commit_script_index_guard.md
+      569  2026-07-05 17:02   manifest.json
+---------                     -------
+   100291                     15 files
+
+EXIT 0
+END 2026-07-05T17:04:48+02:00

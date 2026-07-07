@@ -1,0 +1,30 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000036_springmaster_platform_update_review_gate.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000036_springmaster_platform_update_review_gate.zip
+  Patch-ID:     000036_springmaster_platform_update_review_gate
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_BUILD_WORKSPACE.md
+  [NEW]           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_REVIEW_GATE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000036-springmaster-platform-update-review-gate.md
+
+Zusammenfassung:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

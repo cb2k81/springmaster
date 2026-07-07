@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000073_springmaster_catalog_demo_candidate_slice_forensic_review
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000073_springmaster_catalog_demo_candidate_slice_forensic_review
+LATEST_EXPORT=-

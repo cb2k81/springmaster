@@ -1,0 +1,25 @@
+Archive:  /home/cb/Downloads/000070_springmaster_report_only_gate_findings_baseline_review.zip
+    testing: files/                   OK
+    testing: files/PROJECT_DOCS/      OK
+    testing: files/PROJECT_DOCS/TOOLING/   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/PROJECT_DOCS/ADR/   OK
+    testing: files/PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/README.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/platform/          OK
+    testing: files/platform/versions/   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/                    OK
+    testing: logs/CHANGELOG-000070-springmaster-report-only-gate-findings-baseline-review.md   OK
+    testing: manifest.json            OK
+No errors detected in compressed data of /home/cb/Downloads/000070_springmaster_report_only_gate_findings_baseline_review.zip.

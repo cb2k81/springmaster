@@ -1,0 +1,27 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000035_springmaster_platform_update_build_workspace.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000035_springmaster_platform_update_build_workspace.zip
+  Patch-ID:     000035_springmaster_platform_update_build_workspace
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [NEW]           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_BUILD_WORKSPACE.md
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000035-springmaster-platform-update-build-workspace.md
+
+Zusammenfassung:
+  new: 2
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000035_springmaster_platform_update_build_workspace/patch-log.json

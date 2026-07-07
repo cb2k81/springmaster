@@ -96,6 +96,11 @@ def validate_package(value: str, field: str):
         fail(f"{field} muss ein gültiger Java-Paketname mit mindestens zwei Segmenten sein: {value}")
 
 
+def normalize_env_name(value: str) -> str:
+    normalized = re.sub(r"[^A-Za-z0-9]+", "_", value).strip("_").upper()
+    return normalized or "PROJECT"
+
+
 def validate_class_name(value: str):
     if not re.fullmatch(r"[A-Z][A-Za-z0-9]*", value):
         fail(f"application-class muss ein gültiger Java-Klassenname sein und mit Großbuchstaben beginnen: {value}")
@@ -115,6 +120,21 @@ def render_text(text: str, tokens: dict) -> str:
     rendered = text
     for key, value in tokens.items():
         rendered = rendered.replace(key, value)
+
+    # Tooling files are copied from Springmaster and tokenized after the template
+    # placeholders have been rendered. Replace DB-related defaults before the
+    # generic springmaster -> project-name replacement, otherwise projects with
+    # hyphens would receive invalid default database/user names when no .env is
+    # present. The .env.example template already uses the sanitized DB token.
+    tooling_default_replacements = {
+        'APP_DEV_DB_NAME="${APP_DEV_DB_NAME:-springmaster}"': f'APP_DEV_DB_NAME="${{APP_DEV_DB_NAME:-{tokens["__DB_NAME__"]}}}"',
+        'APP_DEV_DB_USER="${APP_DEV_DB_USER:-springmaster}"': f'APP_DEV_DB_USER="${{APP_DEV_DB_USER:-{tokens["__DB_NAME__"]}}}"',
+        'APP_DEV_DB_PASS="${APP_DEV_DB_PASS:-springmaster}"': f'APP_DEV_DB_PASS="${{APP_DEV_DB_PASS:-{tokens["__DB_NAME__"]}}}"',
+        'APP_STAGE_DB_NAME="${APP_STAGE_DB_NAME:-${APP_BUILD_DB_NAME:-springmaster_build}}"': f'APP_STAGE_DB_NAME="${{APP_STAGE_DB_NAME:-${{APP_BUILD_DB_NAME:-{tokens["__STAGE_DB_NAME__"]}}}}}"',
+    }
+    for source, replacement in tooling_default_replacements.items():
+        rendered = rendered.replace(source, replacement)
+
     rendered = rendered.replace("de/cocondo/platform", tokens["__BASE_PACKAGE_PATH__"])
     rendered = rendered.replace("de.cocondo.platform", tokens["__BASE_PACKAGE__"])
     rendered = rendered.replace("springmaster_build", tokens["__STAGE_DB_NAME__"])
@@ -346,9 +366,11 @@ def build_tokens(args) -> dict:
     env_example = "".join([
         f"# {name} local configuration template\n",
         f"APP_NAME={name}\n",
+        f"APP_EXPORT_PROJECT_KEY={name}\n",
         f"APP_PORT={port}\n",
         "APP_PROFILE=dev\n",
         f"APP_BASE_PACKAGE={base_package}\n",
+        "APP_CORE_PACKAGE=de.cocondo.system\n",
         "\n",
         "# Database defaults. Copy this file to .env before enabling DB operations.\n",
         "APP_DB_HOST=localhost\n",
@@ -375,7 +397,16 @@ def build_tokens(args) -> dict:
         "APP_DIST_DIR=target/dist\n",
         "APP_DBTOOL_ALLOW_DESTRUCTIVE=false\n",
         "LOG_LEVEL=INFO\n",
+        "\n",
+        "# Generated target-project scopes. Keep these values project-local.\n",
+        f"PATCH_LOCAL_SCOPES=\"domain;{name}\"\n",
+        f"PATCH_SCOPE_DOMAIN_PATHS=\"src/main/java/{base_package_path}/**;src/test/java/{base_package_path}/**;src/main/resources/db/**;PROJECT_DOCS/CONCEPT/**;PROJECT_DOCS/DOMAIN/**\"\n",
+        "PATCH_SCOPE_DOMAIN_LOG_DIR=domain\n",
+        f"PATCH_SCOPE_{normalize_env_name(name)}_PATHS=\"src/main/java/{base_package_path}/**;src/test/java/{base_package_path}/**;src/main/resources/db/**;PROJECT_DOCS/CONCEPT/**;PROJECT_DOCS/DOMAIN/**\"\n",
+        f"PATCH_SCOPE_{normalize_env_name(name)}_LOG_DIR={name}\n",
     ])
+
+    project_scope_env = normalize_env_name(name)
 
     return {
         "__PROJECT_NAME__": name,
@@ -387,6 +418,7 @@ def build_tokens(args) -> dict:
         "__HTTP_PORT__": str(port),
         "__DB_NAME__": db_name,
         "__STAGE_DB_NAME__": stage_db_name,
+        "__PROJECT_SCOPE_ENV__": project_scope_env,
         "__PLATFORM_VERSION__": platform_version,
         "__CORE_VERSION__": core_version,
         "__TOOLING_VERSION__": tooling_version,
@@ -476,3 +508,7 @@ def main():
 if __name__ == "__main__":
     main()
 PY
+
+
+
+

@@ -1,0 +1,23 @@
+Archive:  /home/cb/Downloads/000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_DTO_VALIDATION_CLEANUP.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md   OK
+    testing: files/PROJECT_DOCS/DEMO/README.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemAvailabilityDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCreateDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemUpdateDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemMapper.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemValidator.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemValidatorTest.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java   OK
+    testing: logs/CHANGELOG-000075-springmaster-catalog-demo-candidate-slice-dto-validation-cleanup.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup.zip.

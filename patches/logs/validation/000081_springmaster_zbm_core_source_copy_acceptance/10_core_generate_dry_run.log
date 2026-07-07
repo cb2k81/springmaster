@@ -1,0 +1,13 @@
+Platform-Update-Generate:
+  Status:       DRY-RUN
+  Target:       zbm
+  Profile:      core
+  Scope:        core
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260702T133537Z_springmaster_platform_update_core_for_zbm.zip
+  Payload:      payload
+  Payload-Files:43
+  Payload-Profile:core runtime + core tests; no master Core documentation
+  Plan:         files/PROJECT_DOCS/CORE/PLATFORM_UPDATES/20260702T133537Z_springmaster_platform_update_core_for_zbm.md
+  Changelog:    logs/CHANGELOG-20260702T133537Z_springmaster_platform_update_core_for_zbm.md
+  Target path:  /opt/cocondo/zbm
+  Hinweis:      Zielprojekt wird nicht verändert.

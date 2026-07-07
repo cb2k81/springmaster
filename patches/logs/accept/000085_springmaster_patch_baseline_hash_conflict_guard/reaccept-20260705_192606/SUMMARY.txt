@@ -1,0 +1,12 @@
+STATUS=ALREADY_APPLIED
+COMMAND=accept
+PATCH_ID=000085_springmaster_patch_baseline_hash_conflict_guard
+FAILED_STEP=-
+PROFILE=tooling
+FULL_TEST=False
+EXPORT=True
+BACKGROUND=False
+WAIT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_192606
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T17-26-06-937717Z.zip
+GIT_COMMIT_SCRIPT=/opt/cocondo/springmaster/patches/logs/accept/000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_192606/git-commit.sh

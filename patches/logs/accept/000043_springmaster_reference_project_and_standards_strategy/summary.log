@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000043_springmaster_reference_project_and_standards_strategy
+FAILED_STEP=-
+PROFILE=auto
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000043_springmaster_reference_project_and_standards_strategy
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-29T08-31-50-892947Z.zip

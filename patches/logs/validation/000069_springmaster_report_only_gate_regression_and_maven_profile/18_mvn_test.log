@@ -1,0 +1,39 @@
+06:50:57.144 [main] WARN de.cocondo.system.entity.DomainEntityListener -- DomainEntity without ID detected during PrePersist: entityClass=TestEntity
+06:50:58.135 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [de.cocondo.platform.app.SpringmasterApplicationTests]: SpringmasterApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+06:50:58.214 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration de.cocondo.platform.app.SpringmasterApplication for test class de.cocondo.platform.app.SpringmasterApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.3.10)
+
+2026-07-01T06:50:58.570+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : Starting SpringmasterApplicationTests using Java 21.0.9 with PID 214980 (started by cb in /opt/cocondo/springmaster)
+2026-07-01T06:50:58.570+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-07-01T06:51:00.619+02:00  INFO 214980 --- [springmaster] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-07-01T06:51:00.673+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : Started SpringmasterApplicationTests in 2.312 seconds (process running for 4.824)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/home/cb/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.3.10)
+
+2026-07-01T06:51:01.515+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : Starting CatalogItemControllerTest using Java 21.0.9 with PID 214980 (started by cb in /opt/cocondo/springmaster)
+2026-07-01T06:51:01.515+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : No active profile set, falling back to 1 default profile: "default"
+2026-07-01T06:51:01.956+02:00  INFO 214980 --- [springmaster] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-01T06:51:01.956+02:00  INFO 214980 --- [springmaster] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-01T06:51:01.961+02:00  INFO 214980 --- [springmaster] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-07-01T06:51:01.966+02:00  INFO 214980 --- [springmaster] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 10 ms
+2026-07-01T06:51:01.984+02:00  INFO 214980 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : Started CatalogItemControllerTest in 0.498 seconds (process running for 6.135)

@@ -1,0 +1,9 @@
+{
+  "scope": "root",
+  "name": "springmaster_project_new_instantiation_acceptance_review",
+  "description": "Add and validate a Project-New instantiation acceptance path for creating new Java backend skeletons, including sanitized DB defaults for copied tooling.",
+  "baseline": "springmaster_export_full_2026-07-02T06-02-40-194851Z.zip",
+  "afterPatch": "000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup",
+  "type": "code-tooling",
+  "mavenTestRequired": true
+}

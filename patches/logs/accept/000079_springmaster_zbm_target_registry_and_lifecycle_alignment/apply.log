@@ -1,0 +1,42 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000079_springmaster_zbm_target_registry_and_lifecycle_alignment.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000079_springmaster_zbm_target_registry_and_lifecycle_alignment.zip
+  Patch-ID:     000079_springmaster_zbm_target_registry_and_lifecycle_alignment
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TARGET_UPDATES/TARGET_REGISTRY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_SCOPE_PREFLIGHT.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/update/targets/contacts.env
+  [MODIFIED]      platform/update/targets/idm.env
+  [MODIFIED]      platform/update/targets/orders.env
+  [MODIFIED]      platform/update/targets/personnel.env
+  [NEW]           platform/update/targets/zbm.env
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000079-springmaster-zbm-target-registry-and-lifecycle-alignment.md
+
+Zusammenfassung:
+  new: 2
+  modified: 21
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000079_springmaster_zbm_target_registry_and_lifecycle_alignment/patch-log.json

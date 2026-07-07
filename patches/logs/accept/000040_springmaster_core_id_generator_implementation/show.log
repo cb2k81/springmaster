@@ -1,0 +1,25 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000040_springmaster_core_id_generator_implementation
+Archiv:        000040_springmaster_core_id_generator_implementation.zip
+Erstellt am:   2026-06-26T11:55:03.423424+02:00
+Status:        applied
+Scope:         core
+Summary:
+  new: 4
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/CORE/CORE_ID_GENERATOR_IMPLEMENTATION.md
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/README.md
+  modified      platform/versions/platform.env
+  new           src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java
+  new           src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java
+  new           patches/logs/core/CHANGELOG-000040-springmaster-core-id-generator-implementation.md

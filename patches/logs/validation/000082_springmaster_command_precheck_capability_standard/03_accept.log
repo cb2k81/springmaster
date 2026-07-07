@@ -1,0 +1,8 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000082_000082_springmaster_command_precheck_capability_standard
+  Profile:      docs
+  Full-Test:    False
+  Export:       True
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000082_000082_springmaster_command_precheck_capability_standard
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-03T09-41-34-085611Z.zip

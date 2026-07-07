@@ -1,0 +1,7 @@
+== 07_python_compile ==
+START 2026-07-05T17:04:48+02:00
+$ python3 -m py_compile ./bin/patch.py
+
+
+EXIT 0
+END 2026-07-05T17:04:48+02:00

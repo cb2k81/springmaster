@@ -1,0 +1,32 @@
+== 05_apply ==
+START 2026-07-05T16:54:23+02:00
+$ ./bin/patch.sh apply /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+  Patch-ID:     000083_springmaster_patch_runtime_locking_background_git_rollback
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      .env.example
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [NEW]           bin/patch-system-it.sh
+  [MODIFIED]      bin/patch.py
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000082_springmaster_patch_runtime_locking_background_git_rollback.md
+
+Zusammenfassung:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000083_springmaster_patch_runtime_locking_background_git_rollback/patch-log.json
+
+EXIT 0
+END 2026-07-05T16:54:23+02:00

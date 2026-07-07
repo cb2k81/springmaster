@@ -1,0 +1,18 @@
+START 2026-07-06T06:50:36+02:00
+Patch-ID:      000086_springmaster_zdm_target_descriptor_registration
+Archiv:        000086_springmaster_zdm_target_descriptor_registration.zip
+Erstellt am:   2026-07-06T06:50:27.606886+02:00
+Status:        applied
+Scope:         target-registry
+Summary:
+  new: 2
+  modified: 0
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  new           platform/update/targets/zdm.env
+  new           patches/logs/target-registry/CHANGELOG-000086_springmaster_zdm_target_descriptor_registration.md
+EXIT 0
+END 2026-07-06T06:50:36+02:00

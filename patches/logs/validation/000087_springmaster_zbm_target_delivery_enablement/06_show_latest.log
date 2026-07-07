@@ -1,0 +1,18 @@
+START 2026-07-06T08:01:36+02:00
+Patch-ID:      000087_springmaster_zbm_target_delivery_enablement
+Archiv:        000087_springmaster_zbm_target_delivery_enablement.zip
+Erstellt am:   2026-07-06T08:01:36.119678+02:00
+Status:        applied
+Scope:         target-registry
+Summary:
+  new: 1
+  modified: 1
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      platform/update/targets/zbm.env
+  new           patches/logs/target-registry/CHANGELOG-000087_springmaster_zbm_target_delivery_enablement.md
+EXIT 0
+END 2026-07-06T08:01:36+02:00

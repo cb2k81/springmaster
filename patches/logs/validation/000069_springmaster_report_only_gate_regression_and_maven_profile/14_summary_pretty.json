@@ -1,0 +1,31 @@
+{
+    "reportSchemaVersion": "springmaster.report-only-report.v1",
+    "seedId": "springmaster.report-only-gate-seed.v1",
+    "runId": "000069-validation",
+    "generatedAt": "2026-07-01T04:50:51.592053+00:00",
+    "mode": "report-only",
+    "scope": "springmaster-reference-only",
+    "status": "SUCCESS",
+    "findingCount": 12,
+    "severityCounts": {
+        "BLOCKER": 0,
+        "ERROR": 0,
+        "WARNING": 2,
+        "INFO": 9,
+        "MANUAL_REVIEW": 1
+    },
+    "gateCounts": {
+        "SM-G0-RULE-SOURCE-COVERAGE": 6,
+        "SM-G1-QUERY-PARAMETERS": 1,
+        "SM-G1-STATUS-ERROR-CONTRACT": 3,
+        "SM-G4-SECURITY-CLASSIFICATION": 1,
+        "SM-G5-CATALOG-READINESS-EVIDENCE": 1
+    },
+    "layerCounts": {
+        "G0": 6,
+        "G1": 4,
+        "G4": 1,
+        "G5": 1
+    },
+    "reportDirectory": "target/springmaster-gates/000069-validation"
+}

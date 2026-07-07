@@ -1,0 +1,19 @@
+
+== Shell syntax ==
+$ bash -n bin/build.sh bin/dbtool.sh bin/export.sh bin/init.env.sh bin/patch-system-it.sh bin/patch.sh bin/platform-update.sh bin/project-new-acceptance.sh bin/project-new.sh bin/springmaster-gates-regression.sh bin/springmaster-gates-selfcheck.sh bin/springmaster-gates.sh bin/tooling-selfcheck.sh bin/lib/core/env.sh bin/lib/core/log.sh bin/lib/dbtool/changelog.sh bin/lib/dbtool/commands.sh bin/lib/dbtool/config.sh bin/lib/dbtool/liquibase.sh bin/lib/dbtool/mariadb.sh
+
+
+== Python syntax ==
+$ python3 -m py_compile ./bin/patch.py
+
+
+== Tooling selfcheck ==
+$ ./bin/tooling-selfcheck.sh --no-export
+
+[2026-07-05T16:54:25+0200] [INFO] Checking shell syntax
+[2026-07-05T16:54:25+0200] [INFO] Checking Python syntax
+[2026-07-05T16:54:25+0200] [INFO] Checking patch registry
+[2026-07-05T16:54:25+0200] [INFO] Skipping full export check
+[2026-07-05T16:54:25+0200] [INFO] Checking DBTool env/status
+[2026-07-05T16:54:25+0200] [INFO] DBTool configuration is valid. No database connection was opened for status.
+[2026-07-05T16:54:25+0200] [INFO] Tooling selfcheck completed successfully.

@@ -1,0 +1,52 @@
+Archive:  /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2282  2026-07-02 15:36   files/PROJECT_DOCS/CORE/PLATFORM_UPDATES/20260702T133603Z_springmaster_platform_update_core_for_zbm.md
+     2173  2026-07-02 15:36   files/pom.xml
+      101  2026-06-24 11:39   files/src/main/java/de/cocondo/system/core/id/IdGeneratorService.java
+      366  2026-06-26 11:55   files/src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java
+      109  2026-06-24 11:39   files/src/main/java/de/cocondo/system/dto/DTO.java
+       72  2026-06-24 11:39   files/src/main/java/de/cocondo/system/dto/DataTransferObject.java
+      182  2026-06-26 11:41   files/src/main/java/de/cocondo/system/dto/DomainEntityDTO.java
+     1036  2026-06-26 11:41   files/src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java
+     1631  2026-06-26 11:41   files/src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java
+       80  2026-06-24 11:39   files/src/main/java/de/cocondo/system/dto/DomainEntityMetadataInboundDTO.java
+      334  2026-06-26 11:41   files/src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java
+      951  2026-06-26 11:41   files/src/main/java/de/cocondo/system/dto/PagedResponseDTO.java
+      458  2026-06-24 13:23   files/src/main/java/de/cocondo/system/entity/Auditable.java
+     1740  2026-06-24 13:23   files/src/main/java/de/cocondo/system/entity/AuditingEntityListener.java
+     2889  2026-06-24 13:23   files/src/main/java/de/cocondo/system/entity/DomainEntity.java
+      879  2026-06-24 13:23   files/src/main/java/de/cocondo/system/entity/DomainEntityListener.java
+       90  2026-06-24 11:39   files/src/main/java/de/cocondo/system/entity/Identifyable.java
+      552  2026-06-24 13:23   files/src/main/java/de/cocondo/system/entity/Range.java
+      136  2026-06-24 11:39   files/src/main/java/de/cocondo/system/entity/Taggable.java
+      531  2026-06-26 11:41   files/src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java
+      392  2026-06-26 11:41   files/src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java
+     1455  2026-06-27 10:25   files/src/main/java/de/cocondo/system/entity/service/DomainEntityService.java
+     1762  2026-06-27 10:25   files/src/main/java/de/cocondo/system/entity/service/TagService.java
+      291  2026-06-24 11:39   files/src/main/java/de/cocondo/system/entity/validation/ValidationException.java
+      136  2026-06-24 11:39   files/src/main/java/de/cocondo/system/entity/validation/Validator.java
+      197  2026-06-24 11:39   files/src/main/java/de/cocondo/system/exception/EntityAlreadyExistsException.java
+     1078  2026-06-26 11:41   files/src/main/java/de/cocondo/system/list/PagedQuerySupport.java
+      720  2026-06-26 11:41   files/src/main/java/de/cocondo/system/list/PagedResponseFactory.java
+      997  2026-06-26 11:41   files/src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java
+      368  2026-06-24 11:39   files/src/test/java/de/cocondo/system/core/id/IdGeneratorServiceTest.java
+     1029  2026-06-26 11:55   files/src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java
+     4664  2026-06-26 11:41   files/src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java
+     1888  2026-06-24 13:23   files/src/test/java/de/cocondo/system/entity/AuditingEntityListenerTest.java
+      753  2026-06-24 11:39   files/src/test/java/de/cocondo/system/entity/CoreEntityMarkerTypesTest.java
+     1129  2026-06-24 13:23   files/src/test/java/de/cocondo/system/entity/DomainEntityListenerTest.java
+     3126  2026-06-24 13:23   files/src/test/java/de/cocondo/system/entity/DomainEntityPersistenceMappingTest.java
+      766  2026-06-24 13:23   files/src/test/java/de/cocondo/system/entity/RangeEmbeddableTest.java
+      877  2026-06-26 11:41   files/src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java
+     2202  2026-06-27 10:25   files/src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java
+     2436  2026-06-27 10:25   files/src/test/java/de/cocondo/system/entity/service/TagServiceTest.java
+      622  2026-06-24 11:39   files/src/test/java/de/cocondo/system/entity/validation/CoreValidationTypesTest.java
+      483  2026-06-24 11:39   files/src/test/java/de/cocondo/system/exception/CoreExceptionTypesTest.java
+     1772  2026-06-26 11:41   files/src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java
+     1078  2026-06-26 11:41   files/src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java
+     2352  2026-06-26 11:41   files/src/test/java/de/cocondo/system/mapper/DomainMetadataSupportMapperTest.java
+      448  2026-07-02 15:36   logs/CHANGELOG-20260702T133603Z_springmaster_platform_update_core_for_zbm.md
+      778  2026-07-02 15:36   manifest.json
+---------                     -------
+    50391                     47 files

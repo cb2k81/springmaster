@@ -1,0 +1,17 @@
+{
+  "scope": "root",
+  "name": "springmaster_zbm_core_source_copy_acceptance",
+  "description": "Prepare and document the first controlled Core source-copy acceptance for the generated ZBM backend, including scope-compatible generated Core update documents and target-local Core dependency synthesis.",
+  "baseline": "springmaster_export_full_2026-07-02T12-56-12-120772Z.zip",
+  "afterPatch": "000080_springmaster_generated_service_slice_blueprint_spec",
+  "type": "tooling-configuration",
+  "mavenTestRequired": false,
+  "shellValidationRequired": true,
+  "changes": [
+    "Writes generated Core update review documents to PROJECT_DOCS/CORE/PLATFORM_UPDATES so core-scope patches are target-patch compatible",
+    "Synthesizes target-local pom.xml Core compile dependencies for core and core-runtime generated patches instead of copying the Springmaster master pom.xml",
+    "Uses minimal API dependencies for persistence, validation and Spring Data page support without enabling datasource auto-configuration",
+    "Documents ZBM Core source-copy acceptance as the required bridge before fachlicher service-slice generation",
+    "Advances Platform version to 0.13.42 and Platform-Update version to 0.8.2"
+  ]
+}

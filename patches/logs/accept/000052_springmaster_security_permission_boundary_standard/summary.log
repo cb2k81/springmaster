@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000052_springmaster_security_permission_boundary_standard
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000052_springmaster_security_permission_boundary_standard
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-29T13-13-05-034502Z.zip

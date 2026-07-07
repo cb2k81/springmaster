@@ -282,6 +282,8 @@ Zielprojekte konfigurieren abweichende Runtime-Kommandos in ihrer lokalen `.env`
 
 Nach erfolgreichem Accept erzeugt das Patchsystem ein projektlokales `git-commit.sh` im Accept-Logverzeichnis. Dieses Skript staged ausschließlich patchbezogene Dateien aus dem Patch-Log und verwendet kein pauschales `git add .`. Seit `000084` ist zusätzlich ein Index-Guard verpflichtend: Das Commit-Skript darf nicht fortfahren, wenn bereits fremde Dateien im Git-Index vorgestaged sind. Der Lauf muss dann mit `GIT_INDEX_DIRTY` abbrechen und die fremden staged Dateien ausgeben.
 
+Seit `000089` kann `accept` den Commit-Schritt mit `--commit` selbst ausführen. Dieser Modus ist explizit und nicht Standard. Vor dem Patch muss der Working Tree sauber sein; bei fremden Änderungen bricht der Lauf mit `GIT_WORKTREE_DIRTY` ab. Der Commit erfolgt erst nach erfolgreichem Dry-run, Apply, Validierung und Export. `--push` ist separat erforderlich und impliziert `--commit`; ohne `--push` wird niemals automatisch gepusht.
+
 ## Baseline-Hash-Konfliktprüfung seit 000085
 
 Patch-ZIPs können im `manifest.json` einen erwarteten Vorzustand für betroffene Dateien deklarieren. Die Patch-Engine prüft diese Werte bereits im `apply --dry-run` und erneut vor dem mutierenden `apply`. Passt der aktuelle Dateistand nicht zum erwarteten Vorzustand, bricht der Lauf mit `BASELINE_CONFLICT` ab und verändert keine Dateien.

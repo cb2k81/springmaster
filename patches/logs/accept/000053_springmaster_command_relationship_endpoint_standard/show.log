@@ -1,0 +1,26 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000053_springmaster_command_relationship_endpoint_standard
+Archiv:        000053_springmaster_command_relationship_endpoint_standard.zip
+Erstellt am:   2026-06-30T07:11:19.007892+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 8
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  modified      PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000053-springmaster-command-relationship-endpoint-standard.md

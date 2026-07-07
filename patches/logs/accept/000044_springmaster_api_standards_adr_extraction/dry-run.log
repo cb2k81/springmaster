@@ -1,0 +1,29 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000044_springmaster_api_standards_adr_extraction.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000044_springmaster_api_standards_adr_extraction.zip
+  Patch-ID:     000044_springmaster_api_standards_adr_extraction
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/EXTERNAL_ID_OPENAPI_BOUNDARY_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/LIST_FILTER_QUERY_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/REQUIRED_FIELDS_OPENAPI_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000044-springmaster-api-standards-adr-extraction.md
+
+Zusammenfassung:
+  new: 6
+  modified: 4
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

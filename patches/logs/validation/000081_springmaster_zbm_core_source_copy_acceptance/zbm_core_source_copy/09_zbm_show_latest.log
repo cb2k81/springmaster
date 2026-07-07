@@ -1,0 +1,59 @@
+Patch-ID:      000002_springmaster_platform_update_core_for_zbm
+Archiv:        20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+Erstellt am:   2026-07-02T15:36:03.932025+02:00
+Status:        applied
+Scope:         core
+Summary:
+  new: 45
+  modified: 1
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  new           PROJECT_DOCS/CORE/PLATFORM_UPDATES/20260702T133603Z_springmaster_platform_update_core_for_zbm.md
+  modified      pom.xml
+  new           src/main/java/de/cocondo/system/core/id/IdGeneratorService.java
+  new           src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java
+  new           src/main/java/de/cocondo/system/dto/DTO.java
+  new           src/main/java/de/cocondo/system/dto/DataTransferObject.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityMetadataInboundDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java
+  new           src/main/java/de/cocondo/system/dto/PagedResponseDTO.java
+  new           src/main/java/de/cocondo/system/entity/Auditable.java
+  new           src/main/java/de/cocondo/system/entity/AuditingEntityListener.java
+  new           src/main/java/de/cocondo/system/entity/DomainEntity.java
+  new           src/main/java/de/cocondo/system/entity/DomainEntityListener.java
+  new           src/main/java/de/cocondo/system/entity/Identifyable.java
+  new           src/main/java/de/cocondo/system/entity/Range.java
+  new           src/main/java/de/cocondo/system/entity/Taggable.java
+  new           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java
+  new           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java
+  new           src/main/java/de/cocondo/system/entity/service/DomainEntityService.java
+  new           src/main/java/de/cocondo/system/entity/service/TagService.java
+  new           src/main/java/de/cocondo/system/entity/validation/ValidationException.java
+  new           src/main/java/de/cocondo/system/entity/validation/Validator.java
+  new           src/main/java/de/cocondo/system/exception/EntityAlreadyExistsException.java
+  new           src/main/java/de/cocondo/system/list/PagedQuerySupport.java
+  new           src/main/java/de/cocondo/system/list/PagedResponseFactory.java
+  new           src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java
+  new           src/test/java/de/cocondo/system/core/id/IdGeneratorServiceTest.java
+  new           src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java
+  new           src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java
+  new           src/test/java/de/cocondo/system/entity/AuditingEntityListenerTest.java
+  new           src/test/java/de/cocondo/system/entity/CoreEntityMarkerTypesTest.java
+  new           src/test/java/de/cocondo/system/entity/DomainEntityListenerTest.java
+  new           src/test/java/de/cocondo/system/entity/DomainEntityPersistenceMappingTest.java
+  new           src/test/java/de/cocondo/system/entity/RangeEmbeddableTest.java
+  new           src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java
+  new           src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java
+  new           src/test/java/de/cocondo/system/entity/service/TagServiceTest.java
+  new           src/test/java/de/cocondo/system/entity/validation/CoreValidationTypesTest.java
+  new           src/test/java/de/cocondo/system/exception/CoreExceptionTypesTest.java
+  new           src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java
+  new           src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java
+  new           src/test/java/de/cocondo/system/mapper/DomainMetadataSupportMapperTest.java
+  new           patches/logs/core/CHANGELOG-20260702T133603Z_springmaster_platform_update_core_for_zbm.md

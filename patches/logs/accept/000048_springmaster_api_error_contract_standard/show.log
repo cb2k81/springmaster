@@ -1,0 +1,23 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000048_springmaster_api_error_contract_standard
+Archiv:        000048_springmaster_api_error_contract_standard.zip
+Erstellt am:   2026-06-29T13:46:54.780904+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000048-springmaster-api-error-contract-standard.md

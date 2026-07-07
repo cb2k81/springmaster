@@ -1,0 +1,16 @@
+Archive:  /home/cb/Downloads/000068_springmaster_report_only_gate_tooling_seed.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/README.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/bin/springmaster-gates-selfcheck.sh   OK
+    testing: files/bin/springmaster-gates.py   OK
+    testing: files/bin/springmaster-gates.sh   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000068-springmaster-report-only-gate-tooling-seed.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000068_springmaster_report_only_gate_tooling_seed.zip.

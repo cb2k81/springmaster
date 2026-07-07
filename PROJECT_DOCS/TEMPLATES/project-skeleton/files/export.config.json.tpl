@@ -97,8 +97,8 @@
     },
     "core": {
       "include": [
-        "src/main/java/__BASE_PACKAGE_PATH__/core/**",
-        "src/test/java/__BASE_PACKAGE_PATH__/core/**",
+        "src/main/java/de/cocondo/system/**",
+        "src/test/java/de/cocondo/system/**",
         "PROJECT_DOCS/CORE/**"
       ],
       "exclude": []
@@ -114,9 +114,14 @@
     "tooling": {
       "include": [
         "bin/**",
-        "export.config.json",
+        "PROJECT_DOCS/TOOLING/**"
+      ],
+      "exclude": []
+    },
+    "defaults": {
+      "include": [
         ".env.example",
-        "PROJECT_DOCS/TOOLING/**",
+        "export.config.json",
         "PROJECT_DOCS/CONFIG/**"
       ],
       "exclude": []
@@ -180,4 +185,6 @@
     ]
   }
 }
+
+
 

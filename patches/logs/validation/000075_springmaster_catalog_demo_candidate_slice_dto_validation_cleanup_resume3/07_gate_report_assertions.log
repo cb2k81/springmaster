@@ -1,0 +1,2 @@
+[OK] Gate-Smoke JSON/JSONL geprüft: 8 Findings, keine BLOCKER/ERROR, Candidate Evidence erkannt
+rules=SM-API-STATUS-001,SM-G0-RULE-SOURCE-001,SM-SEC-CLASSIFICATION-001

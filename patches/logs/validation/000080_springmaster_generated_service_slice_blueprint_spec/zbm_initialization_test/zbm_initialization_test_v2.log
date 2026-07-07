@@ -1,0 +1,31 @@
+Springmaster Stand prüfen
+[OK] Marker 'PLATFORM_STATE_PATCH=000080_springmaster_generated_service_slice_blueprint_spec' in platform/versions/platform.env
+[OK] Target Descriptor zbm validiert
+Sicherstellen, dass laufende Projekte deferred bleiben
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/idm_descriptor.v2.log
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/personnel_descriptor.v2.log
+ZBM Skeleton prüfen
+[OK] Datei vorhanden: /opt/cocondo/zbm/pom.xml
+[OK] Datei vorhanden: /opt/cocondo/zbm/.env.example
+[OK] Datei vorhanden: /opt/cocondo/zbm/export.config.json
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/patch.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/export.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/dbtool.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/platform/versions/platform.env
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/test/java/de/cocondo/zbm/app/ZbmApplicationTests.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/resources/application.yml
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/resources/db/changelog/db.changelog-master.xml
+[OK] Datei erwartungsgemäß nicht vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/ZbmApplication.java
+[OK] Marker 'package de.cocondo.zbm.app;' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Marker 'de.cocondo.system' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Marker 'package de.cocondo.zbm.app.api;' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+[OK] Marker 'APP_NAME=zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_DEV_DB_NAME=zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_STAGE_DB_NAME=zbm_build' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'PLATFORM_NAME=zbm' in /opt/cocondo/zbm/platform/versions/platform.env
+[OK] Marker 'PLATFORM_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/zbm/platform/versions/platform.env
+ZBM Tooling prüfen
+[ERROR] Marker '000001_project_new_bootstrap' nicht gefunden in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/03_zbm_patch_list.v2.log

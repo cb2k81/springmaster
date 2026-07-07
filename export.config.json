@@ -120,9 +120,14 @@
     "tooling": {
       "include": [
         "bin/**",
-        "export.config.json",
+        "PROJECT_DOCS/TOOLING/**"
+      ],
+      "exclude": []
+    },
+    "defaults": {
+      "include": [
         ".env.example",
-        "PROJECT_DOCS/TOOLING/**",
+        "export.config.json",
         "PROJECT_DOCS/CONFIG/**"
       ],
       "exclude": []
@@ -188,5 +193,7 @@
     ]
   }
 }
+
+
 
 

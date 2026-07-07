@@ -1,0 +1,32 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000030_springmaster_patch_project_local_scope_env.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000030_springmaster_patch_project_local_scope_env.zip
+  Patch-ID:     000030_springmaster_patch_project_local_scope_env
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      .env.example
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+  [UNCHANGED]     PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  [NEW]           PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [MODIFIED]      bin/patch.py
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000030-springmaster-patch-project-local-scope-env.md
+
+Zusammenfassung:
+  new: 2
+  modified: 10
+  unchanged: 1
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000030_springmaster_patch_project_local_scope_env/patch-log.json

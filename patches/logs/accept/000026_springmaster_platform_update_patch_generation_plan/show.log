@@ -1,0 +1,29 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000026_springmaster_platform_update_patch_generation_plan
+Archiv:        000026_springmaster_platform_update_patch_generation_plan.zip
+Erstellt am:   2026-06-24T15:20:55.288947+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 3
+  modified: 10
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TARGET_UPDATES/TARGET_REGISTRY.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  new           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      bin/patch.py
+  modified      bin/platform-update.sh
+  new           platform/update/generated/.gitkeep
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000026-springmaster-platform-update-patch-generation-plan.md

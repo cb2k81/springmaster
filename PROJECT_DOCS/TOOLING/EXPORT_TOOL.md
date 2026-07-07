@@ -46,10 +46,14 @@ Ein Split-Export erzeugt pro Profil eine Textdatei, Metadaten und eine `export.i
 Ausgeschlossen sind insbesondere lokale, temporäre oder erzeugte Artefakte:
 
 * `target/**`
+* `build/**`
 * `tmp/**`
 * `exports/**`
+* `.git/**`
 * `.env`
 * `patches/archives/**`
+* `platform/update/generated/**`
+* `platform/update/manifests/**`
 * `.idea/**`
 * Python-Cache-Dateien wie `__pycache__/**`, `*.pyc` und `*.pyo`
 * Tool-Cache-Verzeichnisse wie `.pytest_cache/**`, `.mypy_cache/**` und `.ruff_cache/**`
@@ -57,11 +61,16 @@ Ausgeschlossen sind insbesondere lokale, temporäre oder erzeugte Artefakte:
 
 ## Baseline-Export nach Patches
 
-Nach jedem erfolgreich angewendeten Patch wird mindestens ein Full-ZIP-Export erzeugt und der erzeugte Exportpfad ausgegeben. Für Folgearbeiten ist bevorzugt zusätzlich der Full-Parts-Baseline-Export zu erzeugen, weil er die Profile getrennt und damit besser prüfbar bereitstellt.
+Nach jedem erfolgreich angewendeten Patch wird aktuell ein Full-ZIP-Export erzeugt und der erzeugte Exportpfad ausgegeben. Full-Parts-Baseline-Exporte bleiben möglich, werden aber nicht pauschal erzeugt, damit nicht unnötig Exportdaten anwachsen.
 
 ```bash
 ./bin/export.sh full --zip
-./bin/export.sh --full-parts baseline --zip
 ls -1t exports/text/*.zip | head -n 2
 ```
+
+## Baseline vs. Forensik
+
+Der reguläre Full-ZIP-Export ist eine saubere Projektbaseline. Er ist nicht als vollständiger Arbeitsverzeichnisdump gedacht. Operative Artefakte aus Patch-Anwendung, Platform-Update-Planung, Build, temporären Läufen oder lokalen Archiven werden bewusst ausgeschlossen.
+
+Für forensische Untersuchungen müssen separate Artefakte erzeugt werden, z. B. ein bewusst gepackter Arbeitsbaum oder reine Dateilisten.
 

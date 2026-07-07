@@ -1,0 +1,23 @@
+Patch-ID:      000076_springmaster_project_new_instantiation_acceptance_review
+Archiv:        000076_springmaster_project_new_instantiation_acceptance_review.zip
+Erstellt am:   2026-07-02T10:09:16.745406+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 4
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+  new           PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  new           bin/project-new-acceptance.sh
+  modified      bin/project-new.sh
+  modified      platform/versions/platform.env
+  new           src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java
+  new           patches/logs/root/CHANGELOG-000076-springmaster-project-new-instantiation-acceptance-review.md

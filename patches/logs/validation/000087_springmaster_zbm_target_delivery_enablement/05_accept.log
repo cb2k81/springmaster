@@ -1,0 +1,13 @@
+START 2026-07-06T08:01:36+02:00
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000087_springmaster_zbm_target_delivery_enablement
+  Profile:      docs
+  Full-Test:    False
+  Export:       True
+  Summary:      /opt/cocondo/springmaster/patches/logs/accept/000087_springmaster_zbm_target_delivery_enablement/SUMMARY.txt
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000087_springmaster_zbm_target_delivery_enablement
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-06T06-01-36-574906Z.zip
+  Git-Commit:   /opt/cocondo/springmaster/patches/logs/accept/000087_springmaster_zbm_target_delivery_enablement/git-commit.sh
+EXIT 0
+END 2026-07-06T08:01:36+02:00

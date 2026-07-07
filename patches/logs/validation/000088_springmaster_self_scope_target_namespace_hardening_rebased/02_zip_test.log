@@ -1,0 +1,20 @@
+Archive:  /home/cb/Downloads/000088b_springmaster_self_scope_target_namespace_hardening_rebased.zip
+    testing: manifest.json            OK
+    testing: files/.env.example       OK
+    testing: files/export.config.json   OK
+    testing: files/PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env   OK
+    testing: files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl   OK
+    testing: files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md   OK
+    testing: files/bin/export.sh      OK
+    testing: files/bin/patch.py       OK
+    testing: files/bin/platform-update.sh   OK
+    testing: files/bin/project-new-acceptance.sh   OK
+    testing: files/bin/project-new.sh   OK
+    testing: files/bin/lib/core/env.sh   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000088_springmaster_self_scope_target_namespace_hardening_rebased.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000088b_springmaster_self_scope_target_namespace_hardening_rebased.zip.

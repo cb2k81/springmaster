@@ -1,0 +1,28 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000054_springmaster_mapping_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000054_springmaster_mapping_standard.zip
+  Patch-ID:     000054_springmaster_mapping_standard
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/MAPPING_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000054-springmaster-mapping-standard.md
+
+Zusammenfassung:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

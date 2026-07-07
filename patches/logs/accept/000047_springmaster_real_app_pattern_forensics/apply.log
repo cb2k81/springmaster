@@ -1,0 +1,25 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000047_springmaster_real_app_pattern_forensics.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000047_springmaster_real_app_pattern_forensics.zip
+  Patch-ID:     000047_springmaster_real_app_pattern_forensics
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [NEW]           PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000047-springmaster-real-app-pattern-forensics.md
+
+Zusammenfassung:
+  new: 2
+  modified: 4
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000047_springmaster_real_app_pattern_forensics/patch-log.json

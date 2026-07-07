@@ -1,0 +1,28 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000034_springmaster_export_and_build_artifact_hygiene.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000034_springmaster_export_and_build_artifact_hygiene.zip
+  Patch-ID:     000034_springmaster_export_and_build_artifact_hygiene
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      .gitignore
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/EXPORT_TOOL.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [MODIFIED]      export.config.json
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000034-springmaster-export-and-build-artifact-hygiene.md
+
+Zusammenfassung:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000034_springmaster_export_and_build_artifact_hygiene/patch-log.json

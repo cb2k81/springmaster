@@ -1,0 +1,20 @@
+Patch-ID:      000080_springmaster_generated_service_slice_blueprint_spec
+Archiv:        000080_springmaster_generated_service_slice_blueprint_spec.zip
+Erstellt am:   2026-07-02T14:56:11.056240+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 3
+  modified: 4
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  new           PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md
+  new           PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md
+  modified      PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000080-springmaster-generated-service-slice-blueprint-spec.md

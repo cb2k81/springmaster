@@ -1,0 +1,39 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000039_springmaster_core_dto_list_metadata_foundation
+Archiv:        000039_springmaster_core_dto_list_metadata_foundation.zip
+Erstellt am:   2026-06-26T11:41:19.788238+02:00
+Status:        applied
+Scope:         core
+Summary:
+  new: 16
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/README.md
+  modified      platform/versions/platform.env
+  modified      pom.xml
+  new           src/main/java/de/cocondo/system/dto/DomainEntityDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java
+  new           src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java
+  new           src/main/java/de/cocondo/system/dto/PagedResponseDTO.java
+  new           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java
+  new           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java
+  new           src/main/java/de/cocondo/system/list/PagedQuerySupport.java
+  new           src/main/java/de/cocondo/system/list/PagedResponseFactory.java
+  new           src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java
+  modified      src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java
+  new           src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java
+  new           src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java
+  new           src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java
+  new           src/test/java/de/cocondo/system/mapper/DomainMetadataSupportMapperTest.java
+  new           patches/logs/core/CHANGELOG-000039-springmaster-core-dto-list-metadata-foundation.md

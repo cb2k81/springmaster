@@ -1,0 +1,49 @@
+START 2026-07-05T19:26:05+02:00
+PWD: /opt/cocondo/springmaster
+CMD: 
+set -euo pipefail
+TMP="$(mktemp -d)"
+trap "rm -rf \"$TMP\"" EXIT
+mkdir -p "$TMP/project/bin" "$TMP/project/patches"
+cp ./bin/patch.py "$TMP/project/bin/patch.py"
+cat > "$TMP/project/bin/patch.sh" <<SH2
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="\$(cd "\$SCRIPT_DIR/.." && pwd)"
+exec python3 "\$SCRIPT_DIR/patch.py" "\$PROJECT_ROOT" "\$@"
+SH2
+chmod +x "$TMP/project/bin/patch.sh"
+cd "$TMP/project"
+printf "original\n" > README.md
+BEFORE="$(sha256sum README.md | awk "{print \$1}")"
+mkdir -p "$TMP/patch/files" "$TMP/patch/logs"
+printf "patched\n" > "$TMP/patch/files/README.md"
+cat > "$TMP/patch/logs/CHANGELOG-baseline-conflict-fixture.md" <<MD
+# baseline conflict fixture
+MD
+cat > "$TMP/patch/manifest.json" <<JSON
+{
+  "scope": "root",
+  "name": "baseline_conflict_fixture",
+  "expectedBeforeSha256": {
+    "README.md": "$BEFORE"
+  }
+}
+JSON
+(cd "$TMP/patch" && zip -qr "$TMP/baseline_conflict_fixture.zip" .)
+printf "changed-by-other\n" > README.md
+set +e
+./bin/patch.sh apply --dry-run "$TMP/baseline_conflict_fixture.zip" > "$TMP/out.log" 2>&1
+RC=$?
+set -e
+cat "$TMP/out.log"
+test "$RC" -ne 0
+grep -q "BASELINE_CONFLICT" "$TMP/out.log"
+
+Fehler: BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vorzustand.
+  README.md
+    expectedBeforeSha256: 25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218
+    actualSha256:         63f224347bfa569864071f3863af4a32ba3d21758bd5a0a236cb5583cbc8b985
+EXIT 0
+END 2026-07-05T19:26:05+02:00

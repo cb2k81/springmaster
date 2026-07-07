@@ -1,0 +1,8 @@
+Springmaster gates: SUCCESS
+  Seed:     springmaster.report-only-gate-seed.v1
+  Mode:     report-only
+  Scope:    springmaster-reference-only
+  Run ID:   000070-resume3-smoke
+  Findings: 12
+  Schema:   springmaster.report-only-report.v1
+  Report:   target/springmaster-gates/000070-resume3-smoke

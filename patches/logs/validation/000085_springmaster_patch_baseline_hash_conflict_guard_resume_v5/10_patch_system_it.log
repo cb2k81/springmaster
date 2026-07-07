@@ -1,0 +1,15 @@
+START 2026-07-05T19:26:05+02:00
+PWD: /opt/cocondo/springmaster
+CMD: PATCH_SYSTEM_IT_WITH_BACKGROUND=0 timeout 240 ./bin/patch-system-it.sh
+Fixture: /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture apply --dry-run /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/patches/fixture_mixed.zip ==
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture accept /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/patches/fixture_mixed.zip --profile docs --no-full-test --no-export --skip-tooling-selfcheck ==
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture rollback --dry-run latest ==
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture rollback latest ==
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture show latest ==
+== python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/fixture apply --dry-run /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/patches/fixture_hash_guard.zip ==
+SKIP: background fixture test (set PATCH_SYSTEM_IT_WITH_BACKGROUND=1 to enable)
+PASS: patch-system integration and rollback fixture
+Log: /opt/cocondo/springmaster/build/patch-system-it/20260705_192605_296260/run.log
+EXIT 0
+END 2026-07-05T19:26:06+02:00

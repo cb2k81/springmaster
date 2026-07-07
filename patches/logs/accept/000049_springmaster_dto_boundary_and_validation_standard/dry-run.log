@@ -1,0 +1,27 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000049_springmaster_dto_boundary_and_validation_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000049_springmaster_dto_boundary_and_validation_standard.zip
+  Patch-ID:     000049_springmaster_dto_boundary_and_validation_standard
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/REQUIRED_FIELDS_OPENAPI_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000049-springmaster-dto-boundary-and-validation-standard.md
+
+Zusammenfassung:
+  new: 2
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

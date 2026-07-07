@@ -1,0 +1,42 @@
+Project-New:
+  Master:       /opt/cocondo/springmaster
+  Ziel:         /opt/cocondo/zbm
+  Projekt:      zbm
+  Package:      de.cocondo.zbm
+  Modus:        DRY-RUN
+
+  [PLAN]    .env.example
+  [PLAN]    .gitignore
+  [PLAN]    README.md
+  [PLAN]    export.config.json
+  [PLAN]    pom.xml
+  [PLAN]    src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+  [PLAN]    src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+  [PLAN]    src/main/resources/application.yml
+  [PLAN]    src/main/resources/db/changelog/db.changelog-master.xml
+  [PLAN]    src/test/java/de/cocondo/zbm/app/ZbmApplicationTests.java
+  [PLAN]    bin/build.sh
+  [PLAN]    bin/dbtool.sh
+  [PLAN]    bin/export-completion.bash
+  [PLAN]    bin/export.sh
+  [PLAN]    bin/init.env.sh
+  [PLAN]    bin/patch.py
+  [PLAN]    bin/patch.sh
+  [PLAN]    bin/tooling-selfcheck.sh
+  [PLAN]    bin/lib/core/env.sh
+  [PLAN]    bin/lib/core/log.sh
+  [PLAN]    bin/lib/dbtool/changelog.sh
+  [PLAN]    bin/lib/dbtool/commands.sh
+  [PLAN]    bin/lib/dbtool/config.sh
+  [PLAN]    bin/lib/dbtool/liquibase.sh
+  [PLAN]    bin/lib/dbtool/mariadb.sh
+  [PLAN]    platform/versions/platform.env
+  [PLAN]    PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md
+  [PLAN]    PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env
+  [PLAN]    patches/logs/bootstrap/CHANGELOG-000001-project-new-bootstrap.md
+  [PLAN]    patches/archives/000001_project_new_bootstrap/manifest.json
+  [PLAN]    patches/archives/000001_project_new_bootstrap/patch-log.json
+  [PLAN]    tmp/.gitkeep
+
+Zusammenfassung: 32 Dateien
+Dry-run abgeschlossen. Es wurden keine Dateien geschrieben.

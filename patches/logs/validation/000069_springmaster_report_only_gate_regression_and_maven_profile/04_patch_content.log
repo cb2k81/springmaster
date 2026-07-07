@@ -1,0 +1,40 @@
+Archive:  /home/cb/Downloads/000069_springmaster_report_only_gate_regression_and_maven_profile.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      428  2026-07-01 06:27   manifest.json
+        0  2026-07-01 06:27   files/
+     5311  2026-07-01 06:27   files/pom.xml
+        0  2026-07-01 06:27   files/bin/
+    28485  2026-07-01 06:27   files/bin/springmaster-gates.py
+     2912  2026-07-01 06:27   files/bin/springmaster-gates-selfcheck.sh
+     5694  2026-07-01 06:27   files/bin/springmaster-gates-regression.sh
+        0  2026-07-01 06:27   files/src/
+        0  2026-07-01 06:27   files/src/test/
+        0  2026-07-01 06:27   files/src/test/java/
+        0  2026-07-01 06:27   files/src/test/java/de/
+        0  2026-07-01 06:27   files/src/test/java/de/cocondo/
+        0  2026-07-01 06:27   files/src/test/java/de/cocondo/platform/
+        0  2026-07-01 06:27   files/src/test/java/de/cocondo/platform/tooling/
+     4098  2026-07-01 06:27   files/src/test/java/de/cocondo/platform/tooling/SpringmasterGatesReportProfileTest.java
+        0  2026-07-01 06:27   files/PROJECT_DOCS/
+        0  2026-07-01 06:27   files/PROJECT_DOCS/ADR/
+    14646  2026-07-01 06:27   files/PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+        0  2026-07-01 06:27   files/PROJECT_DOCS/CONCEPT/
+    61633  2026-07-01 06:27   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+        0  2026-07-01 06:27   files/PROJECT_DOCS/PLANNING/
+    32886  2026-07-01 06:27   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+        0  2026-07-01 06:27   files/PROJECT_DOCS/STANDARDS/
+        0  2026-07-01 06:27   files/PROJECT_DOCS/STANDARDS/API/
+    20955  2026-07-01 06:27   files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+    19498  2026-07-01 06:27   files/PROJECT_DOCS/STANDARDS/README.md
+        0  2026-07-01 06:27   files/PROJECT_DOCS/TOOLING/
+    14245  2026-07-01 06:27   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+     5463  2026-07-01 06:27   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+     7868  2026-07-01 06:27   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+        0  2026-07-01 06:27   files/platform/
+        0  2026-07-01 06:27   files/platform/versions/
+      414  2026-07-01 06:27   files/platform/versions/platform.env
+        0  2026-07-01 06:27   logs/
+     1856  2026-07-01 06:27   logs/CHANGELOG-000069-springmaster-report-only-gate-regression-and-maven-profile.md
+---------                     -------
+   226392                     35 files

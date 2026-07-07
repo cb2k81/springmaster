@@ -1,0 +1,126 @@
+{
+  "schema": "springmaster.catalog-demo.candidate-evidence.v1",
+  "subject": "Catalog-demo",
+  "slice": "CatalogItem",
+  "sliceState": "candidate-reference-slice",
+  "canonicalState": "not-canonical",
+  "securityMode": "documented-deferred-security",
+  "sourcePatch": "000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation",
+  "forensicReviewPatch": "000073_springmaster_catalog_demo_candidate_slice_forensic_review",
+  "alignmentPatch": "000074_springmaster_catalog_demo_candidate_slice_alignment",
+  "targetComparison": "blocked",
+  "targetDelivery": "blocked",
+  "implementedOperations": [
+    {
+      "operation": "paged-list",
+      "method": "GET",
+      "path": "/api/demo/catalog/items",
+      "statusEvidence": [
+        200
+      ],
+      "queryParameters": [
+        "page",
+        "size",
+        "sortBy",
+        "sortDir"
+      ],
+      "responseDto": "PagedResponseDTO<CatalogItemListItemDTO>"
+    },
+    {
+      "operation": "detail-by-id",
+      "method": "GET",
+      "path": "/api/demo/catalog/items/{id}",
+      "statusEvidence": [
+        200,
+        404
+      ],
+      "identity": "opaque-id"
+    },
+    {
+      "operation": "lookup-by-sku",
+      "method": "GET",
+      "path": "/api/demo/catalog/items/by-sku/{sku}",
+      "statusEvidence": [
+        200,
+        404
+      ],
+      "identity": "business-key"
+    },
+    {
+      "operation": "create",
+      "method": "POST",
+      "path": "/api/demo/catalog/items",
+      "statusEvidence": [
+        201,
+        400,
+        409
+      ],
+      "requestDto": "CatalogItemCreateDTO",
+      "responseDto": "CatalogItemDTO",
+      "nestedRequestDtos": [
+        "CatalogItemAvailabilityDTO"
+      ],
+      "requestBoundary": "no persistence Range in public request DTO"
+    },
+    {
+      "operation": "full-update",
+      "method": "PUT",
+      "path": "/api/demo/catalog/items/{id}",
+      "statusEvidence": [
+        200,
+        400,
+        404
+      ],
+      "requestDto": "CatalogItemUpdateDTO",
+      "responseDto": "CatalogItemDTO",
+      "nestedRequestDtos": [
+        "CatalogItemAvailabilityDTO"
+      ],
+      "requestBoundary": "no persistence Range in public request DTO"
+    },
+    {
+      "operation": "bodyless-delete",
+      "method": "DELETE",
+      "path": "/api/demo/catalog/items/{id}",
+      "statusEvidence": [
+        204,
+        404
+      ]
+    }
+  ],
+  "errorContractEvidence": {
+    "errorResponseDto": "CatalogApiErrorResponse",
+    "violationDto": "CatalogApiViolation",
+    "fields": [
+      "timestamp",
+      "status",
+      "error",
+      "errorType",
+      "message",
+      "errorId",
+      "path",
+      "method",
+      "messageKey",
+      "violations"
+    ]
+  },
+  "permissionVocabulary": [
+    "catalog:item:read",
+    "catalog:item:create",
+    "catalog:item:update",
+    "catalog:item:delete"
+  ],
+  "deferredCanonicalEvidence": [
+    "durable-persistence",
+    "liquibase-migration",
+    "implemented-management-security",
+    "openapi-operation-evidence",
+    "strict-gate-promotion",
+    "target-project-comparison",
+    "target-project-delivery"
+  ],
+  "dtoBoundaryPatch": "000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup",
+  "dtoBoundaryState": "public-request-availability-decoupled-from-persistence-range",
+  "serviceValidationState": "create-update-symmetric-service-validation",
+  "legacyHelperState": "unpaged-CatalogItemService-list-removed"
+}

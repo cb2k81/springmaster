@@ -1,0 +1,22 @@
+== 03_zip_content ==
+START 2026-07-05T16:54:23+02:00
+$ unzip -l /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+
+Archive:  /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2002  2026-07-05 14:33   files/.env.example
+    72215  2026-07-05 14:41   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+     7581  2026-07-05 14:34   files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+    10390  2026-07-05 14:34   files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+    13875  2026-07-05 14:34   files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+     5076  2026-07-05 14:39   files/bin/patch-system-it.sh
+    58225  2026-07-05 14:49   files/bin/patch.py
+      416  2026-07-05 14:41   files/platform/versions/platform.env
+     1298  2026-07-05 14:41   logs/CHANGELOG-000082_springmaster_patch_runtime_locking_background_git_rollback.md
+      615  2026-07-05 14:41   manifest.json
+---------                     -------
+   171693                     10 files
+
+EXIT 0
+END 2026-07-05T16:54:23+02:00

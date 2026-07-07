@@ -1,0 +1,5 @@
+START 2026-07-05T18:48:14+02:00
+PWD: /opt/cocondo/springmaster
+CMD: bash -lc bash -n ./bin/*.sh ./bin/lib/core/*.sh ./bin/lib/dbtool/*.sh
+EXIT 0
+END 2026-07-05T18:48:14+02:00

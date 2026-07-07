@@ -1,0 +1,23 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000041_springmaster_core_entity_service_sequence_inventory
+Archiv:        000041_springmaster_core_entity_service_sequence_inventory.zip
+Erstellt am:   2026-06-27T10:07:50.006773+02:00
+Status:        applied
+Scope:         core
+Summary:
+  new: 2
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  modified      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/core/CHANGELOG-000041-springmaster-core-entity-service-sequence-inventory.md

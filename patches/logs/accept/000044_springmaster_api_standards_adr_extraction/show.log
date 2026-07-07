@@ -1,0 +1,26 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000044_springmaster_api_standards_adr_extraction
+Archiv:        000044_springmaster_api_standards_adr_extraction.zip
+Erstellt am:   2026-06-29T10:55:15.512286+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 6
+  modified: 4
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/EXTERNAL_ID_OPENAPI_BOUNDARY_STANDARD.md
+  new           PROJECT_DOCS/STANDARDS/API/LIST_FILTER_QUERY_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  new           PROJECT_DOCS/STANDARDS/API/REQUIRED_FIELDS_OPENAPI_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000044-springmaster-api-standards-adr-extraction.md

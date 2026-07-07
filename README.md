@@ -30,3 +30,17 @@ cp .env.example .env
 ./bin/dbtool.sh status
 mvn test
 ```
+## Reference Project and Standards Strategy
+
+Since `000043_springmaster_reference_project_and_standards_strategy`, Springmaster is explicitly responsible for reusable backend standards and conventions in addition to tooling, Core code and reference implementations.
+
+Existing projects are not supplied first. The next validation target is the clean-room `Catalog-demo` reference project with `CatalogItem` as the first pattern object.
+
+See:
+
+```text
+PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+PROJECT_DOCS/STANDARDS/README.md
+PROJECT_DOCS/STANDARDS/API/README.md
+```
+

@@ -1,0 +1,1 @@
+[ERROR] zbm: target delivery is disabled by descriptor (TARGET_DELIVERY_ENABLED=false). Initialize or reclassify the target explicitly before target-apply.

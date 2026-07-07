@@ -1,0 +1,40 @@
+START 2026-07-05T18:48:14+02:00
+PWD: /opt/cocondo/springmaster
+CMD: bash -lc 
+set -euo pipefail
+FIXTURE="$(mktemp -d)"
+PATCH_FIXTURE="$(mktemp --suffix=.zip)"
+mkdir -p "${FIXTURE}/custom" "${FIXTURE}/patches/logs/custom"
+printf "original\n" > "${FIXTURE}/custom/existing.txt"
+cat > "${FIXTURE}/.env" <<ENV
+PATCH_LOCAL_SCOPES=custom
+PATCH_SCOPE_CUSTOM_PATHS=custom/**
+PATCH_SCOPE_CUSTOM_LOG_DIR=custom
+PATCH_TOOLING_SELFCHECK_COMMAND=none
+ENV
+EXPECTED_SHA="$(sha256sum "${FIXTURE}/custom/existing.txt" | awk '{print $1}')"
+python3 - "${PATCH_FIXTURE}" "${EXPECTED_SHA}" <<PY
+import json, sys, zipfile
+manifest={"scope":"custom","name":"baseline_conflict","expectedBeforeSha256":{"custom/existing.txt":sys.argv[2]}}
+with zipfile.ZipFile(sys.argv[1], "w", compression=zipfile.ZIP_DEFLATED) as z:
+    z.writestr("manifest.json", json.dumps(manifest, indent=2)+"\\n")
+    z.writestr("logs/CHANGELOG-baseline_conflict.md", "# baseline_conflict\\n")
+    z.writestr("files/custom/existing.txt", "changed\\n")
+PY
+printf "foreign\n" > "${FIXTURE}/custom/existing.txt"
+if python3 ./bin/patch.py "${FIXTURE}" apply --dry-run "${PATCH_FIXTURE}" > "${FIXTURE}/conflict.log" 2>&1; then
+  echo "ERROR: expected BASELINE_CONFLICT"
+  cat "${FIXTURE}/conflict.log"
+  exit 1
+fi
+grep -q BASELINE_CONFLICT "${FIXTURE}/conflict.log"
+printf "original\n" > "${FIXTURE}/custom/existing.txt"
+python3 ./bin/patch.py "${FIXTURE}" apply --dry-run "${PATCH_FIXTURE}" > "${FIXTURE}/ok.log" 2>&1
+grep -q "\[MODIFIED\].*custom/existing.txt" "${FIXTURE}/ok.log"
+python3 ./bin/patch.py "${FIXTURE}" apply "${PATCH_FIXTURE}" > "${FIXTURE}/apply.log" 2>&1
+python3 ./bin/patch.py "${FIXTURE}" apply --dry-run "${PATCH_FIXTURE}" > "${FIXTURE}/noop.log" 2>&1
+grep -q "\[UNCHANGED\].*custom/existing.txt" "${FIXTURE}/noop.log"
+rm -rf "${FIXTURE}" "${PATCH_FIXTURE}"
+
+EXIT 0
+END 2026-07-05T18:48:14+02:00

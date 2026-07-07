@@ -1,0 +1,21 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000086_springmaster_zdm_target_descriptor_registration.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000086_springmaster_zdm_target_descriptor_registration.zip
+  Patch-ID:     000087_springmaster_zdm_target_descriptor_registration
+  Scope:        target-registry
+  Modus:        DRY-RUN
+
+  [UNCHANGED]     platform/update/targets/zdm.env
+  [UNCHANGED]     patches/logs/target-registry/CHANGELOG-000086_springmaster_zdm_target_descriptor_registration.md
+
+Zusammenfassung:
+  new: 0
+  modified: 0
+  unchanged: 2
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

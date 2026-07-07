@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000068_springmaster_report_only_gate_tooling_seed
+  Profile:      tooling
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000068_springmaster_report_only_gate_tooling_seed

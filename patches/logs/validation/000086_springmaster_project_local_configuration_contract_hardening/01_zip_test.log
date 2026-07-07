@@ -1,0 +1,18 @@
+Archive:  /home/cb/Downloads/000086_springmaster_project_local_configuration_contract_hardening.zip
+    testing: files/.env.example       OK
+    testing: files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl   OK
+    testing: files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_LOCAL_CONFIGURATION_CONTRACT.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/bin/export.sh      OK
+    testing: files/bin/lib/core/env.sh   OK
+    testing: files/bin/patch.py       OK
+    testing: files/bin/platform-update.sh   OK
+    testing: files/bin/project-new-acceptance.sh   OK
+    testing: files/bin/project-new.sh   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000086_springmaster_project_local_configuration_contract_hardening.md   OK
+    testing: manifest.json            OK
+No errors detected in compressed data of /home/cb/Downloads/000086_springmaster_project_local_configuration_contract_hardening.zip.

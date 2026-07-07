@@ -1,0 +1,25 @@
+Archive:  /home/cb/Downloads/000081_springmaster_zbm_core_source_copy_acceptance.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     1214  2026-07-02 15:28   manifest.json
+        0  2026-07-02 15:28   files/
+        0  2026-07-02 15:28   files/bin/
+    52828  2026-07-02 15:28   files/bin/platform-update.sh
+        0  2026-07-02 15:28   files/platform/
+        0  2026-07-02 15:28   files/platform/versions/
+      400  2026-07-02 15:28   files/platform/versions/platform.env
+        0  2026-07-02 15:28   files/PROJECT_DOCS/
+        0  2026-07-02 15:28   files/PROJECT_DOCS/CONCEPT/
+    71735  2026-07-02 15:28   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+        0  2026-07-02 15:28   files/PROJECT_DOCS/PLANNING/
+    43492  2026-07-02 15:28   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+        0  2026-07-02 15:28   files/PROJECT_DOCS/TARGET_UPDATES/
+     3561  2026-07-02 15:28   files/PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md
+        0  2026-07-02 15:28   files/PROJECT_DOCS/TOOLING/
+    12494  2026-07-02 15:28   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+     3853  2026-07-02 15:28   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+    11479  2026-07-02 15:28   files/PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md
+        0  2026-07-02 15:28   logs/
+      884  2026-07-02 15:28   logs/CHANGELOG-000081-springmaster-zbm-core-source-copy-acceptance.md
+---------                     -------
+   201940                     20 files

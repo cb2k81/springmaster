@@ -1,0 +1,9 @@
+{
+  "scope": "root",
+  "name": "springmaster_report_only_gate_findings_baseline_review",
+  "description": "Document and classify the first Springmaster report-only gate findings baseline after regression and Maven profile hardening.",
+  "baseline": "springmaster_export_full_2026-07-01T05-02-43-448803Z.zip",
+  "afterPatch": "000069_springmaster_report_only_gate_regression_and_maven_profile",
+  "type": "documentation-only",
+  "mavenTestRequired": false
+}

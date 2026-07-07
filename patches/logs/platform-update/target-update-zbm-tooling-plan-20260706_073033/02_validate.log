@@ -1,0 +1,3 @@
+[WARN] zbm: status is INITIALIZATION_CANDIDATE; descriptor is not verified for automatic updates.
+[OK] zbm: target path exists and local patch system is executable.
+[OK] zbm: descriptor syntax valid.

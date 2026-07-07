@@ -1,0 +1,33 @@
+Patch-ID:      000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup
+Archiv:        000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup.zip
+Erstellt am:   2026-07-02T07:52:19.808200+02:00
+Status:        applied
+Scope:         demo
+Summary:
+  new: 3
+  modified: 17
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+  modified      PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md
+  new           PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_DTO_VALIDATION_CLEANUP.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  modified      PROJECT_DOCS/DEMO/README.md
+  modified      platform/versions/platform.env
+  new           src/main/java/de/cocondo/platform/demo/catalog/CatalogItemAvailabilityDTO.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCreateDTO.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemMapper.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemUpdateDTO.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemValidator.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/CatalogItemValidatorTest.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java
+  new           patches/logs/demo/CHANGELOG-000075-springmaster-catalog-demo-candidate-slice-dto-validation-cleanup.md

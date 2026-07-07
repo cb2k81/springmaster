@@ -1,0 +1,13 @@
+Archive:  /home/cb/Downloads/000077_springmaster_generated_service_slice_readiness_plan.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/PROJECT_DOCS/TEMPLATES/project-skeleton/README.md   OK
+    testing: files/PROJECT_DOCS/CORE/README.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000077-springmaster-generated-service-slice-readiness-plan.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000077_springmaster_generated_service_slice_readiness_plan.zip.

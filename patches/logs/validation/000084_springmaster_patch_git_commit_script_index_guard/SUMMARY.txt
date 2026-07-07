@@ -1,0 +1,20 @@
+Status: SUCCESS
+Patch: /home/cb/Downloads/000084_springmaster_patch_git_commit_script_index_guard.zip
+LogDir: /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard
+LatestPatch: 000084_springmaster_patch_git_commit_script_index_guard
+LatestExport: /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T15-04-49-998748Z.zip
+AcceptSummary: /opt/cocondo/springmaster/patches/logs/accept/000084_springmaster_patch_git_commit_script_index_guard/reaccept-20260705_170449/SUMMARY.txt
+GitCommitScript: /opt/cocondo/springmaster/patches/logs/accept/000084_springmaster_patch_git_commit_script_index_guard/reaccept-20260705_170449/git-commit.sh
+
+Logs:
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/00_patch_file.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/01_patch_sha256.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/02_zip_test.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/03_zip_content.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/04_dry_run.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/05_apply.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/06_show_latest.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/07_python_compile.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/08_shell_syntax.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/09_patch_system_it.log
+  /opt/cocondo/springmaster/patches/logs/validation/000084_springmaster_patch_git_commit_script_index_guard/10_accept_verify_export.log

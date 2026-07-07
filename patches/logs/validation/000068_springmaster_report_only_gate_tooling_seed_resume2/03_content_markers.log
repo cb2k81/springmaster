@@ -1,0 +1,9 @@
+[OK] Marker 'springmaster.report-only-gate-seed.v1' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+[OK] Marker 'springmaster-reference-only' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'findings.jsonl' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'SM-G0-RULE-SOURCE-COVERAGE' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'SM-G1-QUERY-PARAMETERS' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'target-project input' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'Implementation status after 000068' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+[OK] Marker 'Implementation note after 000068' gefunden in PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+[OK] Marker 'PLATFORM_TOOLING_VERSION=0.3.8' in PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md

@@ -1,0 +1,9 @@
+{
+    "scope": "root",
+    "name": "springmaster_report_only_gate_regression_and_maven_profile",
+    "description": "Harden the Springmaster report-only gate tooling seed with regression coverage and Maven report profile validation.",
+    "baseline": "springmaster_export_full_2026-07-01T03-42-34-641289Z.zip",
+    "afterPatch": "000068_springmaster_report_only_gate_tooling_seed",
+    "type": "tooling-code",
+    "mavenTestRequired": true
+}

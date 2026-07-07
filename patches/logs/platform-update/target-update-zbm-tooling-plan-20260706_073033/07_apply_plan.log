@@ -1,0 +1,11 @@
+Platform-Update-Apply-Plan:
+  Status:       REVIEW_REQUIRED
+  Target:       zbm
+  Patch-ID:     20260706T053033Z_springmaster_platform_update_tooling_for_zbm
+  Patch-Scope:  tooling
+  Source ZIP:   /opt/cocondo/springmaster/build/platform-update/generated/20260706T053033Z_springmaster_platform_update_tooling_for_zbm.zip
+  Preflight:    /opt/cocondo/springmaster/build/platform-update/manifests/20260706T053034Z_zbm_20260706T053033Z_springmaster_platform_update_tooling_for_zbm_preflight.log
+  Plan:         /opt/cocondo/springmaster/build/platform-update/manifests/20260706T053034Z_zbm_20260706T053033Z_springmaster_platform_update_tooling_for_zbm_apply_plan.md
+  Review Env:   /opt/cocondo/springmaster/build/platform-update/manifests/20260706T053034Z_zbm_20260706T053033Z_springmaster_platform_update_tooling_for_zbm_apply_plan.env
+  Target ZIP:   /opt/cocondo/zbm/tmp/platform-updates/20260706T053033Z_springmaster_platform_update_tooling_for_zbm.zip
+  Hinweis:      Zielprojekt wurde nicht verändert. Realer Apply nur mit target-apply.

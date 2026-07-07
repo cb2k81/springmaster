@@ -1,0 +1,1010 @@
+{
+  "schemaVersion": "1.0",
+  "createdByPatch": "000006_springmaster_core_baseline_preparation",
+  "sourceExport": "idm_export_full_parts_baseline_2026-06-24_05-45-34-337Z.zip",
+  "targetBaseline": "springmaster_export_full_parts_baseline_2026-06-24T08-55-49-108651Z.zip",
+  "sourceRoot": "src/main/java/de/cocondo/app/system",
+  "targetRoot": "src/main/java/de/cocondo/system",
+  "totalJavaFiles": 73,
+  "directIdmDomainImportCount": 0,
+  "packageSummary": {
+    "config": 3,
+    "core/http": 7,
+    "core/id": 2,
+    "core/locale": 1,
+    "core/util": 1,
+    "dto": 8,
+    "entity": 8,
+    "entity/metadata": 6,
+    "entity/sequence": 3,
+    "entity/validation": 2,
+    "event": 10,
+    "exception": 1,
+    "info": 5,
+    "list": 2,
+    "mapper": 1,
+    "security/authorization": 3,
+    "security/config": 5,
+    "security/http": 2,
+    "security/jwt": 2,
+    "swagger": 1
+  },
+  "migrationGroupSummary": {
+    "basic-core-candidate": 16,
+    "defer-persistence": 18,
+    "defer-security": 12,
+    "dependency-policy-required": 8,
+    "event-foundation": 4,
+    "web-infrastructure": 15
+  },
+  "records": [
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/config/DefaultWebConfig.java",
+      "targetPath": "src/main/java/de/cocondo/system/config/DefaultWebConfig.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.http.DefaultFallbackInterceptor"
+      ],
+      "requiredDependencyGroups": [
+        "slf4j",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/config/DefaultWebConfigProperties.java",
+      "targetPath": "src/main/java/de/cocondo/system/config/DefaultWebConfigProperties.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/config/RequestLoggingConfig.java",
+      "targetPath": "src/main/java/de/cocondo/system/config/RequestLoggingConfig.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/DefaultController.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/DefaultController.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/DefaultFallbackInterceptor.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/DefaultFallbackInterceptor.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "servlet/web",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/EndpointPrinter.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/EndpointPrinter.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "slf4j",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/ErrorResponse.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/ErrorResponse.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "validation"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/GlobalExceptionHandler.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/GlobalExceptionHandler.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.locale.LocalMessageProvider",
+        "de.cocondo.app.system.event.EventPublisher"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot",
+        "spring-security",
+        "spring-web",
+        "validation"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/InvalidHttpHeaderException.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/InvalidHttpHeaderException.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/http/RequestErrorEvent.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/http/RequestErrorEvent.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.event.ErrorEvent"
+      ],
+      "requiredDependencyGroups": [
+        "servlet/web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/id/IdGeneratorService.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/id/IdGeneratorService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/id/UuidIdGeneratorService.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot"
+      ],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/locale/LocalMessageProvider.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/locale/LocalMessageProvider.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/core/util/serialize/PayloadSerializer.java",
+      "targetPath": "src/main/java/de/cocondo/system/core/util/serialize/PayloadSerializer.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "jackson",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DataTransferObject.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DataTransferObject.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DomainEntityDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DomainEntityDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DomainEntityInboundDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.metadata.KeyValuePairDTO"
+      ],
+      "requiredDependencyGroups": [
+        "jackson",
+        "lombok",
+        "validation"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DomainEntityMetadataDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.metadata.KeyValuePairDTO"
+      ],
+      "requiredDependencyGroups": [
+        "lombok"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DomainEntityMetadataInboundDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DomainEntityMetadataInboundDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/DomainEntityUpdateDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/dto/PagedResponseDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/dto/PagedResponseDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/Auditable.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/Auditable.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/AuditingEntityListener.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/AuditingEntityListener.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "slf4j",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/DomainEntity.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/DomainEntity.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.metadata.KeyValuePair"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/DomainEntityListener.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/DomainEntityListener.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/DomainEntityService.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/DomainEntityService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.id.IdGeneratorService"
+      ],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/Identifyable.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/Identifyable.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/Range.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/Range.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/Taggable.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/Taggable.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/AbstractMetadataDomainService.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/AbstractMetadataDomainService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.dto.DomainEntityMetadataDTO",
+        "de.cocondo.app.system.entity.DomainEntity",
+        "de.cocondo.app.system.mapper.DomainMetadataSupportMapper"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePair.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePair.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.DomainEntity"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "jackson"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePairDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePairPayload.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok"
+      ],
+      "migrationGroup": "dependency-policy-required"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValueService.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValueService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.DomainEntity"
+      ],
+      "requiredDependencyGroups": [
+        "slf4j",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/metadata/TagService.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/metadata/TagService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.entity.DomainEntity"
+      ],
+      "requiredDependencyGroups": [
+        "slf4j",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequence.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequence.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequenceRepository.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequenceRepository.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequenceService.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequenceService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/validation/ValidationException.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/validation/ValidationException.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/entity/validation/Validator.java",
+      "targetPath": "src/main/java/de/cocondo/system/entity/validation/Validator.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/DomainEvent.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/DomainEvent.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot"
+      ],
+      "migrationGroup": "event-foundation"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/DomainEventEntity.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/DomainEventEntity.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/DomainEventEntityRepository.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/DomainEventEntityRepository.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/DomainEventLoggingListener.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/DomainEventLoggingListener.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.util.serialize.PayloadSerializer"
+      ],
+      "requiredDependencyGroups": [
+        "jackson",
+        "slf4j",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "event-foundation"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/DomainEventSpringShellListener.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/DomainEventSpringShellListener.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "event-foundation"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/ErrorEntity.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/ErrorEntity.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/ErrorEntityRepository.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/ErrorEntityRepository.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/ErrorEvent.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/ErrorEvent.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot"
+      ],
+      "migrationGroup": "event-foundation"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/ErrorIdService.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/ErrorIdService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/event/EventPublisher.java",
+      "targetPath": "src/main/java/de/cocondo/system/event/EventPublisher.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.http.RequestErrorEvent"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/exception/EntityAlreadyExistsException.java",
+      "targetPath": "src/main/java/de/cocondo/system/exception/EntityAlreadyExistsException.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoContext.java",
+      "targetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoContext.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoContextDTO.java",
+      "targetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoContextDTO.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoController.java",
+      "targetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoController.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/info/PublicApplicationInfoController.java",
+      "targetPath": "src/main/java/de/cocondo/system/info/PublicApplicationInfoController.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/info/ServerInfoPrinter.java",
+      "targetPath": "src/main/java/de/cocondo/system/info/ServerInfoPrinter.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "slf4j",
+        "spring-core/boot",
+        "spring-web"
+      ],
+      "migrationGroup": "web-infrastructure"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/list/PagedQuerySupport.java",
+      "targetPath": "src/main/java/de/cocondo/system/list/PagedQuerySupport.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/list/PagedResponseFactory.java",
+      "targetPath": "src/main/java/de/cocondo/system/list/PagedResponseFactory.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.dto.PagedResponseDTO"
+      ],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-persistence"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/mapper/DomainMetadataSupportMapper.java",
+      "targetPath": "src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.dto.DomainEntityMetadataDTO",
+        "de.cocondo.app.system.entity.DomainEntity",
+        "de.cocondo.app.system.entity.metadata.KeyValuePairDTO"
+      ],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "basic-core-candidate"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/authorization/DatabasePermissionResolver.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/authorization/DatabasePermissionResolver.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "data-jpa",
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/authorization/PermissionAuthoritySource.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/authorization/PermissionAuthoritySource.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/authorization/PermissionResolver.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/authorization/PermissionResolver.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityConfig.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityConfig.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.security.jwt.JwtAuthenticationFilter"
+      ],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot",
+        "spring-security",
+        "spring-web"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityCorsProperties.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityCorsProperties.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityPathsProperties.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityPathsProperties.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/config/JwtSecurityProperties.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/config/JwtSecurityProperties.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "lombok",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/config/MethodSecurityConfig.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/config/MethodSecurityConfig.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot",
+        "spring-security"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/http/RestAccessDeniedHandler.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/http/RestAccessDeniedHandler.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.http.ErrorResponse",
+        "de.cocondo.app.system.core.http.RequestErrorEvent",
+        "de.cocondo.app.system.core.locale.LocalMessageProvider",
+        "de.cocondo.app.system.event.EventPublisher"
+      ],
+      "requiredDependencyGroups": [
+        "jackson",
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot",
+        "spring-security",
+        "spring-web"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/http/RestAuthenticationEntryPoint.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/http/RestAuthenticationEntryPoint.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.core.http.ErrorResponse",
+        "de.cocondo.app.system.core.http.RequestErrorEvent",
+        "de.cocondo.app.system.core.locale.LocalMessageProvider",
+        "de.cocondo.app.system.event.EventPublisher"
+      ],
+      "requiredDependencyGroups": [
+        "jackson",
+        "servlet/web",
+        "slf4j",
+        "spring-core/boot",
+        "spring-security",
+        "spring-web"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/jwt/JwtAuthenticationFilter.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/jwt/JwtAuthenticationFilter.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [
+        "de.cocondo.app.system.security.authorization.PermissionResolver"
+      ],
+      "requiredDependencyGroups": [
+        "jjwt",
+        "servlet/web",
+        "spring-core/boot",
+        "spring-security",
+        "spring-web"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/security/jwt/JwtService.java",
+      "targetPath": "src/main/java/de/cocondo/system/security/jwt/JwtService.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "jjwt",
+        "spring-core/boot"
+      ],
+      "migrationGroup": "defer-security"
+    },
+    {
+      "sourcePath": "src/main/java/de/cocondo/app/system/swagger/SwaggerConfig.java",
+      "targetPath": "src/main/java/de/cocondo/system/swagger/SwaggerConfig.java",
+      "sourcePackageRoot": "de.cocondo.app.system",
+      "targetPackageRoot": "de.cocondo.system",
+      "directIdmDomainImports": [],
+      "internalSystemImports": [],
+      "requiredDependencyGroups": [
+        "spring-core/boot",
+        "springdoc-openapi"
+      ],
+      "migrationGroup": "web-infrastructure"
+    }
+  ],
+  "updatedByPatch": "000007_springmaster_core_namespace_strategy",
+  "namespaceStrategy": "master-and-target-core-use-identical-package-root",
+  "targetPackageRoot": "de.cocondo.system"
+}

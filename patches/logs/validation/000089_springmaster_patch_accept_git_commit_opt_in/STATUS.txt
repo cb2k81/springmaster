@@ -1,0 +1,24 @@
+00_preflight START
+00_preflight PASS
+01_patch_sha256 START
+01_patch_sha256 PASS
+02_zip_test START
+02_zip_test PASS
+03_zip_content START
+03_zip_content PASS
+04_dry_run START
+04_dry_run PASS
+05_apply START
+05_apply PASS
+06_patch_py_compile START
+06_patch_py_compile PASS
+07_bash_syntax START
+07_bash_syntax PASS
+08_patch_system_it START
+08_patch_system_it PASS
+09_show_latest START
+09_show_latest PASS
+10_export START
+10_export PASS
+DONE
+EXPORT=exports/text/springmaster_export_full_2026-07-07T08-46-35-881935Z.zip

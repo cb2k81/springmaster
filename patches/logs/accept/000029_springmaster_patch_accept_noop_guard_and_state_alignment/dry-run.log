@@ -1,0 +1,29 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000029_springmaster_patch_accept_noop_guard_and_state_alignment.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000029_springmaster_patch_accept_noop_guard_and_state_alignment.zip
+  Patch-ID:     000029_springmaster_patch_accept_noop_guard_and_state_alignment
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [MODIFIED]      bin/patch.py
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000029-springmaster-patch-accept-noop-guard-and-state-alignment.md
+
+Zusammenfassung:
+  new: 1
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

@@ -1,0 +1,10 @@
+Archive:  /home/cb/Downloads/000089_springmaster_patch_accept_git_commit_opt_in.zip
+    testing: manifest.json            OK
+    testing: files/bin/patch.py       OK
+    testing: files/bin/patch-system-it.sh   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000089_springmaster_patch_accept_git_commit_opt_in.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000089_springmaster_patch_accept_git_commit_opt_in.zip.

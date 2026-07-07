@@ -1,0 +1,61 @@
+Status: FAILED
+FailedStage: 09_baseline_hash_fixture_fixed
+Patch: /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard_v3_corrected_manifest.zip
+LogDir: /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4
+
+LastLogTail:
+  START 2026-07-05T19:19:42+02:00
+  PWD: /opt/cocondo/springmaster
+  CMD: 
+  set -euo pipefail
+  TMP="$(mktemp -d)"
+  trap "rm -rf \"$TMP\"" EXIT
+  mkdir -p "$TMP/project/bin" "$TMP/project/patches"
+  cp ./bin/patch.py "$TMP/project/bin/patch.py"
+  cat > "$TMP/project/bin/patch.sh" <<SH2
+  #!/usr/bin/env bash
+  set -euo pipefail
+  SCRIPT_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+  PROJECT_ROOT="\$(cd "\$SCRIPT_DIR/.." && pwd)"
+  exec python3 "\$SCRIPT_DIR/patch.py" "\$PROJECT_ROOT" "\$@"
+  SH2
+  chmod +x "$TMP/project/bin/patch.sh"
+  cd "$TMP/project"
+  mkdir -p custom/domain
+  printf "original\n" > custom/domain/item.txt
+  BEFORE="$(sha256sum custom/domain/item.txt | awk "{print \$1}")"
+  mkdir -p "$TMP/patch/files/custom/domain" "$TMP/patch/logs"
+  printf "patched\n" > "$TMP/patch/files/custom/domain/item.txt"
+  cat > "$TMP/patch/logs/CHANGELOG-baseline-conflict-fixture.md" <<MD
+  # baseline conflict fixture
+  MD
+  cat > "$TMP/patch/manifest.json" <<JSON
+  {
+    "scope": "root",
+    "name": "baseline_conflict_fixture",
+    "expectedBeforeSha256": {
+      "custom/domain/item.txt": "$BEFORE"
+    }
+  }
+  JSON
+  (cd "$TMP/patch" && zip -qr "$TMP/baseline_conflict_fixture.zip" .)
+  printf "changed-by-other\n" > custom/domain/item.txt
+  set +e
+  ./bin/patch.sh apply --dry-run "$TMP/baseline_conflict_fixture.zip" > "$TMP/out.log" 2>&1
+  RC=$?
+  set -e
+  test "$RC" -ne 0
+  grep -q "BASELINE_CONFLICT" "$TMP/out.log"
+  
+
+Logs:
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/00_patch_file.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/01_patch_sha256.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/02_zip_test.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/03_zip_content.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/04_assert_no_double_archive.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/05_show_latest.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/06_assert_latest_canonical.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/07_python_compile.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/08_shell_syntax.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard_resume_v4/09_baseline_hash_fixture_fixed.log

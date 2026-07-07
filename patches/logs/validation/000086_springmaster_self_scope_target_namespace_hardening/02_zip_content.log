@@ -1,0 +1,23 @@
+Archive:  /home/cb/Downloads/000086_springmaster_self_scope_target_namespace_hardening.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2075  2026-07-06 13:09   files/.env.example
+     1503  2026-07-06 13:10   files/PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+     2246  2026-07-06 13:09   files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+     3427  2026-07-06 13:09   files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+     2713  2026-07-06 13:09   files/PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+    12904  2026-07-06 13:09   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+     3425  2026-07-06 13:09   files/PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md
+     3997  2026-07-06 13:09   files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+     8690  2026-07-06 13:09   files/bin/export.sh
+     3690  2026-07-06 13:09   files/bin/lib/core/env.sh
+    65260  2026-07-06 13:09   files/bin/patch.py
+    52897  2026-07-06 13:09   files/bin/platform-update.sh
+     8408  2026-07-06 13:09   files/bin/project-new-acceptance.sh
+    18566  2026-07-06 13:09   files/bin/project-new.sh
+     3738  2026-07-06 13:09   files/export.config.json
+      412  2026-07-06 13:09   files/platform/versions/platform.env
+     1256  2026-07-06 13:11   logs/CHANGELOG-000086-springmaster-self-scope-target-namespace-hardening.md
+     2750  2026-07-06 13:11   manifest.json
+---------                     -------
+   197957                     18 files

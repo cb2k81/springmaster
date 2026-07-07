@@ -1,0 +1,19 @@
+Status: SUCCESS
+Patch: /home/cb/Downloads/000087_springmaster_zbm_target_delivery_enablement.zip
+LogDir: /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement
+LatestPatch: unknown
+LatestExport: /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-06T06-01-36-574906Z.zip
+AcceptSummary: /opt/cocondo/springmaster/patches/logs/accept/000087_springmaster_zbm_target_delivery_enablement/SUMMARY.txt
+GitCommitScript: /opt/cocondo/springmaster/patches/logs/accept/000087_springmaster_zbm_target_delivery_enablement/git-commit.sh
+
+Logs:
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/00_patch_file.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/01_patch_sha256.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/02_zip_test.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/03_zip_content.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/04_dry_run.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/05_accept.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/06_show_latest.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/07_platform_show_zbm.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/08_platform_validate_zbm.log
+  /opt/cocondo/springmaster/patches/logs/validation/000087_springmaster_zbm_target_delivery_enablement/09_assert_delivery_enabled.log

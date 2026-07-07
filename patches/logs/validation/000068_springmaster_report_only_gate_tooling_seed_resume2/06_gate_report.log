@@ -1,0 +1,7 @@
+Springmaster gates: SUCCESS
+  Seed:     springmaster.report-only-gate-seed.v1
+  Mode:     report-only
+  Scope:    springmaster-reference-only
+  Run ID:   000068-validation
+  Findings: 12
+  Report:   target/springmaster-gates/000068-validation

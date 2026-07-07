@@ -1,0 +1,3 @@
+PROJECT_DIR=/opt/cocondo/springmaster
+PATCH=/home/cb/Downloads/000088_springmaster_self_scope_target_namespace_hardening.zip
+-rw-rw-r-- 1 cb cb 56503 Jul  7 07:17 /home/cb/Downloads/000088_springmaster_self_scope_target_namespace_hardening.zip

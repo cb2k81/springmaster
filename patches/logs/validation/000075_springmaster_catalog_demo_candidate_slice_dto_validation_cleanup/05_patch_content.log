@@ -1,0 +1,26 @@
+Archive:  /home/cb/Downloads/000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      499  1980-01-01 00:00   manifest.json
+     3545  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_DTO_VALIDATION_CLEANUP.md
+     3415  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+     8978  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+    13722  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md
+     4128  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md
+    22136  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+     4914  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/README.md
+    65909  1980-01-01 00:00   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+      420  1980-01-01 00:00   files/platform/versions/platform.env
+     1159  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemAvailabilityDTO.java
+     2082  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCreateDTO.java
+     1753  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemUpdateDTO.java
+     2010  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemMapper.java
+     6002  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java
+     2877  1980-01-01 00:00   files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemValidator.java
+     2964  1980-01-01 00:00   files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java
+     4471  1980-01-01 00:00   files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java
+     2310  1980-01-01 00:00   files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemValidatorTest.java
+    12432  1980-01-01 00:00   files/src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java
+     1031  1980-01-01 00:00   logs/CHANGELOG-000075-springmaster-catalog-demo-candidate-slice-dto-validation-cleanup.md
+---------                     -------
+   166757                     21 files

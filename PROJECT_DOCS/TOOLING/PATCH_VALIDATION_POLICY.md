@@ -303,6 +303,27 @@ Der durch `patch.sh accept` erzeugte Git-Commit-Vorschlag darf nie fremde staged
 
 Die Patchsystem-Integrationstests müssen dieses Szenario über ein Fixture-Projekt prüfen: Eine fremde Datei wird vor Ausführung des Commit-Skripts gestaged, das Commit-Skript wird gestartet und muss kontrolliert fehlschlagen, ohne patchbezogene Dateien zu stagen oder einen Commit zu erzeugen.
 
+
+## Git-Commit-Opt-in seit 000089
+
+Das Patchsystem darf Git-Commits automatisieren, aber nur als expliziten Accept-Schritt:
+
+```bash
+./bin/patch.sh accept <patch.zip> --commit
+```
+
+Verbindliche Regeln:
+
+* `--commit` ist nur für `accept` zulässig, nicht für `verify` oder direktes `apply`.
+* Vor dem mutierenden Lauf muss der Git-Working-Tree sauber sein; andernfalls Abbruch mit `GIT_WORKTREE_DIRTY`.
+* Der Commit darf erst nach erfolgreichem Dry-run, Apply, Validierung und Export erfolgen.
+* Staging erfolgt ausschließlich anhand der Patch-Log-Dateiliste.
+* `git add .` bleibt verboten.
+* `--push` ist ein eigenes Flag, impliziert `--commit` und darf niemals Standardverhalten sein.
+* Commit-Status, Commit-Hash und Push-Status müssen im Accept-Summary dokumentiert werden.
+
+Die Integrationstests müssen mindestens einen erfolgreichen `accept --commit` in einem Git-Fixture-Projekt prüfen.
+
 ## Baseline-Hash-Preconditions seit 000085
 
 Patchsystem-Änderungen und andere Patches mit Kollisionsrisiko sollen den erwarteten Vorzustand der betroffenen Dateien im Manifest deklarieren. Das Patchsystem unterstützt dafür `expectedBeforeSha256`, `baseline.expectedBeforeSha256` und `baseline.expectedBefore`.

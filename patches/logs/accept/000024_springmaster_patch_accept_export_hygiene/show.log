@@ -1,0 +1,25 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000024_springmaster_patch_accept_export_hygiene
+Archiv:        000024_springmaster_patch_accept_export_hygiene.zip
+Erstellt am:   2026-06-24T14:59:58.466177+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 1
+  modified: 8
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      bin/patch.py
+  modified      bin/tooling-selfcheck.sh
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000024-springmaster-patch-accept-export-hygiene.md

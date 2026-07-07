@@ -1,0 +1,8 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000066_springmaster_adr_0005_security_and_permission_boundary
+  Profile:      docs
+  Full-Test:    False
+  Export:       True
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000066_springmaster_adr_0005_security_and_permission_boundary
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-30T13-41-15-916860Z.zip

@@ -1,0 +1,29 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000076_springmaster_project_new_instantiation_acceptance_review.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000076_springmaster_project_new_instantiation_acceptance_review.zip
+  Patch-ID:     000076_springmaster_project_new_instantiation_acceptance_review
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+  [NEW]           PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [NEW]           bin/project-new-acceptance.sh
+  [MODIFIED]      bin/project-new.sh
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java
+  [NEW]           patches/logs/root/CHANGELOG-000076-springmaster-project-new-instantiation-acceptance-review.md
+
+Zusammenfassung:
+  new: 4
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

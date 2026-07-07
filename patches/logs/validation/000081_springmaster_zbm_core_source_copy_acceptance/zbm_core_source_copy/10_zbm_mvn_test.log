@@ -1,0 +1,95 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m-------------------------< [0;36mde.cocondo.zbm:zbm[0;1m >-------------------------[m
+[[1;34mINFO[m] [1mBuilding zbm 0.1.0-SNAPSHOT[m
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:resources[m [1m(default-resources)[m @ [36mzbm[0;1m ---[m
+[[1;34mINFO[m] Copying 1 resource from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 1 resource from src/main/resources to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:compile[m [1m(default-compile)[m @ [36mzbm[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged source code[m.
+[[1;34mINFO[m] Compiling 29 source files with javac [debug parameters release 21] to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mzbm[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /opt/cocondo/zbm/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:testCompile[m [1m(default-testCompile)[m @ [36mzbm[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged dependency[m.
+[[1;34mINFO[m] Compiling 17 source files with javac [debug parameters release 21] to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-surefire-plugin:3.2.5:test[m [1m(default-test)[m @ [36mzbm[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running de.cocondo.system.dto.[1mCoreDtoMarkerTypesTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.213 s -- in de.cocondo.system.dto.[1mCoreDtoMarkerTypesTest[m
+[[1;34mINFO[m] Running de.cocondo.system.core.id.[1mUuidIdGeneratorServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 s -- in de.cocondo.system.core.id.[1mUuidIdGeneratorServiceTest[m
+[[1;34mINFO[m] Running de.cocondo.system.core.id.[1mIdGeneratorServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in de.cocondo.system.core.id.[1mIdGeneratorServiceTest[m
+[[1;34mINFO[m] Running de.cocondo.system.exception.[1mCoreExceptionTypesTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in de.cocondo.system.exception.[1mCoreExceptionTypesTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.[1mCoreEntityMarkerTypesTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in de.cocondo.system.entity.[1mCoreEntityMarkerTypesTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.[1mDomainEntityPersistenceMappingTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.110 s -- in de.cocondo.system.entity.[1mDomainEntityPersistenceMappingTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.service.[1mDomainEntityServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in de.cocondo.system.entity.service.[1mDomainEntityServiceTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.service.[1mTagServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s -- in de.cocondo.system.entity.service.[1mTagServiceTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.[1mDomainEntityListenerTest[m
+15:36:12.072 [main] WARN de.cocondo.system.entity.DomainEntityListener -- DomainEntity without ID detected during PrePersist: entityClass=TestEntity
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in de.cocondo.system.entity.[1mDomainEntityListenerTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.validation.[1mCoreValidationTypesTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in de.cocondo.system.entity.validation.[1mCoreValidationTypesTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.[1mAuditingEntityListenerTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in de.cocondo.system.entity.[1mAuditingEntityListenerTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.[1mRangeEmbeddableTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in de.cocondo.system.entity.[1mRangeEmbeddableTest[m
+[[1;34mINFO[m] Running de.cocondo.system.entity.metadata.[1mCoreMetadataDtoTypesTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in de.cocondo.system.entity.metadata.[1mCoreMetadataDtoTypesTest[m
+[[1;34mINFO[m] Running de.cocondo.system.list.[1mPagedQuerySupportTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in de.cocondo.system.list.[1mPagedQuerySupportTest[m
+[[1;34mINFO[m] Running de.cocondo.system.list.[1mPagedResponseFactoryTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in de.cocondo.system.list.[1mPagedResponseFactoryTest[m
+[[1;34mINFO[m] Running de.cocondo.system.mapper.[1mDomainMetadataSupportMapperTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in de.cocondo.system.mapper.[1mDomainMetadataSupportMapperTest[m
+[[1;34mINFO[m] Running de.cocondo.zbm.app.[1mZbmApplicationTests[m
+15:36:12.389 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [de.cocondo.zbm.app.ZbmApplicationTests]: ZbmApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:36:12.700 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration de.cocondo.zbm.app.ZbmApplication for test class de.cocondo.zbm.app.ZbmApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.3.10)
+
+2026-07-02T15:36:13.196+02:00  INFO 80077 --- [zbm] [           main] de.cocondo.zbm.app.ZbmApplicationTests   : Starting ZbmApplicationTests using Java 21.0.9 with PID 80077 (started by cb in /opt/cocondo/zbm)
+2026-07-02T15:36:13.207+02:00  INFO 80077 --- [zbm] [           main] de.cocondo.zbm.app.ZbmApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-07-02T15:36:15.224+02:00  INFO 80077 --- [zbm] [           main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-07-02T15:36:15.961+02:00  INFO 80077 --- [zbm] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-07-02T15:36:16.212+02:00  INFO 80077 --- [zbm] [           main] de.cocondo.zbm.app.ZbmApplicationTests   : Started ZbmApplicationTests in 3.418 seconds (process running for 5.528)
+WARNING: A Java agent has been loaded dynamically (/home/cb/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.993 s -- in de.cocondo.zbm.app.[1mZbmApplicationTests[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1;32mTests run: 50, Failures: 0, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  11.939 s
+[[1;34mINFO[m] Finished at: 2026-07-02T15:36:17+02:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m

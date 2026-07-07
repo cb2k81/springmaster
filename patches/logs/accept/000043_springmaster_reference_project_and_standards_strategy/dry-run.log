@@ -1,0 +1,26 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000043_springmaster_reference_project_and_standards_strategy.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000043_springmaster_reference_project_and_standards_strategy.zip
+  Patch-ID:     000043_springmaster_reference_project_and_standards_strategy
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [NEW]           PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/README.md
+  [NEW]           PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000043-springmaster-reference-project-and-standards-strategy.md
+
+Zusammenfassung:
+  new: 4
+  modified: 3
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

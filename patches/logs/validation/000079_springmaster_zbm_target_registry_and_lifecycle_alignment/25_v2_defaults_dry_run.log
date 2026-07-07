@@ -1,0 +1,13 @@
+Platform-Update-Generate:
+  Status:       DRY-RUN
+  Target:       zbm
+  Profile:      defaults
+  Scope:        root
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260702T104422Z_springmaster_platform_update_defaults_for_zbm.zip
+  Payload:      payload
+  Payload-Files:3
+  Payload-Profile:baseline configuration defaults (.env.example, export.config.json, env template)
+  Plan:         files/PROJECT_DOCS/PLATFORM_UPDATES/20260702T104422Z_springmaster_platform_update_defaults_for_zbm.md
+  Changelog:    logs/CHANGELOG-20260702T104422Z_springmaster_platform_update_defaults_for_zbm.md
+  Target path:  /opt/cocondo/zbm
+  Hinweis:      Zielprojekt wird nicht verändert.

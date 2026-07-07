@@ -1,0 +1,29 @@
+== 06_show_latest ==
+START 2026-07-05T16:54:23+02:00
+$ ./bin/patch.sh show latest
+
+Patch-ID:      000083_springmaster_patch_runtime_locking_background_git_rollback
+Archiv:        000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+Erstellt am:   2026-07-05T16:54:23.935927+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      .env.example
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  new           bin/patch-system-it.sh
+  modified      bin/patch.py
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000082_springmaster_patch_runtime_locking_background_git_rollback.md
+
+EXIT 0
+END 2026-07-05T16:54:24+02:00

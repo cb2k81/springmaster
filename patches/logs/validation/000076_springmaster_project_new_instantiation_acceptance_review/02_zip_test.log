@@ -1,0 +1,13 @@
+Archive:  /home/cb/Downloads/000076_springmaster_project_new_instantiation_acceptance_review.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/bin/project-new.sh   OK
+    testing: files/bin/project-new-acceptance.sh   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: files/src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java   OK
+    testing: logs/CHANGELOG-000076-springmaster-project-new-instantiation-acceptance-review.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000076_springmaster_project_new_instantiation_acceptance_review.zip.

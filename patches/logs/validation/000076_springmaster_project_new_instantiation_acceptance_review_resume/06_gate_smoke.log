@@ -1,0 +1,8 @@
+Springmaster gates: SUCCESS
+  Seed:     springmaster.report-only-gate-seed.v1
+  Mode:     report-only
+  Scope:    springmaster-reference-only
+  Run ID:   000076-resume-validation
+  Findings: 8
+  Schema:   springmaster.report-only-report.v1
+  Report:   target/springmaster-gates/000076-resume-validation

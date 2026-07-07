@@ -1,0 +1,19 @@
+Springmaster Stand prüfen
+[OK] Marker 'PLATFORM_STATE_PATCH=000080_springmaster_generated_service_slice_blueprint_spec' in platform/versions/platform.env
+[OK] Target Descriptor zbm validiert
+Sicherstellen, dass laufende Projekte deferred bleiben
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/idm_descriptor.log
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/personnel_descriptor.log
+Project-New Dry-run für zbm
+[OK] Marker 'Dry-run abgeschlossen' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/01_project_new_dry_run.log
+Project-New Apply für zbm
+[OK] Marker 'Projektanlage abgeschlossen' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/02_project_new_apply.log
+ZBM Skeleton prüfen
+[OK] Datei vorhanden: /opt/cocondo/zbm/pom.xml
+[OK] Datei vorhanden: /opt/cocondo/zbm/.env.example
+[OK] Datei vorhanden: /opt/cocondo/zbm/export.config.json
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/patch.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/export.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/dbtool.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/platform/versions/platform.env
+[ERROR] Datei fehlt: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/ZbmApplication.java

@@ -1,0 +1,27 @@
+START 2026-07-05T19:19:41+02:00
+PWD: /opt/cocondo/springmaster
+CMD: unzip -l /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard_v3_corrected_manifest.zip
+Archive:  /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard_v3_corrected_manifest.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     1053  2026-07-05 15:22   manifest.json
+        0  2026-07-05 15:22   files/
+        0  2026-07-05 15:22   files/bin/
+    63315  2026-07-05 15:22   files/bin/patch.py
+     6978  2026-07-05 15:22   files/bin/patch-system-it.sh
+        0  2026-07-05 15:22   files/PROJECT_DOCS/
+        0  2026-07-05 15:22   files/PROJECT_DOCS/TOOLING/
+    11849  2026-07-05 15:22   files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+    15697  2026-07-05 15:22   files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+     8611  2026-07-05 15:22   files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+        0  2026-07-05 15:22   files/platform/
+        0  2026-07-05 15:22   files/platform/versions/
+      407  2026-07-05 15:22   files/platform/versions/platform.env
+        0  2026-07-05 15:22   logs/
+     1102  2026-07-05 15:22   logs/CHANGELOG-000085_springmaster_patch_baseline_hash_conflict_guard.md
+      450  2026-07-05 15:22   files/.gitignore
+     3664  2026-07-05 15:22   files/export.config.json
+---------                     -------
+   113126                     17 files
+EXIT 0
+END 2026-07-05T19:19:41+02:00

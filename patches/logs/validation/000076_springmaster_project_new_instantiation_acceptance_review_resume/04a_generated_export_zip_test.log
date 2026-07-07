@@ -1,0 +1,4 @@
+Archive:  target/project-new-acceptance/sample-backend/exports/text/sample-backend_export_full_2026-07-02T08-09-17-812939Z.zip
+    testing: sample-backend_export_full_2026-07-02T08-09-17-812939Z/sample-backend_export_full.meta.json   OK
+    testing: sample-backend_export_full_2026-07-02T08-09-17-812939Z/sample-backend_export_full.txt   OK
+No errors detected in compressed data of target/project-new-acceptance/sample-backend/exports/text/sample-backend_export_full_2026-07-02T08-09-17-812939Z.zip.

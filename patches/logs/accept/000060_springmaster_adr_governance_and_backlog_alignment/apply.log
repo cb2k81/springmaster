@@ -1,0 +1,29 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000060_springmaster_adr_governance_and_backlog_alignment.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000060_springmaster_adr_governance_and_backlog_alignment.zip
+  Patch-ID:     000060_springmaster_adr_governance_and_backlog_alignment
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [NEW]           PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  [NEW]           PROJECT_DOCS/ADR/ADR_TEMPLATE.md
+  [MODIFIED]      PROJECT_DOCS/ADR/README.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000060-springmaster-adr-governance-and-backlog-alignment.md
+
+Zusammenfassung:
+  new: 3
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000060_springmaster_adr_governance_and_backlog_alignment/patch-log.json

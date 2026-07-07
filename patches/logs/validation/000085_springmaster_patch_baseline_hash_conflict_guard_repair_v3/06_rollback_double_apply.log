@@ -1,0 +1,21 @@
+START 2026-07-05T18:56:55+02:00
+PWD: /opt/cocondo/springmaster
+CMD: ./bin/patch.sh rollback 000085_000085_springmaster_patch_baseline_hash_conflict_guard
+Patch-Rollback:
+  Projekt:      /opt/cocondo/springmaster
+  Patch-ID:     000085_000085_springmaster_patch_baseline_hash_conflict_guard
+  Modus:        AUSFÜHREN
+
+  [REMOVE]      patches/logs/root/CHANGELOG-000085_springmaster_patch_baseline_hash_conflict_guard.md
+  [RESTORE]     platform/versions/platform.env
+  [RESTORE]     export.config.json
+  [RESTORE]     bin/patch.py
+  [RESTORE]     bin/patch-system-it.sh
+  [RESTORE]     PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [RESTORE]     PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [RESTORE]     PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  [RESTORE]     .gitignore
+
+Rollback abgeschlossen.
+EXIT 0
+END 2026-07-05T18:56:55+02:00

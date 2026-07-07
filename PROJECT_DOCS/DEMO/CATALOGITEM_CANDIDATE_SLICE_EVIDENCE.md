@@ -1,0 +1,221 @@
+# CatalogItem Candidate Slice Evidence
+
+## Purpose
+
+Patch `000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation` promotes the Springmaster Catalog-demo `CatalogItem` implementation from `legacy-demo-seed` toward the first `candidate-reference-slice` foundation.
+
+This evidence file records what the slice demonstrates and what remains deferred. It does not declare Catalog-demo or CatalogItem as `canonical-reference-slice`.
+
+## Slice state
+
+| Field | Value |
+|---|---|
+| Slice | `CatalogItem` |
+| State | `candidate-reference-slice` |
+| Patch | `000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation` |
+| Canonical status | not canonical |
+| Target comparison | blocked |
+| Target delivery | blocked |
+
+The previous implementation state remains relevant only as historical `legacy-demo-seed` context. The current claim is limited to a candidate slice foundation that can be validated by tests and report-only gates.
+
+## Implemented endpoint contract
+
+| Operation | Method and path | Status evidence | Notes |
+|---|---|---:|---|
+| Paged list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=` | `200` | Returns `PagedResponseDTO<CatalogItemListItemDTO>`. |
+| Detail by opaque ID | `GET /api/demo/catalog/items/{id}` | `200` / `404` | Public resource identity is `id`. |
+| Lookup by SKU | `GET /api/demo/catalog/items/by-sku/{sku}` | `200` / `404` | `sku` remains an explicit business key. |
+| Create | `POST /api/demo/catalog/items` | `201` | `Location` points to `/{id}`, not `/{sku}`. |
+| Full update | `PUT /api/demo/catalog/items/{id}` | `200` / `404` | SKU is immutable in the first candidate foundation. |
+| Single delete | `DELETE /api/demo/catalog/items/{id}` | `204` / `404` | Bodyless single delete. |
+
+Out of scope for this slice: `/all`, `/list`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, delete-multiple, complex search, relationship endpoints, lifecycle commands, `/reference-data`, and `/options`.
+
+## DTO evidence
+
+| DTO | Status | Purpose |
+|---|---|---|
+| `CatalogItemCreateDTO` | implemented | Create request boundary with Bean Validation constraints. |
+| `CatalogItemUpdateDTO` | implemented | Full update request boundary with Bean Validation constraints. |
+| `CatalogItemDTO` | implemented | Detail/create/update response. |
+| `CatalogItemListItemDTO` | implemented | Paged list item response. |
+| `CatalogApiErrorResponse` | implemented | Demo-local standard error body evidence. |
+| `CatalogApiViolation` | implemented | Field-level validation violation evidence. |
+| `CatalogItemOptionDTO` | deferred | No bounded selector use case in this slice. |
+| `CatalogItemSearchDTO` | deferred | Complex search out of scope. |
+| `CatalogItemDeleteMultipleCommandDTO` | deferred | Bulk delete out of scope. |
+
+## Query evidence
+
+The list endpoint exposes the canonical public query vocabulary:
+
+- `page`;
+- `size`;
+- `sortBy`;
+- `sortDir`.
+
+The first candidate sort allow-list is intentionally small:
+
+- `sku`;
+- `name`.
+
+Unsupported `sortBy` values produce `400 Bad Request` with standard error-body evidence.
+
+## Identity evidence
+
+| Concept | Candidate evidence |
+|---|---|
+| Public identity | opaque string `id` from `DomainEntity` |
+| Business key | `sku` |
+| Detail path | `/{id}` |
+| Business-key lookup | `/by-sku/{sku}` |
+| Create location | `Location: /api/demo/catalog/items/{id}` |
+| SKU mutability | immutable after create in this slice |
+
+The implementation remains in-memory. It demonstrates public identity and boundary semantics, not durable database persistence.
+
+## Validation evidence
+
+The public request boundary uses Bean Validation on create and update DTOs. Controller tests cover invalid create payloads, invalid sort fields, duplicate SKU conflicts, unknown IDs and unknown SKU lookups.
+
+Manual validation remains as internal service/domain guard for direct service use. It is not the only public request-boundary evidence.
+
+## Error evidence
+
+The candidate foundation introduces a demo-local standard error response with at least:
+
+- `timestamp`;
+- `status`;
+- `error`;
+- `errorType`;
+- `message`;
+- `errorId`;
+- `path`;
+- `method`;
+- optional `messageKey`;
+- `violations` for field-level validation errors.
+
+Covered scenarios:
+
+| Scenario | Status | Error type |
+|---|---:|---|
+| invalid request body | `400` | `VALIDATION_FAILED` |
+| invalid list query | `400` | `INVALID_REQUEST` |
+| unknown resource ID | `404` | `RESOURCE_NOT_FOUND` |
+| unknown SKU lookup | `404` | `RESOURCE_NOT_FOUND` |
+| duplicate SKU | `409` | `CONFLICT` |
+
+`correlationId`, `traceId` and `localMessage` are deferred for the candidate foundation and remain part of later observability/error-handling work.
+
+## Application-layer and mapping evidence
+
+The controller remains a thin HTTP adapter:
+
+- no repository injection;
+- no `EntityManager` injection;
+- no transaction demarcation;
+- no target-project access;
+- delegates business-key normalization, conflict checks, paging, update and delete behavior to `CatalogItemService`.
+
+The mapper stays deterministic:
+
+- no repository dependency;
+- no service dependency;
+- no authorization dependency;
+- no transaction dependency.
+
+## Security evidence
+
+The first candidate foundation uses `documented-deferred-security`.
+
+Endpoint classification: `management`.
+
+Intended permission vocabulary:
+
+| Operation | Permission |
+|---|---|
+| list/detail/by-sku | `catalog:item:read` |
+| create | `catalog:item:create` |
+| update | `catalog:item:update` |
+| delete | `catalog:item:delete` |
+
+Security enforcement is not implemented in this patch. Strict security gates remain blocked until `implemented-management-security` evidence and fixtures exist.
+
+## Gate evidence
+
+The candidate foundation must be validated with:
+
+- `mvn -q test`;
+- `mvn -q -Pspringmaster-gates-report test`;
+- one report-only gate smoke run;
+- full ZIP export and export hygiene check.
+
+Report-only findings may remain. They must not be promoted to strict by this patch.
+
+## Remaining deferrals before canonical-reference-slice
+
+- durable persistence/JPA repository evidence;
+- Liquibase/DB migration evidence;
+- implemented management security;
+- OpenAPI operationId/tag/schema evidence;
+- strict gate promotion;
+- Catalog-demo canonical readiness review;
+- target-project comparison;
+- target-project delivery.
+
+## Forensic review status after 000073
+
+Patch `000073_springmaster_catalog_demo_candidate_slice_forensic_review` confirms this file as valid candidate evidence, not canonical evidence.
+
+Review outcome:
+
+- `CatalogItem` is a `candidate-reference-slice foundation`;
+- Catalog-demo is not canonical;
+- report-only findings decreased from `12` to `9` after the candidate implementation;
+- the remaining G4 security warning and G5 manual-review finding are expected;
+- G5 still reports legacy state because the source-based gate heuristic has not yet learned to read this evidence file as candidate state;
+- request DTO exposure of the persistence-facing `Range` embeddable and direct service update validation asymmetry must be fixed before canonical promotion.
+
+Next recommended patch: `000074_springmaster_catalog_demo_candidate_slice_alignment`.
+
+
+
+## Gate alignment status after 000074
+
+Patch `000074_springmaster_catalog_demo_candidate_slice_alignment` adds machine-readable evidence beside this Markdown document:
+
+```text
+PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+```
+
+Schema marker:
+
+```text
+springmaster.catalog-demo.candidate-evidence.v1
+```
+
+The report-only G5 readiness heuristic now reads that JSON evidence before falling back to historical `legacy-demo-seed` markers in the readiness plan. The current deterministic state is:
+
+- `sliceState`: `candidate-reference-slice`;
+- `canonicalState`: `not-canonical`;
+- `securityMode`: `documented-deferred-security`;
+- target comparison and target delivery remain blocked.
+
+Expected report-only findings after `000074`: `8` total, with no `SM-G5-CATALOG-READINESS-EVIDENCE` manual-review finding while the candidate evidence remains present and classifiable.
+
+## DTO/validation cleanup status after 000075
+
+Patch `000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup` closes the DTO-boundary and service-validation cleanup items recorded by the forensic review.
+
+Current evidence:
+
+- public create/update request DTOs no longer expose the persistence-facing `Range` embeddable;
+- `CatalogItemAvailabilityDTO` is the public nested availability request shape;
+- `CatalogItemMapper` owns conversion from public availability DTO to internal `Range`;
+- `CatalogItemValidator` validates create and update requests symmetrically at the service boundary;
+- invalid availability ordering is covered by Bean Validation and service validation;
+- unpaged `CatalogItemService.list()` legacy helper has been removed.
+
+Expected report-only findings remain `8`: six positive G0 rule-source findings, one positive create-status finding and one expected G4 deferred-security warning.
+

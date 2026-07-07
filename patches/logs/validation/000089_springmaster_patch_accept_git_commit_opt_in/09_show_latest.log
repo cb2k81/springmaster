@@ -1,0 +1,20 @@
+Patch-ID:      000089_springmaster_patch_accept_git_commit_opt_in
+Archiv:        000089_springmaster_patch_accept_git_commit_opt_in.zip
+Erstellt am:   2026-07-07T10:46:32.972971+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 1
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  modified      bin/patch-system-it.sh
+  modified      bin/patch.py
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000089_springmaster_patch_accept_git_commit_opt_in.md

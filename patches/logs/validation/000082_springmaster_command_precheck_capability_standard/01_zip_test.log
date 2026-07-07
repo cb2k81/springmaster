@@ -1,0 +1,11 @@
+Archive:  /home/cb/Downloads/000082_springmaster_command_precheck_capability_standard.zip
+    testing: files/PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md   OK
+    testing: files/PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md   OK
+    testing: files/PROJECT_DOCS/ADR/README.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/COMMAND_PRECHECK_ENDPOINT_STANDARD.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/README.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/README.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md   OK
+    testing: logs/CHANGELOG-000082-springmaster-command-precheck-capability-standard.md   OK
+    testing: manifest.json            OK
+No errors detected in compressed data of /home/cb/Downloads/000082_springmaster_command_precheck_capability_standard.zip.

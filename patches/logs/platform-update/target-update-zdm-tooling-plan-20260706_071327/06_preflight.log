@@ -1,0 +1,9 @@
+Platform-Update-Preflight:
+  Status:       FAILED
+  Target:       zdm
+  Patch-ID:     20260706T051327Z_springmaster_platform_update_tooling_for_zdm
+  Patch-Scope:  tooling
+  Source ZIP:   /opt/cocondo/springmaster/build/platform-update/generated/20260706T051327Z_springmaster_platform_update_tooling_for_zdm.zip
+  Log:          /opt/cocondo/springmaster/build/platform-update/manifests/20260706T051327Z_zdm_20260706T051327Z_springmaster_platform_update_tooling_for_zdm_preflight.log
+  Grund:        Target path does not exist: /opt/cocondo/zdm
+  Hinweis:      Zielprojekt wurde nicht verändert.

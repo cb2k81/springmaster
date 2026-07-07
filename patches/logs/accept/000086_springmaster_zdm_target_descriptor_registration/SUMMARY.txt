@@ -1,0 +1,12 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000086_springmaster_zdm_target_descriptor_registration
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=True
+BACKGROUND=False
+WAIT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000086_springmaster_zdm_target_descriptor_registration
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-06T04-50-28-053663Z.zip
+GIT_COMMIT_SCRIPT=/opt/cocondo/springmaster/patches/logs/accept/000086_springmaster_zdm_target_descriptor_registration/git-commit.sh

@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000027_springmaster_platform_update_patch_generation_plan
+FAILED_STEP=-
+PROFILE=auto
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000027_springmaster_platform_update_patch_generation_plan
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-24T13-22-22-988075Z.zip

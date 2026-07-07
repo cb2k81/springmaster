@@ -1,0 +1,52 @@
+Springmaster Stand prüfen
+[OK] Marker 'PLATFORM_STATE_PATCH=000080_springmaster_generated_service_slice_blueprint_spec' in platform/versions/platform.env
+[OK] Marker 'TARGET_NAME=zbm' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_PATH=/opt/cocondo/zbm' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_LIFECYCLE=initialization' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_INITIALIZATION_ALLOWED=true' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_UPDATE_ALLOWED=false' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'TARGET_DELIVERY_ENABLED=false' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/00_zbm_descriptor.v4.log
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/idm_descriptor.v4.log
+[OK] Marker 'DEFERRED_EXISTING_PROJECT_NO_DELIVERY' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/personnel_descriptor.v4.log
+ZBM Skeleton prüfen
+[OK] Datei vorhanden: /opt/cocondo/zbm/pom.xml
+[OK] Datei vorhanden: /opt/cocondo/zbm/.env.example
+[OK] Datei vorhanden: /opt/cocondo/zbm/export.config.json
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/patch.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/export.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/dbtool.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/platform/versions/platform.env
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/test/java/de/cocondo/zbm/app/ZbmApplicationTests.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/resources/application.yml
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/resources/db/changelog/db.changelog-master.xml
+[OK] Datei erwartungsgemäß nicht vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/ZbmApplication.java
+[OK] Marker 'package de.cocondo.zbm.app;' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Marker 'de.cocondo.system' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+[OK] Marker 'package de.cocondo.zbm.app.api;' in /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+[OK] Marker 'APP_NAME=zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_DEV_DB_NAME=zbm' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'APP_STAGE_DB_NAME=zbm_build' in /opt/cocondo/zbm/.env.example
+[OK] Marker 'PLATFORM_NAME=zbm' in /opt/cocondo/zbm/platform/versions/platform.env
+[OK] Marker 'PLATFORM_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/zbm/platform/versions/platform.env
+ZBM Tooling prüfen
+[OK] Marker 'Patch-ID:      000001_project_new_bootstrap' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/03_zbm_patch_show_latest.v4.log
+[OK] Marker 'Scope:         bootstrap' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/03_zbm_patch_show_latest.v4.log
+[OK] Marker '000001' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/04_zbm_patch_list.v4.log
+[OK] Marker 'applied' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/04_zbm_patch_list.v4.log
+[OK] Marker 'project_new_bootstrap' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/04_zbm_patch_list.v4.log
+[OK] Marker 'APP_NAME=zbm' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/05_zbm_dbtool_status.v4.log
+[OK] Marker 'APP_DEV_DB_NAME=zbm' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/05_zbm_dbtool_status.v4.log
+[OK] Marker 'APP_STAGE_DB_NAME=zbm_build' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/05_zbm_dbtool_status.v4.log
+[OK] Marker 'DBTool configuration is valid' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/05_zbm_dbtool_status.v4.log
+[OK] Marker 'Tooling selfcheck completed successfully' in /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/06_zbm_tooling_selfcheck.v4.log
+ZBM Maven-Test ausführen
+ZBM Full-ZIP-Export erzeugen
+DONE: zbm initialization concept test v4
+Target: /opt/cocondo/zbm
+Export: /opt/cocondo/zbm/exports/text/zbm_export_full_2026-07-02T13-13-03-266066Z.zip
+SHA256: b7d7d459fcd2b0a31ac8c26e68170aff8e1a97604d556ab3389158aa86394265  /opt/cocondo/zbm/exports/text/zbm_export_full_2026-07-02T13-13-03-266066Z.zip
+Log: /opt/cocondo/springmaster/patches/logs/validation/000080_springmaster_generated_service_slice_blueprint_spec/zbm_initialization_test/zbm_initialization_test_v4.log

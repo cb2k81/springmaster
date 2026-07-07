@@ -1,0 +1,30 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000061_springmaster_adr_0002_api_boundary_and_endpoint_contract.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000061_springmaster_adr_0002_api_boundary_and_endpoint_contract.zip
+  Patch-ID:     000061_springmaster_adr_0002_api_boundary_and_endpoint_contract
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [NEW]           PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  [MODIFIED]      PROJECT_DOCS/ADR/README.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000061-springmaster-adr-0002-api-boundary-and-endpoint-contract.md
+
+Zusammenfassung:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

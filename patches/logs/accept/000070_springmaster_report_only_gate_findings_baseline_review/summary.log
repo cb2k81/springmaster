@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000070_springmaster_report_only_gate_findings_baseline_review
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000070_springmaster_report_only_gate_findings_baseline_review
+LATEST_EXPORT=-

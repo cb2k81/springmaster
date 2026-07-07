@@ -1,0 +1,30 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000031_springmaster_platform_update_target_patch_apply_plan
+Archiv:        000031_springmaster_platform_update_target_patch_apply_plan.zip
+Erstellt am:   2026-06-25T14:04:31.058662+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 12
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  modified      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  new           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      bin/patch.py
+  modified      bin/platform-update.sh
+  modified      export.config.json
+  modified      platform/update/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000031-springmaster-platform-update-target-patch-apply-plan.md

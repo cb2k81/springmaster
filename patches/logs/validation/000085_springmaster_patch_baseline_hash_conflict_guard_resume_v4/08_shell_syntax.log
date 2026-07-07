@@ -1,0 +1,5 @@
+START 2026-07-05T19:19:42+02:00
+PWD: /opt/cocondo/springmaster
+CMD: for f in ./bin/*.sh ./bin/lib/core/*.sh ./bin/lib/dbtool/*.sh; do [[ -e "$f" ]] && bash -n "$f"; done
+EXIT 0
+END 2026-07-05T19:19:42+02:00

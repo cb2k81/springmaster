@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000081_springmaster_zbm_core_source_copy_acceptance
+  Profile:      tooling
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000081_springmaster_zbm_core_source_copy_acceptance

@@ -1,0 +1,23 @@
+Archive:  /home/cb/Downloads/000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md   OK
+    testing: files/PROJECT_DOCS/DEMO/README.md   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCreateDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemListItemDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemMapper.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemNotFoundException.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/CatalogItemUpdateDTO.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/api/CatalogApiErrorResponse.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/api/CatalogApiViolation.java   OK
+    testing: files/src/main/java/de/cocondo/platform/demo/catalog/api/CatalogItemController.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java   OK
+    testing: files/src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java   OK
+    testing: logs/CHANGELOG-000072-springmaster-catalog-demo-catalogitem-candidate-slice-foundation.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation.zip.

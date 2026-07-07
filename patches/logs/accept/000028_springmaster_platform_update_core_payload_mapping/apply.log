@@ -1,0 +1,26 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000029_springmaster_platform_update_core_payload_mapping.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000029_springmaster_platform_update_core_payload_mapping.zip
+  Patch-ID:     000028_springmaster_platform_update_core_payload_mapping
+  Scope:        platform-update
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/platform-update/CHANGELOG-000029-springmaster-platform-update-core-payload-mapping.md
+
+Zusammenfassung:
+  new: 1
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000028_springmaster_platform_update_core_payload_mapping/patch-log.json

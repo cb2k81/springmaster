@@ -1,0 +1,9 @@
+{
+  "scope": "root",
+  "name": "springmaster_generated_service_slice_readiness_marker_alignment",
+  "description": "Align the generated service slice readiness documentation with the exact technical Backend-Skeleton validation marker and move the blueprint patch number to 000079.",
+  "baseline": "springmaster_export_full_2026-07-02T09-09-13-875285Z.zip",
+  "afterPatch": "000077_springmaster_generated_service_slice_readiness_plan",
+  "type": "documentation-only",
+  "mavenTestRequired": false
+}

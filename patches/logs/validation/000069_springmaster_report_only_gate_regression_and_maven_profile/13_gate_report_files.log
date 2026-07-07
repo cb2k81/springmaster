@@ -1,0 +1,5 @@
+[OK] target/springmaster-gates/000069-validation/summary.txt
+[OK] target/springmaster-gates/000069-validation/summary.json
+[OK] target/springmaster-gates/000069-validation/findings.jsonl
+[OK] target/springmaster-gates/000069-validation/rule-sources.json
+[OK] target/springmaster-gates/000069-validation/input-manifest.json

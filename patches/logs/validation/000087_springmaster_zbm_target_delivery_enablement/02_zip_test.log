@@ -1,0 +1,13 @@
+START 2026-07-06T08:01:35+02:00
+Archive:  /home/cb/Downloads/000087_springmaster_zbm_target_delivery_enablement.zip
+    testing: manifest.json            OK
+    testing: files/                   OK
+    testing: files/platform/          OK
+    testing: files/platform/update/   OK
+    testing: files/platform/update/targets/   OK
+    testing: files/platform/update/targets/zbm.env   OK
+    testing: logs/                    OK
+    testing: logs/CHANGELOG-000087_springmaster_zbm_target_delivery_enablement.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000087_springmaster_zbm_target_delivery_enablement.zip.
+EXIT 0
+END 2026-07-06T08:01:35+02:00

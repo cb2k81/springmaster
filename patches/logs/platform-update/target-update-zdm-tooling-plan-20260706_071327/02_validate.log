@@ -1,0 +1,3 @@
+[WARN] zdm: status is INITIALIZATION_CANDIDATE; descriptor is not verified for automatic updates.
+[WARN] zdm: target path does not exist locally: /opt/cocondo/zdm
+[WARN] zdm: descriptor syntax valid.

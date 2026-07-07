@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000079_springmaster_zbm_target_registry_and_lifecycle_alignment
+  Profile:      tooling
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000079_springmaster_zbm_target_registry_and_lifecycle_alignment

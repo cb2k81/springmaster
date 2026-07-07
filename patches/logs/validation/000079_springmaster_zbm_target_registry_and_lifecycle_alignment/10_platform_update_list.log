@@ -1,0 +1,6 @@
+TARGET           STATUS                             PATH
+contacts         TO_VERIFY_NO_DELIVERY              /opt/cocondo/contacts
+idm              DEFERRED_EXISTING_PROJECT_NO_DELIVERY /opt/cocondo/idm
+orders           TO_VERIFY_NO_DELIVERY              /opt/cocondo/orders
+personnel        DEFERRED_EXISTING_PROJECT_NO_DELIVERY /opt/cocondo/personnel
+zbm              INITIALIZATION_CANDIDATE           /opt/cocondo/zbm

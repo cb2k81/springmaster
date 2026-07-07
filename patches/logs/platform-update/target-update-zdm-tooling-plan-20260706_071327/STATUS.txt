@@ -1,0 +1,6 @@
+Status: FAILED
+Target: zdm
+Profile: tooling
+Mode: plan
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327
+UpdatedAt: 2026-07-06T07:13:27+02:00

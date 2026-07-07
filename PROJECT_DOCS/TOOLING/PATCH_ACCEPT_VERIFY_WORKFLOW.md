@@ -167,6 +167,44 @@ Erneute Abnahme:
 ./bin/patch.sh verify latest
 ```
 
+
+## Git-Commit als expliziter Accept-Schritt seit 000089
+
+`accept` kann den validierten Patch-Abschluss optional direkt in Git übernehmen:
+
+```bash
+./bin/patch.sh accept <patch.zip> --commit
+```
+
+Der Git-Commit ist bewusst **nicht** Standard. Ohne `--commit` bleibt das bisherige Verhalten erhalten: Nach erfolgreichem Accept wird ein prüfbares `git-commit.sh` erzeugt.
+
+Mit `--commit` gilt zusätzlich:
+
+1. Das Projekt muss ein Git-Working-Tree sein.
+2. Der Working Tree muss vor dem Patch sauber sein; fremde Änderungen führen zu `GIT_WORKTREE_DIRTY`.
+3. Dry-run, Apply, `show latest`, Tooling-Prüfung, Tests und Export müssen erfolgreich sein.
+4. Gestaged werden nur Dateien aus dem Patch-Log, niemals `git add .`.
+5. Der Git-Index darf keine Dateien außerhalb der Patch-Dateiliste enthalten.
+6. Commit-Status, Commit-Hash und optionaler Push-Status werden in `SUMMARY.txt` dokumentiert.
+
+Optional kann nach erfolgreichem Commit gepusht werden:
+
+```bash
+./bin/patch.sh accept <patch.zip> --commit --push
+```
+
+`--push` impliziert `--commit`. Ein Push erfolgt niemals implizit ohne dieses Flag.
+
+Empfohlene Standards:
+
+```bash
+# lokaler, validierter Patchabschluss mit Git-Commit
+./bin/patch.sh accept <patch.zip> --background --wait --commit
+
+# nur wenn der geprüfte Stand unmittelbar veröffentlicht werden soll
+./bin/patch.sh accept <patch.zip> --background --wait --commit --push
+```
+
 ## Export-Hygiene seit 000024
 
 Seit `000024_springmaster_patch_accept_export_hygiene` ruft `accept`/`verify` den Tooling-Selfcheck intern mit `--no-export` auf.
@@ -271,7 +309,7 @@ STATUS.txt
 git-commit.sh
 ```
 
-`git-commit.sh` wird nur nach erfolgreichem Accept erzeugt. Das Skript verwendet eine konkrete Dateiliste aus dem Patch-Log und niemals `git add .`. Seit `000084` prüft das Skript zusätzlich den bereits gestagten Git-Index vor dem eigenen `git add`: Sind dort Dateien vorgemerkt, die nicht zur Patch-Dateiliste gehören, bricht es mit `GIT_INDEX_DIRTY` ab. Dadurch können vorbereitete Änderungen aus parallelen Chats oder manuellen Arbeiten nicht versehentlich im Patch-Commit landen.
+`git-commit.sh` wird nach erfolgreichem Accept als prüfbarer Commit-Vorschlag erzeugt. Das Skript verwendet eine konkrete Dateiliste aus dem Patch-Log und niemals `git add .`. Seit `000084` prüft das Skript zusätzlich den bereits gestagten Git-Index vor dem eigenen `git add`: Sind dort Dateien vorgemerkt, die nicht zur Patch-Dateiliste gehören, bricht es mit `GIT_INDEX_DIRTY` ab. Dadurch können vorbereitete Änderungen aus parallelen Chats oder manuellen Arbeiten nicht versehentlich im Patch-Commit landen. Seit `000089` kann derselbe Guard mit `accept --commit` direkt ausgeführt werden; der Commit bleibt aber explizit opt-in.
 
 ## Baseline-Konflikte im Accept-Workflow seit 000085
 

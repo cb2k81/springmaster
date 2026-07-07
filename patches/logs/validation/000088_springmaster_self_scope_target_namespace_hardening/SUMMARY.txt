@@ -1,0 +1,14 @@
+Patch 000088_springmaster_self_scope_target_namespace_hardening
+Project: /opt/cocondo/springmaster
+Patch:   /home/cb/Downloads/000088_springmaster_self_scope_target_namespace_hardening.zip
+LogDir:  /opt/cocondo/springmaster/patches/logs/validation/000088_springmaster_self_scope_target_namespace_hardening
+00_preflight START
+00_preflight PASS
+01_patch_sha256 START
+01_patch_sha256 PASS
+02_zip_test START
+02_zip_test PASS
+03_zip_content START
+03_zip_content PASS
+04_dry_run START
+04_dry_run FAIL rc=1

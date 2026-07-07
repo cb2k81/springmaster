@@ -1,0 +1,16 @@
+{
+  "scope": "root",
+  "name": "springmaster_generated_service_slice_blueprint_spec",
+  "description": "Specify the generated service slice blueprint and the first ZBM initialization concept test without changing running projects.",
+  "baseline": "springmaster_export_full_2026-07-02T10-44-22-413426Z.zip",
+  "afterPatch": "000079_springmaster_zbm_target_registry_and_lifecycle_alignment",
+  "type": "documentation-only",
+  "mavenTestRequired": false,
+  "changes": [
+    "Adds the generated service slice blueprint specification",
+    "Documents the ZBM initialization concept test",
+    "Keeps project-new as technical initialization and platform-update as controlled update/delivery mechanism",
+    "Keeps IDM and Personnel explicitly out of delivery scope",
+    "Advances the foundation version to 0.13.41"
+  ]
+}

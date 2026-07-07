@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000031_springmaster_platform_update_target_patch_apply_plan
+FAILED_STEP=-
+PROFILE=auto
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000031_springmaster_platform_update_target_patch_apply_plan
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-25T12-04-31-415840Z.zip

@@ -1,0 +1,31 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000042_springmaster_core_domain_entity_service_support.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000042_springmaster_core_domain_entity_service_support.zip
+  Patch-ID:     000042_springmaster_core_domain_entity_service_support
+  Scope:        core
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/CORE/CORE_DOMAIN_ENTITY_SERVICE_SUPPORT.md
+  [MODIFIED]      PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           src/main/java/de/cocondo/system/entity/service/DomainEntityService.java
+  [NEW]           src/main/java/de/cocondo/system/entity/service/TagService.java
+  [NEW]           src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/service/TagServiceTest.java
+  [NEW]           patches/logs/core/CHANGELOG-000042-springmaster-core-domain-entity-service-support.md
+
+Zusammenfassung:
+  new: 6
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000042_springmaster_core_domain_entity_service_support/patch-log.json

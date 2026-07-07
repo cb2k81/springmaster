@@ -1,0 +1,30 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000033_springmaster_platform_update_target_compatibility_plan.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000033_springmaster_platform_update_target_compatibility_plan.zip
+  Patch-ID:     000033_springmaster_platform_update_target_compatibility_plan
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  [NEW]           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      platform/update/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000033-springmaster-platform-update-target-compatibility-plan.md
+
+Zusammenfassung:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000033_springmaster_platform_update_target_compatibility_plan/patch-log.json

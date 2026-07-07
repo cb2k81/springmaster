@@ -1,0 +1,19 @@
+
+== Shell syntax ==
+$ bash -n ./bin/*.sh ./bin/lib/core/*.sh ./bin/lib/dbtool/*.sh
+
+
+== Python syntax ==
+$ python3 -m py_compile ./bin/patch.py
+
+
+== Tooling selfcheck ==
+$ ./bin/tooling-selfcheck.sh
+
+[2026-06-24T14:59:58+0200] [INFO] Checking shell syntax
+[2026-06-24T14:59:58+0200] [INFO] Checking Python syntax
+[2026-06-24T14:59:58+0200] [INFO] Checking patch registry
+[2026-06-24T14:59:58+0200] [INFO] Checking full export
+[2026-06-24T14:59:59+0200] [INFO] Checking DBTool env/status
+[2026-06-24T14:59:59+0200] [INFO] DBTool configuration is valid. No database connection was opened for status.
+[2026-06-24T14:59:59+0200] [INFO] Tooling selfcheck completed successfully.

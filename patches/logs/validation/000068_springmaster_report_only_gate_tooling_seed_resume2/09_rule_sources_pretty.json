@@ -1,0 +1,81 @@
+{
+    "seedId": "springmaster.report-only-gate-seed.v1",
+    "generatedAt": "2026-07-01T03:42:22.341142+00:00",
+    "ruleSources": [
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0003-application-layer-and-transaction-boundary.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0004-persistence-identity-and-domainentity-strategy.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0005-security-and-permission-boundary.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md",
+            "required": true,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/API/API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/API/API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md",
+            "required": false,
+            "present": true
+        },
+        {
+            "path": "PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md",
+            "required": false,
+            "present": true
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+Platform-Update-Generate:
+  Status:       GENERATED
+  Target:       zbm
+  Profile:      core
+  Scope:        core
+  Payload:      payload
+  Payload-Files:43
+  Payload-Profile:core runtime + core tests; no master Core documentation
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Target path:  /opt/cocondo/zbm
+  Hinweis:      Zielprojekt wurde nicht verändert.

@@ -1,0 +1,21 @@
+Status: SUCCESS
+Patch: /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard.zip
+LogDir: /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard
+LatestPatch: 000085_000085_springmaster_patch_baseline_hash_conflict_guard
+LatestExport: /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T16-48-16-681163Z.zip
+AcceptSummary: patches/logs/accept/000085_000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_184816/SUMMARY.txt
+GitCommitScript: /opt/cocondo/springmaster/patches/logs/accept/000085_000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_184816/git-commit.sh
+
+Logs:
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/00_patch_file.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/01_patch_sha256.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/02_zip_test.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/03_zip_content.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/04_dry_run.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/05_apply.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/06_show_latest.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/07_python_compile.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/08_shell_syntax.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/09_baseline_hash_fixture.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/10_patch_system_it.log
+  /opt/cocondo/springmaster/patches/logs/validation/000085_springmaster_patch_baseline_hash_conflict_guard/11_accept_verify_export.log

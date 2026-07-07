@@ -1,0 +1,7 @@
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000070_springmaster_report_only_gate_findings_baseline_review
+  Profile:      docs
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000070_springmaster_report_only_gate_findings_baseline_review

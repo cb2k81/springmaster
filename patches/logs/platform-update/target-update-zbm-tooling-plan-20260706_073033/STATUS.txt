@@ -1,0 +1,6 @@
+Status: SUCCESS
+Target: zbm
+Profile: tooling
+Mode: plan
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033
+UpdatedAt: 2026-07-06T07:30:34+02:00

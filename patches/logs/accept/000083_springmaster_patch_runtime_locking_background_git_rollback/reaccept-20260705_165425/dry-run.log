@@ -1,0 +1,28 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+  Patch-ID:     000084_springmaster_patch_runtime_locking_background_git_rollback
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [UNCHANGED]     .env.example
+  [UNCHANGED]     PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [UNCHANGED]     bin/patch-system-it.sh
+  [UNCHANGED]     bin/patch.py
+  [UNCHANGED]     platform/versions/platform.env
+  [UNCHANGED]     patches/logs/root/CHANGELOG-000082_springmaster_patch_runtime_locking_background_git_rollback.md
+
+Zusammenfassung:
+  new: 0
+  modified: 0
+  unchanged: 9
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

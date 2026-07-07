@@ -1,0 +1,6 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000023_springmaster_patch_accept_workflow_hardening
+FAILED_STEP=-
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000023_springmaster_patch_accept_workflow_hardening
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-24T12-47-18-811587Z.zip

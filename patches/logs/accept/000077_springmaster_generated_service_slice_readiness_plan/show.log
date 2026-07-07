@@ -1,0 +1,26 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000077_springmaster_generated_service_slice_readiness_plan
+Archiv:        000077_springmaster_generated_service_slice_readiness_plan.zip
+Erstellt am:   2026-07-02T11:08:14.638919+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 8
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/CORE/README.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/TEMPLATES/project-skeleton/README.md
+  new           PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+  modified      PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000077-springmaster-generated-service-slice-readiness-plan.md

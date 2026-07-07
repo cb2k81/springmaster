@@ -1,0 +1,20 @@
+Archive:  /home/cb/Downloads/000071_springmaster_catalog_demo_candidate_slice_contract_plan.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      460  2026-07-01 05:48   manifest.json
+    15112  2026-07-01 05:47   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md
+    18937  2026-07-01 05:47   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+     3850  2026-07-01 05:47   files/PROJECT_DOCS/DEMO/README.md
+    11377  2026-07-01 05:47   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+    15798  2026-07-01 05:48   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+     6616  2026-07-01 05:48   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+     8957  2026-07-01 05:47   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+    10358  2026-07-01 05:47   files/PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md
+    22439  2026-07-01 05:47   files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+    20468  2026-07-01 05:47   files/PROJECT_DOCS/STANDARDS/README.md
+    34906  2026-07-01 05:47   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+    63262  2026-07-01 05:47   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+      413  2026-07-01 05:47   files/platform/versions/platform.env
+     2124  2026-07-01 05:47   logs/CHANGELOG-000071-springmaster-catalog-demo-candidate-slice-contract-plan.md
+---------                     -------
+   235077                     15 files

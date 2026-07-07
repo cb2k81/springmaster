@@ -1,0 +1,16 @@
+START 2026-07-06T06:50:34+02:00
+Archive:  /home/cb/Downloads/000086_springmaster_zdm_target_descriptor_registration.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      402  2026-07-06 06:49   manifest.json
+        0  2026-07-06 06:49   files/
+        0  2026-07-06 06:49   files/platform/
+        0  2026-07-06 06:49   files/platform/update/
+        0  2026-07-06 06:49   files/platform/update/targets/
+      546  2026-07-06 06:49   files/platform/update/targets/zdm.env
+        0  2026-07-06 06:49   logs/
+      646  2026-07-06 06:49   logs/CHANGELOG-000086_springmaster_zdm_target_descriptor_registration.md
+---------                     -------
+     1594                     8 files
+EXIT 0
+END 2026-07-06T06:50:35+02:00

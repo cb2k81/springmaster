@@ -1,0 +1,6 @@
+Status: FAILED
+Target: zbm
+Profile: tooling
+Mode: apply
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132
+UpdatedAt: 2026-07-06T07:41:32+02:00

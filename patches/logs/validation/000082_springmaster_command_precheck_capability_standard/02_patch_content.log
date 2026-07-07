@@ -1,0 +1,14 @@
+Archive:  /home/cb/Downloads/000082_springmaster_command_precheck_capability_standard.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+    10872  2026-07-03 09:35   files/PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md
+    21996  2026-07-03 09:35   files/PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+     6737  2026-07-03 09:35   files/PROJECT_DOCS/ADR/README.md
+     9877  2026-07-03 09:35   files/PROJECT_DOCS/STANDARDS/API/COMMAND_PRECHECK_ENDPOINT_STANDARD.md
+    13722  2026-07-03 09:35   files/PROJECT_DOCS/STANDARDS/API/README.md
+    22209  2026-07-03 09:35   files/PROJECT_DOCS/STANDARDS/README.md
+    19027  2026-07-03 09:35   files/PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md
+     1431  2026-07-03 09:35   logs/CHANGELOG-000082-springmaster-command-precheck-capability-standard.md
+      310  2026-07-03 09:35   manifest.json
+---------                     -------
+   106181                     9 files

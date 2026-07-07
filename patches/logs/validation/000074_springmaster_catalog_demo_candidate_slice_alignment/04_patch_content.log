@@ -1,0 +1,24 @@
+Archive:  /home/cb/Downloads/000074_springmaster_catalog_demo_candidate_slice_alignment.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      498  1980-01-01 00:00   manifest.json
+     2612  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+     3698  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md
+    65509  1980-01-01 00:00   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+     8051  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+    12834  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md
+    21609  1980-01-01 00:00   files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+    36642  1980-01-01 00:00   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+    23780  1980-01-01 00:00   files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+    21511  1980-01-01 00:00   files/PROJECT_DOCS/STANDARDS/README.md
+    13460  1980-01-01 00:00   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+     8066  1980-01-01 00:00   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+     9988  1980-01-01 00:00   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+     6150  1980-01-01 00:00   files/bin/springmaster-gates-regression.sh
+     3323  1980-01-01 00:00   files/bin/springmaster-gates-selfcheck.sh
+    32475  1980-01-01 00:00   files/bin/springmaster-gates.py
+      411  1980-01-01 00:00   files/platform/versions/platform.env
+     4452  1980-01-01 00:00   files/src/test/java/de/cocondo/platform/tooling/SpringmasterGatesReportProfileTest.java
+     1540  1980-01-01 00:00   logs/CHANGELOG-000074-springmaster-catalog-demo-candidate-slice-alignment.md
+---------                     -------
+   276609                     19 files

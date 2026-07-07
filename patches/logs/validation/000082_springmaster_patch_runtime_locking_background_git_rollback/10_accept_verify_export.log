@@ -1,0 +1,17 @@
+== 10_accept_verify_export ==
+START 2026-07-05T16:54:24+02:00
+$ ./bin/patch.sh accept /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip --profile tooling --no-full-test --export
+
+Patch-Accept:
+  Status:       ALREADY_APPLIED
+  Patch-ID:     000083_springmaster_patch_runtime_locking_background_git_rollback
+  Profile:      tooling
+  Full-Test:    False
+  Export:       True
+  Summary:      /opt/cocondo/springmaster/patches/logs/accept/000083_springmaster_patch_runtime_locking_background_git_rollback/reaccept-20260705_165425/SUMMARY.txt
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000083_springmaster_patch_runtime_locking_background_git_rollback/reaccept-20260705_165425
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T14-54-25-279598Z.zip
+  Git-Commit:   /opt/cocondo/springmaster/patches/logs/accept/000083_springmaster_patch_runtime_locking_background_git_rollback/reaccept-20260705_165425/git-commit.sh
+
+EXIT 0
+END 2026-07-05T16:54:25+02:00

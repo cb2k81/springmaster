@@ -1,0 +1,40 @@
+07:32:13.869 [main] WARN de.cocondo.system.entity.DomainEntityListener -- DomainEntity without ID detected during PrePersist: entityClass=TestEntity
+07:32:15.378 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [de.cocondo.platform.app.SpringmasterApplicationTests]: SpringmasterApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+07:32:15.479 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration de.cocondo.platform.app.SpringmasterApplication for test class de.cocondo.platform.app.SpringmasterApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.3.10)
+
+2026-07-02T07:32:16.055+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : Starting SpringmasterApplicationTests using Java 21.0.9 with PID 7540 (started by cb in /opt/cocondo/springmaster)
+2026-07-02T07:32:16.130+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-07-02T07:32:20.424+02:00  INFO 7540 --- [springmaster] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-07-02T07:32:20.611+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.app.SpringmasterApplicationTests   : Started SpringmasterApplicationTests in 4.906 seconds (process running for 9.944)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/home/cb/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.3.10)
+
+2026-07-02T07:32:22.725+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : Starting CatalogItemControllerTest using Java 21.0.9 with PID 7540 (started by cb in /opt/cocondo/springmaster)
+2026-07-02T07:32:22.725+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : No active profile set, falling back to 1 default profile: "default"
+2026-07-02T07:32:25.010+02:00  INFO 7540 --- [springmaster] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-02T07:32:25.010+02:00  INFO 7540 --- [springmaster] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-02T07:32:25.019+02:00  INFO 7540 --- [springmaster] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-07-02T07:32:25.120+02:00  INFO 7540 --- [springmaster] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 108 ms
+2026-07-02T07:32:25.135+02:00  INFO 7540 --- [springmaster] [           main] d.c.p.d.c.api.CatalogItemControllerTest  : Started CatalogItemControllerTest in 2.579 seconds (process running for 14.468)
+2026-07-02T07:32:25.702+02:00  WARN 7540 --- [springmaster] [           main] jakarta.persistence.spi                  : jakarta.persistence.spi::No valid providers found.

@@ -3,7 +3,10 @@ package __BASE_PACKAGE__.app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "__BASE_PACKAGE__",
+        "de.cocondo.system"
+})
 public class __APPLICATION_CLASS__ {
 
     public static void main(String[] args) {

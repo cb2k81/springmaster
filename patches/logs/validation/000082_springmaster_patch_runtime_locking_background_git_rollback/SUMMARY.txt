@@ -1,0 +1,20 @@
+Status: SUCCESS
+Patch: /home/cb/Downloads/000082_springmaster_patch_runtime_locking_background_git_rollback.zip
+LogDir: /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback
+LatestPatch: 000083_springmaster_patch_runtime_locking_background_git_rollback
+LatestExport: /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T14-54-25-279598Z.zip
+AcceptSummary: /opt/cocondo/springmaster/patches/logs/accept/000083_springmaster_patch_runtime_locking_background_git_rollback/reaccept-20260705_165425/SUMMARY.txt
+GitCommitScript: /opt/cocondo/springmaster/patches/logs/accept/000083_springmaster_patch_runtime_locking_background_git_rollback/reaccept-20260705_165425/git-commit.sh
+
+Logs:
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/00_patch_file.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/01_patch_sha256.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/02_zip_test.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/03_zip_content.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/04_dry_run.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/05_apply.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/06_show_latest.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/07_python_compile.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/08_shell_syntax.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/09_patch_system_it.log
+  /opt/cocondo/springmaster/patches/logs/validation/000082_springmaster_patch_runtime_locking_background_git_rollback/10_accept_verify_export.log

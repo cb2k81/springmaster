@@ -1,0 +1,30 @@
+Patch-ID:      000088_springmaster_self_scope_target_namespace_hardening_rebased
+Archiv:        000088b_springmaster_self_scope_target_namespace_hardening_rebased.zip
+Erstellt am:   2026-07-07T07:26:07.710600+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 15
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      .env.example
+  modified      PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+  modified      PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+  modified      PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+  modified      PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  new           PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md
+  modified      PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+  modified      bin/export.sh
+  modified      bin/lib/core/env.sh
+  modified      bin/patch.py
+  modified      bin/platform-update.sh
+  modified      bin/project-new-acceptance.sh
+  modified      bin/project-new.sh
+  modified      export.config.json
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000088_springmaster_self_scope_target_namespace_hardening_rebased.md

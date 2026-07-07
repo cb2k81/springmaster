@@ -1,0 +1,30 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000062_springmaster_adr_0006_verification_and_gate_strategy.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000062_springmaster_adr_0006_verification_and_gate_strategy.zip
+  Patch-ID:     000062_springmaster_adr_0006_verification_and_gate_strategy
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [NEW]           PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  [MODIFIED]      PROJECT_DOCS/ADR/README.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000062-springmaster-adr-0006-verification-and-gate-strategy.md
+
+Zusammenfassung:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000062_springmaster_adr_0006_verification_and_gate_strategy/patch-log.json

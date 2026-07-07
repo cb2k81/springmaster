@@ -1,0 +1,10 @@
+Status: SUCCESS
+Target: zbm
+Profile: tooling
+Mode: apply
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505
+GeneratedZip: /opt/cocondo/springmaster/build/platform-update/generated/20260706T060505Z_springmaster_platform_update_tooling_for_zbm.zip
+TargetPath: /opt/cocondo/zbm
+TargetExport: /opt/cocondo/zbm/exports/text/springmaster_export_full_2026-07-06T06-05-07-992570Z.zip
+Stages: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/stages.log
+Log: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/RUN.log

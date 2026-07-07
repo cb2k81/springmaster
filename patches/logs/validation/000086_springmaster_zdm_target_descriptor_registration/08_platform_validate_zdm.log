@@ -1,0 +1,6 @@
+START 2026-07-06T06:50:36+02:00
+[WARN] zdm: status is INITIALIZATION_CANDIDATE; descriptor is not verified for automatic updates.
+[WARN] zdm: target path does not exist locally: /opt/cocondo/zdm
+[WARN] zdm: descriptor syntax valid.
+EXIT 0
+END 2026-07-06T06:50:36+02:00

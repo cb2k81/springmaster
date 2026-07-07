@@ -1,0 +1,32 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy.zip
+  Patch-ID:     000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [NEW]           PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  [MODIFIED]      PROJECT_DOCS/ADR/README.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/DEMO/README.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000065-springmaster-adr-0007-catalog-demo-canonicalization-strategy.md
+
+Zusammenfassung:
+  new: 2
+  modified: 11
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

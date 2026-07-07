@@ -1,0 +1,7 @@
+Status: RUNNING
+Target: zbm
+Profile: tooling
+Mode: apply
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132
+Log: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/RUN.log
+Stages: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/stages.log

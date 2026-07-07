@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000051_springmaster_domain_entity_persistence_standard
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000051_springmaster_domain_entity_persistence_standard
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-29T12-37-39-056729Z.zip

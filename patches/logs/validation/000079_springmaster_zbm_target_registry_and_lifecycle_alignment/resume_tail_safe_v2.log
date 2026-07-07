@@ -1,0 +1,32 @@
+== Resume verify 000079_springmaster_zbm_target_registry_and_lifecycle_alignment v2 ==
+2026-07-02T12:44:21+02:00
+== Patchstand ==
+[OK] Patch-ID:      000079_springmaster_zbm_target_registry_and_lifecycle_alignment
+== Versionen ==
+[OK] PLATFORM_VERSION=0.13.40-foundation
+[OK] PLATFORM_UPDATE_VERSION=0.8.1
+[OK] PLATFORM_STATE_PATCH=000079_springmaster_zbm_target_registry_and_lifecycle_alignment
+== Target-Liste ==
+[OK] zbm
+[OK] INITIALIZATION_CANDIDATE
+[OK] DEFERRED_EXISTING_PROJECT_NO_DELIVERY
+== zbm Descriptor ==
+[OK] TARGET_NAME=zbm
+[OK] TARGET_PATH=/opt/cocondo/zbm
+[OK] TARGET_BASE_PACKAGE=de.cocondo.zbm
+[OK] TARGET_LIFECYCLE=initialization
+[OK] TARGET_INITIALIZATION_ALLOWED=true
+[OK] TARGET_UPDATE_ALLOWED=false
+[OK] TARGET_DELIVERY_ENABLED=false
+== Defaults Dry-run ==
+[OK] Profile:      defaults
+[OK] Payload-Files:3
+== Delivery Guard ==
+[OK] target delivery is disabled
+== Planungsmarker ==
+[OK] 000080_springmaster_generated_service_slice_blueprint_spec
+[OK] 000080_springmaster_generated_service_slice_blueprint_spec
+[OK] zbm
+[OK] initialization
+[OK] updates
+== Full Export ==

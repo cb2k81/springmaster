@@ -1,0 +1,23 @@
+Archive:  /home/cb/Downloads/000088b_springmaster_self_scope_target_namespace_hardening_rebased.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2925  2026-07-07 05:22   manifest.json
+     2075  2026-07-07 05:22   files/.env.example
+     3738  2026-07-07 05:22   files/export.config.json
+     1503  2026-07-07 05:22   files/PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+     2246  2026-07-07 05:22   files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+     3427  2026-07-07 05:22   files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+     2713  2026-07-07 05:22   files/PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+    12904  2026-07-07 05:22   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+     3425  2026-07-07 05:22   files/PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md
+     3997  2026-07-07 05:22   files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+     8690  2026-07-07 05:22   files/bin/export.sh
+    65260  2026-07-07 05:22   files/bin/patch.py
+    52897  2026-07-07 05:22   files/bin/platform-update.sh
+     8408  2026-07-07 05:22   files/bin/project-new-acceptance.sh
+    18566  2026-07-07 05:22   files/bin/project-new.sh
+     3690  2026-07-07 05:22   files/bin/lib/core/env.sh
+      419  2026-07-07 05:22   files/platform/versions/platform.env
+     1495  2026-07-07 05:22   logs/CHANGELOG-000088_springmaster_self_scope_target_namespace_hardening_rebased.md
+---------                     -------
+   198378                     18 files

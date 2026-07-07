@@ -1,0 +1,16 @@
+Archive:  /home/cb/Downloads/000076_springmaster_project_new_instantiation_acceptance_review.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      486  2026-07-02 08:03   manifest.json
+     3560  2026-07-02 08:01   files/PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md
+     2874  2026-07-02 08:01   files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+    10754  2026-07-02 08:01   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+    66680  2026-07-02 08:01   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+    38269  2026-07-02 08:01   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+    17558  2026-07-02 08:00   files/bin/project-new.sh
+     7257  2026-07-02 08:02   files/bin/project-new-acceptance.sh
+      414  2026-07-02 08:01   files/platform/versions/platform.env
+     3236  2026-07-02 08:01   files/src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java
+     1159  2026-07-02 08:01   logs/CHANGELOG-000076-springmaster-project-new-instantiation-acceptance-review.md
+---------                     -------
+   152247                     11 files

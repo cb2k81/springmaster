@@ -1,0 +1,36 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation
+Archiv:        000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation.zip
+Erstellt am:   2026-07-01T08:21:51.524135+02:00
+Status:        applied
+Scope:         demo
+Summary:
+  new: 7
+  modified: 13
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  modified      PROJECT_DOCS/DEMO/README.md
+  modified      platform/versions/platform.env
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCreateDTO.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemDTO.java
+  new           src/main/java/de/cocondo/platform/demo/catalog/CatalogItemListItemDTO.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemMapper.java
+  new           src/main/java/de/cocondo/platform/demo/catalog/CatalogItemNotFoundException.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java
+  new           src/main/java/de/cocondo/platform/demo/catalog/CatalogItemUpdateDTO.java
+  new           src/main/java/de/cocondo/platform/demo/catalog/api/CatalogApiErrorResponse.java
+  new           src/main/java/de/cocondo/platform/demo/catalog/api/CatalogApiViolation.java
+  modified      src/main/java/de/cocondo/platform/demo/catalog/api/CatalogItemController.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java
+  modified      src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java
+  new           patches/logs/demo/CHANGELOG-000072-springmaster-catalog-demo-catalogitem-candidate-slice-foundation.md

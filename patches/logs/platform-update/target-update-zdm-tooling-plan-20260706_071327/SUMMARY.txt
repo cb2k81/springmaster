@@ -1,0 +1,7 @@
+Status: RUNNING
+Target: zdm
+Profile: tooling
+Mode: plan
+RunDir: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327
+Log: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/RUN.log
+Stages: /opt/cocondo/springmaster/patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/stages.log

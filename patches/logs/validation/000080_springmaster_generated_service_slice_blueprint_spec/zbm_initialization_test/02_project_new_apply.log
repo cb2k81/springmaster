@@ -1,0 +1,49 @@
+Project-New:
+  Master:       /opt/cocondo/springmaster
+  Ziel:         /opt/cocondo/zbm
+  Projekt:      zbm
+  Package:      de.cocondo.zbm
+  Modus:        AUSFÜHREN
+
+  [WRITE]   .env.example
+  [WRITE]   .gitignore
+  [WRITE]   README.md
+  [WRITE]   export.config.json
+  [WRITE]   pom.xml
+  [WRITE]   src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+  [WRITE]   src/main/java/de/cocondo/zbm/app/api/PlatformInfoController.java
+  [WRITE]   src/main/resources/application.yml
+  [WRITE]   src/main/resources/db/changelog/db.changelog-master.xml
+  [WRITE]   src/test/java/de/cocondo/zbm/app/ZbmApplicationTests.java
+  [WRITE]   bin/build.sh
+  [WRITE]   bin/dbtool.sh
+  [WRITE]   bin/export-completion.bash
+  [WRITE]   bin/export.sh
+  [WRITE]   bin/init.env.sh
+  [WRITE]   bin/patch.py
+  [WRITE]   bin/patch.sh
+  [WRITE]   bin/tooling-selfcheck.sh
+  [WRITE]   bin/lib/core/env.sh
+  [WRITE]   bin/lib/core/log.sh
+  [WRITE]   bin/lib/dbtool/changelog.sh
+  [WRITE]   bin/lib/dbtool/commands.sh
+  [WRITE]   bin/lib/dbtool/config.sh
+  [WRITE]   bin/lib/dbtool/liquibase.sh
+  [WRITE]   bin/lib/dbtool/mariadb.sh
+  [WRITE]   platform/versions/platform.env
+  [WRITE]   PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md
+  [WRITE]   PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env
+  [WRITE]   patches/logs/bootstrap/CHANGELOG-000001-project-new-bootstrap.md
+  [WRITE]   patches/archives/000001_project_new_bootstrap/manifest.json
+  [WRITE]   patches/archives/000001_project_new_bootstrap/patch-log.json
+  [WRITE]   tmp/.gitkeep
+
+Zusammenfassung: 32 Dateien
+Projektanlage abgeschlossen.
+
+Nächste Prüfung:
+  cd /opt/cocondo/zbm
+  ./bin/patch.sh list
+  ./bin/export.sh full --zip
+  ./bin/dbtool.sh status
+  mvn test

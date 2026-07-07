@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000069_springmaster_report_only_gate_regression_and_maven_profile
+FAILED_STEP=-
+PROFILE=tooling
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000069_springmaster_report_only_gate_regression_and_maven_profile
+LATEST_EXPORT=-

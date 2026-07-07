@@ -1,0 +1,14 @@
+TARGET_NAME=zbm
+TARGET_STATUS=INITIALIZATION_CANDIDATE
+TARGET_PATH=/opt/cocondo/zbm
+TARGET_APP_NAME=zbm
+TARGET_BASE_PACKAGE=de.cocondo.zbm
+TARGET_PORT=
+TARGET_DB_NAME=zbm
+TARGET_STAGE_DB_NAME=zbm_build
+TARGET_LIFECYCLE=initialization
+TARGET_INITIALIZATION_ALLOWED=true
+TARGET_UPDATE_ALLOWED=false
+TARGET_DELIVERY_ENABLED=false
+TARGET_ALLOWED_PROFILES=project-new,core,core-runtime,core-tests,tooling,defaults
+TARGET_NOTES=First planned Springmaster-delivered target. Initialize via project-new first; enable platform-update delivery only after generated-project acceptance.

@@ -1,0 +1,37 @@
+/opt/cocondo/springmaster
+2026-07-06T07:30:33+02:00
+0c5a99c
+Usage:
+  ./bin/platform-update.sh help
+  ./bin/platform-update.sh list
+  ./bin/platform-update.sh show <target>
+  ./bin/platform-update.sh validate <target|all>
+  ./bin/platform-update.sh plan <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|defaults|demo|platform-update] [--output <dir>]
+  ./bin/platform-update.sh generate <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|defaults|demo|platform-update] [--output <dir>] [--dry-run]
+  ./bin/platform-update.sh preflight <target> --zip <generated-patch.zip> [--output <dir>]
+  ./bin/platform-update.sh compatibility-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
+  ./bin/platform-update.sh apply-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
+  ./bin/platform-update.sh target-apply <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
+  ./bin/platform-update.sh workspace
+
+Commands:
+  list       list configured target descriptors
+  show       print one target descriptor
+  validate   validate descriptor syntax and report local target availability
+  plan       create a non-invasive update plan file; no target project is modified
+  generate   create a target-local plan patch ZIP; no target project is modified
+  preflight  run the target-local patch system in dry-run mode for a generated patch ZIP
+  compatibility-plan create a target compatibility patch ZIP and review plan; no target project is modified
+  apply-plan create a review-gated target apply plan; no target project is modified
+  target-apply explicitly apply a generated patch in the target project with compact logging
+  workspace  print the current platform-update build workspace paths
+
+Default generated artifacts are written below build/platform-update/**.
+The generate command resets this workspace before writing a new default output set.
+Payload profiles are intentionally split. Profile core includes runtime + tests, but not master Core documentation. Use core-docs explicitly for PROJECT_DOCS/CORE/**. Profile defaults is reserved for baseline configuration defaults such as .env.example and export.config.json.
+
+Safety model:
+  generate, preflight, compatibility-plan and apply-plan do not modify target projects.
+  apply-plan is a review gate and intentionally does not emit an executable target-mutating script.
+  target-apply is the only platform-update command that may modify a target project.
+  target-apply writes full target output to build/platform-update/logs/** and prints only a compact status summary.

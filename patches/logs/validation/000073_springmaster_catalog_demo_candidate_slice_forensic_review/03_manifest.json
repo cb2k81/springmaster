@@ -1,0 +1,9 @@
+{
+  "scope": "root",
+  "name": "springmaster_catalog_demo_candidate_slice_forensic_review",
+  "description": "Forensically review the Springmaster Catalog-demo CatalogItem candidate-reference-slice foundation after 000072 and classify remaining candidate, gate and canonicalization work.",
+  "baseline": "springmaster_export_full_2026-07-01T06-22-46-907429Z.zip",
+  "afterPatch": "000072_springmaster_catalog_demo_catalogitem_candidate_slice_foundation",
+  "type": "documentation-only",
+  "mavenTestRequired": false
+}

@@ -1,0 +1,23 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000050_springmaster_controller_service_usecase_transaction_standard
+Archiv:        000050_springmaster_controller_service_usecase_transaction_standard.zip
+Erstellt am:   2026-06-29T14:30:19.283821+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/STANDARDS/API/README.md
+  new           PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000050-springmaster-controller-service-usecase-transaction-standard.md

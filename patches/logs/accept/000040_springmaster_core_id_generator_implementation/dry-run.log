@@ -1,0 +1,28 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000040_springmaster_core_id_generator_implementation.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000040_springmaster_core_id_generator_implementation.zip
+  Patch-ID:     000040_springmaster_core_id_generator_implementation
+  Scope:        core
+  Modus:        DRY-RUN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [NEW]           PROJECT_DOCS/CORE/CORE_ID_GENERATOR_IMPLEMENTATION.md
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.json
+  [MODIFIED]      PROJECT_DOCS/CORE/IDM_SYSTEM_CORE_GAP_INVENTORY.md
+  [MODIFIED]      PROJECT_DOCS/CORE/README.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java
+  [NEW]           src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java
+  [NEW]           patches/logs/core/CHANGELOG-000040-springmaster-core-id-generator-implementation.md
+
+Zusammenfassung:
+  new: 4
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

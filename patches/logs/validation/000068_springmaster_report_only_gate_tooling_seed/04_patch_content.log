@@ -1,0 +1,19 @@
+Archive:  /home/cb/Downloads/000068_springmaster_report_only_gate_tooling_seed.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      428  2026-06-30 14:10   manifest.json
+    14013  2026-06-30 14:10   files/PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+    60755  2026-06-30 14:10   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+    31972  2026-06-30 14:10   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+    20477  2026-06-30 14:10   files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+    19127  2026-06-30 14:10   files/PROJECT_DOCS/STANDARDS/README.md
+    13180  2026-06-30 14:10   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+     4081  2026-06-30 14:10   files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+     7271  2026-06-30 14:10   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+     2475  2026-06-30 14:10   files/bin/springmaster-gates-selfcheck.sh
+    28074  2026-06-30 14:10   files/bin/springmaster-gates.py
+      154  2026-06-30 14:10   files/bin/springmaster-gates.sh
+      397  2026-06-30 14:10   files/platform/versions/platform.env
+     2524  2026-06-30 14:10   logs/CHANGELOG-000068-springmaster-report-only-gate-tooling-seed.md
+---------                     -------
+   204928                     14 files

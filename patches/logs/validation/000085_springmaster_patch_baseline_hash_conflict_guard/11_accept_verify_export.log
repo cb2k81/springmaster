@@ -1,0 +1,15 @@
+START 2026-07-05T18:48:15+02:00
+PWD: /opt/cocondo/springmaster
+CMD: ./bin/patch.sh accept /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard.zip --profile tooling --no-full-test --export --wait
+Patch-Accept:
+  Status:       ALREADY_APPLIED
+  Patch-ID:     000085_000085_springmaster_patch_baseline_hash_conflict_guard
+  Profile:      tooling
+  Full-Test:    False
+  Export:       True
+  Summary:      /opt/cocondo/springmaster/patches/logs/accept/000085_000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_184816/SUMMARY.txt
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000085_000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_184816
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T16-48-16-681163Z.zip
+  Git-Commit:   /opt/cocondo/springmaster/patches/logs/accept/000085_000085_springmaster_patch_baseline_hash_conflict_guard/reaccept-20260705_184816/git-commit.sh
+EXIT 0
+END 2026-07-05T18:48:17+02:00

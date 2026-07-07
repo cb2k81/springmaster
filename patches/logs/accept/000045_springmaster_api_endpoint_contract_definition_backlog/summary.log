@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000045_springmaster_api_endpoint_contract_definition_backlog
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000045_springmaster_api_endpoint_contract_definition_backlog
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-29T09-54-01-959218Z.zip

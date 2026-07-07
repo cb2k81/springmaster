@@ -1,0 +1,37 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000074_springmaster_catalog_demo_candidate_slice_alignment.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000074_springmaster_catalog_demo_candidate_slice_alignment.zip
+  Patch-ID:     000075_springmaster_catalog_demo_candidate_slice_alignment
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [UNCHANGED]     PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [UNCHANGED]     PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
+  [UNCHANGED]     PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md
+  [UNCHANGED]     PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_ALIGNMENT.md
+  [UNCHANGED]     PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_FORENSIC_REVIEW.md
+  [UNCHANGED]     PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  [UNCHANGED]     PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [UNCHANGED]     PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [UNCHANGED]     PROJECT_DOCS/STANDARDS/README.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  [UNCHANGED]     PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [UNCHANGED]     bin/springmaster-gates-regression.sh
+  [UNCHANGED]     bin/springmaster-gates-selfcheck.sh
+  [UNCHANGED]     bin/springmaster-gates.py
+  [UNCHANGED]     platform/versions/platform.env
+  [UNCHANGED]     src/test/java/de/cocondo/platform/tooling/SpringmasterGatesReportProfileTest.java
+  [UNCHANGED]     patches/logs/root/CHANGELOG-000074-springmaster-catalog-demo-candidate-slice-alignment.md
+
+Zusammenfassung:
+  new: 0
+  modified: 0
+  unchanged: 18
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

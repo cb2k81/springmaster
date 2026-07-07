@@ -1,0 +1,27 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000036_springmaster_platform_update_review_gate
+Archiv:        000036_springmaster_platform_update_review_gate.zip
+Erstellt am:   2026-06-26T10:18:59.351432+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_BUILD_WORKSPACE.md
+  new           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_REVIEW_GATE.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+  modified      bin/platform-update.sh
+  modified      platform/update/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000036-springmaster-platform-update-review-gate.md

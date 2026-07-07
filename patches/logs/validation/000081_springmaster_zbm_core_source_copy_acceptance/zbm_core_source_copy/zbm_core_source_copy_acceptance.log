@@ -1,0 +1,63 @@
+Springmaster Stand prüfen
+[OK] Marker 'PLATFORM_STATE_PATCH=000081_springmaster_zbm_core_source_copy_acceptance' in platform/versions/platform.env
+[OK] Marker 'PLATFORM_UPDATE_VERSION=0.8.2' in platform/versions/platform.env
+[OK] Marker 'TARGET_NAME=zbm' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/00_zbm_descriptor.log
+[OK] Marker 'TARGET_PATH=/opt/cocondo/zbm' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/00_zbm_descriptor.log
+[OK] Marker 'TARGET_BASE_PACKAGE=de.cocondo.zbm' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/00_zbm_descriptor.log
+[OK] Marker 'TARGET_LIFECYCLE=initialization' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/00_zbm_descriptor.log
+[OK] Marker 'TARGET_DELIVERY_ENABLED=false' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/00_zbm_descriptor.log
+[OK] Datei vorhanden: /opt/cocondo/zbm/pom.xml
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/patch.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/bin/export.sh
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/zbm/app/ZbmApplication.java
+Core-Patch für ZBM generieren
+Platform-Update-Generate:
+  Status:       GENERATED
+  Target:       zbm
+  Profile:      core
+  Scope:        core
+  Payload:      payload
+  Payload-Files:43
+  Payload-Profile:core runtime + core tests; no master Core documentation
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Target path:  /opt/cocondo/zbm
+  Hinweis:      Zielprojekt wurde nicht verändert.
+ZIP: /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+598e12c3f07eb246a7c41c256c91a3dc92a324574b3911a0d4518836c0e3dd61  /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+[OK] Marker 'files/pom.xml' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/src/main/java/de/cocondo/system' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/src/test/java/de/cocondo/system' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/PROJECT_DOCS/CORE/PLATFORM_UPDATES' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/src/main/java/de/cocondo/platform' nicht vorhanden in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/src/test/java/de/cocondo/platform' nicht vorhanden in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/PROJECT_DOCS/DEMO' nicht vorhanden in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker 'files/PROJECT_DOCS/TOOLING' nicht vorhanden in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/04_generated_zip_content.log
+[OK] Marker '<artifactId>jakarta.persistence-api</artifactId>' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/05_generated_target_pom.xml
+[OK] Marker '<artifactId>jakarta.validation-api</artifactId>' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/05_generated_target_pom.xml
+[OK] Marker '<artifactId>spring-data-commons</artifactId>' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/05_generated_target_pom.xml
+[OK] Marker '<artifactId>spring-boot-starter-data-jpa</artifactId>' nicht vorhanden in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/05_generated_target_pom.xml
+Platform-Update-Preflight:
+  Status:       PASSED
+  Target:       zbm
+  Patch-ID:     20260702T133603Z_springmaster_platform_update_core_for_zbm
+  Patch-Scope:  core
+  Source ZIP:   /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Log:          /opt/cocondo/springmaster/build/platform-update/manifests/20260702T133603Z_zbm_20260702T133603Z_springmaster_platform_update_core_for_zbm_preflight.log
+  Hinweis:      Zielprojekt wurde nicht verändert.
+[OK] Marker 'Status:       PASSED' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/06_preflight.log
+ZBM Core-Patch lokal anwenden
+[OK] Marker 'src/main/java/de/cocondo/system' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/07_zbm_apply_dry_run.log
+[OK] Marker 'pom.xml' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/07_zbm_apply_dry_run.log
+[OK] Marker 'springmaster_platform_update_core_for_zbm' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/08_zbm_apply.log
+[OK] Marker 'Scope:        core' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/08_zbm_apply.log
+[OK] Marker 'springmaster_platform_update_core_for_zbm' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/09_zbm_show_latest.log
+[OK] Marker 'Scope:         core' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/09_zbm_show_latest.log
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/main/java/de/cocondo/system/entity/DomainEntity.java
+[OK] Datei vorhanden: /opt/cocondo/zbm/src/test/java/de/cocondo/system/entity/DomainEntityPersistenceMappingTest.java
+[OK] Marker '<artifactId>jakarta.persistence-api</artifactId>' in /opt/cocondo/zbm/pom.xml
+[OK] Marker '<artifactId>jakarta.validation-api</artifactId>' in /opt/cocondo/zbm/pom.xml
+[OK] Marker '<artifactId>spring-data-commons</artifactId>' in /opt/cocondo/zbm/pom.xml
+ZBM Maven-Test ausführen
+[OK] Marker 'BUILD SUCCESS' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/zbm_core_source_copy/10_zbm_mvn_test.log
+ZBM Full-ZIP-Export erzeugen
+19b3a91e1494e14b6ff418f37f700bb34fcdac10149935aee77756a687007f80  /opt/cocondo/zbm/exports/text/zbm_export_full_2026-07-02T13-36-17-640876Z.zip

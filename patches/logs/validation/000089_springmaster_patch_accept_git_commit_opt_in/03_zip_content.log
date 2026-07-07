@@ -1,0 +1,13 @@
+Archive:  /home/cb/Downloads/000089_springmaster_patch_accept_git_commit_opt_in.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     1730  2026-07-07 08:28   manifest.json
+    72172  2026-07-07 08:26   files/bin/patch.py
+     8671  2026-07-07 08:27   files/bin/patch-system-it.sh
+    10160  2026-07-07 08:27   files/PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md
+    12287  2026-07-07 08:27   files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+    16597  2026-07-07 08:27   files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+      404  2026-07-07 08:27   files/platform/versions/platform.env
+      966  2026-07-07 08:28   logs/CHANGELOG-000089_springmaster_patch_accept_git_commit_opt_in.md
+---------                     -------
+   122987                     8 files

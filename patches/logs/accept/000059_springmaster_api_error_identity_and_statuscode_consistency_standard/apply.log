@@ -1,0 +1,34 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000059_springmaster_api_error_identity_and_statuscode_consistency_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000059_springmaster_api_error_identity_and_statuscode_consistency_standard.zip
+  Patch-ID:     000059_springmaster_api_error_identity_and_statuscode_consistency_standard
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000059-springmaster-api-error-identity-and-statuscode-consistency-standard.md
+
+Zusammenfassung:
+  new: 2
+  modified: 13
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000059_springmaster_api_error_identity_and_statuscode_consistency_standard/patch-log.json

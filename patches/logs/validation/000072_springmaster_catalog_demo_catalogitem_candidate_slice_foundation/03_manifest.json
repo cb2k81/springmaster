@@ -1,0 +1,9 @@
+{
+  "scope": "demo",
+  "name": "springmaster_catalog_demo_catalogitem_candidate_slice_foundation",
+  "description": "Implement the first Springmaster Catalog-demo CatalogItem candidate-reference-slice foundation with paged API, opaque identity, standard error body, tests and candidate evidence.",
+  "baseline": "springmaster_export_full_2026-07-01T06-00-02-143295Z.zip",
+  "afterPatch": "000071_springmaster_catalog_demo_candidate_slice_contract_plan",
+  "type": "demo-code",
+  "mavenTestRequired": true
+}

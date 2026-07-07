@@ -1,0 +1,27 @@
+== Patch dry-run ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply --dry-run /home/cb/Downloads/000082_springmaster_command_precheck_capability_standard.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000082_springmaster_command_precheck_capability_standard.zip
+  Patch-ID:     000082_000082_springmaster_command_precheck_capability_standard
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [NEW]           PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md
+  [MODIFIED]      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  [MODIFIED]      PROJECT_DOCS/ADR/README.md
+  [NEW]           PROJECT_DOCS/STANDARDS/API/COMMAND_PRECHECK_ENDPOINT_STANDARD.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/API/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/README.md
+  [MODIFIED]      PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md
+  [NEW]           patches/logs/root/CHANGELOG-000082-springmaster-command-precheck-capability-standard.md
+
+Zusammenfassung:
+  new: 3
+  modified: 5
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

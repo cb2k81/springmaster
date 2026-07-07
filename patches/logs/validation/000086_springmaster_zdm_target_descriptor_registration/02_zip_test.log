@@ -1,0 +1,13 @@
+START 2026-07-06T06:50:34+02:00
+Archive:  /home/cb/Downloads/000086_springmaster_zdm_target_descriptor_registration.zip
+    testing: manifest.json            OK
+    testing: files/                   OK
+    testing: files/platform/          OK
+    testing: files/platform/update/   OK
+    testing: files/platform/update/targets/   OK
+    testing: files/platform/update/targets/zdm.env   OK
+    testing: logs/                    OK
+    testing: logs/CHANGELOG-000086_springmaster_zdm_target_descriptor_registration.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000086_springmaster_zdm_target_descriptor_registration.zip.
+EXIT 0
+END 2026-07-06T06:50:34+02:00

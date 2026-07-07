@@ -1,0 +1,42 @@
+{
+    "scope": "springmaster-reference-only",
+    "includedInputs": [
+        {
+            "type": "java-source",
+            "path": "src/main/java",
+            "fileCount": 36
+        },
+        {
+            "type": "documentation",
+            "path": "PROJECT_DOCS/ADR",
+            "fileCount": 11
+        },
+        {
+            "type": "documentation",
+            "path": "PROJECT_DOCS/STANDARDS",
+            "fileCount": 21
+        },
+        {
+            "type": "documentation",
+            "path": "PROJECT_DOCS/DEMO",
+            "fileCount": 4
+        }
+    ],
+    "availableOpenApiFiles": [],
+    "unavailableInputs": [
+        {
+            "type": "compiled-classes",
+            "reason": "not required for first source-based report-only seed"
+        },
+        {
+            "type": "target-projects",
+            "reason": "explicitly excluded by scope springmaster-reference-only"
+        }
+    ],
+    "excludedTargets": [
+        "/opt/cocondo/idm",
+        "/opt/cocondo/personnel",
+        "/opt/cocondo/contacts",
+        "/opt/cocondo/orders"
+    ]
+}

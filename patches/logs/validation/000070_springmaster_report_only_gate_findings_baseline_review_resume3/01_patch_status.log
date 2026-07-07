@@ -1,0 +1,24 @@
+Patch-ID:      000070_springmaster_report_only_gate_findings_baseline_review
+Archiv:        000070_springmaster_report_only_gate_findings_baseline_review.zip
+Erstellt am:   2026-07-01T07:20:58.453035+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 9
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  new           PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000070-springmaster-report-only-gate-findings-baseline-review.md

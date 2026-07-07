@@ -1,0 +1,17 @@
+Archive:  /home/cb/Downloads/000071_springmaster_catalog_demo_candidate_slice_contract_plan.zip
+    testing: manifest.json            OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md   OK
+    testing: files/PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md   OK
+    testing: files/PROJECT_DOCS/DEMO/README.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md   OK
+    testing: files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md   OK
+    testing: files/PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md   OK
+    testing: files/PROJECT_DOCS/STANDARDS/README.md   OK
+    testing: files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md   OK
+    testing: files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md   OK
+    testing: files/platform/versions/platform.env   OK
+    testing: logs/CHANGELOG-000071-springmaster-catalog-demo-candidate-slice-contract-plan.md   OK
+No errors detected in compressed data of /home/cb/Downloads/000071_springmaster_catalog_demo_candidate_slice_contract_plan.zip.

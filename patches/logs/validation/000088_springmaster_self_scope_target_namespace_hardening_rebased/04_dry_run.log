@@ -1,0 +1,33 @@
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000088b_springmaster_self_scope_target_namespace_hardening_rebased.zip
+  Patch-ID:     000088_springmaster_self_scope_target_namespace_hardening_rebased
+  Scope:        root
+  Modus:        DRY-RUN
+
+  [MODIFIED]      .env.example
+  [MODIFIED]      PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
+  [MODIFIED]      PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+  [MODIFIED]      PROJECT_DOCS/TEMPLATES/project-skeleton/files/export.config.json.tpl
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [NEW]           PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+  [MODIFIED]      bin/export.sh
+  [MODIFIED]      bin/lib/core/env.sh
+  [MODIFIED]      bin/patch.py
+  [MODIFIED]      bin/platform-update.sh
+  [MODIFIED]      bin/project-new-acceptance.sh
+  [MODIFIED]      bin/project-new.sh
+  [MODIFIED]      export.config.json
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000088_springmaster_self_scope_target_namespace_hardening_rebased.md
+
+Zusammenfassung:
+  new: 2
+  modified: 15
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

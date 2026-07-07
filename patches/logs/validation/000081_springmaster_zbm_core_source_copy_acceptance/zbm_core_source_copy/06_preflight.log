@@ -1,0 +1,8 @@
+Platform-Update-Preflight:
+  Status:       PASSED
+  Target:       zbm
+  Patch-ID:     20260702T133603Z_springmaster_platform_update_core_for_zbm
+  Patch-Scope:  core
+  Source ZIP:   /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Log:          /opt/cocondo/springmaster/build/platform-update/manifests/20260702T133603Z_zbm_20260702T133603Z_springmaster_platform_update_core_for_zbm_preflight.log
+  Hinweis:      Zielprojekt wurde nicht verändert.

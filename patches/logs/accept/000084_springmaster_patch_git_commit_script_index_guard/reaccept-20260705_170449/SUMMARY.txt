@@ -1,0 +1,12 @@
+STATUS=ALREADY_APPLIED
+COMMAND=accept
+PATCH_ID=000084_springmaster_patch_git_commit_script_index_guard
+FAILED_STEP=-
+PROFILE=tooling
+FULL_TEST=False
+EXPORT=True
+BACKGROUND=False
+WAIT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000084_springmaster_patch_git_commit_script_index_guard/reaccept-20260705_170449
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-05T15-04-49-998748Z.zip
+GIT_COMMIT_SCRIPT=/opt/cocondo/springmaster/patches/logs/accept/000084_springmaster_patch_git_commit_script_index_guard/reaccept-20260705_170449/git-commit.sh

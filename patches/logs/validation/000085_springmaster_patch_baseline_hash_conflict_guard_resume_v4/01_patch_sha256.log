@@ -1,0 +1,6 @@
+START 2026-07-05T19:19:41+02:00
+PWD: /opt/cocondo/springmaster
+CMD: sha256sum '/home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard_v3_corrected_manifest.zip'
+3eb812743d687087f60ba73215e8418217780c900dc5b1e9f002aefb1c5ca67e  /home/cb/Downloads/000085_springmaster_patch_baseline_hash_conflict_guard_v3_corrected_manifest.zip
+EXIT 0
+END 2026-07-05T19:19:41+02:00

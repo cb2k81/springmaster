@@ -1,0 +1,7 @@
+== 08_shell_syntax ==
+START 2026-07-05T16:54:24+02:00
+$ bash -n ./bin/build.sh ./bin/dbtool.sh ./bin/export.sh ./bin/init.env.sh ./bin/patch.sh ./bin/patch-system-it.sh ./bin/platform-update.sh ./bin/project-new-acceptance.sh ./bin/project-new.sh ./bin/springmaster-gates-regression.sh ./bin/springmaster-gates-selfcheck.sh ./bin/springmaster-gates.sh ./bin/tooling-selfcheck.sh ./bin/lib/core/env.sh ./bin/lib/core/log.sh ./bin/lib/dbtool/changelog.sh ./bin/lib/dbtool/commands.sh ./bin/lib/dbtool/config.sh ./bin/lib/dbtool/liquibase.sh ./bin/lib/dbtool/mariadb.sh
+
+
+EXIT 0
+END 2026-07-05T16:54:24+02:00

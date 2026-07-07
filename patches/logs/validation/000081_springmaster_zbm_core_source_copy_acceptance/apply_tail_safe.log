@@ -1,0 +1,83 @@
+Patch-Datei prüfen
+-rw-rw-r-- 1 cb cb 55650 Jul  2 15:35 /home/cb/Downloads/000081_springmaster_zbm_core_source_copy_acceptance.zip
+25743ca2936a9a4a83fd86427d376a051959de2e10da274318b35cd3fd71770e  /home/cb/Downloads/000081_springmaster_zbm_core_source_copy_acceptance.zip
+[OK] Patch-ZIP Integrität
+{
+  "scope": "root",
+  "name": "springmaster_zbm_core_source_copy_acceptance",
+  "description": "Prepare and document the first controlled Core source-copy acceptance for the generated ZBM backend, including scope-compatible generated Core update documents and target-local Core dependency synthesis.",
+  "baseline": "springmaster_export_full_2026-07-02T12-56-12-120772Z.zip",
+  "afterPatch": "000080_springmaster_generated_service_slice_blueprint_spec",
+  "type": "tooling-configuration",
+  "mavenTestRequired": false,
+  "shellValidationRequired": true,
+  "changes": [
+    "Writes generated Core update review documents to PROJECT_DOCS/CORE/PLATFORM_UPDATES so core-scope patches are target-patch compatible",
+    "Synthesizes target-local pom.xml Core compile dependencies for core and core-runtime generated patches instead of copying the Springmaster master pom.xml",
+    "Uses minimal API dependencies for persistence, validation and Spring Data page support without enabling datasource auto-configuration",
+    "Documents ZBM Core source-copy acceptance as the required bridge before fachlicher service-slice generation",
+    "Advances Platform version to 0.13.42 and Platform-Update version to 0.8.2"
+  ]
+}
+[OK] Marker '"scope": "root"' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/03_manifest.json
+[OK] Marker '"type": "tooling-configuration"' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/03_manifest.json
+[OK] Marker '"mavenTestRequired": false' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/03_manifest.json
+[OK] Marker '"shellValidationRequired": true' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/03_manifest.json
+[OK] Marker 'bin/platform-update.sh' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/04_patch_content.log
+[OK] Marker 'ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/04_patch_content.log
+[OK] Marker 'PLATFORM_UPDATE_PAYLOAD_PROFILES.md' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/04_patch_content.log
+[OK] Marker 'GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/04_patch_content.log
+[OK] Marker 'CHANGELOG-000081-springmaster-zbm-core-source-copy-acceptance.md' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/04_patch_content.log
+[OK] Shell-Syntax im Patch: bin/platform-update.sh
+[OK] Marker 'bin/platform-update.sh' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/06_dry_run.log
+[OK] Marker 'PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/06_dry_run.log
+Patch-Accept:
+  Status:       SUCCESS
+  Patch-ID:     000081_springmaster_zbm_core_source_copy_acceptance
+  Profile:      tooling
+  Full-Test:    False
+  Export:       False
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000081_springmaster_zbm_core_source_copy_acceptance
+[OK] Marker 'Status:       SUCCESS' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/07_accept.log
+[OK] Marker 'Full-Test:    False' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/07_accept.log
+[OK] Marker 'Patch-ID:      000081_springmaster_zbm_core_source_copy_acceptance' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/08_show_latest.log
+[OK] Marker 'bin/platform-update.sh' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/08_show_latest.log
+PLATFORM_NAME=springmaster
+PLATFORM_VERSION=0.13.42-foundation
+PLATFORM_CORE_VERSION=0.3.2
+PLATFORM_TOOLING_VERSION=0.3.11
+PLATFORM_TEMPLATE_VERSION=0.1.0
+PLATFORM_DEMO_VERSION=0.2.3
+PLATFORM_UPDATE_VERSION=0.8.2
+PLATFORM_STATE_PATCH=000081_springmaster_zbm_core_source_copy_acceptance
+PLATFORM_BASELINE_KIND=full-zip
+PLATFORM_BASE_PACKAGE=de.cocondo.platform
+PLATFORM_CORE_PACKAGE=de.cocondo.system
+[OK] Marker 'PLATFORM_VERSION=0.13.42-foundation' in platform/versions/platform.env
+[OK] Marker 'PLATFORM_UPDATE_VERSION=0.8.2' in platform/versions/platform.env
+[OK] Marker 'PLATFORM_STATE_PATCH=000081_springmaster_zbm_core_source_copy_acceptance' in platform/versions/platform.env
+Platform-Update Core Dry-run prüfen
+Platform-Update-Generate:
+  Status:       DRY-RUN
+  Target:       zbm
+  Profile:      core
+  Scope:        core
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260702T133537Z_springmaster_platform_update_core_for_zbm.zip
+  Payload:      payload
+  Payload-Files:43
+  Payload-Profile:core runtime + core tests; no master Core documentation
+  Plan:         files/PROJECT_DOCS/CORE/PLATFORM_UPDATES/20260702T133537Z_springmaster_platform_update_core_for_zbm.md
+  Changelog:    logs/CHANGELOG-20260702T133537Z_springmaster_platform_update_core_for_zbm.md
+  Target path:  /opt/cocondo/zbm
+  Hinweis:      Zielprojekt wird nicht verändert.
+[OK] Marker 'Profile:      core' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/10_core_generate_dry_run.log
+[OK] Marker 'Scope:        core' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/10_core_generate_dry_run.log
+[OK] Marker 'PROJECT_DOCS/CORE/PLATFORM_UPDATES' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/10_core_generate_dry_run.log
+[OK] Marker 'Zielprojekt wird nicht verändert' in /opt/cocondo/springmaster/patches/logs/validation/000081_springmaster_zbm_core_source_copy_acceptance/10_core_generate_dry_run.log
+[OK] Marker 'ZBM Core Source-Copy Acceptance' in PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md
+[OK] Marker 'PROJECT_DOCS/CORE/PLATFORM_UPDATES' in PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+[OK] Marker 'jakarta.persistence:jakarta.persistence-api' in PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_SOURCE_COPY_ACCEPTANCE.md
+[OK] Marker '000081_springmaster_zbm_core_source_copy_acceptance' in PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+[OK] Marker 'Versionierter Stand nach 000081' in PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+exports/text/springmaster_export_full_2026-07-02T13-35-37-458795Z.zip
+e29048bb291dbfc41cfc597299c88cb393562e75a65b63e59f79773f2b851f38  exports/text/springmaster_export_full_2026-07-02T13-35-37-458795Z.zip

@@ -1,10 +1,10 @@
 {
   "templateId": "project-skeleton",
-  "templateVersion": "0.2.0",
-  "status": "project-new-foundation",
+  "templateVersion": "0.3.0",
+  "status": "project-new-foundation-with-core-scan-alignment",
   "automaticGenerationImplemented": true,
   "generator": "bin/project-new.sh",
-  "description": "Initial operational skeleton for deterministic creation of Cocondo Java backend projects.",
+  "description": "Operational skeleton for deterministic creation of Cocondo Java backend projects with explicit scan alignment for de.cocondo.system core packages.",
   "requiredTokens": [
     "__PROJECT_NAME__",
     "__ARTIFACT_ID__",
@@ -29,6 +29,8 @@
     "generated project contains bin/dbtool.sh",
     "generated project passes mvn test",
     "generated project can run ./bin/export.sh full --zip",
-    "generated project can run ./bin/dbtool.sh status"
+    "generated project can run ./bin/dbtool.sh status",
+    "generated application scans project base package and de.cocondo.system",
+    "generated project passes mvn test with explicit scanBasePackages configuration"
   ]
 }

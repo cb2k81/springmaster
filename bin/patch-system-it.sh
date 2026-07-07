@@ -112,6 +112,42 @@ else
   log "SKIP: git index guard fixture test (git not available)"
 fi
 
+
+
+if command -v git >/dev/null 2>&1; then
+  COMMIT_FIXTURE="${WORK_ROOT}/${RUN_ID}/commit-fixture"
+  COMMIT_PATCH="${PATCHES}/fixture_commit.zip"
+  mkdir -p "${COMMIT_FIXTURE}/custom" "${COMMIT_FIXTURE}/patches/logs/custom"
+  cat > "${COMMIT_FIXTURE}/.env" <<'ENV'
+PATCH_LOCAL_SCOPES=custom
+PATCH_SCOPE_CUSTOM_PATHS=custom/**
+PATCH_SCOPE_CUSTOM_LOG_DIR=custom
+PATCH_LOCK_ROOT=patches/runtime/locks
+PATCH_FULL_TEST_COMMAND=bash -lc 'printf full-test-ok\n'
+PATCH_TEST_SELECTOR_COMMAND_TEMPLATE=bash -lc 'printf selected-test-{test}\n'
+PATCH_EXPORT_COMMAND=bash -lc 'mkdir -p exports/text && printf export > exports/text/fixture_export_full_test.zip'
+PATCH_TOOLING_SELFCHECK_COMMAND=none
+ENV
+  (
+    cd "${COMMIT_FIXTURE}"
+    git init -q
+    git config user.email "patch-fixture@example.invalid"
+    git config user.name "Patch Fixture"
+    git add .env
+    git commit -qm "commit fixture baseline"
+  ) >>"${LOG}" 2>&1
+  make_patch "fixture_commit" "${COMMIT_PATCH}" new-only
+  run python3 "${ENGINE}" "${COMMIT_FIXTURE}" accept "${COMMIT_PATCH}" --profile docs --no-full-test --no-export --skip-tooling-selfcheck --commit
+  (cd "${COMMIT_FIXTURE}" && git log --oneline -1) >>"${LOG}" 2>&1
+  (cd "${COMMIT_FIXTURE}" && git log --oneline -1 | grep -q 'patch(custom): 000001_fixture_commit')
+  (cd "${COMMIT_FIXTURE}" && git ls-files custom/fixture_commit.txt | grep -q 'custom/fixture_commit.txt')
+  COMMIT_SUMMARY="$(find "${COMMIT_FIXTURE}/patches/logs/accept" -name SUMMARY.txt -type f | sort | tail -1)"
+  grep -q 'GIT_COMMIT_STATUS=COMMITTED' "${COMMIT_SUMMARY}"
+  grep -q 'GIT_COMMIT_HASH=' "${COMMIT_SUMMARY}"
+else
+  log "SKIP: direct accept --commit fixture test (git not available)"
+fi
+
 run python3 "${ENGINE}" "${FIXTURE}" rollback --dry-run latest
 run python3 "${ENGINE}" "${FIXTURE}" rollback latest
 

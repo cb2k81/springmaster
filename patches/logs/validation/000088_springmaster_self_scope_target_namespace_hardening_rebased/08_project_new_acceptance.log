@@ -1,0 +1,54 @@
+Project-New Acceptance: dry-run
+[OK] Marker 'Modus:        DRY-RUN' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/01_project_new_dry_run.log
+[OK] Marker 'Zusammenfassung:' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/01_project_new_dry_run.log
+Project-New Acceptance: create
+[OK] Marker 'Projektanlage abgeschlossen.' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/02_project_new_create.log
+[OK] pom.xml
+[OK] README.md
+[OK] .env.example
+[OK] export.config.json
+[OK] platform/versions/platform.env
+[OK] PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md
+[OK] PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env
+[OK] patches/archives/000001_project_new_bootstrap/manifest.json
+[OK] patches/archives/000001_project_new_bootstrap/patch-log.json
+[OK] src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java
+[OK] src/main/java/de/cocondo/acceptance/sample/app/api/PlatformInfoController.java
+[OK] src/test/java/de/cocondo/acceptance/sample/app/SampleBackendApplicationTests.java
+[OK] bin/patch.sh
+[OK] bin/export.sh
+[OK] bin/dbtool.sh
+[OK] bin/build.sh
+[OK] bin/tooling-selfcheck.sh
+[OK] bin/lib/core/env.sh
+[OK] No .env generated
+[OK] Marker '<artifactId>sample-backend</artifactId>' in pom.xml
+[OK] Marker '<groupId>de.cocondo.acceptance</groupId>' in pom.xml
+[OK] Marker 'package de.cocondo.acceptance.sample.app;' in src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java
+[OK] Marker 'package de.cocondo.acceptance.sample.app.api;' in src/main/java/de/cocondo/acceptance/sample/app/api/PlatformInfoController.java
+[OK] Marker 'APP_EXPORT_PROJECT_KEY=sample-backend' in .env.example
+[OK] Marker 'APP_CORE_PACKAGE=de.cocondo.system' in .env.example
+[OK] Marker 'APP_DEV_DB_NAME=sample_backend' in .env.example
+[OK] Marker 'APP_STAGE_DB_NAME=sample_backend_build' in .env.example
+[OK] Marker 'PATCH_LOCAL_SCOPES="domain;sample-backend"' in .env.example
+[OK] Marker 'PATCH_SCOPE_SAMPLE_BACKEND_PATHS="src/main/java/de/cocondo/acceptance/sample/**' in .env.example
+[OK] Marker 'APP_DEV_DB_NAME="${APP_DEV_DB_NAME:-sample_backend}"' in bin/lib/core/env.sh
+[OK] Marker 'APP_DEV_DB_USER="${APP_DEV_DB_USER:-sample_backend}"' in bin/lib/core/env.sh
+[OK] Marker 'APP_STAGE_DB_NAME="${APP_STAGE_DB_NAME:-${APP_BUILD_DB_NAME:-sample_backend_build}}"' in bin/lib/core/env.sh
+[OK] Marker '__PROJECT_NAME__' absent in README.md
+[OK] Marker '__BASE_PACKAGE__' absent in src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java
+Project-New Acceptance: patch registry
+[OK] Marker '000001' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/03_generated_patch_list.log
+[OK] Marker 'project_new_bootstrap' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/03_generated_patch_list.log
+Project-New Acceptance: DBTool status
+[OK] Marker 'APP_DEV_DB_NAME=sample_backend' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/04_generated_dbtool_status.log
+[OK] Marker 'APP_STAGE_DB_NAME=sample_backend_build' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/04_generated_dbtool_status.log
+[OK] Marker 'DBTool configuration is valid' in /opt/cocondo/springmaster/target/project-new-acceptance/logs/04_generated_dbtool_status.log
+Project-New Acceptance: export
+Project-New Acceptance: export project key wins over stale export.config.json
+[OK] export key remains sample-backend
+Project-New Acceptance: generated Maven test
+[SKIP] Generated project mvn test skipped
+[OK] Project-New instantiation acceptance passed
+Generated project: /opt/cocondo/springmaster/target/project-new-acceptance/sample-backend
+Logs: /opt/cocondo/springmaster/target/project-new-acceptance/logs

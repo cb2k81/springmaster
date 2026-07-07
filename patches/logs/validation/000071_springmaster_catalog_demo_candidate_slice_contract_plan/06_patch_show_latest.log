@@ -1,0 +1,27 @@
+Patch-ID:      000071_springmaster_catalog_demo_candidate_slice_contract_plan
+Archiv:        000071_springmaster_catalog_demo_candidate_slice_contract_plan.zip
+Erstellt am:   2026-07-01T08:00:01.532990+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 12
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/DEMO/CATALOG_DEMO_CANDIDATE_SLICE_CONTRACT_PLAN.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  modified      PROJECT_DOCS/DEMO/README.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000071-springmaster-catalog-demo-candidate-slice-contract-plan.md

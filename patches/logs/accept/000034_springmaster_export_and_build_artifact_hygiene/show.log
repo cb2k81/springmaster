@@ -1,0 +1,25 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000034_springmaster_export_and_build_artifact_hygiene
+Archiv:        000034_springmaster_export_and_build_artifact_hygiene.zip
+Erstellt am:   2026-06-26T08:49:00.421209+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      .gitignore
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  modified      PROJECT_DOCS/TOOLING/EXPORT_TOOL.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  modified      export.config.json
+  modified      platform/update/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000034-springmaster-export-and-build-artifact-hygiene.md

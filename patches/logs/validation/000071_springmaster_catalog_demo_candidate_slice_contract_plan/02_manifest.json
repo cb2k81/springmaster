@@ -1,0 +1,9 @@
+{
+  "scope": "root",
+  "name": "springmaster_catalog_demo_candidate_slice_contract_plan",
+  "description": "Plan the first Springmaster Catalog-demo CatalogItem candidate-reference-slice contract based on the report-only findings baseline.",
+  "baseline": "springmaster_export_full_2026-07-01T05-39-43-150103Z.zip",
+  "afterPatch": "000070_springmaster_report_only_gate_findings_baseline_review",
+  "type": "documentation-only",
+  "mavenTestRequired": false
+}

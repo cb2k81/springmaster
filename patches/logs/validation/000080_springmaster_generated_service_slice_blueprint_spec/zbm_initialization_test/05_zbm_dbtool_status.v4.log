@@ -1,0 +1,11 @@
+APP_NAME=zbm
+APP_DB_HOST=localhost
+APP_DB_PORT=3306
+APP_DEV_DB_NAME=zbm
+APP_DEV_DB_USER=zbm
+APP_STAGE_DB_NAME=zbm_build
+APP_STAGE_DB_USER=zbm
+APP_CHANGELOG_MASTER=src/main/resources/db/changelog/db.changelog-master.xml
+APP_LIQUIBASE_CONTEXTS=
+APP_DBTOOL_ALLOW_DESTRUCTIVE=false
+[2026-07-02T15:12:53+0200] [INFO] DBTool configuration is valid. No database connection was opened for status.

@@ -1,0 +1,62 @@
+Patch-Apply:
+  Projekt:      /opt/cocondo/zbm
+  Archiv:       /opt/cocondo/springmaster/build/platform-update/generated/20260702T133603Z_springmaster_platform_update_core_for_zbm.zip
+  Patch-ID:     000002_springmaster_platform_update_core_for_zbm
+  Scope:        core
+  Modus:        DRY-RUN
+
+  [NEW]           PROJECT_DOCS/CORE/PLATFORM_UPDATES/20260702T133603Z_springmaster_platform_update_core_for_zbm.md
+  [MODIFIED]      pom.xml
+  [NEW]           src/main/java/de/cocondo/system/core/id/IdGeneratorService.java
+  [NEW]           src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DataTransferObject.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DomainEntityDTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DomainEntityMetadataInboundDTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java
+  [NEW]           src/main/java/de/cocondo/system/dto/PagedResponseDTO.java
+  [NEW]           src/main/java/de/cocondo/system/entity/Auditable.java
+  [NEW]           src/main/java/de/cocondo/system/entity/AuditingEntityListener.java
+  [NEW]           src/main/java/de/cocondo/system/entity/DomainEntity.java
+  [NEW]           src/main/java/de/cocondo/system/entity/DomainEntityListener.java
+  [NEW]           src/main/java/de/cocondo/system/entity/Identifyable.java
+  [NEW]           src/main/java/de/cocondo/system/entity/Range.java
+  [NEW]           src/main/java/de/cocondo/system/entity/Taggable.java
+  [NEW]           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java
+  [NEW]           src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java
+  [NEW]           src/main/java/de/cocondo/system/entity/service/DomainEntityService.java
+  [NEW]           src/main/java/de/cocondo/system/entity/service/TagService.java
+  [NEW]           src/main/java/de/cocondo/system/entity/validation/ValidationException.java
+  [NEW]           src/main/java/de/cocondo/system/entity/validation/Validator.java
+  [NEW]           src/main/java/de/cocondo/system/exception/EntityAlreadyExistsException.java
+  [NEW]           src/main/java/de/cocondo/system/list/PagedQuerySupport.java
+  [NEW]           src/main/java/de/cocondo/system/list/PagedResponseFactory.java
+  [NEW]           src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java
+  [NEW]           src/test/java/de/cocondo/system/core/id/IdGeneratorServiceTest.java
+  [NEW]           src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java
+  [NEW]           src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/AuditingEntityListenerTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/CoreEntityMarkerTypesTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/DomainEntityListenerTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/DomainEntityPersistenceMappingTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/RangeEmbeddableTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/service/TagServiceTest.java
+  [NEW]           src/test/java/de/cocondo/system/entity/validation/CoreValidationTypesTest.java
+  [NEW]           src/test/java/de/cocondo/system/exception/CoreExceptionTypesTest.java
+  [NEW]           src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java
+  [NEW]           src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java
+  [NEW]           src/test/java/de/cocondo/system/mapper/DomainMetadataSupportMapperTest.java
+  [NEW]           patches/logs/core/CHANGELOG-20260702T133603Z_springmaster_platform_update_core_for_zbm.md
+
+Zusammenfassung:
+  new: 45
+  modified: 1
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dry-run abgeschlossen. Es wurden keine Dateien geändert.

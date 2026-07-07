@@ -1,0 +1,12 @@
+Platform-Update-Target-Apply:
+  Status:       OK
+  Target:       zbm
+  Patch-ID:     20260706T060505Z_springmaster_platform_update_tooling_for_zbm
+  Patch-Scope:  tooling
+  Source ZIP:   /opt/cocondo/springmaster/build/platform-update/generated/20260706T060505Z_springmaster_platform_update_tooling_for_zbm.zip
+  Target ZIP:   /opt/cocondo/zbm/tmp/platform-updates/20260706T060505Z_springmaster_platform_update_tooling_for_zbm.zip
+  Delivery:     true
+  Preflight:    /opt/cocondo/springmaster/build/platform-update/logs/20260706T060506Z_zbm_20260706T060505Z_springmaster_platform_update_tooling_for_zbm_preflight.log
+  Log:          /opt/cocondo/springmaster/build/platform-update/logs/20260706T060507Z_zbm_20260706T060505Z_springmaster_platform_update_tooling_for_zbm_target_apply.log
+  Export-Pfad:  /opt/cocondo/zbm/exports/text/springmaster_export_full_2026-07-06T06-05-07-992570Z.zip
+  Hinweis:      Zielprojekt wurde verändert. Details stehen ausschließlich im Log.

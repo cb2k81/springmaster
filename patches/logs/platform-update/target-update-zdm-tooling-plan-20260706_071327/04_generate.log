@@ -1,0 +1,11 @@
+Platform-Update-Generate:
+  Status:       GENERATED
+  Target:       zdm
+  Profile:      tooling
+  Scope:        tooling
+  Payload:      payload
+  Payload-Files:38
+  Payload-Profile:shared tooling payload
+  ZIP:          /opt/cocondo/springmaster/build/platform-update/generated/20260706T051327Z_springmaster_platform_update_tooling_for_zdm.zip
+  Target path:  /opt/cocondo/zdm
+  Hinweis:      Zielprojekt wurde nicht verändert.

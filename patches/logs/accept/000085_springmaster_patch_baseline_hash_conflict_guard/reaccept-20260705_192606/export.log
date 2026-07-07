@@ -1,0 +1,4 @@
+== Configured export ==
+$ ./bin/export.sh full --zip
+
+exports/text/springmaster_export_full_2026-07-05T17-26-06-937717Z.zip

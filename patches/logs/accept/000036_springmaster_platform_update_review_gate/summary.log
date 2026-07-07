@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000036_springmaster_platform_update_review_gate
+FAILED_STEP=-
+PROFILE=auto
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000036_springmaster_platform_update_review_gate
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-26T08-18-59-800432Z.zip

@@ -1,0 +1,5 @@
+START 2026-07-05T19:26:05+02:00
+PWD: /opt/cocondo/springmaster
+CMD: ./bin/patch.sh show latest | grep -q '^Patch-ID: *000085_springmaster_patch_baseline_hash_conflict_guard$'
+EXIT 0
+END 2026-07-05T19:26:05+02:00

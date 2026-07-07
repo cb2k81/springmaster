@@ -1,0 +1,16 @@
+START 2026-07-06T08:01:35+02:00
+Archive:  /home/cb/Downloads/000087_springmaster_zbm_target_delivery_enablement.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      473  2026-07-06 07:58   manifest.json
+        0  2026-07-06 07:58   files/
+        0  2026-07-06 07:58   files/platform/
+        0  2026-07-06 07:58   files/platform/update/
+        0  2026-07-06 07:58   files/platform/update/targets/
+      522  2026-07-06 07:58   files/platform/update/targets/zbm.env
+        0  2026-07-06 07:58   logs/
+     1044  2026-07-06 07:58   logs/CHANGELOG-000087_springmaster_zbm_target_delivery_enablement.md
+---------                     -------
+     2039                     8 files
+EXIT 0
+END 2026-07-06T08:01:35+02:00

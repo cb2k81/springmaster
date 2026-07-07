@@ -1,0 +1,13 @@
+START 2026-07-06T06:50:35+02:00
+Patch-Accept:
+  Status:       ALREADY_APPLIED
+  Patch-ID:     000086_springmaster_zdm_target_descriptor_registration
+  Profile:      docs
+  Full-Test:    False
+  Export:       True
+  Summary:      /opt/cocondo/springmaster/patches/logs/accept/000086_springmaster_zdm_target_descriptor_registration/reaccept-20260706_065035/SUMMARY.txt
+  Log:          /opt/cocondo/springmaster/patches/logs/accept/000086_springmaster_zdm_target_descriptor_registration/reaccept-20260706_065035
+  Export-Pfad:  /opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-07-06T04-50-35-766804Z.zip
+  Git-Commit:   /opt/cocondo/springmaster/patches/logs/accept/000086_springmaster_zdm_target_descriptor_registration/reaccept-20260706_065035/git-commit.sh
+EXIT 0
+END 2026-07-06T06:50:36+02:00

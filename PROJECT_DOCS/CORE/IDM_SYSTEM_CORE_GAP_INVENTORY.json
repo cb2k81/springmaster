@@ -1,0 +1,1122 @@
+{
+  "schemaVersion": "1.0",
+  "createdByPatch": "000038_springmaster_core_idm_system_gap_inventory",
+  "purpose": "Gap inventory between IDM legacy de.cocondo.app.system and Springmaster de.cocondo.system after payload profile cleanup.",
+  "inputs": {
+    "springmasterBaseline": "000042_springmaster_core_domain_entity_service_support",
+    "idmObservedState": "idm.zip after Springmaster compatibility/core transfer incident; target already contains 000010 and 000011 Springmaster-generated patches",
+    "legacyRoot": "src/main/java/de/cocondo/app/system",
+    "springmasterRoot": "src/main/java/de/cocondo/system",
+    "targetPackage": "de.cocondo.system"
+  },
+  "decisions": {
+    "keepSpringmasterCoreInIdm": true,
+    "coreTestsTravelWithCore": true,
+    "replaceTargetCoreDocsWithIntegrationDoc": true,
+    "removeLegacyAppSystemAsEarlyAsSafelyPossible": true,
+    "generatedTargetArtifacts": "temporary build/platform-update workspace excluded from regular exports"
+  },
+  "counts": {
+    "legacyIdmSystemMainFiles": 73,
+    "springmasterCoreMainFiles": 27,
+    "idmImportedSpringmasterCoreMainFiles": 14,
+    "alreadyAvailableInSpringmasterCore": 27,
+    "missingFromSpringmasterCore": 46,
+    "legacyIdmSystemTestFiles": 1,
+    "springmasterCoreTestFiles": 16,
+    "idmImportedSpringmasterCoreTestFiles": 9,
+    "externalLegacyImportSymbols": 6
+  },
+  "packageSummary": {
+    "config": 3,
+    "core/http": 7,
+    "core/id": 2,
+    "core/locale": 1,
+    "core/util": 1,
+    "dto": 8,
+    "entity": 8,
+    "entity/metadata": 6,
+    "entity/sequence": 3,
+    "entity/validation": 2,
+    "event": 10,
+    "exception": 1,
+    "info": 5,
+    "list": 2,
+    "mapper": 1,
+    "security/authorization": 3,
+    "security/config": 5,
+    "security/http": 2,
+    "security/jwt": 2,
+    "swagger": 1
+  },
+  "sliceSummary": {
+    "already-in-springmaster-core": 27,
+    "core-dto-list-metadata-contracts": 10,
+    "core-id-implementation": 1,
+    "core-entity-service-and-sequence": 6,
+    "core-web-http-error-foundation": 11,
+    "core-event-and-audit-foundation": 11,
+    "core-application-info": 5,
+    "core-security-jwt-authorization": 12,
+    "core-swagger-openapi": 1,
+    "core-domain-entity-service-support": 2
+  },
+  "slices": {
+    "already-in-springmaster-core": {
+      "decision": "already_available",
+      "risk": "low",
+      "nextAction": "Keep in Springmaster and IDM imported core; migrate IDM imports before deleting legacy copies.",
+      "files": [
+        "core/id/IdGeneratorService.java",
+        "dto/DTO.java",
+        "dto/DataTransferObject.java",
+        "dto/DomainEntityMetadataInboundDTO.java",
+        "entity/Auditable.java",
+        "entity/AuditingEntityListener.java",
+        "entity/DomainEntity.java",
+        "entity/DomainEntityListener.java",
+        "entity/Identifyable.java",
+        "entity/Range.java",
+        "entity/Taggable.java",
+        "entity/validation/ValidationException.java",
+        "entity/validation/Validator.java",
+        "exception/EntityAlreadyExistsException.java",
+        "core/id/UuidIdGeneratorService.java",
+        "dto/DomainEntityDTO.java",
+        "dto/DomainEntityInboundDTO.java",
+        "dto/DomainEntityMetadataDTO.java",
+        "dto/DomainEntityUpdateDTO.java",
+        "dto/PagedResponseDTO.java",
+        "entity/metadata/KeyValuePairDTO.java",
+        "entity/metadata/KeyValuePairPayload.java",
+        "list/PagedQuerySupport.java",
+        "list/PagedResponseFactory.java",
+        "mapper/DomainMetadataSupportMapper.java"
+      ]
+    },
+    "core-dto-list-metadata-contracts": {
+      "decision": "implemented",
+      "risk": "medium",
+      "nextAction": "Available in Springmaster Core. Migrate IDM imports only through a separate reviewed target-project patch.",
+      "files": [
+        "dto/DomainEntityDTO.java",
+        "dto/DomainEntityInboundDTO.java",
+        "dto/DomainEntityMetadataDTO.java",
+        "dto/DomainEntityUpdateDTO.java",
+        "dto/PagedResponseDTO.java",
+        "entity/metadata/KeyValuePairDTO.java",
+        "entity/metadata/KeyValuePairPayload.java",
+        "list/PagedQuerySupport.java",
+        "list/PagedResponseFactory.java",
+        "mapper/DomainMetadataSupportMapper.java"
+      ],
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    "core-id-implementation": {
+      "decision": "implemented",
+      "risk": "low",
+      "nextAction": "Available in Springmaster Core. Migrate IDM imports only through a separate reviewed target-project patch.",
+      "files": [
+        "core/id/UuidIdGeneratorService.java"
+      ],
+      "implementedByPatch": "000040_springmaster_core_id_generator_implementation"
+    },
+    "core-entity-service-and-sequence": {
+      "decision": "inventoried_split_required",
+      "risk": "high",
+      "nextAction": "Do not migrate as one slice. First implement DomainEntityService and TagService support; defer KeyValuePair metadata persistence and NumberSequence to separate architecture slices.",
+      "files": [
+        "entity/DomainEntityService.java",
+        "entity/metadata/AbstractMetadataDomainService.java",
+        "entity/metadata/KeyValuePair.java",
+        "entity/metadata/KeyValueService.java",
+        "entity/metadata/TagService.java",
+        "entity/sequence/NumberSequence.java",
+        "entity/sequence/NumberSequenceRepository.java",
+        "entity/sequence/NumberSequenceService.java"
+      ],
+      "inventoriedByPatch": "000041_springmaster_core_entity_service_sequence_inventory",
+      "splitPlan": {
+        "domain-entity-service-support": {
+          "decision": "next_safe_code_slice",
+          "risk": "medium",
+          "nextPatch": "000042_springmaster_core_domain_entity_service_support",
+          "files": [
+            "entity/DomainEntityService.java",
+            "entity/metadata/TagService.java"
+          ]
+        },
+        "metadata-persistence-model": {
+          "decision": "requires_architecture_decision",
+          "risk": "high",
+          "files": [
+            "entity/metadata/AbstractMetadataDomainService.java",
+            "entity/metadata/KeyValuePair.java",
+            "entity/metadata/KeyValueService.java"
+          ],
+          "blockingQuestions": [
+            "DomainEntity @MappedSuperclass vs @Entity hierarchy",
+            "Core-owned KeyValuePair table contract",
+            "Mapper behavior for persisted metadata"
+          ]
+        },
+        "number-sequence-foundation": {
+          "decision": "separate_future_slice",
+          "risk": "high",
+          "files": [
+            "entity/sequence/NumberSequence.java",
+            "entity/sequence/NumberSequenceRepository.java",
+            "entity/sequence/NumberSequenceService.java"
+          ],
+          "blockingQuestions": [
+            "Spring Data/JPA runtime policy",
+            "Repository scan policy",
+            "Liquibase/schema ownership",
+            "transaction and concurrency semantics"
+          ]
+        }
+      }
+    },
+    "core-web-http-error-foundation": {
+      "decision": "common_core_candidate",
+      "risk": "high",
+      "nextAction": "Requires web/config/error-contract slice and target property compatibility review.",
+      "files": [
+        "config/DefaultWebConfig.java",
+        "config/DefaultWebConfigProperties.java",
+        "config/RequestLoggingConfig.java",
+        "core/http/DefaultController.java",
+        "core/http/DefaultFallbackInterceptor.java",
+        "core/http/EndpointPrinter.java",
+        "core/http/ErrorResponse.java",
+        "core/http/GlobalExceptionHandler.java",
+        "core/http/InvalidHttpHeaderException.java",
+        "core/http/RequestErrorEvent.java",
+        "core/locale/LocalMessageProvider.java"
+      ]
+    },
+    "core-event-and-audit-foundation": {
+      "decision": "common_core_candidate",
+      "risk": "high",
+      "nextAction": "Requires event persistence/logging policy and serializer dependency decision.",
+      "files": [
+        "core/util/serialize/PayloadSerializer.java",
+        "event/DomainEvent.java",
+        "event/DomainEventEntity.java",
+        "event/DomainEventEntityRepository.java",
+        "event/DomainEventLoggingListener.java",
+        "event/DomainEventSpringShellListener.java",
+        "event/ErrorEntity.java",
+        "event/ErrorEntityRepository.java",
+        "event/ErrorEvent.java",
+        "event/ErrorIdService.java",
+        "event/EventPublisher.java"
+      ]
+    },
+    "core-application-info": {
+      "decision": "common_core_candidate",
+      "risk": "medium",
+      "nextAction": "Requires endpoint/path convention and public/protected API policy.",
+      "files": [
+        "info/ApplicationInfoContext.java",
+        "info/ApplicationInfoContextDTO.java",
+        "info/ApplicationInfoController.java",
+        "info/PublicApplicationInfoController.java",
+        "info/ServerInfoPrinter.java"
+      ]
+    },
+    "core-security-jwt-authorization": {
+      "decision": "common_core_candidate",
+      "risk": "high",
+      "nextAction": "Requires separate security architecture slice; preserve IDM domain adapter outside Core.",
+      "files": [
+        "security/authorization/DatabasePermissionResolver.java",
+        "security/authorization/PermissionAuthoritySource.java",
+        "security/authorization/PermissionResolver.java",
+        "security/config/HttpSecurityConfig.java",
+        "security/config/HttpSecurityCorsProperties.java",
+        "security/config/HttpSecurityPathsProperties.java",
+        "security/config/JwtSecurityProperties.java",
+        "security/config/MethodSecurityConfig.java",
+        "security/http/RestAccessDeniedHandler.java",
+        "security/http/RestAuthenticationEntryPoint.java",
+        "security/jwt/JwtAuthenticationFilter.java",
+        "security/jwt/JwtService.java"
+      ]
+    },
+    "core-swagger-openapi": {
+      "decision": "shared_infrastructure_candidate",
+      "risk": "medium",
+      "nextAction": "Treat as optional web tooling/profile slice; avoid binding Core runtime to Swagger unless explicitly desired.",
+      "files": [
+        "swagger/SwaggerConfig.java"
+      ]
+    }
+  },
+  "externalLegacyImports": [
+    {
+      "import": "de.cocondo.app.system.dto.PagedResponseDTO",
+      "usageCount": 18,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListApplicationScopesOfUserPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListPermissionsOfRolePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListRolesOfPermissionPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListRolesOfUserInScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfApplicationScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfRoleInScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/RolePermissionAssignmentController.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/UserApplicationScopeAssignmentController.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/UserRoleAssignmentController.java",
+        "src/main/java/de/cocondo/app/domain/idm/permission/PermissionManagementDomainService.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/ListRolesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/RoleController.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/RoleManagementDomainService.java",
+        "src/main/java/de/cocondo/app/domain/idm/scope/ApplicationScopeController.java",
+        "src/main/java/de/cocondo/app/domain/idm/scope/ListApplicationScopesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/ListUsersPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/UserAccountController.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/UserAccountDomainService.java"
+      ]
+    },
+    {
+      "import": "de.cocondo.app.system.entity.DomainEntity",
+      "usageCount": 9,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/assignment/RolePermissionAssignment.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/UserApplicationScopeAssignment.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/UserRoleAssignment.java",
+        "src/main/java/de/cocondo/app/domain/idm/auth/session/AuthSession.java",
+        "src/main/java/de/cocondo/app/domain/idm/permission/Permission.java",
+        "src/main/java/de/cocondo/app/domain/idm/permission/PermissionGroup.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/Role.java",
+        "src/main/java/de/cocondo/app/domain/idm/scope/ApplicationScope.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/UserAccount.java"
+      ]
+    },
+    {
+      "import": "de.cocondo.app.system.list.PagedQuerySupport",
+      "usageCount": 9,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListApplicationScopesOfUserPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListPermissionsOfRolePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListRolesOfPermissionPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListRolesOfUserInScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfApplicationScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfRoleInScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/ListRolesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/scope/ListApplicationScopesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/ListUsersPagedHandler.java"
+      ]
+    },
+    {
+      "import": "de.cocondo.app.system.list.PagedResponseFactory",
+      "usageCount": 8,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListApplicationScopesOfUserPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListPermissionsOfRolePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListRolesOfPermissionPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfApplicationScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/assignment/ListUsersOfRoleInScopePagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/role/ListRolesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/scope/ListApplicationScopesPagedHandler.java",
+        "src/main/java/de/cocondo/app/domain/idm/user/ListUsersPagedHandler.java"
+      ]
+    },
+    {
+      "import": "de.cocondo.app.system.security.authorization.PermissionAuthoritySource",
+      "usageCount": 1,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/security/IdmDatabasePermissionAuthoritySource.java"
+      ]
+    },
+    {
+      "import": "de.cocondo.app.system.security.jwt.JwtService",
+      "usageCount": 2,
+      "users": [
+        "src/main/java/de/cocondo/app/domain/idm/auth/IdmTokenService.java",
+        "src/test/java/de/cocondo/app/domain/idm/auth/PersonnelLoginBootstrapIntegrationTest.java"
+      ]
+    }
+  ],
+  "records": [
+    {
+      "relativePath": "core/id/IdGeneratorService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/id/IdGeneratorService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/id/IdGeneratorService.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "dto/DTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DTO.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "dto/DataTransferObject.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DataTransferObject.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DataTransferObject.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "dto/DomainEntityMetadataInboundDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DomainEntityMetadataInboundDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DomainEntityMetadataInboundDTO.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/Auditable.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/Auditable.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/Auditable.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/AuditingEntityListener.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/AuditingEntityListener.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/AuditingEntityListener.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/DomainEntity.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/DomainEntity.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/DomainEntity.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/DomainEntityListener.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/DomainEntityListener.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/DomainEntityListener.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/Identifyable.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/Identifyable.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/Identifyable.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/Range.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/Range.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/Range.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/Taggable.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/Taggable.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/Taggable.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/validation/ValidationException.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/validation/ValidationException.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/validation/ValidationException.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "entity/validation/Validator.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/validation/Validator.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/validation/Validator.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "exception/EntityAlreadyExistsException.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/exception/EntityAlreadyExistsException.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/exception/EntityAlreadyExistsException.java",
+      "state": "present-in-springmaster-core",
+      "migrationSlice": "already-in-springmaster-core",
+      "decision": "already_available",
+      "risk": "low"
+    },
+    {
+      "relativePath": "dto/DomainEntityDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DomainEntityDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DomainEntityDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "dto/DomainEntityInboundDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DomainEntityInboundDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "dto/DomainEntityMetadataDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DomainEntityMetadataDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "dto/DomainEntityUpdateDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/DomainEntityUpdateDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "dto/PagedResponseDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/dto/PagedResponseDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/dto/PagedResponseDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "entity/metadata/KeyValuePairDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePairDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "entity/metadata/KeyValuePairPayload.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePairPayload.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "list/PagedQuerySupport.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/list/PagedQuerySupport.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/list/PagedQuerySupport.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "list/PagedResponseFactory.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/list/PagedResponseFactory.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/list/PagedResponseFactory.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "mapper/DomainMetadataSupportMapper.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/mapper/DomainMetadataSupportMapper.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-dto-list-metadata-contracts",
+      "decision": "implemented",
+      "risk": "medium",
+      "implementedByPatch": "000039_springmaster_core_dto_list_metadata_foundation"
+    },
+    {
+      "relativePath": "core/id/UuidIdGeneratorService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/id/UuidIdGeneratorService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/id/UuidIdGeneratorService.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-id-implementation",
+      "decision": "implemented",
+      "risk": "low",
+      "implementedByPatch": "000040_springmaster_core_id_generator_implementation"
+    },
+    {
+      "relativePath": "entity/DomainEntityService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/DomainEntityService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/service/DomainEntityService.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-domain-entity-service-support",
+      "decision": "implemented_in_springmaster_core",
+      "risk": "low",
+      "implementedByPatch": "000042_springmaster_core_domain_entity_service_support",
+      "notes": "Ported without Lombok and without de.cocondo.app imports; package moved to entity.service."
+    },
+    {
+      "relativePath": "entity/metadata/AbstractMetadataDomainService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/AbstractMetadataDomainService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/metadata/AbstractMetadataDomainService.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "entity/metadata/KeyValuePair.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValuePair.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValuePair.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "entity/metadata/KeyValueService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/KeyValueService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/metadata/KeyValueService.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "entity/metadata/TagService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/metadata/TagService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/service/TagService.java",
+      "state": "available-in-springmaster-core",
+      "migrationSlice": "core-domain-entity-service-support",
+      "decision": "implemented_in_springmaster_core",
+      "risk": "low",
+      "implementedByPatch": "000042_springmaster_core_domain_entity_service_support",
+      "notes": "Ported as collection-based tag helper; no KeyValuePair persistence introduced."
+    },
+    {
+      "relativePath": "entity/sequence/NumberSequence.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequence.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequence.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "entity/sequence/NumberSequenceRepository.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequenceRepository.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequenceRepository.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "entity/sequence/NumberSequenceService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/entity/sequence/NumberSequenceService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/entity/sequence/NumberSequenceService.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-entity-service-and-sequence",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "config/DefaultWebConfig.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/config/DefaultWebConfig.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/config/DefaultWebConfig.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "config/DefaultWebConfigProperties.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/config/DefaultWebConfigProperties.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/config/DefaultWebConfigProperties.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "config/RequestLoggingConfig.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/config/RequestLoggingConfig.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/config/RequestLoggingConfig.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/DefaultController.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/DefaultController.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/DefaultController.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/DefaultFallbackInterceptor.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/DefaultFallbackInterceptor.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/DefaultFallbackInterceptor.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/EndpointPrinter.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/EndpointPrinter.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/EndpointPrinter.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/ErrorResponse.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/ErrorResponse.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/ErrorResponse.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/GlobalExceptionHandler.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/GlobalExceptionHandler.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/GlobalExceptionHandler.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/InvalidHttpHeaderException.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/InvalidHttpHeaderException.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/InvalidHttpHeaderException.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/http/RequestErrorEvent.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/http/RequestErrorEvent.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/http/RequestErrorEvent.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/locale/LocalMessageProvider.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/locale/LocalMessageProvider.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/locale/LocalMessageProvider.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-web-http-error-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "core/util/serialize/PayloadSerializer.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/core/util/serialize/PayloadSerializer.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/core/util/serialize/PayloadSerializer.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/DomainEvent.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/DomainEvent.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/DomainEvent.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/DomainEventEntity.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/DomainEventEntity.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/DomainEventEntity.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/DomainEventEntityRepository.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/DomainEventEntityRepository.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/DomainEventEntityRepository.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/DomainEventLoggingListener.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/DomainEventLoggingListener.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/DomainEventLoggingListener.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/DomainEventSpringShellListener.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/DomainEventSpringShellListener.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/DomainEventSpringShellListener.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/ErrorEntity.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/ErrorEntity.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/ErrorEntity.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/ErrorEntityRepository.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/ErrorEntityRepository.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/ErrorEntityRepository.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/ErrorEvent.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/ErrorEvent.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/ErrorEvent.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/ErrorIdService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/ErrorIdService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/ErrorIdService.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "event/EventPublisher.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/event/EventPublisher.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/event/EventPublisher.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-event-and-audit-foundation",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "info/ApplicationInfoContext.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoContext.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoContext.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-application-info",
+      "decision": "common_core_candidate",
+      "risk": "medium"
+    },
+    {
+      "relativePath": "info/ApplicationInfoContextDTO.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoContextDTO.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoContextDTO.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-application-info",
+      "decision": "common_core_candidate",
+      "risk": "medium"
+    },
+    {
+      "relativePath": "info/ApplicationInfoController.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/info/ApplicationInfoController.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/info/ApplicationInfoController.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-application-info",
+      "decision": "common_core_candidate",
+      "risk": "medium"
+    },
+    {
+      "relativePath": "info/PublicApplicationInfoController.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/info/PublicApplicationInfoController.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/info/PublicApplicationInfoController.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-application-info",
+      "decision": "common_core_candidate",
+      "risk": "medium"
+    },
+    {
+      "relativePath": "info/ServerInfoPrinter.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/info/ServerInfoPrinter.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/info/ServerInfoPrinter.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-application-info",
+      "decision": "common_core_candidate",
+      "risk": "medium"
+    },
+    {
+      "relativePath": "security/authorization/DatabasePermissionResolver.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/authorization/DatabasePermissionResolver.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/authorization/DatabasePermissionResolver.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/authorization/PermissionAuthoritySource.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/authorization/PermissionAuthoritySource.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/authorization/PermissionAuthoritySource.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/authorization/PermissionResolver.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/authorization/PermissionResolver.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/authorization/PermissionResolver.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/config/HttpSecurityConfig.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityConfig.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityConfig.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/config/HttpSecurityCorsProperties.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityCorsProperties.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityCorsProperties.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/config/HttpSecurityPathsProperties.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/config/HttpSecurityPathsProperties.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/config/HttpSecurityPathsProperties.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/config/JwtSecurityProperties.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/config/JwtSecurityProperties.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/config/JwtSecurityProperties.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/config/MethodSecurityConfig.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/config/MethodSecurityConfig.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/config/MethodSecurityConfig.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/http/RestAccessDeniedHandler.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/http/RestAccessDeniedHandler.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/http/RestAccessDeniedHandler.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/http/RestAuthenticationEntryPoint.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/http/RestAuthenticationEntryPoint.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/http/RestAuthenticationEntryPoint.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/jwt/JwtAuthenticationFilter.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/jwt/JwtAuthenticationFilter.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/jwt/JwtAuthenticationFilter.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "security/jwt/JwtService.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/security/jwt/JwtService.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/security/jwt/JwtService.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-security-jwt-authorization",
+      "decision": "common_core_candidate",
+      "risk": "high"
+    },
+    {
+      "relativePath": "swagger/SwaggerConfig.java",
+      "legacyPath": "src/main/java/de/cocondo/app/system/swagger/SwaggerConfig.java",
+      "springmasterTargetPath": "src/main/java/de/cocondo/system/swagger/SwaggerConfig.java",
+      "state": "missing-from-springmaster-core",
+      "migrationSlice": "core-swagger-openapi",
+      "decision": "shared_infrastructure_candidate",
+      "risk": "medium"
+    }
+  ],
+  "deletionGate": [
+    "All common Core candidates required by IDM are present under src/main/java/de/cocondo/system/** in Springmaster.",
+    "IDM imports are migrated from de.cocondo.app.system.* to de.cocondo.system.* or explicitly classified as IDM-domain adapters.",
+    "No production/test source outside allowed legacy documentation imports de.cocondo.app.system.*.",
+    "IDM mvn test succeeds after migration.",
+    "IDM exports a clean Full-ZIP baseline after migration.",
+    "PROJECT_DOCS/CORE/** in IDM is reduced to target-specific imported-core documentation."
+  ],
+  "implementationHistory": [
+    {
+      "patch": "000039_springmaster_core_dto_list_metadata_foundation",
+      "slice": "core-dto-list-metadata-contracts",
+      "mainFiles": 10,
+      "testFiles": 5
+    },
+    {
+      "patch": "000040_springmaster_core_id_generator_implementation",
+      "slice": "core-id-implementation",
+      "mainFiles": 1,
+      "testFiles": 1
+    },
+    {
+      "patch": "000041_springmaster_core_entity_service_sequence_inventory",
+      "type": "analysis",
+      "summary": "Classified core-entity-service-and-sequence into safe service support, deferred metadata persistence model and separate NumberSequence foundation.",
+      "coreVersionChanged": false,
+      "nextPatch": "000042_springmaster_core_domain_entity_service_support"
+    },
+    {
+      "patch": "000042_springmaster_core_domain_entity_service_support",
+      "slice": "core-domain-entity-service-support",
+      "mainFiles": 2,
+      "testFiles": 2,
+      "summary": "Implemented DomainEntityService and TagService under de.cocondo.system.entity.service without metadata persistence, repositories or target-project changes.",
+      "coreVersionChanged": true
+    }
+  ],
+  "sliceInventories": {
+    "core-entity-service-and-sequence": {
+      "createdByPatch": "000041_springmaster_core_entity_service_sequence_inventory",
+      "purpose": "Classify persistence/lifecycle-near entity, metadata and sequence classes before moving code into Springmaster Core.",
+      "sourceFiles": [
+        "entity/DomainEntityService.java",
+        "entity/metadata/AbstractMetadataDomainService.java",
+        "entity/metadata/KeyValuePair.java",
+        "entity/metadata/KeyValueService.java",
+        "entity/metadata/TagService.java",
+        "entity/sequence/NumberSequence.java",
+        "entity/sequence/NumberSequenceRepository.java",
+        "entity/sequence/NumberSequenceService.java"
+      ],
+      "architectureFindings": [
+        "IDM legacy DomainEntity is an @Entity with TABLE_PER_CLASS inheritance and persistent keyValuePairs.",
+        "Springmaster DomainEntity is currently a @MappedSuperclass without persistent KeyValuePair association.",
+        "KeyValuePair and KeyValueService therefore require an explicit metadata persistence model decision.",
+        "NumberSequence is fachfrei but requires repository/runtime/schema decisions and must be a separate slice."
+      ],
+      "directExternalUsages": {
+        "DomainEntity": "directly extended/imported by IDM domain entities",
+        "DomainEntityService": "none found outside legacy system package",
+        "TagService": "none found outside legacy system package",
+        "KeyValueService": "none found outside legacy system package",
+        "KeyValuePair": "indirectly relevant through DomainEntity metadata association",
+        "NumberSequence": "none found outside legacy system package"
+      },
+      "nextPatch": "000043_springmaster_core_metadata_persistence_model_decision",
+      "implementedByPatch000042": [
+        "entity/DomainEntityService.java",
+        "entity/metadata/TagService.java"
+      ],
+      "remainingSourceFiles": [
+        "entity/metadata/AbstractMetadataDomainService.java",
+        "entity/metadata/KeyValuePair.java",
+        "entity/metadata/KeyValueService.java",
+        "entity/sequence/NumberSequence.java",
+        "entity/sequence/NumberSequenceRepository.java",
+        "entity/sequence/NumberSequenceService.java"
+      ]
+    },
+    "core-domain-entity-service-support": {
+      "createdByPatch": "000042_springmaster_core_domain_entity_service_support",
+      "purpose": "Implement the low-risk service support part of the entity/service/sequence slice.",
+      "sourceFiles": [
+        "entity/DomainEntityService.java",
+        "entity/metadata/TagService.java"
+      ],
+      "targetFiles": [
+        "src/main/java/de/cocondo/system/entity/service/DomainEntityService.java",
+        "src/main/java/de/cocondo/system/entity/service/TagService.java"
+      ],
+      "testFiles": [
+        "src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java",
+        "src/test/java/de/cocondo/system/entity/service/TagServiceTest.java"
+      ],
+      "exclusions": [
+        "No DomainEntity mapping change",
+        "No KeyValuePair persistence",
+        "No KeyValueService",
+        "No AbstractMetadataDomainService",
+        "No NumberSequence",
+        "No repositories",
+        "No Liquibase/schema changes",
+        "No IDM target-project change"
+      ],
+      "nextPatch": "000043_springmaster_core_metadata_persistence_model_decision"
+    }
+  }
+}

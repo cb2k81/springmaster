@@ -1,0 +1,29 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy
+Archiv:        000065_springmaster_adr_0007_catalog_demo_canonicalization_strategy.zip
+Erstellt am:   2026-06-30T15:21:34.253603+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 11
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  new           PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md
+  modified      PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md
+  modified      PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md
+  modified      PROJECT_DOCS/ADR/README.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/DEMO/CATALOG_DEMO_READINESS_PLAN.md
+  modified      PROJECT_DOCS/DEMO/README.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/STANDARDS/STANDARD_CONSISTENCY_AND_ADR_GAP_REVIEW.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000065-springmaster-adr-0007-catalog-demo-canonicalization-strategy.md

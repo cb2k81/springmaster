@@ -1,0 +1,25 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000051_springmaster_domain_entity_persistence_standard
+Archiv:        000051_springmaster_domain_entity_persistence_standard.zip
+Erstellt am:   2026-06-29T14:37:38.644729+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 7
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md
+  modified      PROJECT_DOCS/CORE/CORE_PERSISTENCE_BASIC_TYPES.md
+  modified      PROJECT_DOCS/CORE/README.md
+  new           PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000051-springmaster-domain-entity-persistence-standard.md

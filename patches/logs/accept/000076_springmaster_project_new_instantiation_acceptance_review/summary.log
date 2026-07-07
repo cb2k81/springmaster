@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000076_springmaster_project_new_instantiation_acceptance_review
+FAILED_STEP=-
+PROFILE=code
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000076_springmaster_project_new_instantiation_acceptance_review
+LATEST_EXPORT=-

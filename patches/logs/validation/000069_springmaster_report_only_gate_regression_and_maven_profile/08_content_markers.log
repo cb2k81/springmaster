@@ -1,0 +1,6 @@
+[OK] Marker 'springmaster.report-only-report.v1' gefunden in bin/springmaster-gates.py
+[OK] Marker 'springmaster-gates-report' gefunden in pom.xml
+[OK] Marker 'springmaster-gates-regression.sh' gefunden in PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+[OK] Marker 'target-project input' gefunden in bin/springmaster-gates-regression.sh
+[OK] Marker 'duplicate report' gefunden in bin/springmaster-gates-regression.sh
+[OK] Marker 'PLATFORM_TOOLING_VERSION=0.3.9' gefunden in platform/versions/platform.env

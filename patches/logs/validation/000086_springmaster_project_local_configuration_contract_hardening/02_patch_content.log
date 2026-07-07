@@ -1,0 +1,21 @@
+Archive:  /home/cb/Downloads/000086_springmaster_project_local_configuration_contract_hardening.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2039  2026-07-06 12:53   files/.env.example
+     1479  2026-07-06 12:53   files/PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+    12911  2026-07-06 12:53   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+     4270  2026-07-06 12:53   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+     2795  2026-07-06 12:53   files/PROJECT_DOCS/TOOLING/PROJECT_LOCAL_CONFIGURATION_CONTRACT.md
+     4023  2026-07-06 12:53   files/PROJECT_DOCS/TOOLING/PROJECT_NEW.md
+    13231  2026-07-06 12:53   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+     8197  2026-07-06 12:53   files/bin/export.sh
+     3475  2026-07-06 12:53   files/bin/lib/core/env.sh
+    64262  2026-07-06 12:53   files/bin/patch.py
+    52854  2026-07-06 12:53   files/bin/platform-update.sh
+     8728  2026-07-06 12:53   files/bin/project-new-acceptance.sh
+    17603  2026-07-06 12:53   files/bin/project-new.sh
+      420  2026-07-06 12:53   files/platform/versions/platform.env
+     1469  2026-07-06 12:54   logs/CHANGELOG-000086_springmaster_project_local_configuration_contract_hardening.md
+     1922  2026-07-06 12:54   manifest.json
+---------                     -------
+   199678                     16 files

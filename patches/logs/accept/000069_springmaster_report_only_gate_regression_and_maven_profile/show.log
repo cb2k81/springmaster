@@ -1,0 +1,31 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000069_springmaster_report_only_gate_regression_and_maven_profile
+Archiv:        000069_springmaster_report_only_gate_regression_and_maven_profile.zip
+Erstellt am:   2026-07-01T06:50:49.865190+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 3
+  modified: 12
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  new           bin/springmaster-gates-regression.sh
+  modified      bin/springmaster-gates-selfcheck.sh
+  modified      bin/springmaster-gates.py
+  modified      platform/versions/platform.env
+  modified      pom.xml
+  new           src/test/java/de/cocondo/platform/tooling/SpringmasterGatesReportProfileTest.java
+  new           patches/logs/root/CHANGELOG-000069-springmaster-report-only-gate-regression-and-maven-profile.md

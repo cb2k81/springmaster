@@ -1,0 +1,32 @@
+== Patch apply ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster apply /home/cb/Downloads/000026_springmaster_platform_update_patch_generation_plan.zip
+
+Patch-Apply:
+  Projekt:      /opt/cocondo/springmaster
+  Archiv:       /home/cb/Downloads/000026_springmaster_platform_update_patch_generation_plan.zip
+  Patch-ID:     000026_springmaster_platform_update_patch_generation_plan
+  Scope:        root
+  Modus:        AUSFÜHREN
+
+  [MODIFIED]      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  [MODIFIED]      PROJECT_DOCS/TARGET_UPDATES/TARGET_REGISTRY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  [NEW]           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+  [MODIFIED]      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  [MODIFIED]      bin/patch.py
+  [MODIFIED]      bin/platform-update.sh
+  [NEW]           platform/update/generated/.gitkeep
+  [MODIFIED]      platform/versions/platform.env
+  [NEW]           patches/logs/root/CHANGELOG-000026-springmaster-platform-update-patch-generation-plan.md
+
+Zusammenfassung:
+  new: 3
+  modified: 10
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Patch-Log: /opt/cocondo/springmaster/patches/archives/000026_springmaster_platform_update_patch_generation_plan/patch-log.json

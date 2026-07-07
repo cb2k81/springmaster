@@ -203,10 +203,11 @@ springmaster/
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   └── de/cocondo/platform/
-│   │   │       ├── core/
-│   │   │       ├── demo/
-│   │   │       └── app/
+│   │   │   └── de/cocondo/
+│   │   │       ├── platform/
+│   │   │       │   ├── app/
+│   │   │       │   └── demo/
+│   │   │       └── system/
 │   │   └── resources/
 │   │       ├── application.yml
 │   │       ├── application-dev.yml
@@ -246,17 +247,6 @@ de.cocondo.platform
 ├── app
 │   ├── MainApplicationRunner
 │   └── config
-├── core
-│   ├── domain
-│   ├── dto
-│   ├── event
-│   ├── exception
-│   ├── mapper
-│   ├── persistence
-│   ├── query
-│   ├── security
-│   ├── service
-│   └── web
 └── demo
     ├── catalog
     ├── document
@@ -264,15 +254,37 @@ de.cocondo.platform
     ├── organization
     ├── workflow
     └── relation
+
+de.cocondo.system
+├── domain
+├── dto
+├── event
+├── exception
+├── mapper
+├── persistence
+├── query
+├── security
+├── service
+└── web
 ```
 
 Die Trennung ist wesentlich:
 
 ```text
-core  = wiederverwendbare Plattformbausteine
-demo  = konkrete Anwendung dieser Bausteine
-app   = Spring-Boot-Anwendungsstart und Infrastrukturkonfiguration
+system = wiederverwendbare Core-/Systembausteine für Master und Zielprojekte
+platform.demo = konkrete Anwendung dieser Bausteine im Master
+platform.app  = Spring-Boot-Anwendungsstart und master-spezifische Infrastrukturkonfiguration
 ```
+
+### 8.1 Core-Namespace-Strategie
+
+Der wiederverwendbare Core wird im Masterprojekt und in Zielprojekten unter demselben Java-Namespace geführt:
+
+```text
+de.cocondo.system
+```
+
+`de.cocondo.platform.*` bleibt der Springmaster-Anwendung und der lokalen Demo-Fachlichkeit vorbehalten. Diese Trennung vermeidet spätere Package-Rewrites bei regulären Core-Updates. Legacy-Quellen wie der IDM-Referenzpfad `de.cocondo.app.system` werden nur bei der initialen Migration nach `de.cocondo.system` transformiert.
 
 ## 9. Demo-Domänenmodell
 
@@ -703,23 +715,23 @@ Ausnahmen müssen explizit dokumentiert werden.
 Core-Updates betreffen typischerweise:
 
 ```text
-src/main/java/de/cocondo/platform/core/**
-src/test/java/de/cocondo/platform/core/**
+src/main/java/de/cocondo/system/**
+src/test/java/de/cocondo/system/**
 ```
 
-In Zielprojekten kann der Pfad abweichen. Deshalb benötigt der Update-Generator Mapping-Regeln.
+In Zielprojekten ist derselbe Core-Pfad der Standard. Der Update-Generator soll reguläre Core-Updates daher ohne Package-Rewrite übertragen.
 
 Beispiel:
 
 ```text
 Master:
-  src/main/java/de/cocondo/platform/core/domain/BaseEntity.java
+  src/main/java/de/cocondo/system/domain/BaseEntity.java
 
 Target:
-  src/main/java/de/cocondo/app/system/domain/BaseEntity.java
+  src/main/java/de/cocondo/system/domain/BaseEntity.java
 ```
 
-Diese Zuordnung darf nicht implizit geraten werden. Sie muss in Update-Regeln gepflegt werden.
+Abweichende Legacy-Pfade sind Migrationsfälle und müssen explizit dokumentiert werden. Sie sind nicht der Standard für neue Core-Updates.
 
 ## 20. Demo-Code wird nicht in Zielprojekte übertragen
 
@@ -833,13 +845,16 @@ Jeder weitere Umsetzungsschritt muss mindestens definieren:
 * Validierungsbefehle
 * Abbruchkriterien
 
-Standard-Verifikation nach jedem Patch:
+Die Verifikation erfolgt patchtypabhängig:
 
-```bash
-./bin/patch.sh show latest
-./bin/export.sh full --zip
-mvn test
+* Documentation-only-Patches werden ohne Build und ohne Maven-Test abgeschlossen.
+* Code-, Test- und Build-Konfigurationspatches benötigen verbindlich `mvn test`.
+* Tooling-Patches benötigen Shell-/Python-Syntaxprüfung und Tooling-Selfcheck; `mvn test` nur bei Build-/Projektstrukturwirkung.
+* Jeder erfolgreich angewendete Patch erzeugt am Ende mindestens einen Full-ZIP-Export und bevorzugt zusätzlich einen Full-Parts-Baseline-Export.
+
+Die Detailregel liegt unter:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
 ```
-
-Bei Tooling-, DB-, Build-, Core- oder Demo-Änderungen sind zusätzliche spezifische Tests aufzunehmen.
 

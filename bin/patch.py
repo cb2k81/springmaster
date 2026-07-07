@@ -19,7 +19,7 @@ USAGE = """Verwendung:
   ./bin/patch.sh --help
   ./bin/patch.sh help
   ./bin/patch.sh apply [--dry-run] [--wait] <patch.zip>
-  ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
+  ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
   ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
   ./bin/patch.sh rollback [--dry-run] [--wait] <patch-id|patch-number|latest>
   ./bin/patch.sh list
@@ -129,15 +129,13 @@ def resolve_patch_ref(ref):
             return d
     fail(f"Patch nicht gefunden: {ref}")
 
-def read_project_env():
-    env = dict(os.environ)
-    env_file = PROJECT_ROOT / ".env"
+def parse_env_file_into(env, env_file):
     if not env_file.exists():
-        return env
+        return
     try:
         lines = env_file.read_text(encoding="utf-8").splitlines()
     except Exception as exc:
-        fail(f"Kann .env nicht lesen: {env_file}: {exc}")
+        fail(f"Kann Environment-Datei nicht lesen: {env_file}: {exc}")
     for raw_line in lines:
         line = raw_line.strip()
         if not line or line.startswith("#"):
@@ -154,6 +152,15 @@ def read_project_env():
         if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
             value = value[1:-1]
         env[key] = value
+
+
+def read_project_env():
+    env = dict(os.environ)
+    # .env.example is the generated project-local defaults contract. It is read
+    # before .env so target projects keep their own names, package roots,
+    # database names and patch scopes even after shared tooling updates.
+    parse_env_file_into(env, PROJECT_ROOT / ".env.example")
+    parse_env_file_into(env, PROJECT_ROOT / ".env")
     return env
 
 _PROJECT_ENV_CACHE = None
@@ -368,6 +375,32 @@ def split_scope_names(value):
         return []
     return [part.strip() for part in re.split(r"[;,\s]+", value) if part.strip()]
 
+
+def package_to_path(value, default):
+    package = str(value or default).strip() or default
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+", package):
+        fail(f"Ungültiger Java-Package-Name in Projektkonfiguration: {package!r}")
+    return package.replace(".", "/")
+
+
+def configured_app_package_path():
+    return package_to_path(project_env().get("APP_BASE_PACKAGE"), "de.cocondo.platform")
+
+
+def configured_core_package_path():
+    return package_to_path(project_env().get("APP_CORE_PACKAGE"), "de.cocondo.system")
+
+
+def configured_project_scope_name():
+    raw = (
+        project_env().get("APP_PATCH_PROJECT_SCOPE")
+        or project_env().get("APP_EXPORT_PROJECT_KEY")
+        or project_env().get("APP_NAME")
+    )
+    if not raw:
+        return None
+    return validate_scope_name(str(raw).strip())
+
 def validate_scope_name(scope):
     if not isinstance(scope, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", scope):
         fail(f"Ungültiger lokaler Patch-Scope in .env: {scope!r}")
@@ -393,6 +426,8 @@ def base_scope_log_dirs():
     }
 
 def base_scope_patterns():
+    app_package_path = configured_app_package_path()
+    core_package_path = configured_core_package_path()
     return {
         "root": [
             "README.md",
@@ -404,7 +439,7 @@ def base_scope_patterns():
             "bin/**",
             "PROJECT_DOCS/**",
             "platform/**",
-            "src/main/java/de/cocondo/platform/app/**",
+            f"src/main/java/{app_package_path}/app/**",
             "src/main/resources/**",
             "src/test/**",
             "patches/logs/root/**",
@@ -432,23 +467,23 @@ def base_scope_patterns():
         "core": [
             "pom.xml",
             "platform/versions/platform.env",
-            "src/main/java/de/cocondo/system/**",
-            "src/test/java/de/cocondo/system/**",
+            f"src/main/java/{core_package_path}/**",
+            f"src/test/java/{core_package_path}/**",
             "PROJECT_DOCS/CORE/**",
             "PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md",
             "patches/logs/core/**",
         ],
         "demo": [
             "platform/versions/platform.env",
-            "src/main/java/de/cocondo/platform/demo/**",
-            "src/test/java/de/cocondo/platform/demo/**",
+            f"src/main/java/{app_package_path}/demo/**",
+            f"src/test/java/{app_package_path}/demo/**",
             "PROJECT_DOCS/DEMO/**",
             "PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md",
             "patches/logs/demo/**",
         ],
         "app": [
-            "src/main/java/de/cocondo/platform/app/**",
-            "src/test/java/de/cocondo/platform/app/**",
+            f"src/main/java/{app_package_path}/app/**",
+            f"src/test/java/{app_package_path}/app/**",
             "patches/logs/app/**",
         ],
         "resources": [
@@ -496,7 +531,11 @@ def base_scope_patterns():
     }
 
 def local_scope_names():
-    return [validate_scope_name(scope) for scope in split_scope_names(project_env().get("PATCH_LOCAL_SCOPES", ""))]
+    names = [validate_scope_name(scope) for scope in split_scope_names(project_env().get("PATCH_LOCAL_SCOPES", ""))]
+    implicit = configured_project_scope_name()
+    if implicit and implicit not in base_scope_log_dirs() and implicit not in names:
+        names.append(implicit)
+    return names
 
 def local_scope_log_dir(scope):
     if scope not in local_scope_names():
@@ -524,6 +563,16 @@ def scope_patterns(scope):
     if scope in local_scope_names():
         log_dir = local_scope_log_dir(scope)
         paths = env_scope_paths(scope, "PATHS") + env_scope_paths(scope, "EXTRA_PATHS")
+        if not paths and scope == configured_project_scope_name():
+            app_package_path = configured_app_package_path()
+            paths = [
+                f"src/main/java/{app_package_path}/**",
+                f"src/test/java/{app_package_path}/**",
+                "src/main/resources/db/**",
+                "PROJECT_DOCS/CONCEPT/**",
+                "PROJECT_DOCS/DOMAIN/**",
+                "PROJECT_DOCS/STANDARDS/**",
+            ]
         if not paths:
             fail(f"Lokaler Patch-Scope {scope!r} ist in PATCH_LOCAL_SCOPES registriert, hat aber keine PATCH_SCOPE_{normalize_scope_env_name(scope)}_PATHS.")
         return paths + [f"patches/logs/{log_dir}/**"]
@@ -1020,6 +1069,8 @@ def parse_accept_verify_args(args, subject_name):
     background = False
     wait = False
     lock_timeout = None
+    git_commit = False
+    git_push = False
     rest = list(args)
     i = 0
     while i < len(rest):
@@ -1050,6 +1101,17 @@ def parse_accept_verify_args(args, subject_name):
             i += 1
         elif arg in ("--skip-tooling-selfcheck", "--no-tooling-selfcheck"):
             tooling_selfcheck = False
+            i += 1
+        elif arg == "--commit":
+            if COMMAND != "accept":
+                fail("--commit ist nur für accept erlaubt.")
+            git_commit = True
+            i += 1
+        elif arg == "--push":
+            if COMMAND != "accept":
+                fail("--push ist nur für accept erlaubt.")
+            git_commit = True
+            git_push = True
             i += 1
         elif arg == "--background":
             background = True
@@ -1086,6 +1148,8 @@ def parse_accept_verify_args(args, subject_name):
         "background": background,
         "wait": wait,
         "lockTimeout": lock_timeout,
+        "gitCommit": git_commit,
+        "gitPush": git_push,
     }
 
 def needs_full_test_for_targets(target_paths):
@@ -1341,7 +1405,127 @@ def generate_git_commit_script(log_dir, patch_id):
     script_path.chmod(0o755)
     return script_path
 
-def write_accept_summary(log_dir, status, command_name, patch_id=None, failed_step=None, latest_export_path=None, options=None, git_commit_script=None):
+
+def git_log_path(log_dir):
+    return log_dir / "git.log"
+
+def git_run(args, log_dir=None, check=False):
+    cmd = ["git"] + list(args)
+    result = subprocess.run(
+        cmd,
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if log_dir is not None:
+        with git_log_path(log_dir).open("a", encoding="utf-8") as out:
+            out.write(f"$ {command_to_text(cmd)}\n")
+            out.write(result.stdout or "")
+            if result.stdout and not result.stdout.endswith("\n"):
+                out.write("\n")
+            out.write(f"rc={result.returncode}\n\n")
+    if check and result.returncode != 0:
+        raise RuntimeError(f"Git command failed rc={result.returncode}: {command_to_text(cmd)}")
+    return result
+
+def is_git_worktree(log_dir=None):
+    result = git_run(["rev-parse", "--is-inside-work-tree"], log_dir=log_dir)
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+def parse_git_porcelain_paths(output):
+    paths = []
+    for line in output.splitlines():
+        if not line:
+            continue
+        raw = line[3:] if len(line) > 3 else ""
+        if " -> " in raw:
+            raw = raw.split(" -> ", 1)[1]
+        raw = raw.strip()
+        if raw.startswith('"') and raw.endswith('"'):
+            raw = raw[1:-1]
+        if raw:
+            paths.append(raw)
+    return paths
+
+def relative_log_prefix(log_dir):
+    try:
+        rel = log_dir.resolve().relative_to(PROJECT_ROOT).as_posix()
+    except Exception:
+        return None
+    return rel.rstrip("/") + "/"
+
+def git_status_paths(log_dir=None, ignore_accept_log=True):
+    result = git_run(["status", "--porcelain=v1", "--untracked-files=all"], log_dir=log_dir)
+    if result.returncode != 0:
+        raise RuntimeError("Git status failed")
+    paths = parse_git_porcelain_paths(result.stdout)
+    if not ignore_accept_log:
+        return paths
+    log_prefix = relative_log_prefix(log_dir) if log_dir is not None else None
+    ignored_prefixes = ["patches/runtime/"]
+    if log_prefix:
+        ignored_prefixes.append(log_prefix)
+    return [path for path in paths if not any(path.startswith(prefix) for prefix in ignored_prefixes)]
+
+def ensure_git_clean_before_commit(log_dir):
+    if not is_git_worktree(log_dir=log_dir):
+        fail("GIT_NOT_AVAILABLE: --commit erfordert ein Git-Repository im Projektroot.")
+    dirty = git_status_paths(log_dir=log_dir, ignore_accept_log=True)
+    if dirty:
+        with git_log_path(log_dir).open("a", encoding="utf-8") as out:
+            out.write("GIT_WORKTREE_DIRTY before patch accept --commit:\n")
+            for path in dirty:
+                out.write(f"  {path}\n")
+        fail("GIT_WORKTREE_DIRTY: --commit erfordert einen sauberen Working Tree vor dem Patch. Details stehen in git.log.")
+
+def git_commit_metadata(patch_id):
+    patch_dir = resolve_patch_ref(patch_id)
+    data = read_json(patch_dir / "patch-log.json")
+    scope = data.get("scope") or "patch"
+    name = data.get("name") or patch_id
+    return data, scope, name
+
+def execute_git_commit(log_dir, patch_id, latest_export_path=None, push=False):
+    if not is_git_worktree(log_dir=log_dir):
+        fail("GIT_NOT_AVAILABLE: --commit erfordert ein Git-Repository im Projektroot.")
+    paths = commit_candidate_paths_from_patch(patch_id)
+    if not paths:
+        return {"status": "SKIPPED", "hash": None, "pushStatus": "SKIPPED", "message": "no patch candidate paths"}
+
+    data, scope, name = git_commit_metadata(patch_id)
+    commit_message = f"patch({scope}): {patch_id}"
+    commit_body = "\n".join([
+        f"Patch-ID: {patch_id}",
+        f"Name: {name}",
+        f"Scope: {scope}",
+        f"Archive: {data.get('archiveName', '-')}",
+        f"Export: {latest_export_path or '-'}",
+    ])
+
+    allowed = set(paths)
+    git_run(["add", "--"] + paths, log_dir=log_dir, check=True)
+    staged_result = git_run(["diff", "--cached", "--name-only"], log_dir=log_dir, check=True)
+    staged = [path for path in staged_result.stdout.splitlines() if path.strip()]
+    unexpected = [path for path in staged if path not in allowed]
+    if unexpected:
+        with git_log_path(log_dir).open("a", encoding="utf-8") as out:
+            out.write("GIT_INDEX_DIRTY after patch staging:\n")
+            for path in unexpected:
+                out.write(f"  {path}\n")
+        fail("GIT_INDEX_DIRTY: Der Git-Index enthält Dateien außerhalb der Patch-Dateiliste. Details stehen in git.log.")
+    if not staged:
+        return {"status": "NO_CHANGES", "hash": None, "pushStatus": "SKIPPED", "message": "nothing staged"}
+
+    git_run(["commit", "-m", commit_message, "-m", commit_body], log_dir=log_dir, check=True)
+    head = git_run(["rev-parse", "--short", "HEAD"], log_dir=log_dir, check=True).stdout.strip()
+    push_status = "SKIPPED"
+    if push:
+        git_run(["push"], log_dir=log_dir, check=True)
+        push_status = "PUSHED"
+    return {"status": "COMMITTED", "hash": head, "pushStatus": push_status, "message": commit_message}
+
+def write_accept_summary(log_dir, status, command_name, patch_id=None, failed_step=None, latest_export_path=None, options=None, git_commit_script=None, git_commit_result=None):
     summary_path = log_dir / "summary.log"
     error_summary = extract_error_summary(log_dir) if status not in ("SUCCESS", "ALREADY_APPLIED") else ""
     options = options or {}
@@ -1358,6 +1542,9 @@ def write_accept_summary(log_dir, status, command_name, patch_id=None, failed_st
         f"LOG_DIR={log_dir}",
         f"LATEST_EXPORT={latest_export_path or '-'}",
         f"GIT_COMMIT_SCRIPT={git_commit_script or '-'}",
+        f"GIT_COMMIT_STATUS={(git_commit_result or {}).get('status', '-')}",
+        f"GIT_COMMIT_HASH={(git_commit_result or {}).get('hash', '-')}",
+        f"GIT_PUSH_STATUS={(git_commit_result or {}).get('pushStatus', '-')}",
     ]
     if error_summary:
         lines.append("")
@@ -1369,7 +1556,7 @@ def write_accept_summary(log_dir, status, command_name, patch_id=None, failed_st
     (log_dir / "STATUS.txt").write_text(status + "\n", encoding="utf-8")
     return summary_path
 
-def print_accept_result(status, command_name, log_dir, patch_id=None, latest_export_path=None, failed_step=None, options=None, git_commit_script=None):
+def print_accept_result(status, command_name, log_dir, patch_id=None, latest_export_path=None, failed_step=None, options=None, git_commit_script=None, git_commit_result=None):
     label = "Patch-Accept" if command_name == "accept" else "Patch-Verify"
     options = options or {}
     print(f"{label}:")
@@ -1382,12 +1569,20 @@ def print_accept_result(status, command_name, log_dir, patch_id=None, latest_exp
         print(f"  Profile:      {options.get('profile')}")
         print(f"  Full-Test:    {options.get('fullTest')}")
         print(f"  Export:       {options.get('export')}")
+        if command_name == "accept":
+            print(f"  Git-Commit:   {options.get('gitCommit')}")
+            print(f"  Git-Push:     {options.get('gitPush')}")
     print(f"  Summary:      {log_dir / 'SUMMARY.txt'}")
     print(f"  Log:          {log_dir}")
     if latest_export_path:
         print(f"  Export-Pfad:  {latest_export_path}")
     if git_commit_script:
-        print(f"  Git-Commit:   {git_commit_script}")
+        print(f"  Git-Script:   {git_commit_script}")
+    if git_commit_result:
+        print(f"  Git-Status:   {git_commit_result.get('status')}")
+        if git_commit_result.get('hash'):
+            print(f"  Git-Commit:   {git_commit_result.get('hash')}")
+        print(f"  Git-Push:     {git_commit_result.get('pushStatus')}")
     if status not in ("SUCCESS", "ALREADY_APPLIED"):
         error_summary = extract_error_summary(log_dir)
         if error_summary:
@@ -1521,6 +1716,9 @@ def accept_command(args):
 
     log_dir, fixed_log_dir = make_accept_log_dir(zip_path.name)
 
+    if options.get("gitCommit"):
+        ensure_git_clean_before_commit(log_dir)
+
     script_path = Path(__file__).resolve()
     dry_run_rc = run_process_step(
         "Patch dry-run",
@@ -1554,8 +1752,11 @@ def accept_command(args):
             sys.exit(1)
 
         git_commit_script = generate_git_commit_script(log_dir, patch_id)
-        write_accept_summary(log_dir, "ALREADY_APPLIED", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script)
-        print_accept_result("ALREADY_APPLIED", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script)
+        git_commit_result = None
+        if options.get("gitCommit"):
+            git_commit_result = execute_git_commit(log_dir, patch_id, latest_export_path=latest_export_path, push=options.get("gitPush", False))
+        write_accept_summary(log_dir, "ALREADY_APPLIED", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
+        print_accept_result("ALREADY_APPLIED", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
         return
 
     apply_rc = run_process_step(
@@ -1594,8 +1795,11 @@ def accept_command(args):
         sys.exit(1)
 
     git_commit_script = generate_git_commit_script(log_dir, patch_id)
-    write_accept_summary(log_dir, "SUCCESS", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script)
-    print_accept_result("SUCCESS", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script)
+    git_commit_result = None
+    if options.get("gitCommit"):
+        git_commit_result = execute_git_commit(log_dir, patch_id, latest_export_path=latest_export_path, push=options.get("gitPush", False))
+    write_accept_summary(log_dir, "SUCCESS", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
+    print_accept_result("SUCCESS", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
 def verify_command(args):
     options = parse_accept_verify_args(args, "Patch-Referenz")
     if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
@@ -1686,6 +1890,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
 
 

@@ -1,0 +1,8 @@
+== 01_patch_sha256 ==
+START 2026-07-05T17:04:48+02:00
+$ sha256sum /home/cb/Downloads/000084_springmaster_patch_git_commit_script_index_guard.zip
+
+5783ef71523c10976e1a5c8751a66eb8cff8dbf9e3077f43f07a5c1b477c67c0  /home/cb/Downloads/000084_springmaster_patch_git_commit_script_index_guard.zip
+
+EXIT 0
+END 2026-07-05T17:04:48+02:00

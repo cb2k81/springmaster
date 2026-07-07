@@ -1,0 +1,23 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000043_springmaster_reference_project_and_standards_strategy
+Archiv:        000043_springmaster_reference_project_and_standards_strategy.zip
+Erstellt am:   2026-06-29T10:31:50.222283+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 4
+  modified: 3
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  new           PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  new           PROJECT_DOCS/STANDARDS/API/README.md
+  new           PROJECT_DOCS/STANDARDS/README.md
+  modified      README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000043-springmaster-reference-project-and-standards-strategy.md

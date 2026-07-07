@@ -6,9 +6,119 @@ Target descriptors live under:
 platform/update/targets/*.env
 ```
 
-Current bootstrap status:
+## Current delivery decision
 
-- `idm.env` is initialized from the provided IDM export context.
-- `orders.env`, `contacts.env`, and `personnel.env` are placeholders and must be verified before use.
+Springmaster is now aligned to a safe first-target strategy:
 
-No automated update patch generation is active in the bootstrap state.
+* `zbm` is the first planned Springmaster-delivered Java backend target.
+* Existing/running projects such as `idm` and `personnel` are intentionally deferred and must not be updated from Springmaster until explicitly reclassified.
+* `contacts` and `orders` remain non-delivery references until their project state and local patch systems are explicitly verified again.
+* Real target mutation is blocked unless the descriptor explicitly sets `TARGET_DELIVERY_ENABLED=true`.
+
+## Current configured descriptors
+
+| Target | Status | Lifecycle | Delivery | Path |
+|---|---|---|---|---|
+| `zbm` | `INITIALIZATION_CANDIDATE` | `initialization` | `false` | `/opt/cocondo/zbm` |
+| `contacts` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/contacts` |
+| `idm` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/idm` |
+| `orders` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/orders` |
+| `personnel` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/personnel` |
+
+## Descriptor fields
+
+The stable required fields remain:
+
+```env
+TARGET_NAME=zbm
+TARGET_STATUS=INITIALIZATION_CANDIDATE
+TARGET_PATH=/opt/cocondo/zbm
+TARGET_APP_NAME=zbm
+```
+
+Since `000079`, target descriptors may also carry lifecycle and safety metadata:
+
+```env
+TARGET_BASE_PACKAGE=de.cocondo.zbm
+TARGET_LIFECYCLE=initialization
+TARGET_INITIALIZATION_ALLOWED=true
+TARGET_UPDATE_ALLOWED=false
+TARGET_DELIVERY_ENABLED=false
+TARGET_ALLOWED_PROFILES=project-new,core,core-runtime,core-tests,tooling,defaults
+```
+
+These fields distinguish **initialization** from **updates**:
+
+| Field | Meaning |
+|---|---|
+| `TARGET_LIFECYCLE=initialization` | The project is not yet an established target project. It must be created from the master skeleton first. |
+| `TARGET_INITIALIZATION_ALLOWED=true` | The target may be created by a future initialization workflow based on `project-new`. |
+| `TARGET_UPDATE_ALLOWED=false` | Core/tool/default updates are not yet allowed because the target has not passed generated-project acceptance. |
+| `TARGET_DELIVERY_ENABLED=false` | `target-apply` is blocked for safety until the target is explicitly reclassified. |
+| `TARGET_ALLOWED_PROFILES` | Documentation of the intended initialization/update payload categories for the target. |
+
+## Initialization vs. update
+
+Springmaster separates two lifecycles:
+
+### Initialization
+
+Initialization creates a new Java backend project from the master:
+
+```text
+project-new -> generated technical Backend-Skeleton -> acceptance -> export baseline
+```
+
+For `zbm`, initialization means creating `/opt/cocondo/zbm` from the Springmaster skeleton with the intended app name and base package. Initialization must not mutate IDM, Personnel or other existing projects.
+
+### Update
+
+Updates apply later master changes to an already initialized and accepted target project:
+
+```text
+core-runtime/core-tests -> tooling -> defaults -> optional docs
+```
+
+Updates are performed through the Platform-Update review workflow:
+
+```bash
+./bin/platform-update.sh generate zbm --profile core
+./bin/platform-update.sh preflight zbm --zip "$ZIP"
+./bin/platform-update.sh apply-plan zbm --zip "$ZIP"
+./bin/platform-update.sh target-apply zbm --zip "$ZIP"
+```
+
+`target-apply` is only permitted when `TARGET_DELIVERY_ENABLED=true` in the target descriptor. This prevents accidental delivery into running projects.
+
+## Usage
+
+The registry is read by `bin/platform-update.sh`:
+
+```bash
+./bin/platform-update.sh list
+./bin/platform-update.sh show zbm
+./bin/platform-update.sh validate all
+./bin/platform-update.sh plan zbm --profile core
+```
+
+## Verification rule
+
+Targets with non-delivery statuses such as `INITIALIZATION_CANDIDATE`, `TO_VERIFY_NO_DELIVERY` or `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` may be used for planning and review artefacts, but must not be mutated by `target-apply` unless the descriptor explicitly enables delivery.
+
+Before real target patch generation/application is used for a project:
+
+1. the target descriptor must be reviewed,
+2. the target lifecycle must be correct,
+3. initialization or update mode must be explicit,
+4. the local target patch system must pass preflight,
+5. `TARGET_DELIVERY_ENABLED=true` must be set deliberately.
+
+## Generated plan patches
+
+The Target Registry remains an input for:
+
+```bash
+./bin/platform-update.sh generate <target> --profile core
+```
+
+Generation itself is non-invasive. Generated ZIPs and review plans are written to `build/platform-update/**` and do not change target projects.

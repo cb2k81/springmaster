@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000055_springmaster_api_contract_gate_concept
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=True
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000055_springmaster_api_contract_gate_concept
+LATEST_EXPORT=/opt/cocondo/springmaster/exports/text/springmaster_export_full_2026-06-30T06-15-00-479892Z.zip

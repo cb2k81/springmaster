@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000078_springmaster_generated_service_slice_readiness_marker_alignment
+FAILED_STEP=-
+PROFILE=docs
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000078_springmaster_generated_service_slice_readiness_marker_alignment
+LATEST_EXPORT=-

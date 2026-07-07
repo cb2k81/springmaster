@@ -15,6 +15,8 @@ python3 - "${PROJECT_ROOT}" "${CONFIG_FILE}" "$@" <<'PYEXPORT'
 from __future__ import annotations
 import fnmatch
 import json
+import os
+import re
 import sys
 import zipfile
 from datetime import datetime, timezone
@@ -47,6 +49,26 @@ def load_config() -> dict:
     if not isinstance(data, dict):
         fail("export.config.json must contain a JSON object", 2)
     return data
+
+
+def sanitize_project_key(value: str) -> str:
+    key = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip())
+    key = key.strip("-._")
+    if not key:
+        fail(f"Invalid empty export project key derived from {value!r}", 2)
+    return key
+
+def configured_project_key(cfg: dict) -> tuple[str, str]:
+    candidates = [
+        ("APP_EXPORT_PROJECT_KEY", os.environ.get("APP_EXPORT_PROJECT_KEY")),
+        ("APP_NAME", os.environ.get("APP_NAME")),
+        ("export.config.json:projectKey", cfg.get("projectKey")),
+        ("repositoryRoot", root.name),
+    ]
+    for source, value in candidates:
+        if isinstance(value, str) and value.strip():
+            return sanitize_project_key(value), source
+    return sanitize_project_key(root.name), "repositoryRoot"
 
 def as_list(value) -> list[str]:
     if value is None:
@@ -92,7 +114,7 @@ def read_file_for_export(path: Path, max_size: int) -> str:
         return "[binary file skipped]\n"
 
 def write_profile_export(cfg: dict, profile: str, out_dir: Path, generated: str) -> dict:
-    project = cfg.get("projectKey") or root.name
+    project, project_key_source = configured_project_key(cfg)
     files = collect_files(cfg, profile)
     max_size = int(cfg.get("maxFileSizeBytes") or 0)
     txt = out_dir / f"{project}_export_{profile}.txt"
@@ -115,6 +137,8 @@ def write_profile_export(cfg: dict, profile: str, out_dir: Path, generated: str)
         "repositoryRoot": str(root),
         "configFile": str(config_file),
         "outputFile": txt.name,
+        "projectKey": project,
+        "projectKeySource": project_key_source,
         "fileCount": len(files),
         "includedFiles": files,
     }
@@ -140,7 +164,7 @@ def output_base(cfg: dict) -> Path:
 
 def write_single(cfg: dict, profile: str, zip_output: bool) -> None:
     generated = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    project = cfg.get("projectKey") or root.name
+    project, _project_key_source = configured_project_key(cfg)
     out_root = output_base(cfg)
     out_root.mkdir(parents=True, exist_ok=True)
     out_dir = out_root / f"{project}_export_{profile}_{stamp_from_iso(generated)}"
@@ -155,7 +179,7 @@ def write_parts(cfg: dict, group: str, zip_output: bool) -> None:
         fail(f"Unknown split profile: {group}", 2)
     profiles = as_list(split_profiles[group])
     generated = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    project = cfg.get("projectKey") or root.name
+    project, _project_key_source = configured_project_key(cfg)
     out_root = output_base(cfg)
     out_root.mkdir(parents=True, exist_ok=True)
     out_dir = out_root / f"{project}_export_full_parts_{group}_{stamp_from_iso(generated)}"
@@ -167,6 +191,7 @@ def write_parts(cfg: dict, group: str, zip_output: bool) -> None:
 
     index = {
         "projectKey": project,
+        "projectKeySource": _project_key_source,
         "generatedAt": generated,
         "repositoryRoot": str(root),
         "splitProfile": group,
@@ -210,3 +235,5 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 PYEXPORT
+
+

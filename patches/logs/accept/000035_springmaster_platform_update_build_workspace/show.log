@@ -1,0 +1,24 @@
+== Patch show latest ==
+$ /usr/bin/python3 /opt/cocondo/springmaster/bin/patch.py /opt/cocondo/springmaster show latest
+
+Patch-ID:      000035_springmaster_platform_update_build_workspace
+Archiv:        000035_springmaster_platform_update_build_workspace.zip
+Erstellt am:   2026-06-26T09:04:17.356769+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 2
+  modified: 6
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/TOOLING/EXPORT_ARTIFACT_HYGIENE.md
+  modified      PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+  new           PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_BUILD_WORKSPACE.md
+  modified      bin/platform-update.sh
+  modified      platform/update/README.md
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000035-springmaster-platform-update-build-workspace.md

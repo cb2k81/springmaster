@@ -1,0 +1,9 @@
+{
+    "scope": "root",
+    "name": "springmaster_report_only_gate_tooling_seed",
+    "description": "Implement the first Springmaster report-only gate tooling seed with deterministic report files and selfcheck validation.",
+    "baseline": "springmaster_export_full_2026-06-30T13-50-11-230069Z.zip",
+    "afterPatch": "000067_springmaster_report_only_gate_seed_plan",
+    "type": "tooling-code",
+    "mavenTestRequired": true
+}

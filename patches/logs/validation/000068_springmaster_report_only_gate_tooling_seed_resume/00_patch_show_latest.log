@@ -1,0 +1,26 @@
+Patch-ID:      000068_springmaster_report_only_gate_tooling_seed
+Archiv:        000068_springmaster_report_only_gate_tooling_seed.zip
+Erstellt am:   2026-06-30T19:18:09.802394+02:00
+Status:        applied
+Scope:         root
+Summary:
+  new: 5
+  modified: 8
+  unchanged: 0
+  deleted: 0
+  delete_missing: 0
+
+Dateien:
+  modified      PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md
+  modified      PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+  modified      PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+  modified      PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md
+  modified      PROJECT_DOCS/STANDARDS/README.md
+  modified      PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_SEED_PLAN.md
+  new           PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md
+  modified      PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+  new           bin/springmaster-gates-selfcheck.sh
+  new           bin/springmaster-gates.py
+  new           bin/springmaster-gates.sh
+  modified      platform/versions/platform.env
+  new           patches/logs/root/CHANGELOG-000068-springmaster-report-only-gate-tooling-seed.md

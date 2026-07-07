@@ -1,0 +1,9 @@
+STATUS=SUCCESS
+COMMAND=accept
+PATCH_ID=000081_springmaster_zbm_core_source_copy_acceptance
+FAILED_STEP=-
+PROFILE=tooling
+FULL_TEST=False
+EXPORT=False
+LOG_DIR=/opt/cocondo/springmaster/patches/logs/accept/000081_springmaster_zbm_core_source_copy_acceptance
+LATEST_EXPORT=-

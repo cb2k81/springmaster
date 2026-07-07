@@ -1,0 +1,29 @@
+Archive:  /home/cb/Downloads/000079_springmaster_zbm_target_registry_and_lifecycle_alignment.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     6642  2026-07-02 10:20   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_REFERENCE_PROJECT_AND_STANDARDS_STRATEGY.md
+    69955  2026-07-02 10:21   files/PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md
+    41540  2026-07-02 10:21   files/PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md
+     4763  2026-07-02 10:19   files/PROJECT_DOCS/TARGET_UPDATES/TARGET_REGISTRY.md
+     9732  2026-07-02 10:20   files/PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
+     8891  2026-07-02 10:21   files/PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md
+    12151  2026-07-02 10:23   files/PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md
+    11226  2026-07-02 10:23   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md
+     5822  2026-07-02 10:22   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PATCH_GENERATION.md
+     3180  2026-07-02 10:22   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_PAYLOAD_PROFILES.md
+     3483  2026-07-02 10:20   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_APPLY_PLAN.md
+     2198  2026-07-02 10:21   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_COMPATIBILITY.md
+     1729  2026-07-02 10:21   files/PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_SCOPE_PREFLIGHT.md
+    12200  2026-07-02 10:24   files/PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md
+    50133  2026-07-02 10:19   files/bin/platform-update.sh
+     3648  2026-07-02 10:20   files/platform/update/README.md
+      415  2026-07-02 10:18   files/platform/update/targets/contacts.env
+      462  2026-07-02 10:18   files/platform/update/targets/idm.env
+      409  2026-07-02 10:18   files/platform/update/targets/orders.env
+      470  2026-07-02 10:18   files/platform/update/targets/personnel.env
+      574  2026-07-02 10:18   files/platform/update/targets/zbm.env
+      414  2026-07-02 10:18   files/platform/versions/platform.env
+     1187  2026-07-02 10:26   logs/CHANGELOG-000079-springmaster-zbm-target-registry-and-lifecycle-alignment.md
+     1010  2026-07-02 10:26   manifest.json
+---------                     -------
+   252234                     24 files
