@@ -10,6 +10,10 @@ patches/runtime/
 platform/update/generated/
 platform/update/manifests/
 
+# Patch runtime diagnostics (not normal patch content)
+patches/logs/accept/
+patches/logs/validation/
+
 # Local environment and IDE files
 .env
 .env.*

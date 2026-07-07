@@ -9,13 +9,24 @@ Das Patchsystem verarbeitet manifestbasierte Patch-ZIPs und protokolliert jede A
 ```bash
 ./bin/patch.sh apply --dry-run <patch.zip>
 ./bin/patch.sh apply <patch.zip>
-./bin/patch.sh accept <patch.zip> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
+./bin/patch.sh accept <patch.zip> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
 ./bin/patch.sh verify <patch-id|patch-number|latest> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
 ./bin/patch.sh list
 ./bin/patch.sh show latest
 ./bin/patch.sh rollback --dry-run latest
 ./bin/patch.sh rollback latest
 ```
+
+
+## Command-Generation-Contract seit 000090
+
+Für künftig generierte Kommandos ist die zentrale Kurzregel verbindlich:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md
+```
+
+Neue Patch-Kommandos sollen grundsätzlich `accept --commit` verwenden, sofern das Projekt bereits die Git-Commit-Integration enthält und der Working Tree sauber ist. `git add .` und pauschale manuelle Commits sind für normale Patch-Abschlüsse nicht zulässig. Push erfolgt nur mit explizitem `--push` oder nach separater Benutzerfreigabe.
 
 ## Patch-Format
 

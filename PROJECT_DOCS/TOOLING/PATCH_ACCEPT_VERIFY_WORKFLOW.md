@@ -4,13 +4,25 @@
 
 Der Patch-Abnahme-Workflow reduziert lange manuelle Kommando-Stacks auf kurze, reproduzierbare Befehle.
 
-Seit `000023_springmaster_patch_accept_workflow_hardening` ist der Standardfall bewusst kurz:
+Seit `000023_springmaster_patch_accept_workflow_hardening` ist der reine Patch-Accept bewusst kurz:
 
 ```bash
 ./bin/patch.sh accept <patch.zip>
 ```
 
-`accept` führt Dry-run, Apply, Tooling-Prüfung, automatisch passende Tests, einen zentralen Full-ZIP-Export und Summary-Erzeugung aus.
+Seit `000089_springmaster_patch_accept_git_commit_opt_in` kann der validierte Patch-Abschluss zusätzlich explizit in Git übernommen werden:
+
+```bash
+./bin/patch.sh accept <patch.zip> --commit
+```
+
+Für künftig generierte Patch-Kommandos ist der Command-Generation-Contract maßgeblich:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md
+```
+
+`accept` führt Dry-run, Apply, Tooling-Prüfung, automatisch passende Tests, einen zentralen Full-ZIP-Export und Summary-Erzeugung aus. Mit `--commit` wird danach nur die Patch-Dateiliste gestaged und committed; `git add .` bleibt verboten.
 
 ## Accept
 
@@ -149,16 +161,28 @@ Im Fehlerfall zeigt das Kommando eine kompakte Fehlerzusammenfassung. Die vollst
 
 ## Standardbefehle
 
-Dokumentations-/Policy-Patch:
+Dokumentations-/Policy-Patch ohne Git-Abschluss:
 
 ```bash
-./bin/patch.sh accept <patch.zip>
+./bin/patch.sh accept <patch.zip> --profile docs
 ```
 
-Code-/Test-/Build-Patch:
+Dokumentations-/Policy-Patch als künftiger Standard mit Git-Abschluss:
 
 ```bash
-./bin/patch.sh accept <patch.zip>
+./bin/patch.sh accept <patch.zip> --profile docs --commit
+```
+
+Code-/Test-/Build-Patch ohne Git-Abschluss:
+
+```bash
+./bin/patch.sh accept <patch.zip> --profile code
+```
+
+Code-/Test-/Build-Patch als künftiger Standard mit Git-Abschluss:
+
+```bash
+./bin/patch.sh accept <patch.zip> --profile code --commit
 ```
 
 Erneute Abnahme:

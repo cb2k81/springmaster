@@ -11,6 +11,16 @@ Die Validierung richtet sich nach dem tatsächlichen Patch-Inhalt, nicht allein 
 Jeder Patch wird mindestens mit Dry-run, Apply, Patch-Log und Full-ZIP-Export abgeschlossen. Build- und Testbefehle werden nur dort ausgeführt, wo sie zur geänderten Artefaktklasse passen. Full-Parts-Baseline-Exporte werden nur erzeugt, wenn sie für Review, Wiederherstellung oder explizite Baseline-Übergabe benötigt werden.
 
 
+## Command-Generation-Contract seit 000090
+
+Für künftig generierte Kommandos ist zusätzlich verbindlich:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md
+```
+
+Neue generierte Patch-Abschlüsse verwenden `accept --commit`, nicht manuelle Apply-Blöcke und niemals `git add .`. Die in diesem Dokument enthaltenen manuellen Blöcke sind nur noch Fallback und Diagnosehilfe.
+
 ## Standardabnahme seit 000023
 
 Der bevorzugte Standard für neue Patches ist der automatische Abnahme-Workflow:
@@ -59,15 +69,12 @@ Der Full-ZIP-Export ist standardmäßig aktiv und kann mit `--no-export` abgesch
 
 ## Documentation-only-Standard
 
-Für reine Dokumentationspatches ist der Standardabschluss:
+Für neue generierte Kommandos ist der Standardabschluss:
 
 ```bash
 cd /opt/cocondo/springmaster
-./bin/patch.sh apply --dry-run <patch.zip>
-./bin/patch.sh apply <patch.zip>
-./bin/patch.sh show latest
-./bin/export.sh full --zip
-ls -1t exports/text/*_export_full_*.zip | head -n 1
+git status --short
+./bin/patch.sh accept <patch.zip> --profile docs --commit
 ```
 
 Nicht ausführen:
@@ -75,41 +82,34 @@ Nicht ausführen:
 ```bash
 mvn test
 ./bin/build.sh
+git add .
 ```
+
+Manuelle `apply --dry-run`-/`apply`-Blöcke bleiben nur Fallback und Diagnosehilfe, wenn `accept` nicht verfügbar ist.
 
 ## Code-Patch-Standard
 
-Für Java-Code-, Test- oder Build-Konfigurationspatches ist mindestens auszuführen:
+Für Java-Code-, Test- oder Build-Konfigurationspatches ist der generierte Standardabschluss:
 
 ```bash
 cd /opt/cocondo/springmaster
-./bin/patch.sh apply --dry-run <patch.zip>
-./bin/patch.sh apply <patch.zip>
-./bin/patch.sh show latest
-mvn test
-./bin/export.sh full --zip
-ls -1t exports/text/*_export_full_*.zip | head -n 1
+git status --short
+./bin/patch.sh accept <patch.zip> --profile code --commit
 ```
 
-Je nach Inhalt kommen spezifische Prüfungen hinzu, z. B. DBTool-, Export-, OpenAPI- oder Project-New-Prüfungen.
+`mvn -q test` ist dabei Pflicht und wird vom Profil `code` beziehungsweise im Profil `auto` durch Java-/Test-/Build-Zielpfade aktiviert. Je nach Inhalt kommen spezifische Prüfungen hinzu, z. B. DBTool-, Export-, OpenAPI- oder Project-New-Prüfungen.
 
 ## Tooling-Patch-Standard
 
-Für Shell-/Python-/Export-/Patchsystem-Änderungen ist mindestens auszuführen:
+Für Shell-/Python-/Export-/Patchsystem-Änderungen ist der generierte Standardabschluss:
 
 ```bash
 cd /opt/cocondo/springmaster
-./bin/patch.sh apply --dry-run <patch.zip>
-./bin/patch.sh apply <patch.zip>
-./bin/patch.sh show latest
-bash -n ./bin/*.sh ./bin/lib/core/*.sh ./bin/lib/dbtool/*.sh
-python3 -m py_compile ./bin/patch.py
-./bin/tooling-selfcheck.sh
-./bin/export.sh full --zip
-ls -1t exports/text/*_export_full_*.zip | head -n 1
+git status --short
+./bin/patch.sh accept <patch.zip> --profile tooling --commit
 ```
 
-`mvn test` wird bei Tooling-Patches nur ergänzt, wenn der Patch Build-Konfiguration, Projektstruktur, Template-Erzeugung mit Java-Projektwirkung oder Java-Code berührt.
+Das Patchsystem führt Shell-/Python-Syntaxprüfung, Tooling-Selfcheck und Full-ZIP-Export aus. `mvn -q test` wird bei Tooling-Patches nur ergänzt, wenn der Patch Build-Konfiguration, Projektstruktur, Template-Erzeugung mit Java-Projektwirkung oder Java-Code berührt.
 
 ## Abbruchregel
 
@@ -180,12 +180,18 @@ Beispiele:
 
 Der Tooling-Selfcheck prüft weiterhin Patchsystem, Export und DBTool-Status, erzeugt aber im Standard nur noch einen Full-ZIP-Export. Full-Parts-Baseline-Exporte sind optional und werden nur noch explizit erzeugt.
 
-## Patch-Accept-Standard seit 000024
+## Patch-Accept-Standard seit 000024 / 000090
 
-Der bevorzugte Standard ist ein einzelner ausgabearmer Befehl:
+Der bevorzugte technische Accept bleibt ein einzelner ausgabearmer Befehl:
 
 ```bash
 ./bin/patch.sh accept <patch.zip>
+```
+
+Für neu generierte Patch-Abschlüsse mit Git-Integration gilt seit `000090`:
+
+```bash
+./bin/patch.sh accept <patch.zip> --commit
 ```
 
 Die manuell dokumentierten Kommandoblöcke bleiben nur Fallback und Diagnosehilfe.
