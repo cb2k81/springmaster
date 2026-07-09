@@ -173,3 +173,16 @@ Vor einem generated service slice muss deshalb entschieden werden, wie der benö
 * nicht als implizite Vermischung mit Springmaster-App- oder Demo-Code.
 
 Diese Entscheidung ist Voraussetzung, bevor ein generierter fachlicher Slice Core-Typen verbindlich voraussetzt.
+
+
+## Patch 000093: Paged Query Support Sort Allowlist and Tie-Breaker
+
+Patch `000093_springmaster_paged_query_support_sort_allowlist_tiebreaker` matures `PagedQuerySupport` as the fachfreie Core helper for deterministic management-list sorting.
+
+It keeps fachliche field definitions outside Core. Callers provide the public sort allow-list, default sort and stable tie-breaker; Core validates and composes the query mechanics for Spring Data `Sort` or in-memory `Comparator` use.
+
+See:
+
+```text
+PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md
+```

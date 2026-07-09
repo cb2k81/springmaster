@@ -1378,3 +1378,22 @@ Begründung:
 Patch `000082_springmaster_patch_runtime_locking_background_git_rollback` erhöht die Tooling-Version auf `0.3.12` und die Plattform-Version auf `0.13.43-foundation`.
 
 Grund ist die Härtung der portablen Patch-Runtime: projektweiter Write-Lock, `--background`/`--wait`, projektlokal konfigurierbare Test-/Exportkommandos, kompakte Summary-Dateien, patchbezogene Git-Commit-Skripte und ein Fixture-Test für Apply-/Rollback-/Lock-Szenarien.
+
+
+
+## Versionierter Stand nach 000093
+
+Patch `000093_springmaster_paged_query_support_sort_allowlist_tiebreaker` erhöht den Core- und Foundation-Stand auf:
+
+```text
+PLATFORM_VERSION=0.13.46-foundation
+PLATFORM_CORE_VERSION=0.3.3
+PLATFORM_STATE_PATCH=000093_springmaster_paged_query_support_sort_allowlist_tiebreaker
+```
+
+Begründung:
+
+* Der Patch erweitert `PagedQuerySupport` als wiederverwendbaren Core-API-Baustein für Management-Listen.
+* Die neue Core-Funktionalität validiert öffentliche Sort-Allowlists, löst Default-Sort-Felder auf und erzeugt stabile Sortierungen beziehungsweise Comparatoren mit explizitem Tie-Breaker.
+* Der Core bleibt fachfrei: Sort-Felder, fachliche Comparatoren und Tie-Breaker werden von Fachmodulen oder generierten Service-Slices übergeben.
+* Es werden keine Demo-, Tooling-, Template- oder Platform-Update-Versionen erhöht.

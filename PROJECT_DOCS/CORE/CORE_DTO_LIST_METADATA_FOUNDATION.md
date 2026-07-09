@@ -128,3 +128,20 @@ mvn test
 ```
 
 im Springmaster-Projekt erfolgreich ist und danach ein sauberer Full-ZIP-Export erzeugt wurde.
+
+
+## Query support maturity addendum 000093
+
+Patch `000093_springmaster_paged_query_support_sort_allowlist_tiebreaker` extends `PagedQuerySupport` from page-size and sort-direction validation to the reusable Core boundary for deterministic list sorting.
+
+The support class now provides fachfreie helpers for:
+
+```text
+resolveSortBy(sortBy, allowedSortFields, defaultSortBy)
+stableSort(sortBy, sortDir, allowedSortFields, defaultSortBy, tieBreakerSortBy)
+stableComparator(sortBy, sortDir, allowedComparators, defaultSortBy, tieBreakerComparator)
+```
+
+The Core still does not know any fachliche field. Fachmodule or generated service slices must pass their own public sort allow-list, default sort and stable tie-breaker. Unsupported public sort fields remain request errors and must surface through the API error contract as `400 Bad Request` at the HTTP boundary.
+
+The stable tie-breaker is intentionally explicit. Paged and `/all` result sets must not depend only on a non-unique business column such as `name` or `status`, because repeated page reads can otherwise drift when multiple rows have the same primary sort value.
