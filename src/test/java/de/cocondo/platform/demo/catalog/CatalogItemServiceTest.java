@@ -42,6 +42,22 @@ class CatalogItemServiceTest {
     }
 
     @Test
+    void usesCorePagedQueryDefaultsForPagedAndAllQueries() {
+        service.create(new CatalogItemCreateDTO("SKU-2", "Beta", null));
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));
+
+        PagedResponseDTO<CatalogItemListItemDTO> defaultPaged = service.listPaged(0, 20, " ", null);
+        var descendingAll = service.listAll(null, "DESC", null, null);
+
+        assertThat(defaultPaged.getItems())
+                .extracting(CatalogItemListItemDTO::getSku)
+                .containsExactly("SKU-1", "SKU-2");
+        assertThat(descendingAll)
+                .extracting(CatalogItemListItemDTO::getSku)
+                .containsExactly("SKU-2", "SKU-1");
+    }
+
+    @Test
     void appliesSameFiltersToPagedAndAllQueries() {
         service.create(new CatalogItemCreateDTO("SKU-2", "Beta", null));
         service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));

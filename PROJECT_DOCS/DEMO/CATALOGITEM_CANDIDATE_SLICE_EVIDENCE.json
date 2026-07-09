@@ -180,5 +180,8 @@
   "listQueryExportAllPatch": "000092_springmaster_catalogitem_list_query_export_all_reference_slice",
   "listQueryExportAllState": "paged-list-and-all-share-filter-sort-pipeline",
   "emptyResultEvidence": "covered-for-paged-list-and-all",
-  "queryValidationEvidence": "invalid-page-size-sortBy-sortDir-covered"
+  "queryValidationEvidence": "invalid-page-size-sortBy-sortDir-covered",
+  "corePagedQuerySupportAdoptionPatch": "000094_springmaster_catalogitem_use_core_paged_query_sort_support",
+  "corePagedQuerySupportAdoptionState": "CatalogItemService uses PagedQuerySupport.stableComparator for allow-listed default-sort and tie-breaker query sorting",
+  "sortSupportEvidence": "core-stableComparator-used-by-candidate-list-and-all-query-pipeline"
 }

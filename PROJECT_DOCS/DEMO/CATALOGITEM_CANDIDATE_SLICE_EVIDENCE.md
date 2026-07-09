@@ -74,7 +74,7 @@ The first candidate sort allow-list is intentionally small:
 
 Unsupported `sortBy` and unsupported `sortDir` values produce `400 Bad Request` with standard error-body evidence. Invalid `page` or `size` values on the paged endpoint also produce `400 Bad Request`.
 
-List and `/all` use the same in-memory query pipeline for filters and sorting. The paged response uses the filtered result size for `totalElements` and `totalPages`. Empty matching result sets return `200 OK` with `items: []`, `totalElements: 0`, `totalPages: 0`; `/all` returns `200 OK` with an empty JSON array.
+List and `/all` use the same in-memory query pipeline for filters and sorting. Sort allow-list resolution, default-sort handling, sort direction parsing and tie-breaker composition are delegated to Core `PagedQuerySupport.stableComparator(...)`. The paged response uses the filtered result size for `totalElements` and `totalPages`. Empty matching result sets return `200 OK` with `items: []`, `totalElements: 0`, `totalPages: 0`; `/all` returns `200 OK` with an empty JSON array.
 
 ## Identity evidence
 
@@ -245,6 +245,22 @@ Current evidence:
 - `/all` returns the complete matching result set without public `page`/`size` parameters;
 - empty paged and `/all` responses are covered;
 - invalid paging and sort direction requests are covered by standard error-body tests;
-- `PagedQuerySupport` is reused for paging and sort-direction validation.
+- `PagedQuerySupport` is reused for paging validation, sort-direction validation, sort allow-list resolution, default-sort handling and stable tie-breaker comparator construction.
+
+The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.
+
+
+## Core sort-support adoption after 000094
+
+Patch `000094_springmaster_catalogitem_use_core_paged_query_sort_support` removes the remaining demo-local sort resolution helpers from `CatalogItemService` and routes the candidate query pipeline through Core `PagedQuerySupport.stableComparator(...)`.
+
+Current evidence:
+
+- CatalogItem defines only its allowed public sort fields and field comparators (`sku`, `name`);
+- Core resolves blank/missing `sortBy` to the default field;
+- Core validates unsupported sort fields and sort directions;
+- Core composes the stable `id` tie-breaker;
+- paged list and `/all` continue to share the same filter/sort pipeline;
+- service tests cover default sort behavior and descending all-result sorting.
 
 The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.

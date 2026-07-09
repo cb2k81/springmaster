@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Patch `000092_springmaster_catalogitem_list_query_export_all_reference_slice` turns the documented list-query/export-all contract into executable CatalogItem candidate-slice evidence.
+Patch `000092_springmaster_catalogitem_list_query_export_all_reference_slice` turns the documented list-query/export-all contract into executable CatalogItem candidate-slice evidence. Patch `000094_springmaster_catalogitem_use_core_paged_query_sort_support` then aligns the candidate slice with the Core sort helper introduced by `000093`.
 
 This document does not promote CatalogItem to `canonical-reference-slice`. It records the concrete implementation and verification evidence for the list-query and complete result-set part of the candidate slice.
 
@@ -36,7 +36,7 @@ Allowed `sortDir` values:
 
 Blank or missing `sortBy` defaults to `sku`; blank or missing `sortDir` defaults to ascending. The in-memory implementation applies a stable `id` tie-breaker after the requested public sort key.
 
-Unsupported sort fields or sort directions return `400 Bad Request` through the standard demo error body.
+Unsupported sort fields or sort directions return `400 Bad Request` through the standard demo error body. The implementation delegates this validation to Core `PagedQuerySupport.stableComparator(...)` rather than duplicating local sort resolution logic.
 
 ## Count and empty-result semantics
 
@@ -52,9 +52,20 @@ Empty result sets are successful query results:
 - The controller remains a thin HTTP adapter.
 - The service owns the candidate query pipeline.
 - The same service-side filter/sort pipeline feeds paged and `/all` responses.
-- Core `PagedQuerySupport` is reused for paging and sort-direction validation.
+- Core `PagedQuerySupport` is reused for paging validation, sort-direction validation, sort allow-list resolution, default-sort handling and stable tie-breaker comparator construction.
 - No Spring Data `Pageable`, `Page<DTO>`, persistence entity or database column vocabulary is exposed at the HTTP boundary.
 - `/all` is not a legacy synonym for `/list`; it is a complete result-set contract for export, batch and integration consumers.
+
+## Core sort-support adoption
+
+`CatalogItemService` uses `PagedQuerySupport.stableComparator(...)` for the in-memory candidate query pipeline. The fachliche service still owns its allowed public sort fields and the field-specific comparators, but Core owns the reusable mechanics:
+
+- default `sortBy` resolution;
+- `sortDir` parsing;
+- sort allow-list rejection;
+- stable tie-breaker composition.
+
+This keeps Core free of CatalogItem domain knowledge while proving that generated or handwritten fachliche slices can consume the same query infrastructure.
 
 ## Verification evidence
 

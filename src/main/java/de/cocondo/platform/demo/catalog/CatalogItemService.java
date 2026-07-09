@@ -10,13 +10,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CatalogItemService {
 
     public static final int DEFAULT_PAGE_SIZE = 20;
+
+    private static final String DEFAULT_SORT_BY = "sku";
+    private static final Comparator<CatalogItem> TIE_BREAKER_COMPARATOR =
+            Comparator.comparing(CatalogItem::getId);
+    private static final Map<String, Comparator<CatalogItem>> SORT_COMPARATORS = Map.of(
+            "sku", Comparator.comparing(CatalogItem::getSku, String.CASE_INSENSITIVE_ORDER),
+            "name", Comparator.comparing(CatalogItem::getName, String.CASE_INSENSITIVE_ORDER)
+    );
 
     private final CatalogItemValidator validator = new CatalogItemValidator();
     private final CatalogItemMapper mapper = new CatalogItemMapper();
@@ -129,19 +136,20 @@ public class CatalogItemService {
     }
 
     private List<CatalogItem> matchingSortedItems(String sortBy, String sortDir, String sku, String name) {
-        String resolvedSortBy = resolveSortBy(sortBy);
-        Sort.Direction resolvedSortDirection = pagedQuerySupport.resolveSortDirection(sortDir);
-        Comparator<CatalogItem> comparator = comparator(resolvedSortBy);
-        if (resolvedSortDirection == Sort.Direction.DESC) {
-            comparator = comparator.reversed();
-        }
+        Comparator<CatalogItem> comparator = pagedQuerySupport.stableComparator(
+                sortBy,
+                sortDir,
+                SORT_COMPARATORS,
+                DEFAULT_SORT_BY,
+                TIE_BREAKER_COMPARATOR
+        );
 
         List<CatalogItem> matching = new ArrayList<>(itemsById.values()).stream()
                 .filter(item -> matchesSku(item, sku))
                 .filter(item -> matchesName(item, name))
                 .toList();
         return matching.stream()
-                .sorted(comparator.thenComparing(CatalogItem::getId))
+                .sorted(comparator)
                 .toList();
     }
 
@@ -158,25 +166,6 @@ public class CatalogItemService {
         }
         return item.getName() != null
                 && item.getName().toLowerCase(Locale.ROOT).contains(name.trim().toLowerCase(Locale.ROOT));
-    }
-
-    private String resolveSortBy(String sortBy) {
-        if (sortBy == null || sortBy.isBlank()) {
-            return "sku";
-        }
-        String normalized = sortBy.trim();
-        if ("sku".equals(normalized) || "name".equals(normalized)) {
-            return normalized;
-        }
-        throw new IllegalArgumentException("Unsupported sortBy: " + sortBy);
-    }
-
-    private Comparator<CatalogItem> comparator(String sortBy) {
-        return switch (sortBy) {
-            case "sku" -> Comparator.comparing(CatalogItem::getSku, String.CASE_INSENSITIVE_ORDER);
-            case "name" -> Comparator.comparing(CatalogItem::getName, String.CASE_INSENSITIVE_ORDER);
-            default -> throw new IllegalArgumentException("Unsupported sortBy: " + sortBy);
-        };
     }
 
     private int totalPages(int totalElements, int pageSize) {
