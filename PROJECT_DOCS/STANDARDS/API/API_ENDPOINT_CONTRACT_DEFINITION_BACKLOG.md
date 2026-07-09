@@ -62,7 +62,7 @@ Springmaster needs a stable operation taxonomy before implementation details are
 | Operation group | Needs definition | Initial direction |
 |---|---|---|
 | Paged collection list | path shape, query parameters, response shape, sorting, filtering, max page size | mandatory for UI-capable management tables |
-| Bounded all-list | allowed use cases, naming, maximum result risk, whether `/all` is acceptable | allowed only for small reference/selection data |
+| Complete result-set `/all` | allowed use cases, naming, operational risk, frontend export and backend batch semantics | accepted by 000091 when paired with a paged/search query contract and not silently truncated |
 | Detail by external id | path shape, status codes, DTO shape, external-id semantics | canonical detail operation for resource APIs |
 | Unique lookup / find-one | whether public API exposes lookup by business key, null behavior, conflict behavior | do not expose generic `findOne` vocabulary without domain semantics |
 | First / last / latest / current | ordering rule, deterministic tie-breaker, domain naming, alternative via sorted paged list | `first`/`last` repository vocabulary must not leak to external API |
@@ -73,7 +73,7 @@ Springmaster needs a stable operation taxonomy before implementation details are
 | Multiple delete | no body-bearing DELETE, command endpoint shape, result DTO, partial failure semantics | still open and must be standardized explicitly |
 | Assignment add/remove | relationship path naming, add command, remove command, list assignments | IDM gives reusable source material |
 | Nested aggregate command | nested path shape, child identity, parent-child conflict behavior | Personnel gives reusable source material |
-| Reference data | bounded read model, cacheability, path naming | must not be confused with unbounded all-list |
+| Reference data | bounded read model, cacheability, path naming | must not be confused with complete result-set `/all` export/batch semantics |
 | Current user capabilities | auth context, response shape, permission exposure | security standard later |
 | Complex search | GET query vs POST search command, side-effect-free guarantee, pagination | needs explicit rule for rich filters |
 

@@ -19,7 +19,8 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | DTO boundary and validation standard | `DTO_BOUNDARY_AND_VALIDATION_STANDARD.md` | canonical DTO roles, boundary validation, entity exposure prohibition and future DTO gates documented with 000049 |
 | Command and relationship endpoint standard | `COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md` | canonical command, assignment, relationship, nested aggregate and bulk-operation endpoint rules documented with 000053 |
 | API contract gate concept | `API_CONTRACT_GATE_CONCEPT.md` | layered OpenAPI, MockMvc, reflection, security and Catalog-demo gate model documented with 000055; implementation follows later |
-| Query/reference-data consistency standard | `API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md` | `sortBy`, `/options`, ADR-backed `/reference-data` and non-canonical `/all` resolved with 000058 |
+| Query/reference-data consistency standard | `API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md` | `sortBy`, complete-result-set `/all`, `/options` and ADR-backed `/reference-data` resolved with 000058/000091 |
+| Result-set export/all standard | `API_RESULT_SET_EXPORT_ALL_STANDARD.md` | frontend export, backend batch, complete result-set `/all`, count and empty/error behavior documented with 000091 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -39,6 +40,7 @@ Catalog-demo should implement the API standards through `CatalogItem` first.
 The first CatalogItem API should demonstrate:
 
 - paged list endpoint for UI tables,
+- complete-result-set `/all` endpoint for export/batch use cases when the slice is promoted to export-ready canonical status,
 - optional `/options` endpoint only for bounded selector use cases,
 - detail endpoint,
 - create endpoint,
@@ -54,7 +56,7 @@ The first CatalogItem API should demonstrate:
 - dedicated create/update/command DTOs with Bean Validation,
 - response DTOs and `PagedResponseDTO` instead of entity or Spring Data response leakage.
 
-Since patch `000046_springmaster_api_endpoint_contract_standard`, Catalog-demo must follow the canonical endpoint standard when CatalogItem becomes the reference slice. The collection path is the canonical paged list endpoint, `/options` is the preferred bounded selector endpoint, `/all` is not canonical for new reference APIs, public `findOne`/`findFirst`/`findLast` vocabulary is prohibited for management APIs, single deletes are bodyless, and delete-multiple is a collection command rather than a body-bearing `DELETE`.
+Since patch `000046_springmaster_api_endpoint_contract_standard`, Catalog-demo must follow the canonical endpoint standard when CatalogItem becomes the reference slice. The collection path is the canonical paged list endpoint, `/all` is the complete-result-set endpoint for frontend export and batch/integration consumers, `/options` is the bounded selector endpoint, public `findOne`/`findFirst`/`findLast` vocabulary is prohibited for management APIs, single deletes are bodyless, and delete-multiple is a collection command rather than a body-bearing `DELETE`.
 
 ## Expected gates
 
@@ -124,7 +126,7 @@ Patch `000057_springmaster_standard_consistency_and_adr_gap_review` reviews the 
 
 API-specific findings:
 
-- Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the P0 query/reference-data vocabulary gap by making `sortBy` canonical, treating `sort` as legacy/target-comparison vocabulary, making `/options` the selector endpoint, requiring ADR-backed `/reference-data` for broader bounded read models and marking `/all` as non-canonical for new reference APIs.
+- Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the P0 query/reference-data vocabulary gap by making `sortBy` canonical, treating `sort` as legacy/target-comparison vocabulary, making `/options` the selector endpoint and requiring ADR-backed `/reference-data` for broader bounded read models. Patch `000091_springmaster_list_query_export_all_contract` amends this by making `/all` canonical for documented complete-result-set export/batch semantics and keeping ambiguous `/all` as non-canonical.
 - OpenAPI operationId, tag, schema, error schema and security scheme naming require a dedicated standard before reusable OpenAPI assertions become strict.
 - Error contract gates need an operational clarification for `errorId`, correlation ID, trace ID, message keys and localized messages.
 - Bodyless single delete and the prohibition of public `findOne`/`findFirst`/`findLast` endpoint vocabulary are considered ready-for-tooling candidates.
@@ -134,7 +136,14 @@ Until these gaps are closed, API gate tooling must remain narrow and must not en
 
 ## Query/reference-data consistency since 000058
 
-Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 consistency gap from the 000057 review. New Springmaster reference APIs use `sortBy` and `sortDir` for sorting, not `sort`. Selector data uses `/options`; broader bounded reference data may use `/reference-data` only with ADR-backed semantics. `/all` is not canonical for Catalog-demo or new Springmaster-generated APIs and is treated as legacy or ADR-backed exception during later target-project comparison.
+Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 consistency gap from the 000057 review. New Springmaster reference APIs use `sortBy` and `sortDir` for sorting, not `sort`. Selector data uses `/options`; broader bounded reference data may use `/reference-data` only with ADR-backed semantics. Since patch `000091_springmaster_list_query_export_all_contract`, `/all` is canonical for complete result-set retrieval when it shares the paged query's filters, sorting, security and data-scope semantics and does not silently truncate. Legacy `/all` endpoints that do not satisfy this contract remain comparison findings.
+
+
+## Result-set export/all consistency since 000091
+
+Patch `000091_springmaster_list_query_export_all_contract` adds `API_RESULT_SET_EXPORT_ALL_STANDARD.md` and updates the query/list standards so frontend exports and backend batch/integration consumers can request the complete matching result set. The canonical simple shape is `GET /api/<domain>/<resources>/all`; complex search DTOs use `POST /api/<domain>/<resources>/search/all` unless an ADR-backed job/export resource is required.
+
+The `/all` endpoint is paired with the paged list, reuses the same documented filters, `sortBy` and `sortDir`, applies the same security/data-scope predicates and returns a complete JSON array of public list/export DTOs. It is not an `/options` replacement and must not silently cap results at the public page-size limit.
 
 
 ## Error identity and status-code consistency since 000059

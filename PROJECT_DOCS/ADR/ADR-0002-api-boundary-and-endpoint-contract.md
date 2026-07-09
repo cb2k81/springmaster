@@ -12,7 +12,7 @@ Accepted
 
 Springmaster is the master/reference project for reusable backend foundation, tooling, standards, conventions, reference implementations and verifiable quality gates.
 
-Patches `000044` through `000059` established documentation-first API standards for request validation, required fields, list/filter/query behavior, command HTTP semantics, external IDs, endpoint contracts, error responses, DTO boundaries, command/relationship endpoints, query/reference-data consistency and error/status-code consistency.
+Patches `000044` through `000059` established documentation-first API standards for request validation, required fields, list/filter/query behavior, command HTTP semantics, external IDs, endpoint contracts, error responses, DTO boundaries, command/relationship endpoints, query/reference-data consistency and error/status-code consistency. Patch `000091_springmaster_list_query_export_all_contract` amends the query/reference-data decision by accepting `/all` as an explicit complete-result-set endpoint for frontend export, backend batch and integration consumers.
 
 The real-app forensics from IDM and Personnel showed useful but different patterns:
 
@@ -41,19 +41,23 @@ The accepted decision is:
    - Full update: `PUT /api/<domain>/<resources>/{id}`.
    - Bodyless single delete: `DELETE /api/<domain>/<resources>/{id}`.
    - Complex search: `POST /api/<domain>/<resources>/search` when query complexity no longer fits a stable GET query contract.
+   - Complete result set: `GET /api/<domain>/<resources>/all` for frontend export, backend batch and integration consumers that need the whole matching result without public API pagination.
+   - Complete complex search result: `POST /api/<domain>/<resources>/search/all` when the query is represented by a search request DTO.
    - Bounded selector data: `GET /api/<domain>/<resources>/options`.
    - State, collection, nested aggregate and relationship operations use explicit command or relationship endpoint patterns from the command/relationship standard.
 
 3. **Non-canonical API vocabulary**
    - Public `findOne`, `findFirst`, `findLast` and similar Java/repository terms are not canonical for Springmaster management APIs.
    - `/list` is not the canonical Springmaster collection endpoint for new reference APIs.
-   - `/all` is not canonical for new Springmaster reference APIs and must not be introduced by Catalog-demo first slices.
+   - Ambiguous, selector-like, undocumented or silently capped `/all` endpoints are not canonical. `/all` is canonical only when it implements the complete-result-set contract: same documented filters and sorting as the paged collection, no public `page`/`size` pagination, complete filtered and authorized result, no silent truncation.
    - `/reference-data` is allowed only with ADR-backed semantics or a later accepted standard that defines scope, caching, bounds, ownership and compatibility behavior.
 
 4. **Query contract**
-   - Canonical list query parameters for new reference APIs are `page`, `size`, `sortBy`, `sortDir` plus documented resource-specific filters.
+   - Canonical paged list query parameters for new reference APIs are `page`, `size`, `sortBy`, `sortDir` plus documented resource-specific filters.
+   - Canonical complete-result-set query parameters are `sortBy`, `sortDir` plus the same documented filters; `page` and `size` are not part of the `/all` contract.
    - `sort` is legacy/target-comparison vocabulary and must not be introduced by new Springmaster reference APIs.
    - Sort fields are API field names, not database column names or internal Java implementation details.
+   - List, `/all` and optional count endpoints for the same result set must share filter, security and data-scope predicates.
 
 5. **DTO and validation boundary**
    - Inbound JSON request bodies that require validation must use `@Valid @RequestBody` or an equivalent validated boundary mechanism.
@@ -98,6 +102,7 @@ This ADR accepts and consolidates the architectural decisions from:
 
 - `PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/API/API_RESULT_SET_EXPORT_ALL_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md`
@@ -108,7 +113,7 @@ This ADR accepts and consolidates the architectural decisions from:
 - `PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/EXTERNAL_ID_OPENAPI_BOUNDARY_STANDARD.md`
 
-This ADR narrows these standards where terminology differed: `sortBy` is canonical, `/all` is non-canonical for new reference APIs, and the first Catalog-demo update/delete/command status defaults are fixed as described above.
+This ADR narrows these standards where terminology differed: `sortBy` is canonical, `/all` is canonical only as an explicit complete-result-set endpoint, ambiguous or compatibility-style `/all` remains non-canonical, and the first Catalog-demo update/delete/command status defaults are fixed as described above.
 
 ## Considered alternatives
 
@@ -120,9 +125,9 @@ Rejected for new Springmaster reference APIs. The real apps remain valuable comp
 
 Rejected for public API boundaries. It leaks Spring Data implementation details into OpenAPI, can generate unstable parameter names and makes UI contracts less explicit. Spring Data can remain internal behind query services and mappers.
 
-### Use `/list` and `/all` as canonical endpoint suffixes
+### Use `/list` and ambiguous `/all` as generic endpoint suffixes
 
-Rejected for new reference APIs. A collection resource already represents the list. `/all` is ambiguous and can encourage unbounded APIs. Bounded selector use cases use `/options`; broader reference-data APIs require ADR-backed semantics.
+Rejected for new reference APIs. A collection resource already represents the paged list. Ambiguous `/all` is unsafe when it means selector data, an undocumented unbounded dump or a silently capped compatibility endpoint. Explicit complete-result-set `/all` is accepted separately for frontend export, backend batch and integration consumers. Bounded selector use cases use `/options`; broader reference-data APIs require ADR-backed semantics.
 
 ### Allow `DELETE` with request body for single delete or bulk delete
 
@@ -143,6 +148,7 @@ Positive consequences:
 - Catalog-demo has a deterministic API contract target before its first canonical slice.
 - API contract gates can check concrete endpoint, DTO, validation, error, query and status-code behavior.
 - OpenAPI generated from Springmaster reference APIs should remain stable enough for UI and downstream API consumers.
+- Frontend export, backend batch jobs and service-to-service consumers have a standard complete-result-set contract instead of relying on ad-hoc `/all` behavior.
 - Existing real-app differences can be reported as comparison findings without becoming new Springmaster defaults.
 
 Negative consequences and costs:
@@ -160,7 +166,7 @@ Gate candidates enabled by this ADR include:
 
 - OpenAPI checks for canonical paths and methods;
 - OpenAPI checks for absence of request bodies on single `DELETE` operations;
-- OpenAPI checks for `page`, `size`, `sortBy`, `sortDir` and absence of canonical `/all` in new reference APIs;
+- OpenAPI checks for `page`, `size`, `sortBy`, `sortDir`, complete-result-set `/all` semantics and absence of ambiguous `/all` in new reference APIs;
 - OpenAPI checks for DTO schemas and required fields;
 - OpenAPI checks for standard error schema and status-code mappings;
 - MockMvc checks for validation, not-found, conflict, delete and command behavior;
@@ -178,7 +184,7 @@ Allowed exceptions and deferred topics:
 
 - Existing IDM, Personnel, Contacts, Orders or other target projects may keep legacy API shapes until a later comparison/remediation workstream explicitly addresses them.
 - `/reference-data` is deferred to ADR-backed semantics unless a later accepted standard defines it generally.
-- Multi-sort, export endpoints, streaming endpoints, batch/async workflows beyond explicit `202 Accepted` status resources and broad reference-data caching are deferred.
+- Multi-sort, asynchronous export/job endpoints, streaming response contracts, batch/async workflows beyond explicit `202 Accepted` status resources and broad reference-data caching are deferred. Synchronous complete-result-set `/all` is accepted by this ADR addendum.
 - Security schemes, permission catalog and capability exposure are owned by ADR-0005 and related security standards.
 - OperationId, tag, schema naming and security scheme naming remain a separate OpenAPI naming/schema gap.
 - Persistence identity and internal surrogate-ID exceptions are owned by ADR-0004.

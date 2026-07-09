@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as generic Springmaster API endpoint standard with patch `000046_springmaster_api_endpoint_contract_standard`; query/reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`.
+Accepted as generic Springmaster API endpoint standard with patch `000046_springmaster_api_endpoint_contract_standard`; query/reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`; complete result-set and `/all` export semantics amended by patch `000091_springmaster_list_query_export_all_contract`.
 
 ## Purpose
 
@@ -25,6 +25,7 @@ New Springmaster management APIs use the following canonical resource model:
 | Concern | Canonical shape | Notes |
 |---|---|---|
 | Resource collection | `GET /api/<domain>/<resources>` | paged list for UI-capable tables |
+| Complete result set | `GET /api/<domain>/<resources>/all` | unpaged complete result set for frontend export, backend batch and integration consumers |
 | Resource detail | `GET /api/<domain>/<resources>/{id}` | detail by opaque external string id |
 | Create resource | `POST /api/<domain>/<resources>` | create a new canonical resource |
 | Update resource | `PUT /api/<domain>/<resources>/{id}` | update/replace the resource identified by the path |
@@ -38,7 +39,7 @@ New Springmaster management APIs use the following canonical resource model:
 
 `/list` is not the canonical path for new Springmaster reference APIs. It may exist in existing applications or as a transitional compatibility path, but Catalog-demo must use the collection path for the canonical paged list.
 
-`/all` is not the canonical path for new unpaged APIs. Unbounded all-data endpoints are prohibited for management collections. A bounded selector endpoint should use `/options`; a richer read-only reference-data endpoint may use `/reference-data` when an ADR defines the response shape.
+`/all` is canonical only when it implements the Springmaster complete-result-set contract: same documented filters and sorting as the paged collection endpoint, no public `page`/`size` pagination, complete filtered and authorized result, and no silent truncation. Ambiguous, selector-like or undocumented `/all` endpoints remain non-canonical. A bounded selector endpoint uses `/options`; a richer bounded read-only reference-data endpoint may use `/reference-data` when an ADR defines the response shape.
 
 ## Paged list endpoint
 
@@ -64,6 +65,31 @@ Controllers must not expose raw Spring `Page<T>` or raw `Pageable` as the public
 
 Invalid query values must return `400 Bad Request`. Unsupported `sortBy` fields, unsupported `sortDir` values, negative page values and page sizes above the configured maximum must not be silently ignored.
 
+
+## Complete result-set endpoint
+
+A management collection that is used for frontend export, backend batch processing or service-to-service integration must expose a complete-result-set access mode when consumers need the whole matching result without public API pagination.
+
+Canonical endpoint for simple GET-queryable collections:
+
+`GET /api/<domain>/<resources>/all`
+
+Canonical query parameters:
+
+| Parameter | Required | Standard |
+|---|---:|---|
+| `sortBy` | no | same public sort-field allowlist as the paged list |
+| `sortDir` | no | same `asc`/`desc` semantics as the paged list |
+| endpoint filters | no | same documented filter names and matching behavior as the paged list |
+
+`page` and `size` are not part of the `/all` contract. The endpoint must not silently cap the result at the public maximum page size. Supplying `page` or `size` to `/all` should return `400 Bad Request` unless a project-specific ADR explicitly keeps those parameters as ignored compatibility vocabulary.
+
+The endpoint returns all matching public list-item DTOs or a documented export DTO as a JSON array. Empty result sets return `200 OK` with `[]`.
+
+The implementation may process data internally in chunks, streams, cursors or repository pages, but the public response must be complete. Operational failures must use the standard API error contract and must not be returned as partial success.
+
+For complex search DTOs, the complete access mode is `POST /api/<domain>/<resources>/search/all` unless an ADR defines an asynchronous export/job resource.
+
 ## Bounded options and reference-data endpoints
 
 Springmaster separates management lists from bounded selector/reference endpoints.
@@ -72,7 +98,7 @@ Use `/options` when the endpoint returns a small bounded set for a UI selector, 
 
 Use `/reference-data` only when the endpoint returns a stable read model that is broader than simple options and an ADR documents why the result set is bounded and cacheable.
 
-Do not use `/all` for new canonical APIs unless a project-specific ADR justifies it. `/all` is considered compatibility vocabulary, not a Springmaster reference pattern.
+Do not use `/options` or `/reference-data` as a hidden export endpoint. Complete management-result retrieval uses `/all` and must satisfy the complete-result-set contract.
 
 ## Detail by external id
 
@@ -305,6 +331,7 @@ Minimum operationId convention for new Springmaster APIs:
 |---|---|
 | paged list | `list<ResourcePlural>` |
 | options | `list<ResourcePlural>Options` |
+| complete result set | `listAll<ResourcePlural>` |
 | detail | `get<ResourceSingular>ById` |
 | alternate lookup | `get<ResourceSingular>By<Key>` |
 | create | `create<ResourceSingular>` |
@@ -326,7 +353,7 @@ Catalog-demo may implement `CatalogItem` only as a standard-conformant reference
 - update uses path identity and explicit version policy if needed,
 - delete is bodyless and returns the standard status behavior,
 - SKU or other business-key lookup is modeled as alternate lookup and not as resource identity unless decided explicitly,
-- options/reference data is bounded and separated from paged management list, `/all` is not introduced for new canonical APIs,
+- options/reference data is bounded and separated from management result-set retrieval, and any `/all` endpoint implements the complete-result-set contract,
 - no public `findOne`, `findFirst` or `findLast` endpoint vocabulary is introduced,
 - OpenAPI gates can later inspect the endpoint matrix,
 - failure responses follow the standard API error contract.

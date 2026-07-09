@@ -81,7 +81,7 @@ The first reusable OpenAPI gate should check stable facts that are visible in ge
 
 | Standard area | Candidate checks |
 |---|---|
-| Endpoint contract | canonical paths exist; public `findOne`, `findFirst`, `findLast` endpoints are absent; `/options` is bounded selector vocabulary; `/all` is not introduced for unbounded collections |
+| Endpoint contract | canonical paths exist; public `findOne`, `findFirst`, `findLast` endpoints are absent; `/options` is bounded selector vocabulary; `/all` is accepted only as documented complete-result-set vocabulary |
 | HTTP methods | create uses `POST`; full update uses `PUT`; optional partial update uses `PATCH`; single delete uses bodyless `DELETE`; structured commands use `POST` or idempotent `PUT` |
 | Request bodies | JSON write endpoints declare request bodies where required; single delete has no request body; body-bearing `DELETE` is absent |
 | Required fields | create/update/command DTO schemas expose required fields according to Bean Validation and OpenAPI rules |
@@ -214,7 +214,7 @@ The readiness plan is the first G5 Catalog-demo reference gate artifact. It does
 
 ## Query and reference-data consistency since 000058
 
-Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 gate-blocking consistency gap. Query gates must treat `sortBy` as canonical, `sort` as non-canonical for new reference APIs, `/options` as the bounded selector vocabulary and `/reference-data` as ADR-backed broader bounded reference data. `/all` must be absent from new Catalog-demo reference APIs unless a Springmaster ADR explicitly accepts the exception.
+Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 gate-blocking consistency gap. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export/batch use cases. Query gates must treat `sortBy` as canonical, `sort` as non-canonical for new reference APIs, `/all` as the complete-result-set vocabulary, `/options` as the bounded selector vocabulary and `/reference-data` as ADR-backed broader bounded reference data. Ambiguous or silently capped `/all` endpoints remain gate findings.
 
 
 ## Error identity and status-code gate readiness since 000059
@@ -303,7 +303,7 @@ Patch `000067_springmaster_report_only_gate_seed_plan` adds the first concrete r
 API gate impact:
 
 - G1 HTTP vocabulary and query-parameter diagnostics are the preferred first API contract checks;
-- body-bearing single `DELETE`, public `findOne`/`findFirst`/`findLast` vocabulary, `/all`, `/options`, `sortBy`, generated `arg0`/`arg1` parameter names and status/error evidence are first-scope candidates;
+- body-bearing single `DELETE`, public `findOne`/`findFirst`/`findLast` vocabulary, complete-result-set `/all`, bounded `/options`, `sortBy`, generated `arg0`/`arg1` parameter names and status/error evidence are first-scope candidates;
 - findings remain non-blocking in report-only mode;
 - target-project API comparison remains excluded from the first seed;
 - strict API gates require a later explicit promotion patch under ADR-0006.
@@ -344,7 +344,7 @@ Gate impact:
 
 - G1 query diagnostics may treat the candidate endpoint contract as the expected future evidence for `page`, `size`, `sortBy` and `sortDir`;
 - G1 status/error diagnostics may treat standard error bodies, create `201`, update `200`, delete `204` and not-found `404` as candidate evidence targets;
-- `/all`, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice;
+- ambiguous `/all`, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice; complete-result-set `/all` requires explicit evidence before export-ready promotion;
 - G5 must not mark the slice canonical merely because the candidate contract is implemented;
 - strict API gates remain deferred under ADR-0006.
 
