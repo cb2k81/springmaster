@@ -23,14 +23,15 @@ The previous implementation state remains relevant only as historical `legacy-de
 
 | Operation | Method and path | Status evidence | Notes |
 |---|---|---:|---|
-| Paged list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=` | `200` | Returns `PagedResponseDTO<CatalogItemListItemDTO>`. |
+| Paged list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=&sku=&name=` | `200` / `400` | Returns `PagedResponseDTO<CatalogItemListItemDTO>` with filtered `totalElements`. |
+| Complete result set | `GET /api/demo/catalog/items/all?sortBy=&sortDir=&sku=&name=` | `200` / `400` | Returns all matching `CatalogItemListItemDTO` rows without public `page`/`size` truncation. |
 | Detail by opaque ID | `GET /api/demo/catalog/items/{id}` | `200` / `404` | Public resource identity is `id`. |
 | Lookup by SKU | `GET /api/demo/catalog/items/by-sku/{sku}` | `200` / `404` | `sku` remains an explicit business key. |
 | Create | `POST /api/demo/catalog/items` | `201` | `Location` points to `/{id}`, not `/{sku}`. |
 | Full update | `PUT /api/demo/catalog/items/{id}` | `200` / `404` | SKU is immutable in the first candidate foundation. |
 | Single delete | `DELETE /api/demo/catalog/items/{id}` | `204` / `404` | Bodyless single delete. |
 
-Out of scope for this slice: `/all`, `/list`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, delete-multiple, complex search, relationship endpoints, lifecycle commands, `/reference-data`, and `/options`.
+Out of scope for this slice: `/list`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, delete-multiple, complex search with request body, relationship endpoints, lifecycle commands, `/reference-data`, and `/options`.
 
 ## DTO evidence
 
@@ -48,19 +49,32 @@ Out of scope for this slice: `/all`, `/list`, public `findOne`/`findFirst`/`find
 
 ## Query evidence
 
-The list endpoint exposes the canonical public query vocabulary:
+The paged list endpoint exposes the canonical public query vocabulary:
 
 - `page`;
 - `size`;
 - `sortBy`;
-- `sortDir`.
+- `sortDir`;
+- explicit filter `sku`;
+- explicit filter `name`.
+
+The complete result-set endpoint `/all` exposes the same filter and sort vocabulary but intentionally does not expose public `page` or `size` parameters. It is the CatalogItem reference evidence for frontend export, backend batch and service-to-service consumers that need all matching rows.
+
+Filter semantics:
+
+| Filter | Semantics | Empty value |
+|---|---|---|
+| `sku` | exact case-insensitive business-key match | ignored |
+| `name` | case-insensitive substring match | ignored |
 
 The first candidate sort allow-list is intentionally small:
 
 - `sku`;
 - `name`.
 
-Unsupported `sortBy` values produce `400 Bad Request` with standard error-body evidence.
+Unsupported `sortBy` and unsupported `sortDir` values produce `400 Bad Request` with standard error-body evidence. Invalid `page` or `size` values on the paged endpoint also produce `400 Bad Request`.
+
+List and `/all` use the same in-memory query pipeline for filters and sorting. The paged response uses the filtered result size for `totalElements` and `totalPages`. Empty matching result sets return `200 OK` with `items: []`, `totalElements: 0`, `totalPages: 0`; `/all` returns `200 OK` with an empty JSON array.
 
 ## Identity evidence
 
@@ -219,3 +233,18 @@ Current evidence:
 
 Expected report-only findings remain `8`: six positive G0 rule-source findings, one positive create-status finding and one expected G4 deferred-security warning.
 
+## List query export/all reference status after 000092
+
+Patch `000092_springmaster_catalogitem_list_query_export_all_reference_slice` implements the documented list-query/export-all contract in the `CatalogItem` candidate slice.
+
+Current evidence:
+
+- paged list and `/all` share one service-side filter/sort pipeline;
+- public filters are explicit and documented (`sku`, `name`);
+- paged list keeps `totalElements` and `totalPages` consistent with the filtered result set;
+- `/all` returns the complete matching result set without public `page`/`size` parameters;
+- empty paged and `/all` responses are covered;
+- invalid paging and sort direction requests are covered by standard error-body tests;
+- `PagedQuerySupport` is reused for paging and sort-direction validation.
+
+The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.

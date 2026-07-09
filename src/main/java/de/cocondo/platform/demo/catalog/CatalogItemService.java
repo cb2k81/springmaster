@@ -2,6 +2,7 @@ package de.cocondo.platform.demo.catalog;
 
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.list.PagedQuerySupport;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -16,10 +17,10 @@ import org.springframework.stereotype.Service;
 public class CatalogItemService {
 
     public static final int DEFAULT_PAGE_SIZE = 20;
-    public static final int MAX_PAGE_SIZE = 200;
 
     private final CatalogItemValidator validator = new CatalogItemValidator();
     private final CatalogItemMapper mapper = new CatalogItemMapper();
+    private final PagedQuerySupport pagedQuerySupport = new PagedQuerySupport();
     private final Map<String, CatalogItem> itemsById = new LinkedHashMap<>();
     private final Map<String, CatalogItem> itemsBySku = new LinkedHashMap<>();
 
@@ -61,32 +62,51 @@ public class CatalogItemService {
         return Optional.ofNullable(itemsBySku.get(skuKey(sku))).map(mapper::toDto);
     }
 
-    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(int page, int size, String sortBy, String sortDir) {
-        validatePage(page);
-        int resolvedSize = resolveSize(size);
-        Comparator<CatalogItem> comparator = comparator(resolveSortBy(sortBy));
-        if (resolveSortDirection(sortDir) == Sort.Direction.DESC) {
-            comparator = comparator.reversed();
-        }
+    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(
+            int page,
+            int size,
+            String sortBy,
+            String sortDir
+    ) {
+        return listPaged(page, size, sortBy, sortDir, null, null);
+    }
 
-        List<CatalogItem> sorted = new ArrayList<>(itemsById.values());
-        sorted.sort(comparator.thenComparing(CatalogItem::getId));
+    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(
+            int page,
+            int size,
+            String sortBy,
+            String sortDir,
+            String sku,
+            String name
+    ) {
+        pagedQuerySupport.validatePaging(page, size);
 
-        int fromIndex = Math.min(page * resolvedSize, sorted.size());
-        int toIndex = Math.min(fromIndex + resolvedSize, sorted.size());
-        List<CatalogItemListItemDTO> items = sorted.subList(fromIndex, toIndex).stream()
+        List<CatalogItem> matching = matchingSortedItems(sortBy, sortDir, sku, name);
+        int fromIndex = Math.min(page * size, matching.size());
+        int toIndex = Math.min(fromIndex + size, matching.size());
+        List<CatalogItemListItemDTO> items = matching.subList(fromIndex, toIndex).stream()
                 .map(mapper::toListItemDto)
                 .toList();
 
         PagedResponseDTO<CatalogItemListItemDTO> response = new PagedResponseDTO<>();
         response.setItems(items);
         response.setPage(page);
-        response.setSize(resolvedSize);
-        response.setTotalElements(sorted.size());
-        response.setTotalPages(totalPages(sorted.size(), resolvedSize));
+        response.setSize(size);
+        response.setTotalElements(matching.size());
+        response.setTotalPages(totalPages(matching.size(), size));
         return response;
     }
 
+    public synchronized List<CatalogItemListItemDTO> listAll(
+            String sortBy,
+            String sortDir,
+            String sku,
+            String name
+    ) {
+        return matchingSortedItems(sortBy, sortDir, sku, name).stream()
+                .map(mapper::toListItemDto)
+                .toList();
+    }
 
     public synchronized void clear() {
         itemsById.clear();
@@ -108,20 +128,36 @@ public class CatalogItemService {
         return sku.trim().toUpperCase(Locale.ROOT);
     }
 
-    private void validatePage(int page) {
-        if (page < 0) {
-            throw new IllegalArgumentException("page must be >= 0");
+    private List<CatalogItem> matchingSortedItems(String sortBy, String sortDir, String sku, String name) {
+        String resolvedSortBy = resolveSortBy(sortBy);
+        Sort.Direction resolvedSortDirection = pagedQuerySupport.resolveSortDirection(sortDir);
+        Comparator<CatalogItem> comparator = comparator(resolvedSortBy);
+        if (resolvedSortDirection == Sort.Direction.DESC) {
+            comparator = comparator.reversed();
         }
+
+        List<CatalogItem> matching = new ArrayList<>(itemsById.values()).stream()
+                .filter(item -> matchesSku(item, sku))
+                .filter(item -> matchesName(item, name))
+                .toList();
+        return matching.stream()
+                .sorted(comparator.thenComparing(CatalogItem::getId))
+                .toList();
     }
 
-    private int resolveSize(int size) {
-        if (size <= 0) {
-            throw new IllegalArgumentException("size must be > 0");
+    private boolean matchesSku(CatalogItem item, String sku) {
+        if (sku == null || sku.isBlank()) {
+            return true;
         }
-        if (size > MAX_PAGE_SIZE) {
-            throw new IllegalArgumentException("size must be <= " + MAX_PAGE_SIZE);
+        return item.getSku() != null && item.getSku().equalsIgnoreCase(sku.trim());
+    }
+
+    private boolean matchesName(CatalogItem item, String name) {
+        if (name == null || name.isBlank()) {
+            return true;
         }
-        return size;
+        return item.getName() != null
+                && item.getName().toLowerCase(Locale.ROOT).contains(name.trim().toLowerCase(Locale.ROOT));
     }
 
     private String resolveSortBy(String sortBy) {
@@ -133,17 +169,6 @@ public class CatalogItemService {
             return normalized;
         }
         throw new IllegalArgumentException("Unsupported sortBy: " + sortBy);
-    }
-
-    private Sort.Direction resolveSortDirection(String sortDir) {
-        if (sortDir == null || sortDir.isBlank()) {
-            return Sort.Direction.ASC;
-        }
-        return switch (sortDir.toLowerCase(Locale.ROOT)) {
-            case "asc" -> Sort.Direction.ASC;
-            case "desc" -> Sort.Direction.DESC;
-            default -> throw new IllegalArgumentException("Unsupported sortDir: " + sortDir);
-        };
     }
 
     private Comparator<CatalogItem> comparator(String sortBy) {
@@ -161,5 +186,3 @@ public class CatalogItemService {
         return (int) Math.ceil((double) totalElements / pageSize);
     }
 }
-
-

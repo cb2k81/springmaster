@@ -42,6 +42,34 @@ class CatalogItemServiceTest {
     }
 
     @Test
+    void appliesSameFiltersToPagedAndAllQueries() {
+        service.create(new CatalogItemCreateDTO("SKU-2", "Beta", null));
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Alpine", null));
+
+        PagedResponseDTO<CatalogItemListItemDTO> paged = service.listPaged(0, 1, "sku", "ASC", null, "alp");
+        var all = service.listAll("sku", "ASC", null, "alp");
+
+        assertThat(paged.getItems()).hasSize(1);
+        assertThat(paged.getItems().getFirst().getSku()).isEqualTo("SKU-1");
+        assertThat(paged.getTotalElements()).isEqualTo(2);
+        assertThat(paged.getTotalPages()).isEqualTo(2);
+        assertThat(all).extracting(CatalogItemListItemDTO::getSku).containsExactly("SKU-1", "SKU-3");
+    }
+
+    @Test
+    void returnsEmptyResultsForUnmatchedFilters() {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));
+
+        PagedResponseDTO<CatalogItemListItemDTO> paged = service.listPaged(0, 20, "sku", "ASC", "SKU-X", null);
+
+        assertThat(paged.getItems()).isEmpty();
+        assertThat(paged.getTotalElements()).isZero();
+        assertThat(paged.getTotalPages()).isZero();
+        assertThat(service.listAll("sku", "ASC", "SKU-X", null)).isEmpty();
+    }
+
+    @Test
     void updatesCatalogItemWithoutChangingSku() {
         CatalogItemDTO created = service.create(new CatalogItemCreateDTO("SKU-1", "Demo Item", null));
 
@@ -104,5 +132,3 @@ class CatalogItemServiceTest {
                 .hasMessageContaining("id");
     }
 }
-
-

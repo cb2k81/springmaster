@@ -49,9 +49,21 @@ public class CatalogItemController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sortBy", defaultValue = "sku") String sortBy,
-            @RequestParam(name = "sortDir", defaultValue = "ASC") String sortDir
+            @RequestParam(name = "sortDir", defaultValue = "ASC") String sortDir,
+            @RequestParam(name = "sku", required = false) String sku,
+            @RequestParam(name = "name", required = false) String name
     ) {
-        return service.listPaged(page, size, sortBy, sortDir);
+        return service.listPaged(page, size, sortBy, sortDir, sku, name);
+    }
+
+    @GetMapping("/all")
+    public List<CatalogItemListItemDTO> listAll(
+            @RequestParam(name = "sortBy", defaultValue = "sku") String sortBy,
+            @RequestParam(name = "sortDir", defaultValue = "ASC") String sortDir,
+            @RequestParam(name = "sku", required = false) String sku,
+            @RequestParam(name = "name", required = false) String name
+    ) {
+        return service.listAll(sortBy, sortDir, sku, name);
     }
 
     @PostMapping

@@ -72,6 +72,60 @@ class CatalogItemControllerTest {
     }
 
     @Test
+    void listsCatalogItemsWithFiltersAndFilteredTotalElements() throws Exception {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-2", "Alphabetic Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Beta Item", null));
+
+        mockMvc.perform(get("/api/demo/catalog/items")
+                        .param("page", "0")
+                        .param("size", "1")
+                        .param("sortBy", "sku")
+                        .param("sortDir", "ASC")
+                        .param("name", "alpha"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items", hasSize(1)))
+                .andExpect(jsonPath("$.items[0].sku").value("SKU-1"))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2));
+    }
+
+    @Test
+    void listsAllCatalogItemsWithSameFiltersAndSortWithoutPagingEnvelope() throws Exception {
+        service.create(new CatalogItemCreateDTO("SKU-2", "Alpha Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alphabetic Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Beta Item", null));
+
+        mockMvc.perform(get("/api/demo/catalog/items/all")
+                        .param("sortBy", "sku")
+                        .param("sortDir", "ASC")
+                        .param("name", "alpha"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].sku").value("SKU-1"))
+                .andExpect(jsonPath("$[1].sku").value("SKU-2"));
+    }
+
+    @Test
+    void returnsEmptyPagedAndAllResponsesForFiltersWithoutMatches() throws Exception {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha Item", null));
+
+        mockMvc.perform(get("/api/demo/catalog/items")
+                        .param("sku", "SKU-DOES-NOT-EXIST"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items", hasSize(0)))
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        mockMvc.perform(get("/api/demo/catalog/items/all")
+                        .param("sku", "SKU-DOES-NOT-EXIST"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
     void createsCatalogItemWithOpaqueIdLocation() throws Exception {
         CatalogItemCreateDTO payload = new CatalogItemCreateDTO(" SKU-1 ", "Demo Item", "Description");
         payload.setTags(new LinkedHashSet<>(Set.of("demo", "catalog")));
@@ -218,6 +272,27 @@ class CatalogItemControllerTest {
     }
 
     @Test
+    void returnsBadRequestForInvalidPagingAndSortDirection() throws Exception {
+        mockMvc.perform(get("/api/demo/catalog/items")
+                        .param("page", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("page")));
+
+        mockMvc.perform(get("/api/demo/catalog/items")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("size")));
+
+        mockMvc.perform(get("/api/demo/catalog/items/all")
+                        .param("sortDir", "sideways"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("sortDir")));
+    }
+
+    @Test
     void returnsConflictForDuplicateSkuWithStandardErrorBody() throws Exception {
         service.create(new CatalogItemCreateDTO("SKU-1", "Demo Item", null));
         CatalogItemCreateDTO payload = new CatalogItemCreateDTO("sku-1", "Other Item", null);
@@ -251,5 +326,3 @@ class CatalogItemControllerTest {
                 .andExpect(jsonPath("$.sku").value("SKU-1"));
     }
 }
-
-
