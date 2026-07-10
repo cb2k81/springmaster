@@ -69,7 +69,7 @@ Implemented diagnostics include:
 | Gate | Rule examples | Source |
 |---|---|---|
 | `SM-G0-RULE-SOURCE-COVERAGE` | required accepted ADR rule sources are present | `ADR-0006` |
-| `SM-G1-HTTP-VOCABULARY` | `/all`, `/options`, `findOne`/`findFirst`/`findLast` path vocabulary hints | `ADR-0002` |
+| `SM-G1-HTTP-VOCABULARY` | ambiguous `/all`, bounded `/options`, `findOne`/`findFirst`/`findLast` path vocabulary hints; complete-result-set `/all` must be classified separately | `ADR-0002` |
 | `SM-G1-QUERY-PARAMETERS` | `sort` versus `sortBy`, missing Catalog-demo query evidence | `ADR-0002` |
 | `SM-G1-STATUS-ERROR-CONTRACT` | status-code and ad-hoc error response evidence | `ADR-0002` |
 | `SM-G3-APPLICATION-BOUNDARY-HINTS` | controller repository/transaction hints and mapper dependency hints | `ADR-0003` |

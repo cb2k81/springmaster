@@ -146,7 +146,7 @@ The next high-priority work after 000057 is gap closure. Gate tooling should wai
 
 ## Query and Reference Data Consistency Standard since 000058
 
-Patch `000058_springmaster_api_query_reference_data_consistency_standard` adds `PROJECT_DOCS/STANDARDS/API/API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md`. It closes the first P0 consistency gap from the 000057 review by making `sortBy` the canonical sorting parameter for new reference APIs, treating `sort` as legacy/target-comparison vocabulary, using `/options` for bounded selector data, allowing `/reference-data` only with ADR-backed semantics and marking `/all` as non-canonical for Catalog-demo and new Springmaster-generated APIs.
+Patch `000058_springmaster_api_query_reference_data_consistency_standard` adds `PROJECT_DOCS/STANDARDS/API/API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md`. It closes the first P0 consistency gap from the 000057 review by making `sortBy` the canonical sorting parameter for new reference APIs, treating `sort` as legacy/target-comparison vocabulary, using `/options` for bounded selector data and allowing `/reference-data` only with ADR-backed semantics. Patch `000091_springmaster_list_query_export_all_contract` amends the `/all` part: documented complete-result-set `/all` endpoints are canonical for frontend export, backend batch and integration consumers; ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical.
 
 The next high-priority gap work can now focus on OpenAPI naming, error operational semantics, ADR consolidation, test strategy, configuration/profile standards, database migration standards and observability.
 
@@ -268,3 +268,16 @@ Patch `000082_springmaster_command_precheck_capability_standard` adds the API st
 The standard defines optional backend command prechecks as side-effect-free capability queries for concrete commands. It keeps command policy in the backend, requires precheck and execution to share the same policy/guard and avoids mandatory per-row prechecks for list or bulk UIs.
 
 This patch is logical Springmaster standardization only. It does not supply IDM, Personnel or other target projects.
+
+## `/all` documentation consistency since 000097
+
+Patch `000097_springmaster_all_contract_documentation_consistency_sweep` aligns older ADR-gap, readiness and gate-planning wording with the current `/all` decision from `000091`.
+
+The canonical distinction is now:
+
+- `GET /api/<domain>/<resources>` for paged management lists,
+- `GET /api/<domain>/<resources>/all` for complete matching result sets used by frontend export, backend batch and integration consumers,
+- `GET /api/<domain>/<resources>/options` for bounded selector data,
+- ADR-backed `/reference-data` for broader bounded reference models.
+
+Only ambiguous, selector-like, undocumented or silently capped `/all` endpoints are non-canonical.

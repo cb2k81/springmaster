@@ -236,7 +236,7 @@ Catalog-demo remains the intended first reference project, but the existing Cata
 Blocking readiness implications:
 
 - the canonical list query contract uses `sortBy` and `sortDir`;
-- `/all` is non-canonical, `/options` is the bounded selector endpoint, and `/reference-data` requires a dedicated ADR before it appears in Catalog-demo;
+- ambiguous `/all` remains non-canonical; explicit complete-result-set `/all` is canonical for export, batch and integration access; `/options` is the bounded selector endpoint, and `/reference-data` requires a dedicated ADR before it appears in Catalog-demo;
 - the first canonical CatalogItem slice must not inherit non-standard behavior from the legacy seed;
 - deferred security must include minimum documented evidence;
 - OpenAPI naming and schema conventions must be defined before strict OpenAPI gates.
@@ -244,7 +244,7 @@ Blocking readiness implications:
 
 ## Query/reference-data consistency since 000058
 
-The first CatalogItem slice must use `sortBy` and `sortDir` as the public sorting parameters. `sort` is not allowed as the canonical Catalog-demo parameter. Catalog-demo must not introduce `/all`. It may introduce `/options` only for a documented bounded selector use case, and it must not introduce `/reference-data` without a dedicated ADR.
+The first CatalogItem slice must use `sortBy` and `sortDir` as the public sorting parameters. `sort` is not allowed as the canonical Catalog-demo parameter. Catalog-demo may introduce `/all` only as a documented complete-result-set endpoint paired with the paged list, using the same filter and sort vocabulary and no public `page`/`size` truncation. It may introduce `/options` only for a documented bounded selector use case, and it must not introduce `/reference-data` without a dedicated ADR.
 
 
 ## Error identity and status-code consistency since 000059
@@ -309,7 +309,7 @@ Readiness impact:
 
 - the next CatalogItem implementation patch must be labeled `candidate-reference-slice`, not `canonical-reference-slice`;
 - the candidate endpoint contract is create, paged list, detail by opaque `id`, lookup by `sku`, full update and bodyless delete;
-- `/all`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, `/reference-data`, delete-multiple, complex search and relationship endpoints remain out of scope;
+- ambiguous `/all`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, `/reference-data`, delete-multiple, complex search and relationship endpoints remain out of scope; explicit complete-result-set `/all` may be introduced only with dedicated evidence;
 - the candidate slice must use `page`, `size`, `sortBy` and `sortDir` for list queries;
 - errors must use the Springmaster standard error body with `errorId`;
 - security may be `documented-deferred-security` only when endpoint classification and intended permissions are recorded;
@@ -380,3 +380,14 @@ The `CatalogItem` candidate-reference-slice now has a cleaner public request bou
 
 This improves candidate readiness but does not make Catalog-demo canonical.
 
+## `/all` consistency update since 000097
+
+Patch `000097_springmaster_all_contract_documentation_consistency_sweep` aligns this readiness plan with the current `/all` contract.
+
+Catalog-demo readiness no longer treats every `/all` endpoint as non-canonical. The readiness rule is:
+
+- ambiguous, selector-like, undocumented or silently capped `/all` endpoints are non-canonical;
+- complete-result-set `/all` endpoints are canonical when they are paired with a paged list or search query, reuse the same documented filters and sorting, apply the same security/data-scope predicates, expose no public `page`/`size` pagination and do not silently truncate;
+- `/all` is not a replacement for `/options`, `/reference-data` or a paged list.
+
+CatalogItem candidate evidence from `000092` and `000094` demonstrates the complete-result-set variant, but Catalog-demo remains `candidate-reference-slice`, not `canonical-reference-slice`.

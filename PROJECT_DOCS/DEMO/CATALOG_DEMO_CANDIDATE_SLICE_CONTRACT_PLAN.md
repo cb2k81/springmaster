@@ -89,6 +89,7 @@ The candidate slice should expose the following public API shape.
 |---|---|---|---|
 | Paged list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=` | `200 OK` with `PagedResponseDTO<CatalogItemListItemDTO>` or equivalent Springmaster envelope | mandatory |
 | Detail by public ID | `GET /api/demo/catalog/items/{id}` | `200 OK` with `CatalogItemDTO`; `404` when absent | mandatory |
+| Complete result set | `GET /api/demo/catalog/items/all?sortBy=&sortDir=&sku=&name=` | `200 OK` with `List<CatalogItemListItemDTO>` or documented export DTO array | mandatory when export/batch evidence is in scope; implemented after `000092` |
 | Lookup by SKU | `GET /api/demo/catalog/items/by-sku/{sku}` | `200 OK` with `CatalogItemDTO`; `404` when absent | mandatory as business-key lookup evidence |
 | Create | `POST /api/demo/catalog/items` | `201 Created` with `CatalogItemDTO`; `Location` points to `/{id}` | mandatory |
 | Full update | `PUT /api/demo/catalog/items/{id}` | `200 OK` with updated `CatalogItemDTO`; `404` when absent | mandatory |
@@ -96,7 +97,7 @@ The candidate slice should expose the following public API shape.
 
 The following endpoint shapes are explicitly out of scope for the candidate slice:
 
-- `/all`;
+- ambiguous, selector-like, undocumented or silently capped `/all`;
 - `/list` as a new Springmaster endpoint;
 - body-bearing single `DELETE`;
 - public `findOne`, `findFirst` or `findLast` vocabulary;
@@ -259,7 +260,7 @@ The next code patch should include tests or verifiable evidence for at least:
 - lookup by `sku` returns `200` or `404`;
 - full update returns `200` and does not bypass validation;
 - delete by `id` returns `204` and subsequent detail returns `404`;
-- unsupported/non-canonical endpoint shapes such as `/all` are not introduced;
+- unsupported/non-canonical endpoint shapes such as ambiguous or selector-like `/all` are not introduced; complete-result-set `/all` is allowed only with explicit evidence;
 - gate report still runs in report-only mode and target-project input remains rejected.
 
 Because the next patch will be code/demo work, it must run Maven tests and the report-only gate validation.
@@ -280,7 +281,7 @@ These deferrals are acceptable for the first candidate slice when recorded in ev
 | relationships and nested aggregate commands | only one resource exists in the first slice |
 | lifecycle state transitions | no lifecycle exists yet |
 
-A deferral is invalid when it introduces a non-canonical replacement. For example, `/all` must not be used as a placeholder for paged list or `/options`.
+A deferral is invalid when it introduces a non-canonical replacement. For example, `/all` must not be used as a placeholder for paged list or `/options`. `/all` is valid only when it implements the complete-result-set contract for export, batch or integration consumers.
 
 ## Acceptance criteria for the next implementation patch
 
@@ -292,7 +293,7 @@ The next implementation patch should be accepted only when all of the following 
 4. DTO roles are explicit.
 5. Errors use the standard error contract.
 6. Query parameters use `sortBy`, not canonical `sort`.
-7. `/all` is absent.
+7. Ambiguous or selector-like `/all` is absent; complete-result-set `/all` is present only when paired with documented filter/sort evidence and no public `page`/`size` truncation.
 8. Bodyless delete is present.
 9. Security classification evidence exists.
 10. Candidate evidence is recorded.
@@ -346,3 +347,12 @@ Remaining alignment work before canonical promotion:
 - G5 report-only detection alignment so candidate evidence is no longer reported as pure legacy seed state.
 
 These items are assigned to the recommended next patch `000074_springmaster_catalog_demo_candidate_slice_alignment`.
+
+## `/all` contract consistency update since 000097
+
+This planning document originally predated the accepted complete-result-set contract. It now distinguishes two cases:
+
+- Ambiguous `/all` remains out of scope and non-canonical.
+- Complete-result-set `/all` is canonical when it is paired with the paged list, reuses the same documented filters and sorting, exposes no public `page`/`size`, returns all matching authorized rows and does not silently truncate.
+
+CatalogItem now implements this second case as candidate evidence through `GET /api/demo/catalog/items/all`.

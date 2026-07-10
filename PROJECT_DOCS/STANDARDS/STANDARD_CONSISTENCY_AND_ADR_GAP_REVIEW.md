@@ -57,7 +57,7 @@ The remaining risk is not lack of direction. The risk is that a tooling seed wou
 
 | Area | Current maturity | Verdict |
 |---|---|---|
-| API endpoint shapes | high documentation maturity | query naming and `/all` handling resolved by 000058; remaining OpenAPI naming and error/test strategy gaps stay open |
+| API endpoint shapes | high documentation maturity | query naming resolved by 000058 and complete-result-set `/all` amended by 000091; remaining OpenAPI naming and error/test strategy gaps stay open |
 | DTO and validation boundary | high documentation maturity | accepted; ready for later reflection/OpenAPI/MockMvc gates |
 | API error contract | good documentation maturity | needs trace/correlation/message-key operational details |
 | Application-layer boundary | good documentation maturity | accepted; ready for later Java boundary scans |
@@ -107,21 +107,21 @@ Reasoning:
 
 `sortBy` is explicit, readable for generated OpenAPI and consistent with the existing IDM/Personnel API-readiness vocabulary observed during the real-app comparison. It also distinguishes the selected field from a complete sort expression.
 
-### GAP-API-LIST-002: `/all` versus `/options` and `/reference-data` - resolved by 000058
+### GAP-API-LIST-002: `/all` versus `/options` and `/reference-data` - resolved by 000058, amended by 000091
 
 Status: `blocking-gate-tooling`
 
 Finding:
 
-The older list/filter/query material still mentions `/all` as a possible all-data endpoint. The newer endpoint standard rejects `/all` as canonical for new unbounded APIs and prefers `/options` for bounded selector data or `/reference-data` only with ADR-backed semantics.
+The older list/filter/query material mentioned `/all` as a possible all-data endpoint without a precise contract. Patch `000058` rejected that ambiguous use and separated paged management collections, bounded selector data and ADR-backed reference data. Patch `000091` later accepts `/all` again, but only as an explicit complete-result-set contract for frontend export, backend batch and integration consumers.
 
-Recommended resolution:
+Current resolution:
 
-* Mark `/all` as non-canonical for new Springmaster reference APIs.
 * Use `GET /api/<domain>/<resources>` for paged management collections.
+* Use `GET /api/<domain>/<resources>/all` only for a complete matching result set with the same documented filters, sorting, security and data-scope predicates as the paged collection and without public `page`/`size` truncation.
 * Use `GET /api/<domain>/<resources>/options` for small selector data.
 * Allow `/reference-data` only when an ADR defines why the result set is bounded, stable and cacheable.
-* Require any `/all` endpoint in future target-project comparison to be reported as legacy or ADR-backed exception.
+* Require any `/all` endpoint in future target-project comparison to be classified as `complete-result-set-contract`, `ambiguous-legacy-all`, `selector-like-all`, `silently-capped-all` or another documented compatibility category.
 
 ### GAP-API-ERROR-003: Error identifiers and correlation semantics
 
@@ -297,7 +297,7 @@ The following specifications are still needed for a reliable Springmaster backen
 
 | Priority | Specification | Reason |
 |---|---|---|
-| P0 | API query canonicalization addendum | resolved by 000058; `sortBy`, `/options`, ADR-backed `/reference-data` and non-canonical `/all` are now defined |
+| P0 | API query canonicalization addendum | resolved by 000058 and amended by 000091; `sortBy`, `/options`, ADR-backed `/reference-data`, complete-result-set `/all` and non-canonical ambiguous `/all` are now defined |
 | P0 | ADR governance and standards-to-ADR mapping | converts documented standards into durable decisions |
 | P0 | OpenAPI naming and schema standard | required before reusable OpenAPI assertions |
 | P0 | Test strategy and gate execution standard | required before Maven-bound checks |
@@ -401,7 +401,7 @@ Initial classification:
 | no public `Page<DTO>` response body | ready-for-tooling after Java scan design | accepted DTO boundary rule |
 | required fields visible in OpenAPI | ready-for-tooling after schema naming standard | current standard is valid, schema naming still needed |
 | query parameters `page`, `size`, `sortBy`, `sortDir` | ready-for-tooling | `sortBy` is canonical since 000058; `sort` is legacy/target-comparison vocabulary |
-| `/all` absence | ready-for-tooling | `/all` is non-canonical for new reference APIs since 000058; ADR-backed exceptions remain target-specific |
+| ambiguous `/all` detection | ready-for-tooling | ambiguous, selector-like, undocumented or silently capped `/all` is non-canonical; complete-result-set `/all` is accepted when explicit evidence exists |
 | error body shape | ready-for-tooling | `errorId`, `correlationId`, `traceId`, `messageKey`, `message` and `localMessage` clarified by 000059 |
 | permission classification | demo-only-first | deferred security needs minimum evidence |
 | persistence identity | needs-ADR | internal surrogate-ID exception criteria missing |
@@ -449,7 +449,7 @@ The next phase should not change target projects. It should first close the docu
 
 ## Gap closure update since 000058
 
-Patch `000058_springmaster_api_query_reference_data_consistency_standard` closes the first P0 consistency gap. The canonical query vocabulary for new reference APIs is now `page`, `size`, `sortBy`, `sortDir` plus documented filters. `/all` is non-canonical for new reference APIs; `/options` is the bounded selector vocabulary; `/reference-data` requires ADR-backed semantics.
+Patch `000058_springmaster_api_query_reference_data_consistency_standard` closes the first P0 consistency gap for query vocabulary. Patch `000091_springmaster_list_query_export_all_contract` amends the `/all` decision. The canonical query vocabulary for new reference APIs is now `page`, `size`, `sortBy`, `sortDir` plus documented filters for paged lists; complete-result-set `/all` is canonical for export, batch and integration consumers; ambiguous, selector-like, undocumented or silently capped `/all` remains non-canonical; `/options` is the bounded selector vocabulary; `/reference-data` requires ADR-backed semantics.
 
 This moves the query/reference-data part of the gate matrix from `needs-standard-fix` to `ready-for-tooling`. Remaining P0/P1 gaps include OpenAPI naming, ADR coverage, test strategy, permission catalog, configuration/profile standards, DB migration standards and broader observability implementation standards.
 

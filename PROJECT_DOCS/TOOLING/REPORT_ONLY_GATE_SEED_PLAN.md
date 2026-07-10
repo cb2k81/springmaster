@@ -83,7 +83,7 @@ The first implementation should prefer deterministic, low-risk checks.
 |---|---|---|---|
 | `SM-API-DELETE-BODY-001` | `SM-G1-HTTP-VOCABULARY` | `ERROR` | single-resource `DELETE` appears to require a request body |
 | `SM-API-FIND-VOCAB-001` | `SM-G1-HTTP-VOCABULARY` | `WARNING` | public path segment or operation naming exposes `findOne`, `findFirst` or `findLast` |
-| `SM-API-ALL-ENDPOINT-001` | `SM-G1-HTTP-VOCABULARY` | `WARNING` | `/all` is present in a new reference API candidate |
+| `SM-API-ALL-ENDPOINT-001` | `SM-G1-HTTP-VOCABULARY` | `WARNING` | ambiguous, selector-like, undocumented or silently capped `/all` is present; documented complete-result-set `/all` is expected evidence, not a finding |
 | `SM-API-OPTIONS-001` | `SM-G1-HTTP-VOCABULARY` | `INFO` | `/options` is present and should be bounded selector evidence |
 | `SM-API-SORTBY-001` | `SM-G1-QUERY-PARAMETERS` | `WARNING` | `sort` appears where canonical `sortBy` is expected |
 | `SM-API-ARGNAME-001` | `SM-G1-QUERY-PARAMETERS` | `WARNING` | generated query parameter names like `arg0` or `arg1` appear |

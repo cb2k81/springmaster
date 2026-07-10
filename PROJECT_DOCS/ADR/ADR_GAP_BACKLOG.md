@@ -70,7 +70,7 @@ Accepted decision scope:
 - public endpoint vocabulary;
 - collection/detail/create/update/delete contracts;
 - command and relationship endpoint semantics;
-- `sortBy`, `/options`, non-canonical `/all` and ADR-backed `/reference-data`;
+- `sortBy`, `/options`, explicit complete-result-set `/all`, non-canonical ambiguous `/all`, and ADR-backed `/reference-data`;
 - DTO boundary rules;
 - validation boundary;
 - public API error contract;
@@ -371,7 +371,7 @@ Rules classified as `needs-adr` must not be encoded as strict tooling gates unti
 
 ### 000058 update
 
-`000058_springmaster_api_query_reference_data_consistency_standard` resolves the first API-boundary ADR gap at standard level. A dedicated ADR may still be useful later if Springmaster introduces multi-sort, export endpoints or broad reference-data caching, but the first Catalog-demo and gate-tooling seed can now treat `sortBy`, `/options`, ADR-backed `/reference-data` and non-canonical `/all` as accepted standard decisions.
+`000058_springmaster_api_query_reference_data_consistency_standard` resolved the first API-boundary ADR gap at standard level. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export, batch and integration access: a documented complete-result-set `/all` endpoint is canonical, while ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical. A dedicated ADR may still be useful later if Springmaster introduces multi-sort, asynchronous export jobs or broad reference-data caching, but Catalog-demo and gate-tooling can now treat `sortBy`, `/options`, ADR-backed `/reference-data`, canonical complete-result-set `/all` and non-canonical ambiguous `/all` as distinct accepted standard decisions.
 
 ### 000059 update
 

@@ -88,7 +88,7 @@ The endpoint contract is consistent with `ADR-0002` for the first candidate foun
 - `POST /api/demo/catalog/items` returns `201 Created`;
 - `PUT /api/demo/catalog/items/{id}` returns `200 OK` with the updated DTO;
 - `DELETE /api/demo/catalog/items/{id}` is bodyless and returns `204 No Content`;
-- `/all`, `/list`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, `/reference-data`, delete-multiple, search and relationship endpoints are not introduced.
+- ambiguous `/all`, `/list`, public `findOne`/`findFirst`/`findLast`, body-bearing single `DELETE`, `/reference-data`, delete-multiple, search and relationship endpoints are not introduced. Complete-result-set `/all` is accepted only by later candidate evidence from `000092` and `000094`.
 
 ### Open issue: request DTO uses persistence-facing `Range`
 
@@ -266,4 +266,3 @@ Resolved items:
 | `F-073-003` unpaged service helper | resolved | `CatalogItemService.list()` removed |
 
 Open canonical blockers remain durable persistence, implemented management security, OpenAPI evidence, canonical readiness review, strict-gate decision and target delivery.
-

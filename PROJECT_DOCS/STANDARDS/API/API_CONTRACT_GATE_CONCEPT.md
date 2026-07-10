@@ -344,7 +344,7 @@ Gate impact:
 
 - G1 query diagnostics may treat the candidate endpoint contract as the expected future evidence for `page`, `size`, `sortBy` and `sortDir`;
 - G1 status/error diagnostics may treat standard error bodies, create `201`, update `200`, delete `204` and not-found `404` as candidate evidence targets;
-- ambiguous `/all`, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice; complete-result-set `/all` requires explicit evidence before export-ready promotion;
+- ambiguous `/all`, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice; complete-result-set `/all` is valid when explicit export/batch/integration evidence exists;
 - G5 must not mark the slice canonical merely because the candidate contract is implemented;
 - strict API gates remain deferred under ADR-0006.
 

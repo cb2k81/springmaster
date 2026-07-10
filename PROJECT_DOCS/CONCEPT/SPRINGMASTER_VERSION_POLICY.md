@@ -924,7 +924,7 @@ Reasoning:
 * The patch changes documentation and version metadata only.
 * It resolves the first P0 consistency gap from `000057_springmaster_standard_consistency_and_adr_gap_review`.
 * It makes `sortBy` the canonical Springmaster sorting parameter for new reference APIs and treats `sort` as legacy/target-comparison vocabulary.
-* It harmonizes `/all`, `/options` and `/reference-data`: `/all` is non-canonical for new reference APIs, `/options` is the bounded selector endpoint and `/reference-data` requires ADR-backed semantics.
+* It originally harmonizes `/all`, `/options` and `/reference-data` by treating ambiguous `/all` as non-canonical, `/options` as the bounded selector endpoint and `/reference-data` as ADR-backed semantics. This historical rule is amended by `000091_springmaster_list_query_export_all_contract`: `/all` is canonical when it is an explicit complete-result-set endpoint for frontend export, backend batch or integration consumers and uses the same documented filters, sorting, security and data-scope predicates as the paged list without public `page`/`size` truncation.
 * It updates the API, Catalog-demo readiness, ADR-gap and consistency-review documentation so the first API contract gate tooling seed can rely on a stable query/reference-data vocabulary.
 * It does not introduce Java code, OpenAPI helpers, MockMvc tests, Maven profiles, Tooling changes, Template changes, Core changes, Demo implementation or target-project changes.
 * Existing IDM, Personnel, Contacts, Orders or other target projects are not changed or supplied by this patch.
@@ -1397,3 +1397,15 @@ Begründung:
 * Die neue Core-Funktionalität validiert öffentliche Sort-Allowlists, löst Default-Sort-Felder auf und erzeugt stabile Sortierungen beziehungsweise Comparatoren mit explizitem Tie-Breaker.
 * Der Core bleibt fachfrei: Sort-Felder, fachliche Comparatoren und Tie-Breaker werden von Fachmodulen oder generierten Service-Slices übergeben.
 * Es werden keine Demo-, Tooling-, Template- oder Platform-Update-Versionen erhöht.
+
+
+## `/all` Contract Documentation Consistency Sweep since 000097
+
+`000097_springmaster_all_contract_documentation_consistency_sweep` is documentation-only and does not change platform version metadata.
+
+Reasoning:
+
+* It aligns historical readiness, ADR-gap, standards and gate-planning documents with the current `000091` decision that `/all` is canonical only as an explicit complete-result-set contract.
+* It preserves the historical meaning of older findings: ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical.
+* It clarifies that CatalogItem candidate evidence from `000092` and `000094` now includes `/all` as export/batch/integration result-set evidence while Catalog-demo itself remains `candidate-reference-slice`, not canonical.
+* It changes documentation only; Core, Tooling, Template, Demo implementation and Platform-Update versions remain unchanged.
