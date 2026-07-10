@@ -42,6 +42,29 @@ Optional:
 delete/**
 ```
 
+## Manifest-Identity-Guard seit 000096
+
+Seit `000096_springmaster_patch_manifest_identity_guard` ist die Patch-Identität Teil des harten Preflights. Neue Patch-ZIPs müssen eine explizite und konsistente Identität tragen:
+
+```json
+{
+  "id": "000096_springmaster_patch_manifest_identity_guard",
+  "patchId": "000096_springmaster_patch_manifest_identity_guard",
+  "scope": "tooling",
+  "name": "springmaster_patch_manifest_identity_guard"
+}
+```
+
+Verbindliche Regeln:
+
+* `manifest.id` und `manifest.patchId` sind verpflichtend.
+* Beide Werte müssen identisch sein.
+* Der Archivname muss exakt `<patchId>.zip` lauten.
+* `patchId` muss dem Format `000000_name` entsprechen.
+* Der Namensanteil der `patchId` muss aus `manifest.name` ableitbar sein.
+
+Patches ohne explizite Identität oder mit abweichendem Archivnamen werden bereits beim `apply --dry-run` abgelehnt. Dadurch darf das Patchsystem keine neue Nummer mehr stillschweigend aus `manifest.name` und dem lokalen Archivstand ableiten. Die bei `000094` beobachtete Klasse `Archivname != Patch-ID` wird damit vor dem mutierenden Apply verhindert.
+
 ## Erweiterte Scopes seit 000003
 
 Zusätzlich zu den Bootstrap-Scopes sind vorbereitet:
@@ -315,4 +338,3 @@ Unterstützte Manifest-Formate:
 Alternativ kann die Information unter `baseline.expectedBeforeSha256` oder als Liste unter `baseline.expectedBefore` stehen. Ein Wert `null`, `missing` oder `absent` bedeutet: Die Datei darf vor dem Patch noch nicht existieren.
 
 Diese Prüfung ergänzt den projektweiten Write-Lock. Der Lock verhindert parallele Mutationen im selben Projektverzeichnis. Die Hash-Prüfung erkennt zusätzlich stale Patches, die zwar nacheinander ausgeführt werden, aber gegen eine ältere Baseline vorbereitet wurden.
-

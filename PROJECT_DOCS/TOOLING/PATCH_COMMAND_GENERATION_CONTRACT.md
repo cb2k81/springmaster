@@ -36,6 +36,20 @@ git status --short
 
 Die Ausgabe muss leer sein. Unabhängige Änderungen, alte Validierungsartefakte oder lokale Experimente müssen vor dem Patchabschluss entweder committed, verworfen oder bewusst aus dem Git-Tracking ausgeschlossen werden.
 
+## Patch-Identität
+
+Generierte Patch-ZIPs müssen seit `000096` eine explizite Identität enthalten. Die folgenden Werte müssen konsistent sein:
+
+| Feld / Artefakt | Regel |
+|---|---|
+| `manifest.id` | Pflichtwert, exakt identisch zu `manifest.patchId` |
+| `manifest.patchId` | Pflichtwert im Format `000000_name` |
+| Archivname | exakt `<patchId>.zip` |
+| `manifest.name` | muss dem Namensanteil der `patchId` entsprechen |
+| Runner-Erwartung | muss dieselbe `patchId` prüfen |
+
+Runner dürfen nach dem Apply nicht nur `DONE` melden, sondern müssen `./bin/patch.sh show latest` gegen die erwartete Patch-ID prüfen. Bei Abweichung ist der Lauf als fehlerhaft zu behandeln, selbst wenn Tests und Export erfolgreich waren.
+
 ## Kein `git add .`
 
 Generierte Kommandos dürfen für normale Patch-Abschlüsse niemals verwenden:

@@ -10,6 +10,8 @@ Die Validierung richtet sich nach dem tatsächlichen Patch-Inhalt, nicht allein 
 
 Jeder Patch wird mindestens mit Dry-run, Apply, Patch-Log und Full-ZIP-Export abgeschlossen. Build- und Testbefehle werden nur dort ausgeführt, wo sie zur geänderten Artefaktklasse passen. Full-Parts-Baseline-Exporte werden nur erzeugt, wenn sie für Review, Wiederherstellung oder explizite Baseline-Übergabe benötigt werden.
 
+Seit `000096` gehört die Manifest-Identität zur Mindestvalidierung. `manifest.id`, `manifest.patchId`, Archivname und Runner-Erwartung müssen übereinstimmen. Ein Patch ohne explizite Identität oder mit abweichendem Archivnamen ist kein gültiger Patch und darf weder per `apply` noch per `accept` verarbeitet werden.
+
 
 ## Command-Generation-Contract seit 000090
 
@@ -339,4 +341,3 @@ Die Prüfung ist Bestandteil von `apply --dry-run`, `apply` und damit auch von `
 Die Integrationstests des Patchsystems müssen mindestens einen Fixture-Fall enthalten, in dem ein Patch mit gültigem erwarteten SHA erzeugt wird, die Datei anschließend extern verändert wird und `apply --dry-run` den Patch kontrolliert ablehnt. Danach muss derselbe Patch gegen den erwarteten Vorzustand wieder erfolgreich im Dry-run laufen.
 
 Baseline-Hash-Preconditions ersetzen nicht den projektweiten Write-Lock. Beide Schutzmechanismen sind komplementär: Locking verhindert gleichzeitige Mutationen, Hash-Preconditions verhindern stale sequentielle Patches.
-

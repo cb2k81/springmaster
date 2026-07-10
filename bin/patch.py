@@ -27,6 +27,8 @@ USAGE = """Verwendung:
 
 Pflichtregeln:
   - manifest.json ist verpflichtend.
+  - manifest.id und manifest.patchId sind verpflichtend und müssen identisch sein.
+  - manifest.patchId muss dem Archivnamen ohne .zip entsprechen.
   - manifest.scope ist verpflichtend.
   - manifest.name ist verpflichtend.
   - logs/CHANGELOG-*.md ist verpflichtend.
@@ -615,7 +617,52 @@ def extract_archive(zip_path):
         shutil.rmtree(tmp_dir, ignore_errors=True)
         raise
 
-def validate_manifest(manifest):
+PATCH_ID_PATTERN = re.compile(r"^\d{6}_[A-Za-z0-9._-]+$")
+
+def manifest_required_string(manifest, field):
+    value = manifest.get(field)
+    if not isinstance(value, str) or not value.strip():
+        fail(f"manifest.{field} ist verpflichtend und muss ein nicht-leerer String sein.")
+    return value.strip()
+
+def validate_manifest_identity(manifest, name, zip_path=None):
+    patch_id = manifest_required_string(manifest, "patchId")
+    legacy_id = manifest_required_string(manifest, "id")
+    if patch_id != legacy_id:
+        fail(
+            "PATCH_IDENTITY_CONFLICT: manifest.patchId und manifest.id müssen identisch sein.\n"
+            f"  patchId: {patch_id}\n"
+            f"  id:      {legacy_id}"
+        )
+    if not PATCH_ID_PATTERN.fullmatch(patch_id):
+        fail(
+            "PATCH_IDENTITY_CONFLICT: manifest.patchId muss dem Format "
+            "000000_name entsprechen.\n"
+            f"  patchId: {patch_id}"
+        )
+    expected_patch_id = f"{patch_id.split('_', 1)[0]}_{sanitize_name(name)}"
+    if patch_id != expected_patch_id:
+        fail(
+            "PATCH_IDENTITY_CONFLICT: manifest.patchId muss aus Nummer und "
+            "manifest.name abgeleitet sein.\n"
+            f"  patchId:      {patch_id}\n"
+            f"  manifest.name: {name}\n"
+            f"  expected:     {expected_patch_id}"
+        )
+    if zip_path is not None:
+        expected_archive = f"{patch_id}.zip"
+        actual_archive = Path(zip_path).name
+        if actual_archive != expected_archive:
+            fail(
+                "PATCH_IDENTITY_CONFLICT: Archivname und manifest.patchId müssen "
+                "identisch sein.\n"
+                f"  archive: {actual_archive}\n"
+                f"  patchId: {patch_id}\n"
+                f"  expectedArchive: {expected_archive}"
+            )
+    return patch_id
+
+def validate_manifest(manifest, zip_path=None):
     if not isinstance(manifest, dict):
         fail("manifest.json muss ein JSON-Objekt sein.")
     scope = manifest.get("scope")
@@ -626,14 +673,15 @@ def validate_manifest(manifest):
         fail("manifest.name ist verpflichtend und muss ein nicht-leerer String sein.")
     if scope_log_dir(scope) is None:
         fail(f"Unbekannter Patch-Scope im manifest.json: {scope}")
-    return scope.strip(), name.strip()
+    patch_id = validate_manifest_identity(manifest, name.strip(), zip_path=zip_path)
+    return scope.strip(), name.strip(), patch_id
 
-def collect_patch(tmp_dir):
+def collect_patch(tmp_dir, zip_path=None):
     manifest_path = tmp_dir / "manifest.json"
     if not manifest_path.exists():
         fail("manifest.json ist verpflichtend. Legacy-Patches werden nicht mehr akzeptiert.")
     manifest = read_json(manifest_path)
-    scope, name = validate_manifest(manifest)
+    scope, name, patch_id = validate_manifest(manifest, zip_path=zip_path)
     changelog_sources = []
     invalid_roots = []
     operations = []
@@ -671,7 +719,7 @@ def collect_patch(tmp_dir):
         fail("Patch-ZIP enthält keine anwendbaren Dateien.")
 
     validate_scope(scope, [op["target"] for op in operations])
-    return manifest, scope, name, operations
+    return manifest, scope, name, patch_id, operations
 
 
 BASELINE_MISSING_MARKERS = {"", "-", "missing", "absent", "none", "null", "not-exists", "not_exists"}
@@ -850,9 +898,8 @@ def apply_command(args):
     zip_path = Path(rest[0]).expanduser().resolve()
     tmp_dir = extract_archive(zip_path)
     try:
-        manifest, scope, name, operations = collect_patch(tmp_dir)
-        patch_number = next_patch_number()
-        patch_id = f"{patch_number}_{sanitize_name(name)}"
+        manifest, scope, name, patch_id, operations = collect_patch(tmp_dir, zip_path=zip_path)
+        patch_number = patch_id.split("_", 1)[0]
         archive_dir = ARCHIVES_DIR / patch_id
 
         if archive_dir.exists():
@@ -1173,7 +1220,7 @@ def resolve_validation_profile(options, target_paths):
 def target_paths_from_zip(zip_path):
     tmp_dir = extract_archive(zip_path)
     try:
-        _manifest, _scope, _name, operations = collect_patch(tmp_dir)
+        _manifest, _scope, _name, _patch_id, operations = collect_patch(tmp_dir, zip_path=zip_path)
         return [op["target"] for op in operations]
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -1194,12 +1241,13 @@ def target_paths_from_patch_dir(patch_dir):
 def inspect_patch_zip(zip_path):
     tmp_dir = extract_archive(zip_path)
     try:
-        manifest, scope, name, operations = collect_patch(tmp_dir)
+        manifest, scope, name, patch_id, operations = collect_patch(tmp_dir, zip_path=zip_path)
         summary, entries = apply_operations(operations, tmp_dir, ARCHIVES_DIR / "__dry_run_inspection__", True)
         return {
             "manifest": manifest,
             "scope": scope,
             "name": name,
+            "patchId": patch_id,
             "operations": operations,
             "targetPaths": [op["target"] for op in operations],
             "summary": summary,
@@ -1890,9 +1938,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
