@@ -1409,3 +1409,23 @@ Reasoning:
 * It preserves the historical meaning of older findings: ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical.
 * It clarifies that CatalogItem candidate evidence from `000092` and `000094` now includes `/all` as export/batch/integration result-set evidence while Catalog-demo itself remains `candidate-reference-slice`, not canonical.
 * It changes documentation only; Core, Tooling, Template, Demo implementation and Platform-Update versions remain unchanged.
+
+
+
+
+## Versionierter Stand nach 000099
+
+Patch `000099_springmaster_count_response_dto_core_candidate` erhöht den Core- und Foundation-Stand auf:
+
+```text
+PLATFORM_VERSION=0.13.47-foundation
+PLATFORM_CORE_VERSION=0.3.4
+PLATFORM_STATE_PATCH=000099_springmaster_count_response_dto_core_candidate
+```
+
+Begründung:
+
+* Der Patch führt `CountResponseDTO` als neuen fachfreien Core-API-DTO-Baustein ein.
+* Der DTO setzt den in `000098_springmaster_count_response_contract_candidate` dokumentierten Count-only-Response-Shape `{ "totalElements": 0 }` im Core um.
+* Negative Count-Werte werden auf DTO-Ebene verhindert; Filter-, Sortier-, Security-, Data-Scope- und Persistenzsemantik bleiben außerhalb des DTO.
+* Demo-, Tooling-, Template- und Platform-Update-Versionen bleiben unverändert.

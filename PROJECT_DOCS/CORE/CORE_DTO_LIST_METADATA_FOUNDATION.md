@@ -18,6 +18,7 @@ src/main/java/de/cocondo/system/dto/DomainEntityInboundDTO.java
 src/main/java/de/cocondo/system/dto/DomainEntityMetadataDTO.java
 src/main/java/de/cocondo/system/dto/DomainEntityUpdateDTO.java
 src/main/java/de/cocondo/system/dto/PagedResponseDTO.java
+src/main/java/de/cocondo/system/dto/CountResponseDTO.java
 src/main/java/de/cocondo/system/entity/metadata/KeyValuePairDTO.java
 src/main/java/de/cocondo/system/entity/metadata/KeyValuePairPayload.java
 src/main/java/de/cocondo/system/list/PagedQuerySupport.java
@@ -29,6 +30,7 @@ src/main/java/de/cocondo/system/mapper/DomainMetadataSupportMapper.java
 
 ```text
 src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java
+src/test/java/de/cocondo/system/dto/CountResponseDTOTest.java
 src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java
 src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java
 src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java
@@ -154,4 +156,32 @@ Patch `000098_springmaster_count_response_contract_candidate` defines the API-le
 { "totalElements": 0 }
 ```
 
-This Core foundation does not yet introduce `CountResponseDTO`. The accepted next Core step is to add a reusable DTO with exactly that external shape after the count contract candidate is proven against CatalogItem behavior tests.
+Patch `000099_springmaster_count_response_dto_core_candidate` adds `CountResponseDTO` as the reusable Core DTO for the count-only API shape accepted in `000098`. The DTO exposes exactly one public property, `totalElements`, uses a primitive `long` so the value is always present on the Java side, and rejects negative counts through its constructor and setter.
+
+CatalogItem count endpoint behavior remains a follow-up patch; this Core slice only provides the fachfreie response contract.
+
+
+
+## Count response DTO Core candidate after 000099
+
+Patch `000099_springmaster_count_response_dto_core_candidate` introduces:
+
+```text
+src/main/java/de/cocondo/system/dto/CountResponseDTO.java
+src/test/java/de/cocondo/system/dto/CountResponseDTOTest.java
+```
+
+The DTO is intentionally minimal and mirrors the candidate external count shape exactly:
+
+```json
+{ "totalElements": 0 }
+```
+
+Rules enforced in Core:
+
+* `totalElements` is always present as primitive `long`;
+* default construction yields `0`;
+* constructor, factory and setter support explicit values;
+* negative values are rejected with `IllegalArgumentException`.
+
+The DTO contains no filter, sort, paging, security or persistence semantics. Those remain the responsibility of the corresponding query service/controller.

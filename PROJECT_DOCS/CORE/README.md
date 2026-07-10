@@ -189,4 +189,17 @@ PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md
 
 ## Count response DTO candidate
 
-`API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` defines the optional count-only API shape with required `totalElements`. Core does not yet expose `CountResponseDTO`; that DTO remains a follow-up after CatalogItem count behavior evidence.
+`API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` defines the optional count-only API shape with required `totalElements`. Since patch `000099_springmaster_count_response_dto_core_candidate`, Core exposes `CountResponseDTO` with exactly that shape. CatalogItem count endpoint behavior remains the next Demo evidence step.
+
+
+
+## Patch 000099: Count Response DTO Core Candidate
+
+Patch `000099_springmaster_count_response_dto_core_candidate` adds the reusable Core DTO for optional count-only endpoints:
+
+```text
+src/main/java/de/cocondo/system/dto/CountResponseDTO.java
+src/test/java/de/cocondo/system/dto/CountResponseDTOTest.java
+```
+
+The DTO stays fachfrei and does not introduce controller, repository, security, query or persistence behavior. It only standardizes the Java-side response envelope for the public JSON shape `{ "totalElements": 0 }`.

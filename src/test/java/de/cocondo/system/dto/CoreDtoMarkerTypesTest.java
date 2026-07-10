@@ -138,4 +138,11 @@ class CoreDtoMarkerTypesTest {
         assertThat(dto.getTotalElements()).isEqualTo(5);
         assertThat(dto.getTotalPages()).isEqualTo(3);
     }
+
+    @Test
+    void countResponseDtoCarriesStableCountOnlyContract() {
+        CountResponseDTO dto = CountResponseDTO.of(12);
+
+        assertThat(dto.getTotalElements()).isEqualTo(12);
+    }
 }
