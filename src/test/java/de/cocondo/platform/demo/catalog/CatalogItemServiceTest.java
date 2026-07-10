@@ -3,6 +3,7 @@ package de.cocondo.platform.demo.catalog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import java.time.LocalDateTime;
@@ -83,6 +84,22 @@ class CatalogItemServiceTest {
         assertThat(paged.getTotalElements()).isZero();
         assertThat(paged.getTotalPages()).isZero();
         assertThat(service.listAll("sku", "ASC", "SKU-X", null)).isEmpty();
+        assertThat(service.count("SKU-X", null).getTotalElements()).isZero();
+    }
+
+    @Test
+    void countsCatalogItemsWithSameFiltersAsListQueries() {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));
+        service.create(new CatalogItemCreateDTO("SKU-2", "Alphabetic", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Beta", null));
+
+        CountResponseDTO all = service.count(null, null);
+        CountResponseDTO filteredByName = service.count(null, "alpha");
+        CountResponseDTO filteredBySku = service.count("SKU-2", null);
+
+        assertThat(all.getTotalElements()).isEqualTo(3);
+        assertThat(filteredByName.getTotalElements()).isEqualTo(2);
+        assertThat(filteredBySku.getTotalElements()).isEqualTo(1);
     }
 
     @Test

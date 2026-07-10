@@ -1,5 +1,6 @@
 package de.cocondo.platform.demo.catalog;
 
+import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import de.cocondo.system.list.PagedQuerySupport;
@@ -115,6 +116,10 @@ public class CatalogItemService {
                 .toList();
     }
 
+    public synchronized CountResponseDTO count(String sku, String name) {
+        return CountResponseDTO.of(matchingItems(sku, name).size());
+    }
+
     public synchronized void clear() {
         itemsById.clear();
         itemsBySku.clear();
@@ -144,12 +149,15 @@ public class CatalogItemService {
                 TIE_BREAKER_COMPARATOR
         );
 
-        List<CatalogItem> matching = new ArrayList<>(itemsById.values()).stream()
+        return matchingItems(sku, name).stream()
+                .sorted(comparator)
+                .toList();
+    }
+
+    private List<CatalogItem> matchingItems(String sku, String name) {
+        return new ArrayList<>(itemsById.values()).stream()
                 .filter(item -> matchesSku(item, sku))
                 .filter(item -> matchesName(item, name))
-                .toList();
-        return matching.stream()
-                .sorted(comparator)
                 .toList();
     }
 

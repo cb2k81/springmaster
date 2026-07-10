@@ -81,6 +81,39 @@
       "truncation": "not allowed at public contract boundary"
     },
     {
+      "operation": "count-only",
+      "method": "GET",
+      "path": "/api/demo/catalog/items/count",
+      "statusEvidence": [
+        200,
+        400
+      ],
+      "queryParameters": [
+        "sku",
+        "name"
+      ],
+      "rejectedQueryParameters": [
+        "page",
+        "size",
+        "sortBy",
+        "sortDir"
+      ],
+      "responseDto": "CountResponseDTO",
+      "filters": [
+        {
+          "name": "sku",
+          "semantics": "exact case-insensitive business-key match",
+          "blank": "ignored"
+        },
+        {
+          "name": "name",
+          "semantics": "case-insensitive substring match",
+          "blank": "ignored"
+        }
+      ],
+      "countSemantics": "same filters as paged-list and complete-result-set; sorting and pagination are not count semantics"
+    },
+    {
       "operation": "detail-by-id",
       "method": "GET",
       "path": "/api/demo/catalog/items/{id}",
@@ -183,5 +216,8 @@
   "queryValidationEvidence": "invalid-page-size-sortBy-sortDir-covered",
   "corePagedQuerySupportAdoptionPatch": "000094_springmaster_catalogitem_use_core_paged_query_sort_support",
   "corePagedQuerySupportAdoptionState": "CatalogItemService uses PagedQuerySupport.stableComparator for allow-listed default-sort and tie-breaker query sorting",
-  "sortSupportEvidence": "core-stableComparator-used-by-candidate-list-and-all-query-pipeline"
+  "sortSupportEvidence": "core-stableComparator-used-by-candidate-list-and-all-query-pipeline",
+  "countReferencePatch": "000100_springmaster_catalogitem_count_reference_slice",
+  "countReferenceState": "CatalogItem exposes CountResponseDTO-backed count-only endpoint with same filter predicates as list and all",
+  "countQueryEvidence": "covered-for-unfiltered-filtered-empty-and-rejected-page-sort-parameters"
 }

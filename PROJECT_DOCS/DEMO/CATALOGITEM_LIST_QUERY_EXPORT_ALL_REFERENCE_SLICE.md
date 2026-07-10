@@ -12,6 +12,7 @@ This document does not promote CatalogItem to `canonical-reference-slice`. It re
 |---|---|---|---|
 | Paged management list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=&sku=&name=` | `PagedResponseDTO<CatalogItemListItemDTO>` | page/size validation, explicit sort allow-list, explicit filters, filtered `totalElements` |
 | Complete result set | `GET /api/demo/catalog/items/all?sortBy=&sortDir=&sku=&name=` | `List<CatalogItemListItemDTO>` | same filter and sort pipeline, no public page/size, no silent public truncation |
+| Count-only | `GET /api/demo/catalog/items/count?sku=&name=` | `CountResponseDTO` | same filter predicates, no page/size/sort semantics |
 
 ## Filter semantics
 
@@ -42,10 +43,13 @@ Unsupported sort fields or sort directions return `400 Bad Request` through the 
 
 The paged endpoint computes `totalElements` from the filtered result set. `totalPages` is derived from the same filtered result set and the validated page size.
 
+The count-only endpoint computes `totalElements` from the same filter predicates used by paged list and `/all`. It exposes only `sku` and `name`; `page`, `size`, `sortBy` and `sortDir` are rejected because they are not count semantics.
+
 Empty result sets are successful query results:
 
 - paged list: `200 OK` with `items: []`, `totalElements: 0`, `totalPages: 0`
 - `/all`: `200 OK` with `[]`
+- `/count`: `200 OK` with `{ "totalElements": 0 }`
 
 ## Architecture constraints
 
@@ -80,6 +84,7 @@ Covered scenarios:
 
 - paged list with filtered `totalElements`;
 - `/all` with same filters and sorting;
+- `/count` with the same filters and no paging or sorting semantics;
 - empty paged and `/all` result sets;
 - invalid page, size, sortBy and sortDir requests;
 - existing create/detail/update/delete/error behavior remains covered.

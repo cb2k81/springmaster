@@ -6,6 +6,7 @@ import de.cocondo.platform.demo.catalog.CatalogItemListItemDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemNotFoundException;
 import de.cocondo.platform.demo.catalog.CatalogItemService;
 import de.cocondo.platform.demo.catalog.CatalogItemUpdateDTO;
+import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.entity.validation.ValidationException;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -37,6 +39,7 @@ import org.springframework.web.util.UriUtils;
 public class CatalogItemController {
 
     private static final int DEFAULT_PAGE_SIZE = CatalogItemService.DEFAULT_PAGE_SIZE;
+    private static final Set<String> COUNT_QUERY_PARAMETERS = Set.of("sku", "name");
 
     private final CatalogItemService service;
 
@@ -64,6 +67,16 @@ public class CatalogItemController {
             @RequestParam(name = "name", required = false) String name
     ) {
         return service.listAll(sortBy, sortDir, sku, name);
+    }
+
+    @GetMapping("/count")
+    public CountResponseDTO count(
+            @RequestParam(name = "sku", required = false) String sku,
+            @RequestParam(name = "name", required = false) String name,
+            HttpServletRequest request
+    ) {
+        validateCountQueryParameters(request);
+        return service.count(sku, name);
     }
 
     @PostMapping
@@ -172,6 +185,17 @@ public class CatalogItemController {
                 "catalog.item.conflict",
                 request
         ));
+    }
+
+    private void validateCountQueryParameters(HttpServletRequest request) {
+        List<String> unsupported = request.getParameterMap().keySet().stream()
+                .filter(parameter -> !COUNT_QUERY_PARAMETERS.contains(parameter))
+                .sorted()
+                .toList();
+        if (!unsupported.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Unsupported count query parameter: " + unsupported.getFirst());
+        }
     }
 
     private CatalogApiErrorResponse error(

@@ -123,6 +123,48 @@ class CatalogItemControllerTest {
                         .param("sku", "SKU-DOES-NOT-EXIST"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .param("sku", "SKU-DOES-NOT-EXIST"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(0));
+    }
+
+    @Test
+    void countsCatalogItemsWithSameFiltersAsPagedAndAllQueries() throws Exception {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-2", "Alphabetic Item", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Beta Item", null));
+
+        mockMvc.perform(get("/api/demo/catalog/items/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(3));
+
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .param("name", "alpha"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(2));
+
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .param("sku", "SKU-2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void rejectsPagingAndSortParametersForCountEndpoint() throws Exception {
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .param("page", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("Unsupported count query parameter")))
+                .andExpect(jsonPath("$.message", containsString("page")));
+
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .param("sortBy", "sku"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("sortBy")));
     }
 
     @Test

@@ -25,6 +25,7 @@ The previous implementation state remains relevant only as historical `legacy-de
 |---|---|---:|---|
 | Paged list | `GET /api/demo/catalog/items?page=&size=&sortBy=&sortDir=&sku=&name=` | `200` / `400` | Returns `PagedResponseDTO<CatalogItemListItemDTO>` with filtered `totalElements`. |
 | Complete result set | `GET /api/demo/catalog/items/all?sortBy=&sortDir=&sku=&name=` | `200` / `400` | Returns all matching `CatalogItemListItemDTO` rows without public `page`/`size` truncation. |
+| Count-only | `GET /api/demo/catalog/items/count?sku=&name=` | `200` / `400` | Returns `CountResponseDTO` with `totalElements` for the same filter predicates; rejects paging and sorting parameters. |
 | Detail by opaque ID | `GET /api/demo/catalog/items/{id}` | `200` / `404` | Public resource identity is `id`. |
 | Lookup by SKU | `GET /api/demo/catalog/items/by-sku/{sku}` | `200` / `404` | `sku` remains an explicit business key. |
 | Create | `POST /api/demo/catalog/items` | `201` | `Location` points to `/{id}`, not `/{sku}`. |
@@ -40,7 +41,8 @@ Out of scope for this slice: `/list`, public `findOne`/`findFirst`/`findLast`, b
 | `CatalogItemCreateDTO` | implemented | Create request boundary with Bean Validation constraints. |
 | `CatalogItemUpdateDTO` | implemented | Full update request boundary with Bean Validation constraints. |
 | `CatalogItemDTO` | implemented | Detail/create/update response. |
-| `CatalogItemListItemDTO` | implemented | Paged list item response. |
+| `CatalogItemListItemDTO` | implemented | Paged list item and complete result-set row response. |
+| `CountResponseDTO` | implemented | Core count-only response with `totalElements`. |
 | `CatalogApiErrorResponse` | implemented | Demo-local standard error body evidence. |
 | `CatalogApiViolation` | implemented | Field-level validation violation evidence. |
 | `CatalogItemOptionDTO` | deferred | No bounded selector use case in this slice. |
@@ -59,6 +61,8 @@ The paged list endpoint exposes the canonical public query vocabulary:
 - explicit filter `name`.
 
 The complete result-set endpoint `/all` exposes the same filter and sort vocabulary but intentionally does not expose public `page` or `size` parameters. It is the CatalogItem reference evidence for frontend export, backend batch and service-to-service consumers that need all matching rows.
+
+The count-only endpoint `/count` exposes only filter parameters (`sku`, `name`) and returns `CountResponseDTO` with `totalElements`. It intentionally rejects `page`, `size`, `sortBy` and `sortDir`, because sorting and pagination are not part of count semantics.
 
 Filter semantics:
 

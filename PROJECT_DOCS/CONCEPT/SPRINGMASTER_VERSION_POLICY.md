@@ -1429,3 +1429,21 @@ Begründung:
 * Der DTO setzt den in `000098_springmaster_count_response_contract_candidate` dokumentierten Count-only-Response-Shape `{ "totalElements": 0 }` im Core um.
 * Negative Count-Werte werden auf DTO-Ebene verhindert; Filter-, Sortier-, Security-, Data-Scope- und Persistenzsemantik bleiben außerhalb des DTO.
 * Demo-, Tooling-, Template- und Platform-Update-Versionen bleiben unverändert.
+
+
+## Versionierter Stand nach 000100
+
+Patch `000100_springmaster_catalogitem_count_reference_slice` erhöht den Demo- und Foundation-Stand auf:
+
+```text
+PLATFORM_VERSION=0.13.48-foundation
+PLATFORM_DEMO_VERSION=0.2.4
+PLATFORM_STATE_PATCH=000100_springmaster_catalogitem_count_reference_slice
+```
+
+Begründung:
+
+* Der Patch ergänzt den CatalogItem-Candidate-Slice um `GET /api/demo/catalog/items/count`.
+* Die Response nutzt den Core-DTO-Baustein `CountResponseDTO` aus `000099`.
+* Der Count nutzt dieselben Filterprädikate wie paginierte Liste und `/all`, aber keine Sortier- oder Paging-Semantik.
+* Core-, Tooling-, Template- und Platform-Update-Versionen bleiben unverändert.
