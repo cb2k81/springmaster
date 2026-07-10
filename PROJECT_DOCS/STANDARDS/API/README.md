@@ -21,6 +21,7 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | API contract gate concept | `API_CONTRACT_GATE_CONCEPT.md` | layered OpenAPI, MockMvc, reflection, security and Catalog-demo gate model documented with 000055; implementation follows later |
 | Query/reference-data consistency standard | `API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md` | `sortBy`, complete-result-set `/all`, `/options` and ADR-backed `/reference-data` resolved with 000058/000091 |
 | Result-set export/all standard | `API_RESULT_SET_EXPORT_ALL_STANDARD.md` | frontend export, backend batch, complete result-set `/all`, count and empty/error behavior documented with 000091 |
+| Count response contract candidate | `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` | optional `/count` and `/search/count` response shape with required `totalElements` narrowed with 000098 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -41,6 +42,7 @@ The first CatalogItem API should demonstrate:
 
 - paged list endpoint for UI tables,
 - complete-result-set `/all` endpoint for export/batch use cases when the slice is promoted to export-ready canonical status,
+- optional count-only endpoint using required `totalElements` when a badge/dashboard/preflight use case exists,
 - optional `/options` endpoint only for bounded selector use cases,
 - detail endpoint,
 - create endpoint,

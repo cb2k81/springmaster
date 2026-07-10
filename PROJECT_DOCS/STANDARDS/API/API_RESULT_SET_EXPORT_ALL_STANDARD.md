@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as Springmaster API standard addendum with patch `000091_springmaster_list_query_export_all_contract`.
+Accepted as Springmaster API standard addendum with patch `000091_springmaster_list_query_export_all_contract`; count-only response shape narrowed by candidate patch `000098_springmaster_count_response_contract_candidate`.
 
 This standard amends the earlier `/all` decision from `000058_springmaster_api_query_reference_data_consistency_standard` and `ADR-0002`. The old rejection still applies to ambiguous, undocumented, selector-like or accidentally unbounded `/all` endpoints. It does not apply to the explicit complete-result-set contract defined here.
 
@@ -101,15 +101,21 @@ A separate count-only endpoint is optional and must be deliberately introduced o
 GET /api/<domain>/<resources>/count
 ```
 
-The count endpoint accepts the same documented filters as the paged list and `/all`. It does not need `page`, `size`, `sortBy` or `sortDir`, because sorting does not affect the number of matching rows. If `sortBy` or `sortDir` are present on a count endpoint, the endpoint may ignore them only when this is documented; otherwise it should reject unsupported query parameters consistently.
+For complex search DTOs the candidate endpoint is:
 
-The count result shape must be a DTO, for example:
+```text
+POST /api/<domain>/<resources>/search/count
+```
+
+The count endpoint accepts the same documented filters as the paged list and `/all`. It does not expose `page`, `size`, `sortBy` or `sortDir` as count semantics, because pagination and sorting do not affect the number of matching rows. Supplying unsupported count query parameters should return `400 Bad Request` unless a project-specific ADR documents ignored compatibility parameters.
+
+The count result shape follows `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`:
 
 ```json
 { "totalElements": 0 }
 ```
 
-Springmaster Core may later introduce a reusable `CountResponseDTO` or `UnpagedResponseDTO`. Until then, projects must not invent incompatible per-controller count envelopes without documenting them.
+Springmaster Core may later introduce a reusable `CountResponseDTO` with this exact external shape. Until then, projects must not invent incompatible per-controller count envelopes.
 
 ## Error behavior
 

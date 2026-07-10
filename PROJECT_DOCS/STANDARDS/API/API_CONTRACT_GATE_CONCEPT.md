@@ -214,7 +214,20 @@ The readiness plan is the first G5 Catalog-demo reference gate artifact. It does
 
 ## Query and reference-data consistency since 000058
 
-Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 gate-blocking consistency gap. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export/batch use cases. Query gates must treat `sortBy` as canonical, `sort` as non-canonical for new reference APIs, `/all` as the complete-result-set vocabulary, `/options` as the bounded selector vocabulary and `/reference-data` as ADR-backed broader bounded reference data. Ambiguous or silently capped `/all` endpoints remain gate findings.
+Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 gate-blocking consistency gap. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export/batch use cases. Patch `000098_springmaster_count_response_contract_candidate` narrows optional count-only semantics. Query gates must treat `sortBy` as canonical, `sort` as non-canonical for new reference APIs, `/all` as the complete-result-set vocabulary, `/count` and `/search/count` as optional count-only vocabulary, `/options` as the bounded selector vocabulary and `/reference-data` as ADR-backed broader bounded reference data. Ambiguous or silently capped `/all` endpoints and ad-hoc count endpoint names remain gate findings.
+
+
+## Count response contract candidate since 000098
+
+Patch `000098_springmaster_count_response_contract_candidate` narrows optional count-only endpoint behavior before a Core DTO or CatalogItem count reference slice exists.
+
+Gate impact:
+
+- report-only G1 diagnostics may recognize `GET /api/<domain>/<resources>/count` and `POST /api/<domain>/<resources>/search/count` as the only candidate count-only endpoint shapes;
+- count response schemas should expose required `totalElements` and avoid incompatible property names such as `count`, `total` or `totalCount`;
+- count endpoints should not expose public `page`/`size` controls and should not semantically depend on `sortBy`/`sortDir`;
+- filtered and zero-result count behavior remains a MockMvc/Catalog-demo evidence target;
+- strict count gates remain deferred until CatalogItem provides executable count reference evidence.
 
 
 ## Error identity and status-code gate readiness since 000059
@@ -303,7 +316,7 @@ Patch `000067_springmaster_report_only_gate_seed_plan` adds the first concrete r
 API gate impact:
 
 - G1 HTTP vocabulary and query-parameter diagnostics are the preferred first API contract checks;
-- body-bearing single `DELETE`, public `findOne`/`findFirst`/`findLast` vocabulary, complete-result-set `/all`, bounded `/options`, `sortBy`, generated `arg0`/`arg1` parameter names and status/error evidence are first-scope candidates;
+- body-bearing single `DELETE`, public `findOne`/`findFirst`/`findLast` vocabulary, complete-result-set `/all`, optional `/count`, bounded `/options`, `sortBy`, generated `arg0`/`arg1` parameter names and status/error evidence are first-scope candidates;
 - findings remain non-blocking in report-only mode;
 - target-project API comparison remains excluded from the first seed;
 - strict API gates require a later explicit promotion patch under ADR-0006.
@@ -344,7 +357,7 @@ Gate impact:
 
 - G1 query diagnostics may treat the candidate endpoint contract as the expected future evidence for `page`, `size`, `sortBy` and `sortDir`;
 - G1 status/error diagnostics may treat standard error bodies, create `201`, update `200`, delete `204` and not-found `404` as candidate evidence targets;
-- ambiguous `/all`, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice; complete-result-set `/all` is valid when explicit export/batch/integration evidence exists;
+- ambiguous `/all`, ad-hoc count endpoint vocabulary, public `findOne`/`findFirst`/`findLast` vocabulary and body-bearing single `DELETE` remain non-canonical for the candidate slice; complete-result-set `/all` is valid when explicit export/batch/integration evidence exists; optional `/count` is valid when it follows the `totalElements` candidate response shape;
 - G5 must not mark the slice canonical merely because the candidate contract is implemented;
 - strict API gates remain deferred under ADR-0006.
 

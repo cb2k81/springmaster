@@ -186,3 +186,7 @@ See:
 ```text
 PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md
 ```
+
+## Count response DTO candidate
+
+`API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` defines the optional count-only API shape with required `totalElements`. Core does not yet expose `CountResponseDTO`; that DTO remains a follow-up after CatalogItem count behavior evidence.

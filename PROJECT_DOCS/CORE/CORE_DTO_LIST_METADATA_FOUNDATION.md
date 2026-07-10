@@ -145,3 +145,13 @@ stableComparator(sortBy, sortDir, allowedComparators, defaultSortBy, tieBreakerC
 The Core still does not know any fachliche field. Fachmodule or generated service slices must pass their own public sort allow-list, default sort and stable tie-breaker. Unsupported public sort fields remain request errors and must surface through the API error contract as `400 Bad Request` at the HTTP boundary.
 
 The stable tie-breaker is intentionally explicit. Paged and `/all` result sets must not depend only on a non-unique business column such as `name` or `status`, because repeated page reads can otherwise drift when multiple rows have the same primary sort value.
+
+## Count response DTO candidate boundary after 000098
+
+Patch `000098_springmaster_count_response_contract_candidate` defines the API-level candidate response shape for optional count-only endpoints:
+
+```json
+{ "totalElements": 0 }
+```
+
+This Core foundation does not yet introduce `CountResponseDTO`. The accepted next Core step is to add a reusable DTO with exactly that external shape after the count contract candidate is proven against CatalogItem behavior tests.

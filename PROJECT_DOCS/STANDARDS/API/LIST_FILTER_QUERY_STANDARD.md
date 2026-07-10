@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as generic Springmaster API standard with patch `000044_springmaster_api_standards_adr_extraction`; query naming and reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`; complete result-set and frontend export semantics amended by patch `000091_springmaster_list_query_export_all_contract`.
+Accepted as generic Springmaster API standard with patch `000044_springmaster_api_standards_adr_extraction`; query naming and reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`; complete result-set and frontend export semantics amended by patch `000091_springmaster_list_query_export_all_contract`; count-only candidate response semantics narrowed by patch `000098_springmaster_count_response_contract_candidate`.
 
 ## Purpose
 
@@ -82,7 +82,7 @@ A paged list with no matches returns `200 OK` with `items: []`, `totalElements: 
 
 A complete `/all` endpoint with no matches returns `200 OK` with `[]`.
 
-Paged responses expose the filtered and authorized count through `totalElements`. Optional count-only endpoints may be introduced only when a use case needs a count without loading page data. Such endpoints must use the same filter, security and data-scope predicates as the paged and complete data endpoints. Sorting does not affect the count.
+Paged responses expose the filtered and authorized count through `totalElements`. Optional count-only endpoints may be introduced only when a use case needs a count without loading page data. Such endpoints must follow `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`: they use the same filter, security and data-scope predicates as the paged and complete data endpoints, return a DTO with required `totalElements`, and do not treat sorting or pagination as count semantics.
 
 Invalid query values, unsupported sort fields, unsupported sort directions, invalid filter values and invalid pagination values must return the standard Springmaster API error body with `400 Bad Request`.
 
@@ -102,8 +102,8 @@ The intended enforcement path is:
 2. Controller or integration tests for `/all` with filters, sorting, empty results and invalid query values.
 3. OpenAPI contract tests for canonical query parameter names and response schema shape.
 4. OpenAPI checks that `/all` does not require or silently document `page`/`size` as public pagination controls.
-5. Reusable test helpers for `PagedResponseDTO` assertions and future complete-result-set assertions.
-6. Optional ArchUnit or custom Java tests for use of the Springmaster paging/query support classes in management controllers and services.
+5. Optional count endpoint checks for canonical `/count` or `/search/count`, required `totalElements`, shared filter predicates and absence of public pagination controls.
+6. Reusable test helpers for `PagedResponseDTO`, future `CountResponseDTO` and complete-result-set assertions.
+7. Optional ArchUnit or custom Java tests for use of the Springmaster paging/query support classes in management controllers and services.
 
 Until automated gates exist, every new management list endpoint and every complete-result-set endpoint must be reviewed against this standard before it is treated as UI-ready or export-ready.
-

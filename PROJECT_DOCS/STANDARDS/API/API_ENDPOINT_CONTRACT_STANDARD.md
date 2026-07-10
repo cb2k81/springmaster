@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as generic Springmaster API endpoint standard with patch `000046_springmaster_api_endpoint_contract_standard`; query/reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`; complete result-set and `/all` export semantics amended by patch `000091_springmaster_list_query_export_all_contract`.
+Accepted as generic Springmaster API endpoint standard with patch `000046_springmaster_api_endpoint_contract_standard`; query/reference-data vocabulary harmonized by patch `000058_springmaster_api_query_reference_data_consistency_standard`; complete result-set and `/all` export semantics amended by patch `000091_springmaster_list_query_export_all_contract`; optional count-only response semantics narrowed by patch `000098_springmaster_count_response_contract_candidate`.
 
 ## Purpose
 
@@ -26,6 +26,7 @@ New Springmaster management APIs use the following canonical resource model:
 |---|---|---|
 | Resource collection | `GET /api/<domain>/<resources>` | paged list for UI-capable tables |
 | Complete result set | `GET /api/<domain>/<resources>/all` | unpaged complete result set for frontend export, backend batch and integration consumers |
+| Count-only result | `GET /api/<domain>/<resources>/count` | optional count-only endpoint for badges, dashboards, preflights and batch decisions |
 | Resource detail | `GET /api/<domain>/<resources>/{id}` | detail by opaque external string id |
 | Create resource | `POST /api/<domain>/<resources>` | create a new canonical resource |
 | Update resource | `PUT /api/<domain>/<resources>/{id}` | update/replace the resource identified by the path |
@@ -89,6 +90,28 @@ The endpoint returns all matching public list-item DTOs or a documented export D
 The implementation may process data internally in chunks, streams, cursors or repository pages, but the public response must be complete. Operational failures must use the standard API error contract and must not be returned as partial success.
 
 For complex search DTOs, the complete access mode is `POST /api/<domain>/<resources>/search/all` unless an ADR defines an asynchronous export/job resource.
+
+## Count-only endpoint
+
+A count-only endpoint is optional and must be introduced only when a consumer needs the number of matching objects without loading page data.
+
+Canonical endpoint for simple GET-queryable collections:
+
+`GET /api/<domain>/<resources>/count`
+
+Canonical endpoint for complex search DTOs:
+
+`POST /api/<domain>/<resources>/search/count`
+
+The endpoint counts the same filtered and authorized result set as the paged list and `/all` endpoint. It accepts the same documented filters, but `page`, `size`, `sortBy` and `sortDir` are not part of the count semantics. New reference APIs should reject unsupported count query parameters with `400 Bad Request` unless an ADR documents ignored compatibility parameters.
+
+The response shape follows `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`:
+
+```json
+{ "totalElements": 0 }
+```
+
+No matches return `200 OK` with `totalElements: 0`. Count endpoints must use the standard API error contract for invalid filters, unauthorized access and operational failures.
 
 ## Bounded options and reference-data endpoints
 

@@ -62,6 +62,7 @@ Accepted input standards:
 - `PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/API/API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`
 - `PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md`
 
@@ -70,7 +71,7 @@ Accepted decision scope:
 - public endpoint vocabulary;
 - collection/detail/create/update/delete contracts;
 - command and relationship endpoint semantics;
-- `sortBy`, `/options`, explicit complete-result-set `/all`, non-canonical ambiguous `/all`, and ADR-backed `/reference-data`;
+- `sortBy`, `/options`, explicit complete-result-set `/all`, optional `/count`/`/search/count`, non-canonical ambiguous `/all`, non-canonical ad-hoc count endpoints, and ADR-backed `/reference-data`;
 - DTO boundary rules;
 - validation boundary;
 - public API error contract;
@@ -80,6 +81,7 @@ Accepted decision scope:
 Remaining deferrals after ADR acceptance:
 
 - operationId/tag/schema/security-scheme naming remains a separate OpenAPI naming standard gap;
+- count-only response contract is documented as candidate in `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` and still needs Core DTO plus CatalogItem behavior evidence;
 - security schemes and permission catalog are owned by ADR-0005;
 - gate severity, Maven binding and report structure are owned by ADR-0006.
 
