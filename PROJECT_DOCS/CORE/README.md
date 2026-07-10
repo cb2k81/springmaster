@@ -203,3 +203,24 @@ src/test/java/de/cocondo/system/dto/CountResponseDTOTest.java
 ```
 
 The DTO stays fachfrei and does not introduce controller, repository, security, query or persistence behavior. It only standardizes the Java-side response envelope for the public JSON shape `{ "totalElements": 0 }`.
+
+## Patch 000101: Query Operations Interface Contract
+
+Patch `000101_springmaster_query_operations_interface_contract_core` ergänzt den Core um fachfreie Service-/Application-Interfaces für kanonische Query-Operationen.
+
+Enthalten sind:
+
+```text
+src/main/java/de/cocondo/system/query/PagedResultSetQuery.java
+src/main/java/de/cocondo/system/query/CompleteResultSetQuery.java
+src/main/java/de/cocondo/system/query/CountResultSetQuery.java
+src/main/java/de/cocondo/system/query/ResultSetQueryOperations.java
+```
+
+Die Interfaces sichern `listPaged`, `listAll` und `count` typisiert ab, ohne generische Spring-MVC-Controller-Interfaces, URL-Pfade, Security-Annotationen oder fachliche Filterfelder in den Core zu ziehen.
+
+Siehe:
+
+```text
+PROJECT_DOCS/CORE/CORE_QUERY_OPERATIONS_INTERFACE_CONTRACT.md
+```

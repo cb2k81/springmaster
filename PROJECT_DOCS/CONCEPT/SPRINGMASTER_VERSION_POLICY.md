@@ -1447,3 +1447,24 @@ Begründung:
 * Die Response nutzt den Core-DTO-Baustein `CountResponseDTO` aus `000099`.
 * Der Count nutzt dieselben Filterprädikate wie paginierte Liste und `/all`, aber keine Sortier- oder Paging-Semantik.
 * Core-, Tooling-, Template- und Platform-Update-Versionen bleiben unverändert.
+
+## Patch 000101: Query Operations Interface Contract Core
+
+Patch `000101_springmaster_query_operations_interface_contract_core` erhöht die Core-Version auf `0.3.5` und die Platform-Version auf `0.13.49-foundation`.
+
+Grund der Erhöhung ist die Einführung einer fachfreien Java-Vertragsfläche für kanonische Query-Operationen unter `de.cocondo.system.query`:
+
+```text
+PagedResultSetQuery
+CompleteResultSetQuery
+CountResultSetQuery
+ResultSetQueryOperations
+```
+
+Die Änderung betrifft ausschließlich Core-Contracts. Eine Demo-Adoption erfolgt separat, damit Core- und Demo-Scope weiterhin sauber getrennt bleiben.
+
+```text
+PLATFORM_VERSION=0.13.49-foundation
+PLATFORM_CORE_VERSION=0.3.5
+PLATFORM_STATE_PATCH=000101_springmaster_query_operations_interface_contract_core
+```

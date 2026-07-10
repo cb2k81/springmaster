@@ -185,3 +185,24 @@ Rules enforced in Core:
 * negative values are rejected with `IllegalArgumentException`.
 
 The DTO contains no filter, sort, paging, security or persistence semantics. Those remain the responsibility of the corresponding query service/controller.
+
+## Query Operations Interface Contract after 000101
+
+Patch `000101_springmaster_query_operations_interface_contract_core` ergänzt die DTO-/List-Foundation um eine fachfreie Query-Operations-Vertragsfläche:
+
+```text
+src/main/java/de/cocondo/system/query/PagedResultSetQuery.java
+src/main/java/de/cocondo/system/query/CompleteResultSetQuery.java
+src/main/java/de/cocondo/system/query/CountResultSetQuery.java
+src/main/java/de/cocondo/system/query/ResultSetQueryOperations.java
+```
+
+Die Interfaces definieren bewusst keine HTTP-Controller, keine Pfade, keine Security-Annotationen und keine fachlichen Filterfelder. Sie sind eine typsichere Java-Service-Grenze für generierte und manuell implementierte Query-Slices.
+
+Das Zielbild ist:
+
+```text
+Controller: fachliche HTTP-/Security-/OpenAPI-Grenze
+Service/Application: implementiert ResultSetQueryOperations
+Core: stellt nur fachfreie Interfaces und DTOs bereit
+```
