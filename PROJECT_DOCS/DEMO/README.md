@@ -79,3 +79,9 @@ The slice is not canonical. The review records remaining blockers and cleanup it
 
 The Catalog-demo `CatalogItem` candidate-reference-slice now includes DTO-boundary cleanup and service validation symmetry. Public request DTOs use `CatalogItemAvailabilityDTO` instead of the persistence-facing `Range` embeddable. The slice remains candidate-level and not canonical.
 
+
+
+
+## CatalogItem query-operations interface adoption
+
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` adapts the Core query-operations interfaces in the CatalogItem candidate slice. The service implements `ResultSetQueryOperations` with Demo-owned query records for paged list, complete result set and count-only operations. Controllers remain explicit Spring MVC adapters.

@@ -92,3 +92,17 @@ Covered scenarios:
 ## Remaining canonical blockers
 
 This patch only closes the list-query/export-all reference-slice gap. CatalogItem remains blocked from canonical promotion by the already documented open items, especially durable persistence, Liquibase evidence, implemented management security, OpenAPI evidence, strict gate promotion and target-project comparison/delivery.
+
+
+
+## Interface-backed service contract since 000102
+
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` keeps the public list, `/all` and `/count` HTTP contracts unchanged, but routes the service boundary through CatalogItem-owned query records:
+
+```text
+CatalogItemPagedQuery
+CatalogItemAllQuery
+CatalogItemCountQuery
+```
+
+`CatalogItemService` implements the Core `ResultSetQueryOperations` composite contract with these query types. This makes the query operations type-checkable at the Java service/application boundary without introducing generic Spring-MVC controller inheritance.

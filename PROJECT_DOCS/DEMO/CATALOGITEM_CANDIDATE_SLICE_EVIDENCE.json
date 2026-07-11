@@ -44,7 +44,9 @@
         "sku",
         "name"
       ],
-      "totalElementsSemantics": "filtered result count"
+      "totalElementsSemantics": "filtered result count",
+      "queryType": "CatalogItemPagedQuery",
+      "serviceContract": "PagedResultSetQuery<CatalogItemPagedQuery, CatalogItemListItemDTO>"
     },
     {
       "operation": "complete-result-set",
@@ -78,7 +80,9 @@
       ],
       "responseDto": "List<CatalogItemListItemDTO>",
       "pagingParameters": "not public on /all",
-      "truncation": "not allowed at public contract boundary"
+      "truncation": "not allowed at public contract boundary",
+      "queryType": "CatalogItemAllQuery",
+      "serviceContract": "CompleteResultSetQuery<CatalogItemAllQuery, CatalogItemListItemDTO>"
     },
     {
       "operation": "count-only",
@@ -111,7 +115,9 @@
           "blank": "ignored"
         }
       ],
-      "countSemantics": "same filters as paged-list and complete-result-set; sorting and pagination are not count semantics"
+      "countSemantics": "same filters as paged-list and complete-result-set; sorting and pagination are not count semantics",
+      "queryType": "CatalogItemCountQuery",
+      "serviceContract": "CountResultSetQuery<CatalogItemCountQuery>"
     },
     {
       "operation": "detail-by-id",
@@ -219,5 +225,39 @@
   "sortSupportEvidence": "core-stableComparator-used-by-candidate-list-and-all-query-pipeline",
   "countReferencePatch": "000100_springmaster_catalogitem_count_reference_slice",
   "countReferenceState": "CatalogItem exposes CountResponseDTO-backed count-only endpoint with same filter predicates as list and all",
-  "countQueryEvidence": "covered-for-unfiltered-filtered-empty-and-rejected-page-sort-parameters"
+  "countQueryEvidence": "covered-for-unfiltered-filtered-empty-and-rejected-page-sort-parameters",
+  "queryOperationsInterfacePatch": "000102_springmaster_catalogitem_query_operations_interface_adoption",
+  "queryOperationsInterfaceState": "CatalogItemService implements ResultSetQueryOperations with demo-owned query records for paged, all and count operations",
+  "queryTypes": [
+    {
+      "name": "CatalogItemPagedQuery",
+      "operation": "paged-list",
+      "fields": [
+        "page",
+        "size",
+        "sortBy",
+        "sortDir",
+        "sku",
+        "name"
+      ]
+    },
+    {
+      "name": "CatalogItemAllQuery",
+      "operation": "complete-result-set",
+      "fields": [
+        "sortBy",
+        "sortDir",
+        "sku",
+        "name"
+      ]
+    },
+    {
+      "name": "CatalogItemCountQuery",
+      "operation": "count-only",
+      "fields": [
+        "sku",
+        "name"
+      ]
+    }
+  ]
 }

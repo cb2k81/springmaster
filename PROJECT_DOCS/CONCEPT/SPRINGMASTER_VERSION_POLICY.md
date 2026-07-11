@@ -1468,3 +1468,23 @@ PLATFORM_VERSION=0.13.49-foundation
 PLATFORM_CORE_VERSION=0.3.5
 PLATFORM_STATE_PATCH=000101_springmaster_query_operations_interface_contract_core
 ```
+
+
+
+## Versionierter Stand nach 000102
+
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` erhöht den Demo- und Foundation-Stand auf:
+
+```text
+PLATFORM_VERSION=0.13.50-foundation
+PLATFORM_DEMO_VERSION=0.2.5
+PLATFORM_STATE_PATCH=000102_springmaster_catalogitem_query_operations_interface_adoption
+```
+
+Begründung:
+
+* Der Patch adaptiert die Core-Query-Operations-Interfaces aus `000101` im CatalogItem-Candidate-Slice.
+* `CatalogItemService` implementiert `ResultSetQueryOperations<CatalogItemPagedQuery, CatalogItemAllQuery, CatalogItemCountQuery, CatalogItemListItemDTO>`.
+* Die fachlichen Query-Records bleiben im Demo-Slice; der Core bleibt frei von CatalogItem-Fachlichkeit und Spring-MVC-Mapping.
+* Der Controller bleibt expliziter HTTP-Adapter und delegiert in fachliche Query-Typen.
+* Core-, Tooling-, Template- und Platform-Update-Versionen bleiben unverändert.

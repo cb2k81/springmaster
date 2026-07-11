@@ -4,17 +4,23 @@ import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import de.cocondo.system.list.PagedQuerySupport;
+import de.cocondo.system.query.ResultSetQueryOperations;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CatalogItemService {
+public class CatalogItemService implements ResultSetQueryOperations<
+        CatalogItemPagedQuery,
+        CatalogItemAllQuery,
+        CatalogItemCountQuery,
+        CatalogItemListItemDTO> {
 
     public static final int DEFAULT_PAGE_SIZE = 20;
 
@@ -87,21 +93,27 @@ public class CatalogItemService {
             String sku,
             String name
     ) {
-        pagedQuerySupport.validatePaging(page, size);
+        return listPaged(new CatalogItemPagedQuery(page, size, sortBy, sortDir, sku, name));
+    }
 
-        List<CatalogItem> matching = matchingSortedItems(sortBy, sortDir, sku, name);
-        int fromIndex = Math.min(page * size, matching.size());
-        int toIndex = Math.min(fromIndex + size, matching.size());
+    @Override
+    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(CatalogItemPagedQuery query) {
+        Objects.requireNonNull(query, "query must not be null");
+        pagedQuerySupport.validatePaging(query.page(), query.size());
+
+        List<CatalogItem> matching = matchingSortedItems(query.sortBy(), query.sortDir(), query.sku(), query.name());
+        int fromIndex = Math.min(query.page() * query.size(), matching.size());
+        int toIndex = Math.min(fromIndex + query.size(), matching.size());
         List<CatalogItemListItemDTO> items = matching.subList(fromIndex, toIndex).stream()
                 .map(mapper::toListItemDto)
                 .toList();
 
         PagedResponseDTO<CatalogItemListItemDTO> response = new PagedResponseDTO<>();
         response.setItems(items);
-        response.setPage(page);
-        response.setSize(size);
+        response.setPage(query.page());
+        response.setSize(query.size());
         response.setTotalElements(matching.size());
-        response.setTotalPages(totalPages(matching.size(), size));
+        response.setTotalPages(totalPages(matching.size(), query.size()));
         return response;
     }
 
@@ -111,13 +123,25 @@ public class CatalogItemService {
             String sku,
             String name
     ) {
-        return matchingSortedItems(sortBy, sortDir, sku, name).stream()
+        return listAll(new CatalogItemAllQuery(sortBy, sortDir, sku, name));
+    }
+
+    @Override
+    public synchronized List<CatalogItemListItemDTO> listAll(CatalogItemAllQuery query) {
+        Objects.requireNonNull(query, "query must not be null");
+        return matchingSortedItems(query.sortBy(), query.sortDir(), query.sku(), query.name()).stream()
                 .map(mapper::toListItemDto)
                 .toList();
     }
 
     public synchronized CountResponseDTO count(String sku, String name) {
-        return CountResponseDTO.of(matchingItems(sku, name).size());
+        return count(new CatalogItemCountQuery(sku, name));
+    }
+
+    @Override
+    public synchronized CountResponseDTO count(CatalogItemCountQuery query) {
+        Objects.requireNonNull(query, "query must not be null");
+        return CountResponseDTO.of(matchingItems(query.sku(), query.name()).size());
     }
 
     public synchronized void clear() {

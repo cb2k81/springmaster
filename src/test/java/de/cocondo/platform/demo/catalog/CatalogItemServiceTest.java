@@ -6,7 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.query.ResultSetQueryOperations;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class CatalogItemServiceTest {
@@ -100,6 +102,32 @@ class CatalogItemServiceTest {
         assertThat(all.getTotalElements()).isEqualTo(3);
         assertThat(filteredByName.getTotalElements()).isEqualTo(2);
         assertThat(filteredBySku.getTotalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void implementsCoreQueryOperationsContractWithFachlicheQueryTypes() {
+        service.create(new CatalogItemCreateDTO("SKU-1", "Alpha", null));
+        service.create(new CatalogItemCreateDTO("SKU-2", "Alphabetic", null));
+        service.create(new CatalogItemCreateDTO("SKU-3", "Beta", null));
+
+        ResultSetQueryOperations<
+                CatalogItemPagedQuery,
+                CatalogItemAllQuery,
+                CatalogItemCountQuery,
+                CatalogItemListItemDTO> operations = service;
+
+        PagedResponseDTO<CatalogItemListItemDTO> paged = operations.listPaged(
+                new CatalogItemPagedQuery(0, 1, "sku", "ASC", null, "alpha"));
+        List<CatalogItemListItemDTO> all = operations.listAll(
+                new CatalogItemAllQuery("sku", "ASC", null, "alpha"));
+        CountResponseDTO count = operations.count(new CatalogItemCountQuery(null, "alpha"));
+
+        assertThat(paged.getItems()).hasSize(1);
+        assertThat(paged.getTotalElements()).isEqualTo(2);
+        assertThat(all)
+                .extracting(CatalogItemListItemDTO::getSku)
+                .containsExactly("SKU-1", "SKU-2");
+        assertThat(count.getTotalElements()).isEqualTo(2);
     }
 
     @Test

@@ -59,3 +59,11 @@ Covered scenarios:
 ## Remaining canonical blockers
 
 CatalogItem remains blocked from canonical promotion by durable persistence, Liquibase evidence, implemented management security, OpenAPI evidence, strict gate promotion and target-project comparison/delivery.
+
+
+
+## Interface-backed service contract since 000102
+
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` keeps the count HTTP contract unchanged and introduces `CatalogItemCountQuery` as the fachliche count-query type used by the Core `CountResultSetQuery` contract.
+
+The count endpoint still accepts only `sku` and `name`; paging and sorting remain outside count semantics.

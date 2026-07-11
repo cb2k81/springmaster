@@ -1,9 +1,12 @@
 package de.cocondo.platform.demo.catalog.api;
 
+import de.cocondo.platform.demo.catalog.CatalogItemAllQuery;
+import de.cocondo.platform.demo.catalog.CatalogItemCountQuery;
 import de.cocondo.platform.demo.catalog.CatalogItemCreateDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemListItemDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemNotFoundException;
+import de.cocondo.platform.demo.catalog.CatalogItemPagedQuery;
 import de.cocondo.platform.demo.catalog.CatalogItemService;
 import de.cocondo.platform.demo.catalog.CatalogItemUpdateDTO;
 import de.cocondo.system.dto.CountResponseDTO;
@@ -56,7 +59,7 @@ public class CatalogItemController {
             @RequestParam(name = "sku", required = false) String sku,
             @RequestParam(name = "name", required = false) String name
     ) {
-        return service.listPaged(page, size, sortBy, sortDir, sku, name);
+        return service.listPaged(new CatalogItemPagedQuery(page, size, sortBy, sortDir, sku, name));
     }
 
     @GetMapping("/all")
@@ -66,7 +69,7 @@ public class CatalogItemController {
             @RequestParam(name = "sku", required = false) String sku,
             @RequestParam(name = "name", required = false) String name
     ) {
-        return service.listAll(sortBy, sortDir, sku, name);
+        return service.listAll(new CatalogItemAllQuery(sortBy, sortDir, sku, name));
     }
 
     @GetMapping("/count")
@@ -76,7 +79,7 @@ public class CatalogItemController {
             HttpServletRequest request
     ) {
         validateCountQueryParameters(request);
-        return service.count(sku, name);
+        return service.count(new CatalogItemCountQuery(sku, name));
     }
 
     @PostMapping

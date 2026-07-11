@@ -268,3 +268,20 @@ Current evidence:
 - service tests cover default sort behavior and descending all-result sorting.
 
 The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.
+
+
+
+## Query-Operations-Interface adoption after 000102
+
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` adapts the Core query-operations contract from `000101` in the CatalogItem candidate slice.
+
+Current evidence:
+
+- `CatalogItemService` implements `ResultSetQueryOperations<CatalogItemPagedQuery, CatalogItemAllQuery, CatalogItemCountQuery, CatalogItemListItemDTO>`;
+- the fachliche query records remain in the Demo slice and are not moved into Core;
+- `CatalogItemController` remains an explicit Spring MVC adapter and does not inherit generic controller mappings;
+- paged list, `/all` and `/count` delegate through typed query records;
+- the existing filter, sort, count and error semantics remain unchanged;
+- `CatalogItemServiceTest` covers the interface-backed service contract directly.
+
+The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.
