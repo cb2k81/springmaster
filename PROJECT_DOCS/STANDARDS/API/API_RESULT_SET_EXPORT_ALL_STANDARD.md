@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as Springmaster API standard addendum with patch `000091_springmaster_list_query_export_all_contract`; count-only response shape narrowed by candidate patch `000098_springmaster_count_response_contract_candidate`.
+Accepted as Springmaster API standard addendum with patch `000091_springmaster_list_query_export_all_contract`; count-only response shape narrowed by `000098` and reference-backed by Core/CatalogItem patches `000099` through `000102`.
 
 This standard amends the earlier `/all` decision from `000058_springmaster_api_query_reference_data_consistency_standard` and `ADR-0002`. The old rejection still applies to ambiguous, undocumented, selector-like or accidentally unbounded `/all` endpoints. It does not apply to the explicit complete-result-set contract defined here.
 
@@ -115,7 +115,7 @@ The count result shape follows `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`:
 { "totalElements": 0 }
 ```
 
-Springmaster Core may later introduce a reusable `CountResponseDTO` with this exact external shape. Until then, projects must not invent incompatible per-controller count envelopes.
+Springmaster Core provides the reusable `CountResponseDTO` with this exact external shape. New reference slices must use that DTO or an explicitly ADR-approved compatible successor instead of incompatible per-controller count envelopes.
 
 ## Error behavior
 
@@ -141,13 +141,13 @@ Springmaster Core may later introduce a reusable `CountResponseDTO` with this ex
 
 ## Catalog-demo expectation
 
-Catalog-demo must keep the paged collection endpoint as the first proof of the list contract. Before CatalogItem is promoted to a complete canonical export-ready reference slice, it must also demonstrate the complete result-set access mode:
+Catalog-demo keeps the paged collection endpoint as the first proof of the list contract. CatalogItem now demonstrates the complete result-set access mode:
 
 ```text
 GET /api/demo/catalog/items/all
 ```
 
-The `/all` endpoint must reuse the CatalogItem filter/sort contract, return all matching `CatalogItemListItemDTO` or a documented export DTO, reject invalid filters/sort values with the standard error body and return `200 OK` with `[]` for empty results.
+The `/all` endpoint reuses the CatalogItem filter/sort contract, returns all matching `CatalogItemListItemDTO`, rejects invalid filters/sort values and returns `200 OK` with `[]` for empty results. CatalogItem also demonstrates `GET /api/demo/catalog/items/count` with `CountResponseDTO` and the same filter predicate family.
 
 ## Future gates
 

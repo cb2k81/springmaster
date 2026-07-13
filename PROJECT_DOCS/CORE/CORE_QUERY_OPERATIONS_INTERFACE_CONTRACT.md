@@ -96,6 +96,17 @@ mvn test
 
 erfolgreich abgeschlossen sind.
 
-## Folgearbeit
+## CatalogItem reference adoption
 
-Die fachliche Referenzadoption im CatalogItem-Slice erfolgt getrennt im Demo-Scope. Dadurch bleibt die Patch-Scope-Grenze zwischen Core und Demo sauber.
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` completes the first Demo-scope adoption. `CatalogItemService` implements `ResultSetQueryOperations<CatalogItemPagedQuery, CatalogItemAllQuery, CatalogItemCountQuery, CatalogItemListItemDTO>`.
+
+The closure review in `000103_springmaster_query_operations_contract_closure_review` records the resulting target pattern:
+
+```text
+Controller = explicit Spring MVC adapter
+Service    = typed query-operations contract
+Query DTOs = fachlicher slice-owned model
+Core       = fachfreie interfaces and DTOs
+```
+
+Further generated applications should use this contract shape, but strict enforcement remains deferred until gate implementation and canonicalization evidence are explicitly promoted.

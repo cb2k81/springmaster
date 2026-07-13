@@ -4,7 +4,7 @@
 
 Candidate Springmaster API standard since patch `000098_springmaster_count_response_contract_candidate`.
 
-This document narrows the optional count-only endpoint that was introduced by `000091_springmaster_list_query_export_all_contract`. It is a candidate because the Core DTO and CatalogItem behavior reference are still deferred to follow-up patches.
+This document narrows the optional count-only endpoint that was introduced by `000091_springmaster_list_query_export_all_contract`. The candidate is now reference-backed: Core provides `CountResponseDTO` since `000099`, and CatalogItem demonstrates `GET /api/demo/catalog/items/count` since `000100`. Strict gates and target-project enforcement remain deferred.
 
 ## Purpose
 
@@ -69,7 +69,7 @@ Rules:
 - no matching objects returns `200 OK` with `totalElements: 0`.
 - new reference APIs must not use incompatible property names such as `count`, `total`, `totalCount`, `itemsCount` or `size` for the same meaning.
 
-Springmaster Core should later provide a reusable `CountResponseDTO` with this exact external shape. Until that DTO exists, controllers may use an endpoint-local DTO only when it preserves this shape exactly and does not leak persistence types.
+Springmaster Core provides the reusable `CountResponseDTO` with this exact external shape. New reference slices should use that DTO instead of endpoint-local count envelopes.
 
 ## Error behavior
 
@@ -105,16 +105,15 @@ Recommended implementation properties:
 - shared filter and sort semantics;
 - empty result behavior.
 
-A follow-up CatalogItem patch should add `GET /api/demo/catalog/items/count` and tests proving:
+Patch `000100_springmaster_catalogitem_count_reference_slice` adds `GET /api/demo/catalog/items/count` and tests proving:
 
 - unfiltered count;
-- filtered count;
+- filtered count by `sku` and `name`;
 - zero-result count;
-- invalid filter handling;
 - absence/rejection of pagination and sort controls;
-- alignment with paged `totalElements`.
+- alignment with the same filter predicate family used by paged list and `/all`.
 
-Until that follow-up exists, this document is a candidate contract and not yet canonical Catalog-demo evidence.
+Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` additionally proves that count-only can be part of the typed service contract through `CatalogItemCountQuery` and `CountResultSetQuery<CatalogItemCountQuery>`.
 
 ## Gate candidates
 

@@ -81,7 +81,7 @@ Accepted decision scope:
 Remaining deferrals after ADR acceptance:
 
 - operationId/tag/schema/security-scheme naming remains a separate OpenAPI naming standard gap;
-- count-only response contract is documented as candidate in `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` and still needs Core DTO plus CatalogItem behavior evidence;
+- count-only response contract now has Core DTO and CatalogItem behavior evidence; strict gate enforcement remains deferred to ADR-0006/gate implementation readiness;
 - security schemes and permission catalog are owned by ADR-0005;
 - gate severity, Maven binding and report structure are owned by ADR-0006.
 
@@ -373,7 +373,7 @@ Rules classified as `needs-adr` must not be encoded as strict tooling gates unti
 
 ### 000058 update
 
-`000058_springmaster_api_query_reference_data_consistency_standard` resolved the first API-boundary ADR gap at standard level. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export, batch and integration access: a documented complete-result-set `/all` endpoint is canonical, while ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical. A dedicated ADR may still be useful later if Springmaster introduces multi-sort, asynchronous export jobs or broad reference-data caching, but Catalog-demo and gate-tooling can now treat `sortBy`, `/options`, ADR-backed `/reference-data`, canonical complete-result-set `/all` and non-canonical ambiguous `/all` as distinct accepted standard decisions.
+`000058_springmaster_api_query_reference_data_consistency_standard` resolved the first API-boundary ADR gap at standard level. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export, batch and integration access: a documented complete-result-set `/all` endpoint is canonical, while ambiguous, selector-like, undocumented or silently capped `/all` endpoints remain non-canonical. A dedicated ADR may still be useful later if Springmaster introduces multi-sort, asynchronous export jobs or broad reference-data caching, but Catalog-demo and gate-tooling can now treat `sortBy`, `/options`, ADR-backed `/reference-data`, canonical complete-result-set `/all`, optional count-only and non-canonical ambiguous `/all` as distinct accepted standard decisions. Patch `000103_springmaster_query_operations_contract_closure_review` records that paged list, `/all`, `/count`, Core query interfaces and CatalogItem service adoption are reference-demonstrated at candidate level.
 
 ### 000059 update
 

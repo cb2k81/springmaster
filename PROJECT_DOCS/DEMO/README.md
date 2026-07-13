@@ -85,3 +85,12 @@ The Catalog-demo `CatalogItem` candidate-reference-slice now includes DTO-bounda
 ## CatalogItem query-operations interface adoption
 
 Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` adapts the Core query-operations interfaces in the CatalogItem candidate slice. The service implements `ResultSetQueryOperations` with Demo-owned query records for paged list, complete result set and count-only operations. Controllers remain explicit Spring MVC adapters.
+
+
+
+
+## Query Operations closure review
+
+Patch `000103_springmaster_query_operations_contract_closure_review` records that the CatalogItem candidate slice now demonstrates the complete Query Operations pattern: paged list, complete result set `/all`, count-only `/count`, Core DTO/interface usage and Demo-owned query records.
+
+The slice remains `candidate-reference-slice`, not canonical, until persistence, security, OpenAPI, gate and target-comparison blockers are resolved.

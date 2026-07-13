@@ -217,17 +217,18 @@ The readiness plan is the first G5 Catalog-demo reference gate artifact. It does
 Patch `000058_springmaster_api_query_reference_data_consistency_standard` resolves the first P0 gate-blocking consistency gap. Patch `000091_springmaster_list_query_export_all_contract` amends that decision for export/batch use cases. Patch `000098_springmaster_count_response_contract_candidate` narrows optional count-only semantics. Query gates must treat `sortBy` as canonical, `sort` as non-canonical for new reference APIs, `/all` as the complete-result-set vocabulary, `/count` and `/search/count` as optional count-only vocabulary, `/options` as the bounded selector vocabulary and `/reference-data` as ADR-backed broader bounded reference data. Ambiguous or silently capped `/all` endpoints and ad-hoc count endpoint names remain gate findings.
 
 
-## Count response contract candidate since 000098
+## Count response and query-operations evidence since 000103
 
-Patch `000098_springmaster_count_response_contract_candidate` narrows optional count-only endpoint behavior before a Core DTO or CatalogItem count reference slice exists.
+Patch `000098_springmaster_count_response_contract_candidate` narrowed optional count-only endpoint behavior. Patches `000099` through `000102` provide the reference evidence: Core `CountResponseDTO`, CatalogItem `/count`, Core query-operation interfaces and CatalogItem service adoption.
 
 Gate impact:
 
 - report-only G1 diagnostics may recognize `GET /api/<domain>/<resources>/count` and `POST /api/<domain>/<resources>/search/count` as the only candidate count-only endpoint shapes;
 - count response schemas should expose required `totalElements` and avoid incompatible property names such as `count`, `total` or `totalCount`;
 - count endpoints should not expose public `page`/`size` controls and should not semantically depend on `sortBy`/`sortDir`;
-- filtered and zero-result count behavior remains a MockMvc/Catalog-demo evidence target;
-- strict count gates remain deferred until CatalogItem provides executable count reference evidence.
+- filtered and zero-result count behavior is now CatalogItem reference evidence;
+- G3 Java-boundary diagnostics may treat service-level `ResultSetQueryOperations` adoption as the preferred typed query contract;
+- strict count and query-operation gates remain deferred until the gate implementation itself is stable and explicitly promoted under ADR-0006.
 
 
 ## Error identity and status-code gate readiness since 000059
@@ -342,7 +343,7 @@ Patch `000070_springmaster_report_only_gate_findings_baseline_review` adds the f
 
 API-relevant baseline findings are:
 
-- missing canonical pageable query evidence in current Catalog-demo seed;
+- historical missing pageable query evidence is now superseded by CatalogItem candidate evidence for paged list, `/all`, `/count` and typed query operations;
 - ad-hoc `Map<String,Object>` error response evidence;
 - positive `201 Created` evidence for create;
 - missing bodyless delete status-code evidence.

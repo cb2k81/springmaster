@@ -21,7 +21,8 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | API contract gate concept | `API_CONTRACT_GATE_CONCEPT.md` | layered OpenAPI, MockMvc, reflection, security and Catalog-demo gate model documented with 000055; implementation follows later |
 | Query/reference-data consistency standard | `API_QUERY_REFERENCE_DATA_CONSISTENCY_STANDARD.md` | `sortBy`, complete-result-set `/all`, `/options` and ADR-backed `/reference-data` resolved with 000058/000091 |
 | Result-set export/all standard | `API_RESULT_SET_EXPORT_ALL_STANDARD.md` | frontend export, backend batch, complete result-set `/all`, count and empty/error behavior documented with 000091 |
-| Count response contract candidate | `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` | optional `/count` and `/search/count` response shape with required `totalElements` narrowed with 000098 |
+| Count response contract candidate | `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` | optional `/count` and `/search/count` response shape with required `totalElements`; Core DTO and CatalogItem evidence now exist |
+| Query operations closure review | `QUERY_OPERATIONS_CONTRACT_CLOSURE_REVIEW.md` | closure review for paged list, `/all`, `/count`, Core query-operation interfaces and CatalogItem service adoption after 000102 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -56,7 +57,8 @@ The first CatalogItem API should demonstrate:
 - standard command and relationship endpoint behavior when Catalog-demo introduces relationships, assignments, bulk operations or state transitions,
 - standard API error body for validation, not-found and conflict scenarios,
 - dedicated create/update/command DTOs with Bean Validation,
-- response DTOs and `PagedResponseDTO` instead of entity or Spring Data response leakage.
+- response DTOs, `PagedResponseDTO` and `CountResponseDTO` instead of entity, Spring Data or ad-hoc response leakage;
+- typed query-operation interfaces at the service/application boundary, without generic Spring-MVC controller inheritance.
 
 Since patch `000046_springmaster_api_endpoint_contract_standard`, Catalog-demo must follow the canonical endpoint standard when CatalogItem becomes the reference slice. The collection path is the canonical paged list endpoint, `/all` is the complete-result-set endpoint for frontend export and batch/integration consumers, `/options` is the bounded selector endpoint, public `findOne`/`findFirst`/`findLast` vocabulary is prohibited for management APIs, single deletes are bodyless, and delete-multiple is a collection command rather than a body-bearing `DELETE`.
 
@@ -71,6 +73,8 @@ The API standards should become enforceable through:
 - Maven-bound quality gates once the checks are stable.
 
 Until those gates exist, the standards are documentation-first and must be demonstrated by Catalog-demo before being applied to existing target projects.
+
+Since `000103_springmaster_query_operations_contract_closure_review`, the paged-list, complete-result-set `/all`, count-only and Core query-operation interface pattern is considered reference-demonstrated at CatalogItem candidate level. Strict target-project enforcement remains deferred.
 
 ## Real-app comparison since 000047
 
