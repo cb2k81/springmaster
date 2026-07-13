@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "springmaster.query-contract-gate-report.v1",
+  "generatedAt": "2026-07-13T00:00:00Z",
+  "project": "springmaster",
+  "mode": "report-only",
+  "source": {
+    "javaSources": "src/main/java",
+    "tests": "src/test/java",
+    "standards": "PROJECT_DOCS/STANDARDS/API"
+  },
+  "summary": {
+    "resources": 1,
+    "findings": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "resources": [
+    {
+      "resource": "CatalogItem",
+      "status": "pass",
+      "sourceType": "springmaster-candidate-reference-slice",
+      "persistence": "in-memory",
+      "jpaEfficiency": "not-applicable-in-memory",
+      "operations": [
+        {
+          "kind": "paged-list",
+          "operation": "GET /api/demo/catalog/items",
+          "parameters": [
+            "name",
+            "page",
+            "size",
+            "sku",
+            "sortBy",
+            "sortDir"
+          ],
+          "requiredParametersPresent": [
+            "page",
+            "size",
+            "sortBy",
+            "sortDir"
+          ]
+        },
+        {
+          "kind": "complete-result-set",
+          "operation": "GET /api/demo/catalog/items/all",
+          "parameters": [
+            "name",
+            "sku",
+            "sortBy",
+            "sortDir"
+          ],
+          "forbiddenPagingParametersPresent": []
+        },
+        {
+          "kind": "count",
+          "operation": "GET /api/demo/catalog/items/count",
+          "parameters": [
+            "name",
+            "sku"
+          ],
+          "forbiddenPagingSortParametersPresent": [],
+          "response": "CountResponseDTO"
+        }
+      ],
+      "filterFamily": [
+        "name",
+        "sku"
+      ],
+      "sortAllowlist": [
+        "name",
+        "sku"
+      ],
+      "stableTieBreakerEvidence": "present",
+      "queryOperationsInterface": "present"
+    }
+  ],
+  "findings": []
+}

@@ -37,26 +37,22 @@ class SpringmasterQueryContractReportTest {
                 .isZero();
         assertThat(report).isRegularFile();
 
+        Path golden = projectRoot.resolve("src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json");
+        assertThat(golden).isRegularFile();
+
         String json = Files.readString(report, StandardCharsets.UTF_8);
+        String expected = Files.readString(golden, StandardCharsets.UTF_8);
+
+        assertThat(json).isEqualTo(expected);
         assertThat(json)
                 .contains("\"schemaVersion\": \"springmaster.query-contract-gate-report.v1\"")
                 .contains("\"generatedAt\": \"2026-07-13T00:00:00Z\"")
-                .contains("\"project\": \"springmaster\"")
-                .contains("\"mode\": \"report-only\"")
-                .contains("\"resources\": 1")
+                .contains("\"summary\": {")
                 .contains("\"findings\": 0")
-                .contains("\"errors\": 0")
-                .contains("\"warnings\": 0")
-                .contains("\"info\": 0")
                 .contains("\"resource\": \"CatalogItem\"")
-                .contains("\"status\": \"pass\"")
-                .contains("GET /api/demo/catalog/items")
-                .contains("GET /api/demo/catalog/items/all")
                 .contains("GET /api/demo/catalog/items/count")
                 .contains("\"response\": \"CountResponseDTO\"")
-                .contains("\"jpaEfficiency\": \"not-applicable-in-memory\"")
-                .contains("\"queryOperationsInterface\": \"present\"")
-                .contains("\"stableTieBreakerEvidence\": \"present\"");
+                .contains("\"queryOperationsInterface\": \"present\"");
     }
 
     private ProcessResult runCommand(String... command) throws IOException, InterruptedException {
