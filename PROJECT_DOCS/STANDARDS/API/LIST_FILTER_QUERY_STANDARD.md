@@ -112,3 +112,8 @@ Until automated gates exist, every new management list endpoint and every comple
 ## Count predicate equivalence since 000105
 
 When a queryable collection exposes a count-only endpoint or returns `PagedResponseDTO.totalElements`, the count must use the same business, security and data-scope predicate family as the data query. Persistent implementations must follow `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`: count must be computed through a repository/query-level count operation and not by materializing the filtered list.
+
+
+## Report-only query gate since 000106
+
+`QUERY_CONTRACT_GATE_REPORT.md` defines the first report-only gate target for this standard. Diagnostics should compare public query vocabulary, filter parity, sort allowlists and response shape evidence across paged list, `/all` and optional `/count` operations before strict enforcement is considered.

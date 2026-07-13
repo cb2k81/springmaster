@@ -1514,3 +1514,14 @@ Reasoning:
 * It documents how persistent JPA-backed query slices should compute `PagedResponseDTO.totalElements` and count-only endpoint values efficiently.
 * It does not change Core Java code, Demo runtime behavior, Tooling, Template or Platform-Update artifacts.
 * The CatalogItem candidate slice remains in-memory; durable persistence evidence is still a later milestone.
+
+
+## Query Contract Gate Report since 000106
+
+`000106_springmaster_query_contract_gate_report` is documentation-only and does not change platform version metadata.
+
+Reasoning:
+
+* It defines the report-only JSON artifact, rule IDs and finding schema for future query-contract diagnostics.
+* It does not add executable gate tooling, Maven profiles, Core code, Demo runtime behavior, Templates, Platform-Update artifacts or target-project changes.
+* Strict enforcement remains deferred until a later ADR-0006-aligned gate implementation patch.

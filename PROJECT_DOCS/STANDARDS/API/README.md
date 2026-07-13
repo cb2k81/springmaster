@@ -23,6 +23,7 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | Result-set export/all standard | `API_RESULT_SET_EXPORT_ALL_STANDARD.md` | frontend export, backend batch, complete result-set `/all`, count and empty/error behavior documented with 000091 |
 | Count response contract candidate | `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` | optional `/count` and `/search/count` response shape with required `totalElements`; Core DTO and CatalogItem evidence now exist |
 | Query operations closure review | `QUERY_OPERATIONS_CONTRACT_CLOSURE_REVIEW.md` | closure review for paged list, `/all`, `/count`, Core query-operation interfaces and CatalogItem service adoption after 000102 |
+| Query contract gate report | `QUERY_CONTRACT_GATE_REPORT.md` | report-only gate artifact, rule IDs and finding schema for query-contract diagnostics since 000106 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -191,3 +192,8 @@ List and bulk UIs are not required to call per-item prechecks. Bulk command exec
 ## JPA count query efficiency since 000105
 
 Persistent implementations must use repository/query-level count queries for `totalElements` and count-only endpoints. The standard reference is `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`.
+
+
+## Query contract gate report since 000106
+
+`QUERY_CONTRACT_GATE_REPORT.md` defines the report-only target for checking paged list, `/all`, optional `/count`, filter parity, sort allowlists, typed query-operation adoption and JPA count-efficiency indicators. The first executable implementation remains follow-up work; strict Maven failure is deferred until ADR-0006 promotion.

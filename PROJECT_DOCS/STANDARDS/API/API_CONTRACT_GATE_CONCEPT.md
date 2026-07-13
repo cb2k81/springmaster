@@ -395,3 +395,16 @@ This input does not enable strict gates. It only prevents stale historical text 
 Future API and Java-boundary gates may report count-query efficiency findings based on `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`. Initial diagnostics should stay report-only and may flag obvious anti-patterns such as `listAll(...).size()`, `repository.findAll(...).size()`, stream counting after entity materialization, DTO mapping inside count methods, or paging/sorting applied to count operations.
 
 These findings must distinguish documentation/runtime-contract violations from implementation-efficiency warnings until strict promotion is explicitly approved under ADR-0006.
+
+
+## Query contract gate report since 000106
+
+Patch `000106_springmaster_query_contract_gate_report` defines the first concrete report-only artifact for query/list contracts: `reports/api/query-contract-gate-report.json`. The report concept maps the documented standards for paged list, complete-result-set `/all`, optional `/count`, filter parity, sort allowlists, service-level query-operation interfaces and JPA count efficiency into stable finding IDs.
+
+Gate impact:
+
+- query-contract diagnostics now have a named report target and rule catalog;
+- the first implementation should emit JSON findings before any Maven-failing strict gate is introduced;
+- CatalogItem should be the positive reference fixture for paged list, `/all`, `/count` and `ResultSetQueryOperations`;
+- in-memory CatalogItem count must not be reported as a JPA count-efficiency violation;
+- strict enforcement remains deferred until the report schema is stable and promoted under ADR-0006.

@@ -134,3 +134,8 @@ Future report-only and strict gates should check:
 5. count endpoint does not require or semantically depend on `sortBy`/`sortDir`;
 6. MockMvc behavior tests prove filtered and zero-result counts;
 7. count-only implementation does not bypass documented security classification.
+
+
+## Gate report linkage since 000106
+
+The count-only contract is included in the report-only Query Contract Gate Report. Initial diagnostics should verify canonical count paths, required `totalElements`, absence of paging/sorting semantics and filter parity with list operations. Strict enforcement remains deferred until the report schema and implementation are stable.

@@ -118,3 +118,8 @@ Future report-only gates may flag the following patterns:
 - public count endpoints using non-standard names such as `/total` or incompatible response fields.
 
 Strict enforcement remains deferred until the query-contract gate implementation is itself stable and explicitly promoted.
+
+
+## Report-only gate linkage since 000106
+
+`QUERY_CONTRACT_GATE_REPORT.md` defines the initial finding IDs for count-efficiency diagnostics. The first implementation should report obvious anti-patterns such as `listAll(...).size()` or `repository.findAll(...).size()` as report-only findings before they are promoted to strict build failures.

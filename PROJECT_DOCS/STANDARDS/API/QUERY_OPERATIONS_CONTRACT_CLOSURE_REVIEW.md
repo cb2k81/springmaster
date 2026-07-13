@@ -146,3 +146,16 @@ The closed candidate-level contract therefore consists of:
 - Core DTO and query-operation interfaces;
 - CatalogItem HTTP and service-contract behavior;
 - persistent count-query efficiency guidance for later JPA-backed slices and generated applications.
+
+
+## Follow-up after 000106
+
+Patch `000106_springmaster_query_contract_gate_report` adds the report-only gate target for the closed query-operations contract. It does not reopen the candidate-level contract; it defines how later tooling should report deviations before strict enforcement.
+
+The closure evidence is therefore now traceable through:
+
+- documented endpoint semantics;
+- Core DTO and query-operation interfaces;
+- CatalogItem reference behavior;
+- JPA count-efficiency guidance;
+- report-only query-contract finding IDs and JSON report shape.

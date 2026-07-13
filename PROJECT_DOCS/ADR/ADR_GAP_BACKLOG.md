@@ -532,3 +532,8 @@ ADR impact:
 - ADR-0006 owns future report-only and strict gate promotion for count-query anti-pattern detection.
 
 This closes the documentation gap for JPA count-query efficiency. Runtime proof for a durable CatalogItem repository remains a separate implementation milestone.
+
+
+## Query Contract Gate Report follow-up since 000106
+
+Patch `000106_springmaster_query_contract_gate_report` narrows the ADR-0006 follow-up for query gates by defining a report-only JSON artifact and stable finding IDs. The ADR gap is no longer the rule catalog itself; the remaining gap is executable implementation, CatalogItem report fixture evidence, generated-application comparison and later strict-gate promotion.
