@@ -1543,3 +1543,51 @@ Reasoning:
 * It produces a machine-readable JSON report with stable schema, resource summary and findings list.
 * It keeps the report mode non-strict; findings remain review evidence and do not fail builds by themselves.
 * It does not change Core runtime contracts, Demo runtime behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+## CatalogItem query report golden fixture since 000108
+
+Patch `000108_springmaster_catalogitem_query_contract_report_fixture` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.52-foundation
+PLATFORM_TOOLING_VERSION=0.3.18
+PLATFORM_STATE_PATCH=000108_springmaster_catalogitem_query_contract_report_fixture
+```
+
+Reasoning:
+
+* It stabilizes the executable query-contract reporter from `000107` with a committed CatalogItem golden JSON fixture.
+* It converts the query-contract report regression from substring smoke evidence into byte-for-byte expected-output evidence.
+* It does not change Core runtime contracts, Demo runtime behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+## CatalogItem OpenAPI query-contract evidence since 000109
+
+Patch `000109_springmaster_query_openapi_contract_evidence` advances the Foundation version:
+
+```text
+PLATFORM_VERSION=0.13.53-foundation
+PLATFORM_STATE_PATCH=000109_springmaster_query_openapi_contract_evidence
+```
+
+Reasoning:
+
+* It adds runtime-generated OpenAPI evidence for the CatalogItem query-contract reference slice.
+* It verifies that `/api-docs` exposes the paged list, `/all` and `/count` query vocabulary consistently.
+* It verifies that `/count` exposes the `CountResponseDTO.totalElements` schema contract.
+* It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+## OpenAPI api-docs path alignment since 000109a
+
+Patch `000110_springmaster_query_openapi_contract_evidence_api_docs_path_fix` advances the Foundation version:
+
+```text
+PLATFORM_VERSION=0.13.54-foundation
+PLATFORM_STATE_PATCH=000110_springmaster_query_openapi_contract_evidence_api_docs_path_fix
+```
+
+Reasoning:
+
+* It aligns the CatalogItem OpenAPI evidence test with the project-local Springdoc path configured in `src/main/resources/application.yml`.
+* The canonical endpoint for this Springmaster project is `/api-docs`; `/v3/api-docs` is only the Springdoc default and is intentionally not exposed by the current configuration.
+* It keeps the OpenAPI evidence goal from `000109` unchanged and only repairs the executable endpoint used by the test and documentation.
+* It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.

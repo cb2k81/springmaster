@@ -423,3 +423,16 @@ The first implementation is deliberately narrow:
 - it does not replace future OpenAPI, persistent JPA or security/data-scope gates.
 
 This satisfies the report-only implementation milestone from `QUERY_CONTRACT_GATE_REPORT.md` while keeping strict enforcement deferred.
+
+## OpenAPI query-contract evidence since 000109
+
+The query-contract gate evidence now includes a runtime-generated OpenAPI proof for the CatalogItem candidate reference slice.
+
+`CatalogItemOpenApiQueryContractTest` reads `/api-docs` and verifies the public query vocabulary for the paged list, `/all` and `/count` operations. This closes the CatalogItem OpenAPI-evidence gap for the current query/list/count scope while keeping target-project comparison and strict gate promotion deferred.
+
+Gate impact:
+
+- OpenAPI parameter drift can now be detected in the reference project;
+- generated parameter names such as `arg0`/`arg1` are explicitly rejected for `/count` evidence;
+- `/count` must expose `CountResponseDTO.totalElements` in the OpenAPI schema;
+- strict enforcement outside Springmaster remains a later ADR-0006 promotion step.

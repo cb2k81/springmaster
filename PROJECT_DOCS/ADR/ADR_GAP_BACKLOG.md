@@ -556,3 +556,46 @@ Remaining gaps:
 - persistent JPA count-query source inspection beyond obvious anti-patterns;
 - security/data-scope runtime parity evidence;
 - strict gate promotion.
+
+## Query contract report fixture update since 000108
+
+Patch `000108_springmaster_catalogitem_query_contract_report_fixture` closes the CatalogItem golden-fixture gap for the dedicated query-contract reporter.
+
+Closed at fixture level:
+
+- the CatalogItem report has a committed expected-output JSON fixture;
+- `SpringmasterQueryContractReportTest` compares generated output byte-for-byte against the fixture;
+- the fixture records zero findings for the current CatalogItem candidate reference shape;
+- runtime reports under `reports/` remain generated artifacts and are not committed as the golden baseline.
+
+Remaining query-contract maturity gaps:
+
+- OpenAPI evidence for list, `/all` and `/count`;
+- persistent/JPA count-query reference implementation;
+- security/data-scope predicate parity evidence;
+- target-project comparison;
+- strict gate promotion after ADR-0006 evidence is complete.
+
+## Query OpenAPI evidence update since 000109
+
+Patch `000109_springmaster_query_openapi_contract_evidence` closes the CatalogItem OpenAPI evidence gap for the current query-contract maturity path.
+
+Closed at reference-project level:
+
+- `/api-docs` exposes the CatalogItem paged list query parameters;
+- `/api-docs` exposes the CatalogItem `/all` query parameters without paging;
+- `/api-docs` exposes the CatalogItem `/count` query parameters without paging/sorting;
+- `/api-docs` exposes `CountResponseDTO.totalElements` for `/count`.
+
+Remaining query-contract maturity gaps:
+
+- persistent/JPA count-query reference implementation;
+- security/data-scope predicate parity evidence;
+- target-project OpenAPI comparison;
+- strict gate promotion after ADR-0006 evidence is complete.
+
+Repair note since `000110_springmaster_query_openapi_contract_evidence_api_docs_path_fix`:
+
+- the Springmaster project configures Springdoc with `springdoc.api-docs.path=/api-docs`;
+- OpenAPI evidence therefore validates `/api-docs`, not the default `/v3/api-docs`;
+- the query-contract evidence scope remains unchanged.

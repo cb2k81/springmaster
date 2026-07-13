@@ -207,3 +207,26 @@ Persistent implementations must use repository/query-level count queries for `to
 ```
 
 The command writes a JSON report to `reports/api/query-contract-gate-report.json` by default. The initial implementation validates the Springmaster CatalogItem candidate reference slice and is intentionally not a strict build gate.
+
+## CatalogItem query report golden fixture since 000108
+
+Patch `000108_springmaster_catalogitem_query_contract_report_fixture` commits the first golden JSON fixture for the dedicated query-contract report command:
+
+```text
+src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json
+```
+
+`SpringmasterQueryContractReportTest` now compares the generated CatalogItem report with this fixture. This keeps the report schema, summary, resource evidence and finding baseline stable while the command remains report-only.
+
+## OpenAPI query-contract evidence since 000109
+
+Patch `000109_springmaster_query_openapi_contract_evidence` adds `OPENAPI_QUERY_CONTRACT_EVIDENCE.md` and the runtime-generated CatalogItem OpenAPI proof.
+
+The dedicated test `CatalogItemOpenApiQueryContractTest` loads `/api-docs` and verifies that the public OpenAPI contract exposes the same query vocabulary already proven by source/report evidence:
+
+- paged list: `page`, `size`, `sortBy`, `sortDir`, `sku`, `name`;
+- `/all`: `sortBy`, `sortDir`, `sku`, `name`, without paging parameters;
+- `/count`: `sku`, `name`, without paging or sorting parameters;
+- `/count` response schema: `CountResponseDTO.totalElements`.
+
+This evidence remains reference-project verification. It does not yet promote generated target-project OpenAPI scans or strict gate failure semantics.

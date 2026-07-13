@@ -83,10 +83,19 @@ def method_block(text: str, annotation: str, method_name: str) -> str:
 
 
 def mapping_path(block: str) -> str:
-    match = re.search(r"@(?:GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\s*(?:\(\s*\"([^\"]*)\"\s*\))?", block)
+    match = re.search(
+        r"@(?:GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\s*(?:\((.*?)\))?",
+        block,
+        re.DOTALL,
+    )
     if not match:
         return ""
-    return match.group(1) or ""
+    args = match.group(1) or ""
+    named = re.search(r"(?:path|value)\s*=\s*\{?\s*\"([^\"]*)\"", args, re.DOTALL)
+    if named:
+        return named.group(1) or ""
+    literal = re.search(r"\"([^\"]*)\"", args)
+    return literal.group(1) if literal else ""
 
 
 def request_params(block: str) -> list[str]:

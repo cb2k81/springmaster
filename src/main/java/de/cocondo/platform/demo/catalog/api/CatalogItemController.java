@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -50,7 +51,7 @@ public class CatalogItemController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResponseDTO<CatalogItemListItemDTO> list(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
@@ -62,7 +63,7 @@ public class CatalogItemController {
         return service.listPaged(new CatalogItemPagedQuery(page, size, sortBy, sortDir, sku, name));
     }
 
-    @GetMapping("/all")
+    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CatalogItemListItemDTO> listAll(
             @RequestParam(name = "sortBy", defaultValue = "sku") String sortBy,
             @RequestParam(name = "sortDir", defaultValue = "ASC") String sortDir,
@@ -72,7 +73,7 @@ public class CatalogItemController {
         return service.listAll(new CatalogItemAllQuery(sortBy, sortDir, sku, name));
     }
 
-    @GetMapping("/count")
+    @GetMapping(path = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public CountResponseDTO count(
             @RequestParam(name = "sku", required = false) String sku,
             @RequestParam(name = "name", required = false) String name,

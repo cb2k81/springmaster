@@ -171,3 +171,35 @@ The MVP is intentionally source-based and deterministic. It currently evaluates 
 The expected CatalogItem MVP result is `summary.findings = 0`. That does not promote CatalogItem to canonical persistence status. It only proves that the current candidate reference slice satisfies the query-contract shape covered by the MVP.
 
 The implementation remains report-only. Strict build failure, generated-application scanning, OpenAPI parsing, persistent JPA inspection and security/data-scope runtime checks remain later promotion stages.
+
+## CatalogItem golden fixture since 000108
+
+Patch `000108_springmaster_catalogitem_query_contract_report_fixture` promotes the MVP output for the CatalogItem candidate reference slice into a committed golden fixture:
+
+```text
+src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json
+```
+
+The fixture freezes the expected report-only output for a deterministic timestamp (`2026-07-13T00:00:00Z`). The regression test compares the generated JSON byte-for-byte against this fixture before checking selected semantic markers. This turns the CatalogItem report from smoke evidence into stable Golden Evidence without changing the report-only runtime mode.
+
+The fixture is intentionally scoped to CatalogItem and to source-based query-contract evidence. It does not prove OpenAPI conformance, durable JPA persistence or security/data-scope parity. Those remain separate promotion patches.
+
+## OpenAPI query-contract evidence since 000109
+
+Patch `000109_springmaster_query_openapi_contract_evidence` adds separate runtime-generated OpenAPI evidence for the CatalogItem candidate reference slice.
+
+The evidence is intentionally not folded into the source-based report command yet. This separation keeps failure analysis precise:
+
+- `bin/query-contract-gate-report.sh` proves the source/report contract;
+- `SpringmasterQueryContractReportTest` proves the committed report fixture;
+- `CatalogItemOpenApiQueryContractTest` proves `/api-docs` query vocabulary and count schema exposure.
+
+The OpenAPI evidence verifies the same three query operations as the report fixture:
+
+```text
+GET /api/demo/catalog/items
+GET /api/demo/catalog/items/all
+GET /api/demo/catalog/items/count
+```
+
+The count operation must expose only business filters and the `CountResponseDTO.totalElements` response schema. Paging and sorting parameters on `/count` remain invalid OpenAPI evidence.

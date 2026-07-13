@@ -211,7 +211,7 @@ The endpoint contract must become enforceable through tests and tooling after th
 
 | Gate | Purpose | Candidate implementation |
 |---|---|---|
-| OpenAPI endpoint shape gate | verify paths, methods and absence of forbidden request bodies | JUnit reading `/v3/api-docs` |
+| OpenAPI endpoint shape gate | verify paths, methods and absence of forbidden request bodies | JUnit reading `/api-docs` |
 | Query parameter gate | verify explicit paging, sorting, filter names, enum exposure and date formats | reusable OpenAPI assertion helper |
 | Response schema gate | verify `PagedResponseDTO`, detail DTO, command result DTO | reusable JSON schema assertions |
 | Delete gate | verify bodyless single deletes and defined bulk-delete command shape | OpenAPI + MockMvc tests |
@@ -263,4 +263,3 @@ This document does not change Springmaster Java code.
 This document does not require Maven tests.
 
 This document does not change IDM, Personnel or any other existing project.
-

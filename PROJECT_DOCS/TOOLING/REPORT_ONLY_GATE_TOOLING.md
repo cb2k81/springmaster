@@ -230,3 +230,27 @@ G5 now evaluates current candidate evidence before historical readiness-plan tex
 It is separate from the broader `springmaster-gates.py` seed so the query-contract schema can evolve deterministically without changing the existing general report-only gate output.
 
 The command is non-mutating except for its configured JSON output file. For patch validation and tests, callers should write the report below `target/` or the patch validation log directory.
+
+## Query contract report golden fixture since 000108
+
+The dedicated query-contract report command is now backed by a committed CatalogItem golden fixture:
+
+```text
+src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json
+```
+
+Patch validation should continue to write ad-hoc query-contract reports below `target/` or `patches/logs/validation/...`; the committed fixture is the stable expected-output baseline for regression testing and must not be replaced by runtime output from a local run unless the report contract intentionally changes.
+
+## OpenAPI query-contract evidence since 000109
+
+The report-only query-contract tooling remains source-based after `000109`, but the reference project now also contains an OpenAPI evidence test.
+
+Patch validation for query-contract maturity should treat the following checks as complementary:
+
+```text
+./bin/query-contract-gate-report.sh --out <log-dir>/query-contract-gate-report.json --generated-at 2026-07-13T00:00:00Z
+mvn -B -ntp test -Dtest=SpringmasterQueryContractReportTest
+mvn -B -ntp test -Dtest=CatalogItemOpenApiQueryContractTest
+```
+
+Runtime reports under `reports/` stay generated artifacts and should not be committed. The OpenAPI evidence is committed as a deterministic test, not as a generated JSON report.
