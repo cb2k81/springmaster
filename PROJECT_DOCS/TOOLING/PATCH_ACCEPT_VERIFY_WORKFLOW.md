@@ -350,3 +350,18 @@ BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vor
 
 Ein solcher Patch muss gegen die aktuelle Baseline neu erzeugt oder fachlich rebased werden. Ein erzwungenes Apply ohne passende Baseline ist nicht zulässig.
 
+## Live-Baseline-Schritt seit 000104
+
+Der `accept`-Workflow enthält seit `000104_springmaster_patch_baseline_live_hash_preflight_guard` vor dem Dry-run einen zusätzlichen Schritt:
+
+```text
+Patch live baseline preflight
+```
+
+Technisch entspricht er:
+
+```bash
+./bin/patch.sh live-baseline <patch.zip>
+```
+
+Schlägt dieser Schritt fehl, wurde der Patch nicht gegen den aktuellen Working Tree gebaut oder die Manifest-Hash-Abdeckung ist unvollständig. Der Patch darf dann nicht angewendet werden.

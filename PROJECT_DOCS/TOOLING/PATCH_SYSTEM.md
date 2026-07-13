@@ -338,3 +338,21 @@ Unterstützte Manifest-Formate:
 Alternativ kann die Information unter `baseline.expectedBeforeSha256` oder als Liste unter `baseline.expectedBefore` stehen. Ein Wert `null`, `missing` oder `absent` bedeutet: Die Datei darf vor dem Patch noch nicht existieren.
 
 Diese Prüfung ergänzt den projektweiten Write-Lock. Der Lock verhindert parallele Mutationen im selben Projektverzeichnis. Die Hash-Prüfung erkennt zusätzlich stale Patches, die zwar nacheinander ausgeführt werden, aber gegen eine ältere Baseline vorbereitet wurden.
+
+## Live-Baseline-Preflight seit 000104
+
+Patch `000104_springmaster_patch_baseline_live_hash_preflight_guard` ergänzt ein nicht-mutierendes Preflight-Kommando:
+
+```bash
+./bin/patch.sh live-baseline <patch.zip>
+```
+
+Das Kommando prüft die im Manifest hinterlegte `baseline.expectedBeforeSha256`-Map vollständig gegen den aktuellen Working Tree. Für jede Patch-Operation muss ein erwarteter Vorzustand eingetragen sein. Bei neuen Dateien ist der erwartete Wert `null` beziehungsweise `missing`.
+
+`accept` führt diesen Guard automatisch vor `apply --dry-run` aus. Dadurch werden Patches, die gegen rekonstruierte oder veraltete Baselines gebaut wurden, in einem expliziten Schritt `live-baseline` abgelehnt.
+
+Details stehen in:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_BASELINE_LIVE_HASH_PREFLIGHT_GUARD.md
+```

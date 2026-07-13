@@ -195,3 +195,22 @@ Bei `BASELINE_CONFLICT` wird nicht forciert angewendet. Stattdessen wird ein neu
 ## Übergangsregel
 
 Historische manuelle Apply-/Verify-Blöcke in älteren Dokumenten bleiben nur als Diagnose- und Fallback-Hinweise erhalten. Für neue generierte Kommandos ist dieses Dokument maßgeblich.
+
+## Live-Baseline-Pflicht seit 000104
+
+Vor Auslieferung eines generierten Patch-ZIPs muss der Ersteller die Baseline-Annahme gegen den echten Live-Dateistand prüfen:
+
+```bash
+./bin/patch.sh live-baseline <patch.zip>
+./bin/patch.sh apply --dry-run <patch.zip>
+```
+
+Ein erfolgreiches Apply gegen eine rekonstruierte Export-Kopie ist nicht ausreichend, wenn die tatsächlichen Live-Hashes des Zielrepositories nicht geprüft wurden.
+
+Für neue Patches ist `baseline.expectedBeforeSha256` vollständig zu pflegen:
+
+* jeder geänderte oder gelöschte Pfad erhält den aktuellen SHA-256 des Live-Working-Trees,
+* jede neue Datei erhält `null` beziehungsweise `missing`,
+* Hash-Einträge ohne Patch-Operation sind unzulässig.
+
+Der Standardabschluss über `accept` enthält diesen Guard automatisch. Manuelle Runner müssen ihn explizit vor dem Dry-run ausführen.

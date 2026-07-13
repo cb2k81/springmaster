@@ -19,6 +19,7 @@ USAGE = """Verwendung:
   ./bin/patch.sh --help
   ./bin/patch.sh help
   ./bin/patch.sh apply [--dry-run] [--wait] <patch.zip>
+  ./bin/patch.sh live-baseline <patch.zip>
   ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
   ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
   ./bin/patch.sh rollback [--dry-run] [--wait] <patch-id|patch-number|latest>
@@ -34,6 +35,7 @@ Pflichtregeln:
   - logs/CHANGELOG-*.md ist verpflichtend.
   - Erlaubte ZIP-Wurzelpfade: manifest.json, files/**, delete/**, logs/CHANGELOG-*.md.
   - Legacy-Patches werden abgelehnt.
+  - accept führt vor dem Dry-run einen Live-Baseline-Hash-Preflight aus.
   - Mutierende Läufe verwenden einen projektlokalen Write-Lock.
   - Für lange Läufe ist --background --wait der empfohlene Modus.
 """
@@ -781,18 +783,10 @@ def expected_before_sha256_map(manifest):
 def format_expected_sha(value):
     return "<missing>" if value is None else value
 
-def validate_baseline_preconditions(manifest, operations):
-    expected = expected_before_sha256_map(manifest)
-    if not expected:
-        return expected
-
+def baseline_precondition_conflicts(expected, operations, require_complete=False):
     operation_targets = {op["target"] for op in operations}
     unsupported = sorted(path for path in expected if path not in operation_targets)
-    if unsupported:
-        fail(
-            "BASELINE_CONFLICT: expectedBeforeSha256 enthält Pfade ohne Patch-Operation:\n  "
-            + "\n  ".join(unsupported)
-        )
+    missing_expected = sorted(path for path in operation_targets if path not in expected) if require_complete else []
 
     conflicts = []
     for rel in sorted(expected):
@@ -802,8 +796,56 @@ def validate_baseline_preconditions(manifest, operations):
         if actual_sha != expected_sha:
             conflicts.append((rel, expected_sha, actual_sha))
 
+    return unsupported, missing_expected, conflicts
+
+def validate_baseline_preconditions(manifest, operations):
+    expected = expected_before_sha256_map(manifest)
+    if not expected:
+        return expected
+
+    unsupported, _missing_expected, conflicts = baseline_precondition_conflicts(expected, operations)
+    if unsupported:
+        fail(
+            "BASELINE_CONFLICT: expectedBeforeSha256 enthält Pfade ohne Patch-Operation:\n  "
+            + "\n  ".join(unsupported)
+        )
+
     if conflicts:
         lines = ["BASELINE_CONFLICT: Aktueller Dateistand passt nicht zum vom Patch erwarteten Vorzustand."]
+        for rel, expected_sha, actual_sha in conflicts:
+            lines.append(f"  {rel}")
+            lines.append(f"    expectedBeforeSha256: {format_expected_sha(expected_sha)}")
+            lines.append(f"    actualSha256:         {format_expected_sha(actual_sha)}")
+        fail("\n".join(lines))
+
+    return expected
+
+def validate_live_baseline_preflight(manifest, operations, require_complete=True):
+    expected = expected_before_sha256_map(manifest)
+    if not expected:
+        fail(
+            "LIVE_BASELINE_HASH_MISSING: manifest.baseline.expectedBeforeSha256 ist für "
+            "den Live-Baseline-Preflight verpflichtend."
+        )
+
+    unsupported, missing_expected, conflicts = baseline_precondition_conflicts(
+        expected, operations, require_complete=require_complete
+    )
+    if unsupported:
+        fail(
+            "LIVE_BASELINE_HASH_UNSUPPORTED: expectedBeforeSha256 enthält Pfade ohne Patch-Operation:\n  "
+            + "\n  ".join(unsupported)
+        )
+    if missing_expected:
+        fail(
+            "LIVE_BASELINE_HASH_INCOMPLETE: Für diese Patch-Operationen fehlt expectedBeforeSha256:\n  "
+            + "\n  ".join(missing_expected)
+        )
+    if conflicts:
+        lines = [
+            "LIVE_BASELINE_HASH_MISMATCH: Aktueller Live-Dateistand passt nicht zum "
+            "vom Patch erwarteten Vorzustand."
+        ]
         for rel, expected_sha, actual_sha in conflicts:
             lines.append(f"  {rel}")
             lines.append(f"    expectedBeforeSha256: {format_expected_sha(expected_sha)}")
@@ -873,6 +915,49 @@ def apply_operations(operations, tmp_dir, archive_dir, dry_run):
                 target_abs.unlink()
 
     return summary, entries
+
+def live_baseline_command(args):
+    rest = []
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--wait":
+            i += 1
+        elif arg == "--lock-timeout":
+            if i + 1 >= len(args):
+                fail("--lock-timeout erwartet eine Sekundenangabe.")
+            i += 2
+        else:
+            rest.append(arg)
+            i += 1
+    if len(rest) != 1:
+        fail("live-baseline erwartet genau ein Patch-ZIP.")
+
+    zip_path = Path(rest[0]).expanduser().resolve()
+    tmp_dir = extract_archive(zip_path)
+    try:
+        manifest, scope, name, patch_id, operations = collect_patch(tmp_dir, zip_path=zip_path)
+        expected = validate_live_baseline_preflight(manifest, operations, require_complete=True)
+        print("Patch-Live-Baseline-Preflight:")
+        print(f"  Projekt:      {PROJECT_ROOT}")
+        print(f"  Archiv:       {zip_path}")
+        print(f"  Patch-ID:     {patch_id}")
+        print(f"  Scope:        {scope}")
+        print(f"  Operationen:  {len(operations)}")
+        print(f"  Hash-Regeln:  {len(expected)}")
+        print()
+        for op in sorted(operations, key=lambda item: item["target"]):
+            rel = op["target"]
+            expected_sha = expected.get(rel)
+            actual_sha = sha256_file(ensure_inside_root(PROJECT_ROOT / rel))
+            state = "OK" if expected_sha == actual_sha else "MISMATCH"
+            print(f"  [{state}] {rel}")
+            print(f"    expectedBeforeSha256: {format_expected_sha(expected_sha)}")
+            print(f"    actualSha256:         {format_expected_sha(actual_sha)}")
+        print()
+        print("Live-Baseline-Preflight abgeschlossen. Alle erwarteten Vorzustands-Hashes passen zum Working Tree.")
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 def apply_command(args):
     dry_run = False
@@ -1768,6 +1853,16 @@ def accept_command(args):
         ensure_git_clean_before_commit(log_dir)
 
     script_path = Path(__file__).resolve()
+    live_baseline_rc = run_process_step(
+        "Patch live baseline preflight",
+        [sys.executable, str(script_path), str(PROJECT_ROOT), "live-baseline", str(zip_path)],
+        log_dir / "live-baseline.log",
+    )
+    if live_baseline_rc != 0:
+        write_accept_summary(log_dir, "FAILED", "accept", failed_step="live-baseline", options=options)
+        print_accept_result("FAILED", "accept", log_dir, failed_step="live-baseline", options=options)
+        sys.exit(live_baseline_rc)
+
     dry_run_rc = run_process_step(
         "Patch dry-run",
         [sys.executable, str(script_path), str(PROJECT_ROOT), "apply", "--dry-run", str(zip_path)],
@@ -1905,6 +2000,8 @@ def dispatch_command():
         print(USAGE)
     elif COMMAND == "apply":
         apply_command(ARGS)
+    elif COMMAND == "live-baseline":
+        live_baseline_command(ARGS)
     elif COMMAND == "accept":
         accept_command(ARGS)
     elif COMMAND == "verify":

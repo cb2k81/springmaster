@@ -341,3 +341,15 @@ Die Prüfung ist Bestandteil von `apply --dry-run`, `apply` und damit auch von `
 Die Integrationstests des Patchsystems müssen mindestens einen Fixture-Fall enthalten, in dem ein Patch mit gültigem erwarteten SHA erzeugt wird, die Datei anschließend extern verändert wird und `apply --dry-run` den Patch kontrolliert ablehnt. Danach muss derselbe Patch gegen den erwarteten Vorzustand wieder erfolgreich im Dry-run laufen.
 
 Baseline-Hash-Preconditions ersetzen nicht den projektweiten Write-Lock. Beide Schutzmechanismen sind komplementär: Locking verhindert gleichzeitige Mutationen, Hash-Preconditions verhindern stale sequentielle Patches.
+
+## Live-Baseline-Hash-Preflight seit 000104
+
+Die Mindestvalidierung eines neuen Patch-Abschlusses umfasst seit `000104` zusätzlich den Live-Baseline-Hash-Preflight:
+
+```bash
+./bin/patch.sh live-baseline <patch.zip>
+```
+
+Der Guard läuft im `accept`-Workflow vor dem normalen Dry-run. Er verhindert, dass ein Patch mit unvollständiger, veralteter oder nur gegen eine rekonstruierte Baseline geprüfter `expectedBeforeSha256`-Map akzeptiert wird.
+
+Bei einem Fehler der Klassen `LIVE_BASELINE_HASH_MISSING`, `LIVE_BASELINE_HASH_INCOMPLETE`, `LIVE_BASELINE_HASH_UNSUPPORTED` oder `LIVE_BASELINE_HASH_MISMATCH` ist der Patch neu gegen den aktuellen Live-Stand zu erstellen. Ein Entfernen der Hash-Map ist keine zulässige Reparatur.

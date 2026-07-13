@@ -22,26 +22,48 @@ run() {
 }
 
 make_patch() {
-  local name="$1"
+  local patch_id="$1"
   local zip_path="$2"
   local mode="$3"
-  local expected_sha="${4:-}"
-  python3 - "$name" "$zip_path" "$mode" "$expected_sha" <<'PY'
+  local expected_existing_sha="${4:-}"
+  local expected_deleted_sha="${5:-}"
+  python3 - "$patch_id" "$zip_path" "$mode" "$expected_existing_sha" "$expected_deleted_sha" <<'PY'
 import json
+import re
 import sys
 import zipfile
 from pathlib import Path
 
-name, zip_path, mode, expected_sha = sys.argv[1:5]
+patch_id, zip_path, mode, expected_existing_sha, expected_deleted_sha = sys.argv[1:6]
 zip_path = Path(zip_path)
-manifest = {"scope": "custom", "name": name}
-if mode == "hash-conflict":
-    if not expected_sha:
-        raise SystemExit("hash-conflict mode requires expected sha")
-    manifest["expectedBeforeSha256"] = {"custom/existing.txt": expected_sha}
+name = re.sub(r"^\d{6}_", "", patch_id)
+manifest = {
+    "id": patch_id,
+    "patchId": patch_id,
+    "scope": "custom",
+    "name": name,
+    "baseline": {"expectedBeforeSha256": {}},
+}
+baseline = manifest["baseline"]["expectedBeforeSha256"]
+baseline[f"patches/logs/custom/CHANGELOG-{patch_id}.md"] = None
+if mode == "mixed":
+    if not expected_existing_sha or not expected_deleted_sha:
+        raise SystemExit("mixed mode requires expected existing and deleted sha")
+    baseline["custom/existing.txt"] = expected_existing_sha
+    baseline["custom/new-file.txt"] = None
+    baseline["custom/deleted.txt"] = expected_deleted_sha
+elif mode == "new-only":
+    baseline[f"custom/{name}.txt"] = None
+elif mode == "hash-conflict":
+    if not expected_existing_sha:
+        raise SystemExit("hash-conflict mode requires expected existing sha")
+    baseline["custom/existing.txt"] = expected_existing_sha
+else:
+    raise SystemExit(f"unknown mode: {mode}")
+
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
     z.writestr("manifest.json", json.dumps(manifest, indent=2) + "\n")
-    z.writestr(f"logs/CHANGELOG-{name}.md", f"# {name}\n\nFixture patch-system integration test.\n")
+    z.writestr(f"logs/CHANGELOG-{patch_id}.md", f"# {patch_id}\n\nFixture patch-system integration test.\n")
     if mode == "mixed":
         z.writestr("files/custom/existing.txt", "changed\n")
         z.writestr("files/custom/new-file.txt", "new\n")
@@ -50,11 +72,8 @@ with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
         z.writestr(f"files/custom/{name}.txt", f"{name}\n")
     elif mode == "hash-conflict":
         z.writestr("files/custom/existing.txt", "guarded-change\n")
-    else:
-        raise SystemExit(f"unknown mode: {mode}")
 PY
 }
-
 
 log "Fixture: ${FIXTURE}"
 mkdir -p "${FIXTURE}/custom" "${FIXTURE}/patches/logs/custom"
@@ -84,12 +103,15 @@ else
   log "SKIP: git fixture setup (git not available)"
 fi
 
-PATCH1="${PATCHES}/fixture_mixed.zip"
-PATCH2="${PATCHES}/fixture_background.zip"
-PATCH3="${PATCHES}/fixture_hash_guard.zip"
-make_patch "fixture_mixed" "${PATCH1}" mixed
-make_patch "fixture_background" "${PATCH2}" new-only
+PATCH1="${PATCHES}/000001_fixture_mixed.zip"
+PATCH2="${PATCHES}/000002_fixture_background.zip"
+PATCH3="${PATCHES}/000003_fixture_hash_guard.zip"
+EXISTING_SHA="$(sha256sum "${FIXTURE}/custom/existing.txt" | awk '{print $1}')"
+DELETED_SHA="$(sha256sum "${FIXTURE}/custom/deleted.txt" | awk '{print $1}')"
+make_patch "000001_fixture_mixed" "${PATCH1}" mixed "${EXISTING_SHA}" "${DELETED_SHA}"
+make_patch "000002_fixture_background" "${PATCH2}" new-only
 
+run python3 "${ENGINE}" "${FIXTURE}" live-baseline "${PATCH1}"
 run python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH1}"
 run python3 "${ENGINE}" "${FIXTURE}" accept "${PATCH1}" --profile docs --no-full-test --no-export --skip-tooling-selfcheck
 
@@ -116,7 +138,7 @@ fi
 
 if command -v git >/dev/null 2>&1; then
   COMMIT_FIXTURE="${WORK_ROOT}/${RUN_ID}/commit-fixture"
-  COMMIT_PATCH="${PATCHES}/fixture_commit.zip"
+  COMMIT_PATCH="${PATCHES}/000001_fixture_commit.zip"
   mkdir -p "${COMMIT_FIXTURE}/custom" "${COMMIT_FIXTURE}/patches/logs/custom"
   cat > "${COMMIT_FIXTURE}/.env" <<'ENV'
 PATCH_LOCAL_SCOPES=custom
@@ -136,7 +158,7 @@ ENV
     git add .env
     git commit -qm "commit fixture baseline"
   ) >>"${LOG}" 2>&1
-  make_patch "fixture_commit" "${COMMIT_PATCH}" new-only
+  make_patch "000001_fixture_commit" "${COMMIT_PATCH}" new-only
   run python3 "${ENGINE}" "${COMMIT_FIXTURE}" accept "${COMMIT_PATCH}" --profile docs --no-full-test --no-export --skip-tooling-selfcheck --commit
   (cd "${COMMIT_FIXTURE}" && git log --oneline -1) >>"${LOG}" 2>&1
   (cd "${COMMIT_FIXTURE}" && git log --oneline -1 | grep -q 'patch(custom): 000001_fixture_commit')
@@ -163,14 +185,20 @@ if python3 "${ENGINE}" "${FIXTURE}" rollback latest >>"${LOG}" 2>&1; then
 fi
 
 EXPECTED_SHA="$(sha256sum "${FIXTURE}/custom/existing.txt" | awk '{print $1}')"
-make_patch "fixture_hash_guard" "${PATCH3}" hash-conflict "${EXPECTED_SHA}"
+make_patch "000003_fixture_hash_guard" "${PATCH3}" hash-conflict "${EXPECTED_SHA}"
 printf 'foreign-change\n' > "${FIXTURE}/custom/existing.txt"
+if python3 "${ENGINE}" "${FIXTURE}" live-baseline "${PATCH3}" >>"${LOG}" 2>&1; then
+  log "ERROR: live baseline hash conflict was not detected"
+  exit 1
+fi
+grep -q 'LIVE_BASELINE_HASH_MISMATCH' "${LOG}"
 if python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH3}" >>"${LOG}" 2>&1; then
   log "ERROR: baseline hash conflict was not detected"
   exit 1
 fi
 grep -q 'BASELINE_CONFLICT' "${LOG}"
 printf 'original\n' > "${FIXTURE}/custom/existing.txt"
+run python3 "${ENGINE}" "${FIXTURE}" live-baseline "${PATCH3}"
 run python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH3}"
 
 LOCK_DIR="${FIXTURE}/patches/runtime/locks"
@@ -217,14 +245,12 @@ BG_OUT="${WORK_ROOT}/${RUN_ID}/background.out"
   cat "${SUMMARY_PATH}" >>"${LOG}"
   grep -q 'STATUS=SUCCESS' "${SUMMARY_PATH}"
   test -f "${FIXTURE}/custom/fixture_background.txt"
-  
+
   test ! -e "${FIXTURE}/patches/runtime/locks/project-write.lock"
-  
+
 else
   log "SKIP: background fixture test (set PATCH_SYSTEM_IT_WITH_BACKGROUND=1 to enable)"
 fi
 
 log "PASS: patch-system integration and rollback fixture"
 log "Log: ${LOG}"
-
-
