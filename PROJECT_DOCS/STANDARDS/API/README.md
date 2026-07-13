@@ -182,3 +182,12 @@ GET /api/<domain>/<resources>/{id}/commands/<command>/precheck
 Prechecks provide UI-consumable command capability information for a concrete actor, target and command. They do not replace command execution validation. The executing command and its precheck must share the same backend policy or guard.
 
 List and bulk UIs are not required to call per-item prechecks. Bulk command execution continues to follow the command and relationship endpoint standard, including the existing atomic/partial-success rules.
+
+
+## Count query efficiency
+
+- `JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`
+
+## JPA count query efficiency since 000105
+
+Persistent implementations must use repository/query-level count queries for `totalElements` and count-only endpoints. The standard reference is `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`.

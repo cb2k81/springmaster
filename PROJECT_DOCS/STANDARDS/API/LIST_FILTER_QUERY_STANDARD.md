@@ -107,3 +107,8 @@ The intended enforcement path is:
 7. Optional ArchUnit or custom Java tests for use of the Springmaster paging/query support classes in management controllers and services.
 
 Until automated gates exist, every new management list endpoint and every complete-result-set endpoint must be reviewed against this standard before it is treated as UI-ready or export-ready.
+
+
+## Count predicate equivalence since 000105
+
+When a queryable collection exposes a count-only endpoint or returns `PagedResponseDTO.totalElements`, the count must use the same business, security and data-scope predicate family as the data query. Persistent implementations must follow `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`: count must be computed through a repository/query-level count operation and not by materializing the filtered list.

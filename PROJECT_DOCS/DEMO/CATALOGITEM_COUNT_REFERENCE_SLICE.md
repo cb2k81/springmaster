@@ -67,3 +67,10 @@ CatalogItem remains blocked from canonical promotion by durable persistence, Liq
 Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` keeps the count HTTP contract unchanged and introduces `CatalogItemCountQuery` as the fachliche count-query type used by the Core `CountResultSetQuery` contract.
 
 The count endpoint still accepts only `sku` and `name`; paging and sorting remain outside count semantics.
+
+
+## Persistent count-query efficiency reference since 000105
+
+CatalogItem is still an in-memory candidate slice. Its count endpoint proves the HTTP behavior, `CountResponseDTO` usage and typed query-operation integration, but it is not a JPA performance proof.
+
+Persistent CatalogItem work and generated applications must follow `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`: count must be computed through a repository/query-level count operation with the same filter, security and data-scope predicates, without loading the full result set just to call `.size()`.

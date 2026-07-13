@@ -107,7 +107,7 @@ The closure does not make CatalogItem canonical. The following topics remain del
 
 | Topic | Reason |
 |---|---|
-| Durable persistence/JPA count implementation | CatalogItem still uses the in-memory candidate service |
+| Durable persistence/JPA implementation | CatalogItem still uses the in-memory candidate service; JPA count efficiency guidance is documented separately since `000105` |
 | Liquibase evidence | no durable CatalogItem table/migration proof yet |
 | Implemented management security | security classification exists, enforcement is deferred |
 | OpenAPI operation/schema evidence | strict OpenAPI contract evidence is not complete yet |
@@ -133,3 +133,16 @@ Strict gates are still deferred until the gate implementation itself is stable a
 The Query Operations contract is closed at **reference-demonstrated candidate level**.
 
 Future generated applications should use this pattern as the implementation target, but target-project enforcement must remain read-only until the later gate and canonicalization milestones are reached.
+
+
+
+## Follow-up after 000105
+
+Patch `000105_springmaster_jpa_count_query_efficiency_reference` closes the documentation gap for efficient persistent count-query implementation. It does not change the candidate runtime status of CatalogItem, because CatalogItem is still an in-memory reference slice.
+
+The closed candidate-level contract therefore consists of:
+
+- endpoint and response semantics;
+- Core DTO and query-operation interfaces;
+- CatalogItem HTTP and service-contract behavior;
+- persistent count-query efficiency guidance for later JPA-backed slices and generated applications.

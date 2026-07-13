@@ -388,3 +388,10 @@ PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.json
 The source uses schema marker `springmaster.catalog-demo.candidate-evidence.v1` and declares whether a slice is `legacy-demo-seed`, `candidate-reference-slice` or later `canonical-reference-slice`.
 
 This input does not enable strict gates. It only prevents stale historical text from being interpreted as the current slice state when newer candidate evidence exists.
+
+
+## JPA count efficiency report-only checks since 000105
+
+Future API and Java-boundary gates may report count-query efficiency findings based on `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`. Initial diagnostics should stay report-only and may flag obvious anti-patterns such as `listAll(...).size()`, `repository.findAll(...).size()`, stream counting after entity materialization, DTO mapping inside count methods, or paging/sorting applied to count operations.
+
+These findings must distinguish documentation/runtime-contract violations from implementation-efficiency warnings until strict promotion is explicitly approved under ADR-0006.

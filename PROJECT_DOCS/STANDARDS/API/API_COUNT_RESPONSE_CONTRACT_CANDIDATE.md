@@ -96,6 +96,14 @@ Recommended implementation properties:
 - document any known count approximation, delay or eventual-consistency behavior explicitly; exact synchronous counts are the default expectation;
 - avoid applying list projections, DTO mapping or export serialization for count-only calls.
 
+## Persistence efficiency reference
+
+Patch `000105_springmaster_jpa_count_query_efficiency_reference` adds the persistent implementation guidance in `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`.
+
+The key implementation rule is that persistent count operations must execute as repository/query-level count queries. They must not materialize the complete result set, invoke DTO mapping, perform export serialization or derive count by calling `/all` and measuring the returned collection.
+
+The same filter, security and data-scope predicates must be reused, but sorting and paging remain outside count semantics.
+
 ## Catalog-demo evidence path
 
 `CatalogItem` already demonstrates:

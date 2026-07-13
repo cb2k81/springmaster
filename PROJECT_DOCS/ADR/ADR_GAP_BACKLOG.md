@@ -518,3 +518,17 @@ Remaining deferrals after ADR acceptance:
 - exact static rule for verifying policy reuse between precheck and execution;
 - Catalog-demo reference command that proves the precheck pattern;
 - target-project supply to IDM or other applications.
+
+
+## JPA count query efficiency reference since 000105
+
+Patch `000105_springmaster_jpa_count_query_efficiency_reference` documents the efficient persistent implementation pattern for count-only endpoints and `PagedResponseDTO.totalElements`.
+
+ADR impact:
+
+- ADR-0002 owns the public API contract and count endpoint vocabulary.
+- ADR-0003 owns controller/service/query boundary placement and forbids controller-side persistence shortcuts.
+- ADR-0004 owns repository/persistence boundaries and durable count-query efficiency.
+- ADR-0006 owns future report-only and strict gate promotion for count-query anti-pattern detection.
+
+This closes the documentation gap for JPA count-query efficiency. Runtime proof for a durable CatalogItem repository remains a separate implementation milestone.

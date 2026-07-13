@@ -1502,3 +1502,15 @@ Reasoning:
 * It clarifies that Springmaster standardizes typed service/application query contracts, not generic Spring-MVC controller inheritance.
 * It separates closed candidate-level Query Operations evidence from remaining canonical blockers such as durable persistence, Liquibase, implemented security, OpenAPI evidence, strict gates, async export and target-project comparison.
 * No Core, Demo, Tooling, Template or Platform-Update runtime version is changed.
+
+
+
+## JPA Count Query Efficiency Reference since 000105
+
+`000105_springmaster_jpa_count_query_efficiency_reference` is documentation-only and does not change platform version metadata.
+
+Reasoning:
+
+* It documents how persistent JPA-backed query slices should compute `PagedResponseDTO.totalElements` and count-only endpoint values efficiently.
+* It does not change Core Java code, Demo runtime behavior, Tooling, Template or Platform-Update artifacts.
+* The CatalogItem candidate slice remains in-memory; durable persistence evidence is still a later milestone.
