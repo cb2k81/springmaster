@@ -139,3 +139,35 @@ Promotion should be staged:
 ## Non-goals
 
 This patch does not introduce the executable reporter. It defines the report target, rule catalog and evidence model so the implementation patch can be minimal, deterministic and regression-testable.
+
+## Executable MVP since 000107
+
+Patch `000107_springmaster_query_contract_report_tooling_mvp` implements the first executable report-only gate for the Springmaster reference project.
+
+Command:
+
+```bash
+./bin/query-contract-gate-report.sh
+```
+
+Default output:
+
+```text
+reports/api/query-contract-gate-report.json
+```
+
+The MVP is intentionally source-based and deterministic. It currently evaluates the CatalogItem candidate reference slice and records:
+
+- paged list endpoint evidence;
+- complete-result-set `/all` endpoint evidence;
+- count-only `/count` endpoint evidence;
+- shared business filter family `sku`, `name`;
+- absence of paging/sort semantics on `/count`;
+- `CountResponseDTO` response evidence;
+- sort allowlist and stable tie-breaker evidence;
+- `ResultSetQueryOperations` service adoption;
+- JPA count-efficiency status as `not-applicable-in-memory` for CatalogItem.
+
+The expected CatalogItem MVP result is `summary.findings = 0`. That does not promote CatalogItem to canonical persistence status. It only proves that the current candidate reference slice satisfies the query-contract shape covered by the MVP.
+
+The implementation remains report-only. Strict build failure, generated-application scanning, OpenAPI parsing, persistent JPA inspection and security/data-scope runtime checks remain later promotion stages.

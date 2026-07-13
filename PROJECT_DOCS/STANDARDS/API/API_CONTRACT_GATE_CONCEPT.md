@@ -408,3 +408,18 @@ Gate impact:
 - CatalogItem should be the positive reference fixture for paged list, `/all`, `/count` and `ResultSetQueryOperations`;
 - in-memory CatalogItem count must not be reported as a JPA count-efficiency violation;
 - strict enforcement remains deferred until the report schema is stable and promoted under ADR-0006.
+
+## Query contract report implementation since 000107
+
+The query-contract gate has an executable report-only MVP since `000107_springmaster_query_contract_report_tooling_mvp`.
+
+The first implementation is deliberately narrow:
+
+- it is source-based;
+- it targets Springmaster CatalogItem as the positive candidate reference fixture;
+- it writes one JSON report;
+- it does not fail builds on findings;
+- it does not scan external target projects;
+- it does not replace future OpenAPI, persistent JPA or security/data-scope gates.
+
+This satisfies the report-only implementation milestone from `QUERY_CONTRACT_GATE_REPORT.md` while keeping strict enforcement deferred.

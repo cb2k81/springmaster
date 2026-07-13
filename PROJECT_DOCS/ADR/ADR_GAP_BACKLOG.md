@@ -537,3 +537,22 @@ This closes the documentation gap for JPA count-query efficiency. Runtime proof 
 ## Query Contract Gate Report follow-up since 000106
 
 Patch `000106_springmaster_query_contract_gate_report` narrows the ADR-0006 follow-up for query gates by defining a report-only JSON artifact and stable finding IDs. The ADR gap is no longer the rule catalog itself; the remaining gap is executable implementation, CatalogItem report fixture evidence, generated-application comparison and later strict-gate promotion.
+
+## Query contract report tooling update since 000107
+
+Patch `000107_springmaster_query_contract_report_tooling_mvp` closes the first executable report-only tooling gap for Query Contracts.
+
+Closed at MVP level:
+
+- deterministic JSON report generation;
+- CatalogItem positive fixture evaluation;
+- stable resource/finding schema;
+- no strict build-fail semantics.
+
+Remaining gaps:
+
+- generated-application comparison;
+- OpenAPI evidence parsing;
+- persistent JPA count-query source inspection beyond obvious anti-patterns;
+- security/data-scope runtime parity evidence;
+- strict gate promotion.

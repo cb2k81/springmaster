@@ -222,3 +222,11 @@ springmaster.catalog-demo.candidate-evidence.v1
 ```
 
 G5 now evaluates current candidate evidence before historical readiness-plan text. When `sliceState` is `candidate-reference-slice` and `canonicalState` is `not-canonical`, G5 does not emit a manual-review finding. Missing, unclassifiable or pure `legacy-demo-seed` evidence still produces `SM-G5-CATALOG-READINESS-EVIDENCE` as `MANUAL_REVIEW`.
+
+## Query contract report command since 000107
+
+`./bin/query-contract-gate-report.sh` is the first dedicated query-contract report-only command.
+
+It is separate from the broader `springmaster-gates.py` seed so the query-contract schema can evolve deterministically without changing the existing general report-only gate output.
+
+The command is non-mutating except for its configured JSON output file. For patch validation and tests, callers should write the report below `target/` or the patch validation log directory.

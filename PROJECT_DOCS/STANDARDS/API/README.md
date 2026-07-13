@@ -197,3 +197,13 @@ Persistent implementations must use repository/query-level count queries for `to
 ## Query contract gate report since 000106
 
 `QUERY_CONTRACT_GATE_REPORT.md` defines the report-only target for checking paged list, `/all`, optional `/count`, filter parity, sort allowlists, typed query-operation adoption and JPA count-efficiency indicators. The first executable implementation remains follow-up work; strict Maven failure is deferred until ADR-0006 promotion.
+
+## Query contract report tooling since 000107
+
+`QUERY_CONTRACT_GATE_REPORT.md` is now backed by an executable report-only MVP:
+
+```bash
+./bin/query-contract-gate-report.sh
+```
+
+The command writes a JSON report to `reports/api/query-contract-gate-report.json` by default. The initial implementation validates the Springmaster CatalogItem candidate reference slice and is intentionally not a strict build gate.

@@ -1525,3 +1525,21 @@ Reasoning:
 * It defines the report-only JSON artifact, rule IDs and finding schema for future query-contract diagnostics.
 * It does not add executable gate tooling, Maven profiles, Core code, Demo runtime behavior, Templates, Platform-Update artifacts or target-project changes.
 * Strict enforcement remains deferred until a later ADR-0006-aligned gate implementation patch.
+
+## Query Contract Report Tooling MVP since 000107
+
+Patch `000107_springmaster_query_contract_report_tooling_mvp` advances the executable Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.51-foundation
+PLATFORM_TOOLING_VERSION=0.3.17
+PLATFORM_STATE_PATCH=000107_springmaster_query_contract_report_tooling_mvp
+```
+
+Reasoning:
+
+* It turns the report-only query-contract concept from `000106` into an executable MVP.
+* It adds a deterministic source-based report generator for the CatalogItem candidate reference slice.
+* It produces a machine-readable JSON report with stable schema, resource summary and findings list.
+* It keeps the report mode non-strict; findings remain review evidence and do not fail builds by themselves.
+* It does not change Core runtime contracts, Demo runtime behavior, Templates, Platform-Update artifacts or target-project delivery.
