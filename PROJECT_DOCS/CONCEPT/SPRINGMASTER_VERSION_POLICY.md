@@ -1620,3 +1620,21 @@ Reasoning:
 * It demonstrates a dedicated `CriteriaQuery<Long>` count implementation with shared predicates and without list materialization.
 * It records tests that guard the JPA count reference against paging, sorting and DTO-mapping leakage into count semantics.
 * It keeps the remaining security/data-scope parity work explicit and deferred to a later patch.
+
+
+## CatalogItem security/data-scope query parity reference since 000114
+
+Patch `000114_springmaster_query_security_scope_parity_reference` advances the Demo and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.56-foundation
+PLATFORM_DEMO_VERSION=0.2.7
+PLATFORM_STATE_PATCH=000114_springmaster_query_security_scope_parity_reference
+```
+
+Reasoning:
+
+* It adds a compact CatalogItem query-scope reference with `catalog:item:read` and `allowedSkus` data-scope evidence.
+* It proves that paged list, `/all` and `/count` use the same permission/data-scope predicate family before operation-specific behavior.
+* It completes the planned five-step Query/List/All/Count maturity track at candidate-reference level.
+* It does not enable Spring Security runtime enforcement or promote CatalogItem to canonical status.

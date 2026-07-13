@@ -109,3 +109,11 @@ The existing CatalogItem runtime remains in-memory. The reference class is not r
 * count uses the same predicates as list and `/all`, but no sorting, paging, DTO mapping or entity-list materialization.
 
 The slice remains candidate-level until security/data-scope parity and explicit canonical-promotion evidence are added.
+
+## CatalogItem security/data-scope query parity since 000114
+
+Patch `000114_springmaster_query_security_scope_parity_reference` adds a compact query-scope reference for CatalogItem read operations.
+
+The reference keeps the current CatalogItem runtime lightweight, but proves the rule that paged list, `/all` and `/count` must use the same resolved read permission and data-scope predicate family. `CatalogItemScopedQueryReference` applies `catalog:item:read`, `allowedSkus`, `sku` and `name` through one shared matcher before operation-specific paging, sorting, DTO mapping or count-only behavior.
+
+This closes the security/data-scope parity gap for the Query/List/All/Count candidate reference track. CatalogItem remains candidate-level until a later canonical-promotion decision explicitly accepts it as canonical.
