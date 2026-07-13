@@ -1591,3 +1591,32 @@ Reasoning:
 * The canonical endpoint for this Springmaster project is `/api-docs`; `/v3/api-docs` is only the Springdoc default and is intentionally not exposed by the current configuration.
 * It keeps the OpenAPI evidence goal from `000109` unchanged and only repairs the executable endpoint used by the test and documentation.
 * It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+
+
+## CatalogItem OpenAPI repair chain since 000111 and 000112
+
+Patches `000111_springmaster_catalogitem_openapi_json_media_type_fix` and `000112_springmaster_query_contract_report_mapping_attribute_fix` repaired the OpenAPI evidence chain introduced by `000109` and aligned the source-based query report parser with named Spring mapping attributes.
+
+Reasoning:
+
+* `000111` makes the CatalogItem query endpoints explicitly produce `application/json` so the OpenAPI contract exposes JSON response schemas deterministically.
+* `000112` repairs the report parser so `@GetMapping(path = "...")` and `@GetMapping(value = "...")` are recognized like direct mapping literals.
+* These patches are part of the OpenAPI evidence repair chain and do not promote CatalogItem to canonical status.
+
+## CatalogItem persistent JPA count reference since 000113
+
+Patch `000113_springmaster_persistent_jpa_count_reference_slice` advances the Demo and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.55-foundation
+PLATFORM_DEMO_VERSION=0.2.6
+PLATFORM_STATE_PATCH=000113_springmaster_persistent_jpa_count_reference_slice
+```
+
+Reasoning:
+
+* It adds a compile-time persistent JPA reference for CatalogItem query operations without replacing the in-memory demo runtime.
+* It demonstrates a dedicated `CriteriaQuery<Long>` count implementation with shared predicates and without list materialization.
+* It records tests that guard the JPA count reference against paging, sorting and DTO-mapping leakage into count semantics.
+* It keeps the remaining security/data-scope parity work explicit and deferred to a later patch.
