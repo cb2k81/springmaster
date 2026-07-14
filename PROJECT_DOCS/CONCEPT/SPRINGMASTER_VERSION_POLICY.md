@@ -1701,3 +1701,20 @@ Reasoning:
 * It records CatalogItem as the first golden evidence for `GET /api/demo/catalog/items/{id}` and `GET /api/demo/catalog/items/by-sku/{sku}`.
 * It verifies detail/lookup route presence, path variables, global `RESOURCE_NOT_FOUND` error behavior and create-`Location` detail consistency through targeted tests.
 * It keeps Write, Request Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.
+
+## Write API contract report since 000119
+
+Patch `000119_springmaster_write_api_contract_report` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.60-foundation
+PLATFORM_TOOLING_VERSION=0.3.20
+PLATFORM_STATE_PATCH=000119_springmaster_write_api_contract_report
+```
+
+Reasoning:
+
+* It adds a report-only Write API Contract Gate Report for Create/Update/Delete management endpoints.
+* It records CatalogItem as the first golden evidence for `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` and bodyless `DELETE /api/demo/catalog/items/{id}`.
+* It verifies CreateDTO/UpdateDTO request-body evidence, `201 Created` with `Location`, `200 OK` update responses, `204 No Content` deletes and global error behavior through targeted tests.
+* It keeps Request Validation/OpenAPI required-field alignment, generated-slice adoption, bulk commands, state commands and relationship commands as follow-up roadmap items.

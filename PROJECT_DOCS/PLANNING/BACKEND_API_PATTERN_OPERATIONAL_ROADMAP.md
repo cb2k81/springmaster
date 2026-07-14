@@ -48,7 +48,7 @@ Aktueller operativer Stand nach `000118`:
 | abgeschlossen | `000116_springmaster_global_api_error_contract_core` | Core-globaler API Error Contract |
 | abgeschlossen | `000117_springmaster_catalogitem_global_api_error_handler_migration` | CatalogItem nutzt globalen Error Handler |
 | abgeschlossen | `000118_springmaster_detail_lookup_contract_report` | Detail/Lookup Report + Golden Fixture |
-| nächster Schritt | `000119_springmaster_write_api_contract_report` | Create/Update/Delete Contract Report |
+| aktueller Schritt | `000119_springmaster_write_api_contract_report` | Create/Update/Delete Contract Report |
 | danach | `000120_springmaster_request_validation_openapi_gate` | Bean Validation ↔ OpenAPI required fields |
 | danach | `000121_springmaster_generated_slice_api_pattern_adoption_plan` | Generator-/Template-Adoption |
 
@@ -128,6 +128,8 @@ git diff --check
 * Command Precheck.
 
 **Abhängigkeiten:** P0 Error-Core und P1 Detail-/Lookup-Contract.
+
+**Status nach Umsetzung:** `000119` ergänzt den report-only Write API Contract Report mit CatalogItem Golden Fixture, MockMvc-/OpenAPI-Evidence und bleibt ohne Bulk-/Command-/Relationship-Scope.
 
 ### P1 – `000120_springmaster_request_validation_openapi_gate`
 

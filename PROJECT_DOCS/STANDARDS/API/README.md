@@ -25,6 +25,7 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | Query operations closure review | `QUERY_OPERATIONS_CONTRACT_CLOSURE_REVIEW.md` | closure review for paged list, `/all`, `/count`, Core query-operation interfaces and CatalogItem service adoption after 000102 |
 | Query contract gate report | `QUERY_CONTRACT_GATE_REPORT.md` | report-only gate artifact, rule IDs and finding schema for query-contract diagnostics since 000106 |
 | Detail/Lookup contract report | `DETAIL_LOOKUP_CONTRACT_REPORT.md` | report-only gate artifact and CatalogItem golden evidence for `/{id}` and `/by-sku/{sku}` since 000118 |
+| Write API contract report | `WRITE_API_CONTRACT_REPORT.md` | report-only gate artifact and CatalogItem golden evidence for `POST`, `PUT` and bodyless `DELETE` since 000119 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -39,6 +40,12 @@ Strict gate execution still requires `ADR-0006 Verification and Gate Strategy`, 
 Patch `000118_springmaster_detail_lookup_contract_report` adds report-only Detail/Lookup evidence for CatalogItem. The report covers the canonical opaque-id detail endpoint `GET /api/demo/catalog/items/{id}` and the unique alternate-key lookup endpoint `GET /api/demo/catalog/items/by-sku/{sku}`. It records path variables, DTO response evidence, global `RESOURCE_NOT_FOUND` behavior, MockMvc coverage, OpenAPI route evidence and create-`Location` detail follow-up consistency.
 
 The report remains report-only. Strict-gate promotion is deferred until Write and Validation/OpenAPI report coverage exists and generated-slice adoption criteria are defined.
+
+## Write API report since 000119
+
+Patch `000119_springmaster_write_api_contract_report` adds report-only Write API evidence for CatalogItem. The report covers `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` and bodyless `DELETE /api/demo/catalog/items/{id}`. It records CreateDTO/UpdateDTO request-body evidence, `201 Created` with `Location`, `200 OK` update responses, `204 No Content` deletes, global `VALIDATION_FAILED`, `RESOURCE_NOT_FOUND` and `CONFLICT` error behavior, MockMvc coverage and OpenAPI route/body evidence.
+
+The report remains report-only. Bulk delete, state commands, relationship commands, command precheck, optimistic locking and persistent transaction templates remain deferred follow-up topics.
 
 ## Boundary to IDM
 

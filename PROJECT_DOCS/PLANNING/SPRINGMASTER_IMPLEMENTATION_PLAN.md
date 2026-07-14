@@ -1026,3 +1026,19 @@ Erreicht:
 Nächster geplanter Schritt:
 
 `000119_springmaster_write_api_contract_report` für Create/Update/Delete-Basismuster.
+
+## Stand nach Patch 000119
+
+Patch `000119_springmaster_write_api_contract_report` ergänzt nach Query, globaler Fehlerbehandlung und Detail/Lookup die report-only Absicherung für Create-/Update-/Delete-Endpunkte.
+
+Erreicht:
+
+* `bin/write-api-contract-gate-report.py` und `.sh` erzeugen ein maschinenlesbares Write-API-Report-Artefakt.
+* `WRITE_API_CONTRACT_REPORT.md` definiert Schema, Finding-Familien und Promotion-Regeln.
+* CatalogItem ist Golden Reference für `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` und bodyless `DELETE /api/demo/catalog/items/{id}`.
+* MockMvc- und OpenAPI-Evidence sichern CreateDTO/UpdateDTO Request Bodies, `201 Created` plus `Location`, `200 OK` Update, `204 No Content` Delete und globale Fehlerfälle für `400`, `404` und `409` ab.
+* Der Report bleibt bewusst report-only; Request Validation/OpenAPI-required-Felder und Generated-Slice-Adoption bleiben Folgearbeiten.
+
+Nächster geplanter Schritt:
+
+`000120_springmaster_request_validation_openapi_gate` für Bean Validation, Boundary-DTOs und OpenAPI-required-Feld-Abgleich.

@@ -146,3 +146,15 @@ GET /api/demo/catalog/items/by-sku/{sku}
 ```
 
 The report and targeted tests cover opaque-id lookup, unique SKU lookup, global `RESOURCE_NOT_FOUND` error behavior, create `Location` follow-up and OpenAPI route/path-variable evidence. Write API and Request Validation/OpenAPI gates remain follow-up roadmap items.
+
+## CatalogItem Write API contract report since 000119
+
+Patch `000119_springmaster_write_api_contract_report` adds report-only Create/Update/Delete evidence for the CatalogItem candidate reference slice.
+
+Erreicht:
+
+* `bin/write-api-contract-gate-report.py` and `.sh` generate a machine-readable Write API report.
+* `WRITE_API_CONTRACT_REPORT.md` defines report schema, finding families and promotion rules for simple write endpoints.
+* CatalogItem is Golden Reference for `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` and bodyless `DELETE /api/demo/catalog/items/{id}`.
+* MockMvc and OpenAPI evidence cover CreateDTO/UpdateDTO boundaries, `201 Created` plus `Location`, `200 OK` update, `204 No Content` delete and global error behavior for validation, not-found and conflict cases.
+* Bulk delete, state commands, relationship commands and optimistic locking remain deferred.

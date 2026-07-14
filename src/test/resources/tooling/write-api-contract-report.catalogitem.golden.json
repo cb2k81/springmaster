@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "springmaster.write-api-contract-gate-report.v1",
+  "generatedAt": "2026-07-14T00:00:00Z",
+  "project": "springmaster",
+  "mode": "report-only",
+  "source": {
+    "javaSources": "src/main/java",
+    "tests": "src/test/java",
+    "standards": "PROJECT_DOCS/STANDARDS/API"
+  },
+  "summary": {
+    "resources": 1,
+    "findings": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "resources": [
+    {
+      "resource": "CatalogItem",
+      "status": "pass",
+      "sourceType": "springmaster-candidate-reference-slice",
+      "operations": [
+        {
+          "kind": "create",
+          "operation": "POST /api/demo/catalog/items",
+          "requestBody": "CatalogItemCreateDTO",
+          "validation": "@Valid",
+          "success": {
+            "status": 201,
+            "location": "/api/demo/catalog/items/{id}",
+            "response": "CatalogItemDTO"
+          },
+          "conflict": {
+            "status": 409,
+            "errorType": "CONFLICT",
+            "messageKey": "catalog.item.conflict"
+          },
+          "validationError": {
+            "status": 400,
+            "errorType": "VALIDATION_FAILED",
+            "messageKey": "springmaster.validation.failed"
+          }
+        },
+        {
+          "kind": "update",
+          "operation": "PUT /api/demo/catalog/items/{id}",
+          "pathVariables": [
+            "id"
+          ],
+          "requestBody": "CatalogItemUpdateDTO",
+          "validation": "@Valid",
+          "success": {
+            "status": 200,
+            "response": "CatalogItemDTO"
+          },
+          "notFound": {
+            "status": 404,
+            "errorType": "RESOURCE_NOT_FOUND",
+            "messageKey": "catalog.item.not-found"
+          },
+          "validationError": {
+            "status": 400,
+            "errorType": "VALIDATION_FAILED",
+            "messageKey": "springmaster.validation.failed"
+          }
+        },
+        {
+          "kind": "delete",
+          "operation": "DELETE /api/demo/catalog/items/{id}",
+          "pathVariables": [
+            "id"
+          ],
+          "requestBody": "absent",
+          "success": {
+            "status": 204,
+            "responseBody": "absent"
+          },
+          "notFound": {
+            "status": 404,
+            "errorType": "RESOURCE_NOT_FOUND",
+            "messageKey": "catalog.item.not-found"
+          }
+        }
+      ],
+      "serviceEvidence": {
+        "create": "present",
+        "update": "present",
+        "delete": "present",
+        "duplicateBusinessKeyConflict": "EntityAlreadyExistsException",
+        "missingResource": "ResourceNotFoundException"
+      },
+      "globalErrorContract": "present",
+      "mockMvcEvidence": "present",
+      "openApiEvidence": "present",
+      "deleteRequestBody": "absent",
+      "createLocationDetailConsistency": "present",
+      "publicVocabulary": {
+        "bodyBearingDelete": "absent",
+        "bulkCommandCoverage": "deferred",
+        "stateCommandCoverage": "deferred",
+        "relationshipCommandCoverage": "deferred"
+      }
+    }
+  ],
+  "findings": []
+}
