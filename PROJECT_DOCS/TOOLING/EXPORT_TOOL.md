@@ -74,3 +74,22 @@ Der reguläre Full-ZIP-Export ist eine saubere Projektbaseline. Er ist nicht als
 
 Für forensische Untersuchungen müssen separate Artefakte erzeugt werden, z. B. ein bewusst gepackter Arbeitsbaum oder reine Dateilisten.
 
+## Raw-byte integrity metadata since 000124
+
+Full and split exports use metadata format version 2. Every profile metadata file contains `fileManifest` entries with the source-relative path, raw byte size and SHA-256 calculated directly from the repository file. `fileManifestSha256` protects the canonical manifest itself.
+
+The text export is a review representation. Its separators and presentation newline must never be used to reconstruct `expectedBeforeSha256`. Follow-up patches use the metadata `fileManifest` or the live repository bytes.
+
+Optional closure evidence can be embedded without a second export:
+
+```bash
+./bin/export.sh full --zip --evidence <evidence.json>
+```
+
+The resulting ZIP can be verified with:
+
+```bash
+python3 bin/export-integrity-check.py <export.zip> --source-root . --require-evidence
+```
+
+Traversal prunes statically excluded runtime trees such as `build/`, `target/`, `.git/`, `exports/` and `patches/logs/validation/` before visiting their files. This keeps export runtime stable after repeated validation runs and prevents active runner logs from invalidating the exported raw-byte snapshot.

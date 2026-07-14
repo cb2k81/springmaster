@@ -25,7 +25,8 @@ Checks:
   * project-new dry-run and create
   * token rendering for package, Maven coordinates and DB defaults
   * patch registry bootstrap in the generated project
-  * export full ZIP in the generated project
+  * export full ZIP and export-integrity verification in the generated project
+  * patch artifact preflight tooling is complete in the generated project
   * dbtool status in the generated project without opening a DB connection
   * optional mvn test in the generated project
 USAGE
@@ -131,7 +132,11 @@ require_file "src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplic
 require_file "src/main/java/de/cocondo/acceptance/sample/app/api/PlatformInfoController.java"
 require_file "src/test/java/de/cocondo/acceptance/sample/app/SampleBackendApplicationTests.java"
 require_file "bin/patch.sh"
+require_file "bin/patch-artifact-preflight.py"
+require_file "bin/patch-artifact-preflight-it.sh"
 require_file "bin/export.sh"
+require_file "bin/export-integrity-check.py"
+require_file "bin/export-integrity-it.sh"
 require_file "bin/dbtool.sh"
 require_file "bin/build.sh"
 require_file "bin/tooling-selfcheck.sh"
@@ -158,6 +163,11 @@ require_marker 'APP_DEV_DB_USER="${APP_DEV_DB_USER:-sample_backend}"' "bin/lib/c
 require_marker 'APP_STAGE_DB_NAME="${APP_STAGE_DB_NAME:-${APP_BUILD_DB_NAME:-sample_backend_build}}"' "bin/lib/core/env.sh"
 reject_marker "__PROJECT_NAME__" "README.md"
 reject_marker "__BASE_PACKAGE__" "src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java"
+require_marker 'springmaster.export-closure-evidence.v1' "bin/export.sh"
+require_marker 'springmaster.export-closure-evidence.v1' "bin/export-integrity-check.py"
+require_marker 'springmaster.patch-artifact-preflight.v1' "bin/patch-artifact-preflight.py"
+require_marker 'springmaster.patch-export-evidence.v1' "bin/patch-artifact-preflight.py"
+reject_marker 'sample-backend.export-closure-evidence.v1' "bin/export.sh"
 
 chmod +x bin/*.sh
 
@@ -180,7 +190,9 @@ if [[ ! -f "${GENERATED_EXPORT}" ]]; then
   exit 1
 fi
 unzip -t "${GENERATED_EXPORT}" > "${LOG_DIR}/06_generated_export_zip_test.log"
-python3 - "${GENERATED_EXPORT}" > "${LOG_DIR}/07_generated_export_meta.log" <<'PY'
+python3 bin/export-integrity-check.py "${GENERATED_EXPORT}" --source-root . > "${LOG_DIR}/07_generated_export_integrity.log"
+require_marker "EXPORT_INTEGRITY=PASS" "${LOG_DIR}/07_generated_export_integrity.log"
+python3 - "${GENERATED_EXPORT}" > "${LOG_DIR}/08_generated_export_meta.log" <<'PY'
 import json
 import sys
 import zipfile
@@ -208,8 +220,8 @@ data = json.loads(path.read_text())
 data['projectKey'] = 'springmaster'
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
-./bin/export.sh full --zip > "${LOG_DIR}/08_generated_export_stale_config.log" 2>&1
-STALE_CONFIG_EXPORT="$(tail -n 1 "${LOG_DIR}/08_generated_export_stale_config.log")"
+./bin/export.sh full --zip > "${LOG_DIR}/09_generated_export_stale_config.log" 2>&1
+STALE_CONFIG_EXPORT="$(tail -n 1 "${LOG_DIR}/09_generated_export_stale_config.log")"
 case "${STALE_CONFIG_EXPORT}" in
   exports/text/sample-backend_export_full_*.zip) echo "[OK] export key remains sample-backend" ;;
   *) echo "[ERROR] export ZIP name not project-local: ${STALE_CONFIG_EXPORT}" >&2; exit 1 ;;
@@ -217,7 +229,7 @@ esac
 
 echo "Project-New Acceptance: generated Maven test"
 if [[ "${RUN_GENERATED_MAVEN_TEST}" == "true" ]]; then
-  mvn -q test > "${LOG_DIR}/09_generated_mvn_test.log" 2>&1
+  mvn -q test > "${LOG_DIR}/10_generated_mvn_test.log" 2>&1
   echo "[OK] Generated project mvn test successful"
 else
   echo "[SKIP] Generated project mvn test skipped"
@@ -226,5 +238,3 @@ fi
 echo "[OK] Project-New instantiation acceptance passed"
 echo "Generated project: ${SAMPLE_DIR}"
 echo "Logs: ${LOG_DIR}"
-
-

@@ -16,6 +16,7 @@
     "!.env.example",
     "patches/archives/**",
     "patches/runtime/**",
+    "patches/logs/validation/**",
     "platform/update/generated/**",
     "platform/update/manifests/**",
     ".idea/**",
@@ -193,7 +194,3 @@
     ]
   }
 }
-
-
-
-

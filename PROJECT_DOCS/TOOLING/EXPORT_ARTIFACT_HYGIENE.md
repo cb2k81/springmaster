@@ -51,3 +51,13 @@ Wenn ein vollständiger Arbeitsbaumzustand forensisch benötigt wird, soll diese
 ## Review-Gate-Artefakte seit 000036
 
 `build/platform-update/manifests/**` und `build/platform-update/logs/**` bleiben Operationsartefakte. Review-Pläne, Review-Env-Dateien und Target-Apply-Logs sind nicht Teil regulärer Springmaster-Baselines.
+
+## Hash and closure hygiene since 000124
+
+A clean export baseline contains an authoritative raw-byte manifest in each profile metadata file. Baseline hashes are taken from this manifest, not from the rendered text body. The metadata records export format version, completion status, file count, ordered included paths, raw sizes, SHA-256 values, canonical manifest digest and Git source state.
+
+When a final runner supplies prior-gate evidence, the exporter embeds a separately digested `closure-evidence.json` and marks the export operation itself `COMPLETE`. This avoids a duplicate export while separating export completion from later runner status updates.
+
+Operational `patches/logs/validation/**` trees are excluded from source profiles. They are mutable during and after export and therefore cannot be part of an immutable raw-byte snapshot. Stable gate facts belong in the embedded closure evidence; the external validation directory remains operational diagnostics.
+
+`bin/export-integrity-check.py` and its positive/tampered fixtures are mandatory Tooling checks.

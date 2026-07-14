@@ -356,3 +356,21 @@ Details stehen in:
 ```text
 PROJECT_DOCS/TOOLING/PATCH_BASELINE_LIVE_HASH_PREFLIGHT_GUARD.md
 ```
+
+## Patch Artifact Preflight since 000124
+
+Before delivery, a finished patch ZIP can be qualified non-mutating against the exact committed baseline:
+
+```bash
+./bin/patch.sh artifact-preflight <patch.zip>
+```
+
+The command requires a clean Git working tree, complete live hashes and hygienic text payloads. It performs the live preflight and dry-run, applies the patch in an isolated detached Git worktree, verifies exact changed paths, payload bytes and Git executable classes (`100644`/`100755`), runs `git diff --check`, and by default creates and verifies one full ZIP export.
+
+Full exports use metadata format version 2. `fileManifest` contains authoritative raw-byte `sizeBytes` and `sha256` values for every included source file. The rendered text export is a review representation and must not be used to calculate patch baseline hashes.
+
+Details:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_ARTIFACT_PREFLIGHT_HARDENING.md
+```

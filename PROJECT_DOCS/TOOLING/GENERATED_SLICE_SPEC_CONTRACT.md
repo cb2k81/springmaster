@@ -336,10 +336,14 @@ The gate parses the YAML fixture with a dependency-free strict YAML profile, val
 
 ## 13. Next step
 
-Before broader generated patch delivery, the next P0 process step is:
+The P0 process boundary is closed by `000124_springmaster_patch_artifact_preflight_hardening`. The next implementation step is:
 
 ```text
-000124_springmaster_patch_artifact_preflight_hardening
+000125_springmaster_generated_slice_intermediate_representation
 ```
 
 After P0 closure, the generator sequence continues with the neutral Intermediate Representation and the patch-blueprint dry-run.
+
+## Artifact qualification after 000124
+
+Any later generated-slice patch ZIP must pass `patch.sh artifact-preflight` against the committed source `HEAD`. `expectedBeforeSha256` values must come from raw repository bytes or the export metadata `fileManifest`, never from reconstructed text-export content.

@@ -1776,3 +1776,20 @@ Reasoning:
 * It adds a deterministic BusinessPartner golden report and negative fail-closed fixtures.
 * It makes the global `400`, `404` and `409` error status families explicit in the machine-readable Slice-Spec.
 * It does not change Core runtime contracts, Demo runtime behavior, Templates, Platform-Update payloads or target-project files.
+
+## Patch Artifact Preflight Hardening since 000124
+
+Patch `000124_springmaster_patch_artifact_preflight_hardening` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.63-foundation
+PLATFORM_TOOLING_VERSION=0.3.23
+PLATFORM_STATE_PATCH=000124_springmaster_patch_artifact_preflight_hardening
+```
+
+Reasoning:
+
+* It introduces non-mutating patch-artifact qualification against a clean committed Git baseline and an isolated test-copy apply.
+* It rejects stale/incomplete hashes and text payload hygiene defects before delivery.
+* It upgrades export metadata with authoritative raw-byte file hashes and optional single-export closure evidence.
+* It does not change Core, Demo, generated-slice runtime code or target-project delivery.

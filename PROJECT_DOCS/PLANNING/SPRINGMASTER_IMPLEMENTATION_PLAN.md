@@ -1110,10 +1110,30 @@ Erreicht:
 
 Nicht Bestandteil dieses Patches sind Intermediate Representation, renderer, patch-blueprint generation and ZBM target delivery.
 
-Nächster P0-Schritt:
+P0-Abschluss:
+
+`000124_springmaster_patch_artifact_preflight_hardening` closes patch artifact and export-baseline qualification.
+
+Nächster P1-Schritt:
 
 ```text
-000124_springmaster_patch_artifact_preflight_hardening
+000125_springmaster_generated_slice_intermediate_representation
 ```
 
-Nach dessen Abschluss folgt `000125_springmaster_generated_slice_intermediate_representation`.
+## Stand nach Patch 000124
+
+Erreicht:
+
+* non-mutating `patch.sh artifact-preflight`;
+* clean-Git and complete live-hash requirement;
+* strict text payload EOF/whitespace hygiene;
+* isolated worktree dry-run/apply/latest/payload/scope/diff qualification;
+* one full export with raw-byte file manifest;
+* optional embedded prior-gate closure evidence;
+* positive and fail-closed shell fixtures plus Maven contract tests.
+
+P0 is complete. The next implementation patch is:
+
+```text
+000125_springmaster_generated_slice_intermediate_representation
+```

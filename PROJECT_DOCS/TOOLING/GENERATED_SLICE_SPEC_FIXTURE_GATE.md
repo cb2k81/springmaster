@@ -149,5 +149,4 @@ This gate validates the input fixture only. It deliberately does not provide:
 * ZBM-specific assumptions.
 
 The next generator phase may consume only a Slice-Spec that passes this gate.
-The separate Patch Artifact Preflight hardening remains the next P0 process
-step before broader generated patch delivery.
+Patch `000124_springmaster_patch_artifact_preflight_hardening` closes the separate P0 delivery-process boundary. The next generator phase is `000125_springmaster_generated_slice_intermediate_representation`.

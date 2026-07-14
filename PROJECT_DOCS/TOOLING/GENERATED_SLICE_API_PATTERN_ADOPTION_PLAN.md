@@ -391,4 +391,14 @@ The BusinessPartner golden YAML now proves:
 * patch-ZIP delivery without direct target-project mutation;
 * explicit prohibition of Demo package reuse.
 
-The gate is not an IR parser and does not generate a target patch. The next P0 step is Patch Artifact Preflight hardening; only then should `000125_springmaster_generated_slice_intermediate_representation` start.
+The gate is not an IR parser and does not generate a target patch. Patch `000124_springmaster_patch_artifact_preflight_hardening` closes the P0 delivery-process boundary. The next step is `000125_springmaster_generated_slice_intermediate_representation`.
+
+## P0 closure after 000124
+
+Generated-slice patch artifacts now have a deterministic producer-side qualification boundary. The export raw-byte manifest prevents baseline hashes from being inferred from presentation separators, and the isolated worktree preflight verifies exact payload, scope, diff and export integrity before delivery.
+
+The next ordered patch is:
+
+```text
+000125_springmaster_generated_slice_intermediate_representation
+```

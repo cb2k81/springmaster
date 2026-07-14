@@ -26,8 +26,12 @@ TOOLING_FILES = [
     "bin/build.sh",
     "bin/dbtool.sh",
     "bin/export-completion.bash",
+    "bin/export-integrity-check.py",
+    "bin/export-integrity-it.sh",
     "bin/export.sh",
     "bin/init.env.sh",
+    "bin/patch-artifact-preflight-it.sh",
+    "bin/patch-artifact-preflight.py",
     "bin/patch.py",
     "bin/patch.sh",
     "bin/tooling-selfcheck.sh",
@@ -118,6 +122,13 @@ def validate_port(value: str) -> int:
 
 def render_text(text: str, tokens: dict) -> str:
     rendered = text
+    protected_literals = {
+        "springmaster.export-closure-evidence.v1": "__CANONICAL_EXPORT_CLOSURE_SCHEMA__",
+        "springmaster.patch-artifact-preflight.v1": "__CANONICAL_PATCH_ARTIFACT_PREFLIGHT_SCHEMA__",
+        "springmaster.patch-export-evidence.v1": "__CANONICAL_PATCH_EXPORT_EVIDENCE_SCHEMA__",
+    }
+    for literal, placeholder in protected_literals.items():
+        rendered = rendered.replace(literal, placeholder)
     for key, value in tokens.items():
         rendered = rendered.replace(key, value)
 
@@ -139,6 +150,8 @@ def render_text(text: str, tokens: dict) -> str:
     rendered = rendered.replace("de.cocondo.platform", tokens["__BASE_PACKAGE__"])
     rendered = rendered.replace("springmaster_build", tokens["__STAGE_DB_NAME__"])
     rendered = rendered.replace("springmaster", tokens["__PROJECT_NAME__"])
+    for literal, placeholder in protected_literals.items():
+        rendered = rendered.replace(placeholder, literal)
     return rendered
 
 
@@ -508,7 +521,3 @@ def main():
 if __name__ == "__main__":
     main()
 PY
-
-
-
-

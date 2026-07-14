@@ -36,7 +36,9 @@ Das Zielprojekt enthält:
 * minimale Application und `/api/platform/info`
 * `.env.example`, aber keine `.env`
 * `bin/patch.sh` / `bin/patch.py`
+* `bin/patch-artifact-preflight.py` mit Integrationstest
 * `bin/export.sh`
+* `bin/export-integrity-check.py` mit Integrationstest
 * `bin/dbtool.sh`
 * `bin/build.sh`
 * `bin/tooling-selfcheck.sh`
@@ -70,7 +72,7 @@ Neuer Prüfbefehl:
 ./bin/project-new-acceptance.sh --generated-maven-test
 ```
 
-Der Acceptance-Lauf erzeugt ein Beispielprojekt unter `target/project-new-acceptance/sample-backend`, prüft Dry-run, Create, Patch-Bootstrap, Export, DBTool-Status, Token-Rendering und optional `mvn test` im generierten Projekt.
+Der Acceptance-Lauf erzeugt ein Beispielprojekt unter `target/project-new-acceptance/sample-backend`, prüft Dry-run, Create, Patch-Bootstrap, vollständige Mitgabe des Artifact-Preflight- und Exportintegritäts-Toolings, Export samt Integritätsprüfung, DBTool-Status, Token-Rendering und optional `mvn test` im generierten Projekt.
 
 Wichtig: Kopierte Tooling-Dateien werden jetzt so tokenisiert, dass DBTool-Defaults auch ohne `.env` sanitizierte Datenbanknamen verwenden. Für `sample-backend` wird beispielsweise `sample_backend` und `sample_backend_build` verwendet, nicht der hyphenated Projektname.
 
@@ -95,3 +97,9 @@ Dort werden Core-Verteilung, Slice-Blueprint, DTO-/Validation-/Error-Contract, E
 ## Namespace- und Export-Kontrakt
 
 `project-new` erzeugt `APP_EXPORT_PROJECT_KEY`, `APP_BASE_PACKAGE`, `APP_CORE_PACKAGE` und projektlokale Patch-Scopes in `.env.example`. Dadurch funktionieren Export, DBTool und Patchsystem auch ohne `.env` mit projektlokalen Defaults. Gemeinsame Tool-Updates müssen diese Werte referenzieren und dürfen sie im Profil `tooling` nicht überschreiben.
+
+## Artifact-Preflight-Kompatibilität seit 000124
+
+Project-New übernimmt die vollständige Laufzeitkette für `patch.sh artifact-preflight` und den Exportintegritätscheck. Dadurch referenzieren `patch.sh` und `tooling-selfcheck.sh` in einem neu erzeugten Projekt ausschließlich tatsächlich mitgelieferte Dateien. Die Instantiation Acceptance prüft diese Vollständigkeit sowie einen realen Full-ZIP-Export mit `EXPORT_INTEGRITY=PASS`.
+
+Die maschinenlesbaren Schema-IDs der Tooling-Verträge bleiben bei der Projekttokenisierung kanonisch (`springmaster.*.v1`). Sie werden nicht auf den Projektnamen umgeschrieben, damit Exporte und Preflight-Reports zwischen Master- und Zielprojekten portabel validierbar bleiben.

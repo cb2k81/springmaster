@@ -7,6 +7,7 @@ import re
 import shlex
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
@@ -20,6 +21,7 @@ USAGE = """Verwendung:
   ./bin/patch.sh help
   ./bin/patch.sh apply [--dry-run] [--wait] <patch.zip>
   ./bin/patch.sh live-baseline <patch.zip>
+  ./bin/patch.sh artifact-preflight <patch.zip> [--output <dir>] [--no-export] [--keep-test-copy]
   ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
   ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
   ./bin/patch.sh rollback [--dry-run] [--wait] <patch-id|patch-number|latest>
@@ -36,6 +38,7 @@ Pflichtregeln:
   - Erlaubte ZIP-Wurzelpfade: manifest.json, files/**, delete/**, logs/CHANGELOG-*.md.
   - Legacy-Patches werden abgelehnt.
   - accept führt vor dem Dry-run einen Live-Baseline-Hash-Preflight aus.
+  - artifact-preflight requires a clean Git baseline and validates the patch in an isolated test copy.
   - Mutierende Läufe verwenden einen projektlokalen Write-Lock.
   - Für lange Läufe ist --background --wait der empfohlene Modus.
 """
@@ -92,9 +95,15 @@ def sha256_file(path):
             h.update(chunk)
     return h.hexdigest()
 
-def restore_executable_bit(target_rel, target_abs):
-    if target_rel.startswith("bin/") and (target_rel.endswith(".sh") or target_rel.endswith(".py")) and target_abs.exists():
-        target_abs.chmod(target_abs.stat().st_mode | 0o111)
+def apply_git_executable_mode(source_abs, target_abs):
+    if not source_abs.is_file() or not target_abs.is_file():
+        return
+    source_mode = stat.S_IMODE(source_abs.stat().st_mode)
+    target_mode = stat.S_IMODE(target_abs.stat().st_mode)
+    if source_mode & 0o111:
+        target_abs.chmod(target_mode | 0o111)
+    else:
+        target_abs.chmod(target_mode & ~0o111)
 
 def read_json(path):
     try:
@@ -614,6 +623,12 @@ def extract_archive(zip_path):
                 out.parent.mkdir(parents=True, exist_ok=True)
                 with z.open(info) as src, out.open("wb") as dst:
                     shutil.copyfileobj(src, dst)
+                archive_mode = stat.S_IMODE(info.external_attr >> 16)
+                current_mode = stat.S_IMODE(out.stat().st_mode)
+                if archive_mode & 0o111:
+                    out.chmod(current_mode | 0o111)
+                else:
+                    out.chmod(current_mode & ~0o111)
         return tmp_dir
     except Exception:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -863,7 +878,10 @@ def classify_operation(op, tmp_dir):
         return "new"
     if target.is_dir():
         fail(f"Ziel ist ein Verzeichnis und kann nicht überschrieben werden: {op['target']}")
-    return "unchanged" if sha256_file(target) == sha256_file(source) else "modified"
+    same_bytes = sha256_file(target) == sha256_file(source)
+    source_executable = bool(stat.S_IMODE(source.stat().st_mode) & 0o111)
+    target_executable = bool(stat.S_IMODE(target.stat().st_mode) & 0o111)
+    return "unchanged" if same_bytes and source_executable == target_executable else "modified"
 
 def copy_before(target_rel, before_root):
     target = PROJECT_ROOT / target_rel
@@ -903,10 +921,11 @@ def apply_operations(operations, tmp_dir, archive_dir, dry_run):
                 copy_before(target_rel, before_root)
             after = after_root / target_rel
             after.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source_abs, after)
+            shutil.copyfile(source_abs, after)
+            apply_git_executable_mode(source_abs, after)
             target_abs.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source_abs, target_abs)
-            restore_executable_bit(target_rel, target_abs)
+            shutil.copyfile(source_abs, target_abs)
+            apply_git_executable_mode(source_abs, target_abs)
         elif op["type"] == "delete":
             if target_abs.exists():
                 if target_abs.is_dir():
@@ -1148,7 +1167,6 @@ def rollback_command(args):
             if not dry_run:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(before, target)
-                restore_executable_bit(rel, target)
         elif status in ("unchanged", "delete_missing"):
             print(f"  [SKIP]        {rel}")
         else:

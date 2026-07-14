@@ -17,8 +17,8 @@ Usage:
   ./bin/tooling-selfcheck.sh [--export|--no-export]
 
 Options:
-  --export      run the full ZIP export check (default)
-  --no-export   skip the full ZIP export check, useful when patch accept/verify performs export separately
+  --export      run one full ZIP export and verify its raw-byte hash manifest (default)
+  --no-export   skip the live full ZIP export; synthetic export-integrity fixtures still run
 EOF
 }
 
@@ -48,16 +48,23 @@ while IFS= read -r script; do
 done < <(find "${PROJECT_ROOT}/bin" -type f -name '*.sh' | sort)
 
 log_info "Checking Python syntax"
-python3 -m py_compile "${PROJECT_ROOT}/bin/patch.py"
+while IFS= read -r script; do
+  python3 -m py_compile "${script}"
+done < <(find "${PROJECT_ROOT}/bin" -maxdepth 1 -type f -name '*.py' | sort)
 
 log_info "Checking patch registry"
 "${PROJECT_ROOT}/bin/patch.sh" list >/dev/null
 
+log_info "Checking patch artifact preflight fixtures"
+"${PROJECT_ROOT}/bin/patch-artifact-preflight-it.sh" >/dev/null
+
 if is_true "${RUN_EXPORT}"; then
-  log_info "Checking full export"
-  "${PROJECT_ROOT}/bin/export.sh" full --zip >/dev/null
+  log_info "Checking one full export and its integrity manifest"
+  EXPORT_REL="$("${PROJECT_ROOT}/bin/export.sh" full --zip)"
+  "${PROJECT_ROOT}/bin/export-integrity-it.sh" --export "${EXPORT_REL}" >/dev/null
 else
-  log_info "Skipping full export check"
+  log_info "Skipping live full export; checking synthetic export integrity fixtures"
+  "${PROJECT_ROOT}/bin/export-integrity-it.sh" >/dev/null
 fi
 
 log_info "Checking DBTool env/status"

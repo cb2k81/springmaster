@@ -214,3 +214,15 @@ Für neue Patches ist `baseline.expectedBeforeSha256` vollständig zu pflegen:
 * Hash-Einträge ohne Patch-Operation sind unzulässig.
 
 Der Standardabschluss über `accept` enthält diesen Guard automatisch. Manuelle Runner müssen ihn explizit vor dem Dry-run ausführen.
+
+## Artifact preflight command contract since 000124
+
+New patch delivery instructions must prefer:
+
+```bash
+./bin/patch.sh artifact-preflight <patch.zip>
+```
+
+over separate ad-hoc ZIP, live-hash, test-copy and EOF commands. The command output must preserve `ARTIFACT_PREFLIGHT=PASS`, source patch SHA-256, source Git `HEAD` and the JSON report path.
+
+Patch generators must source `expectedBeforeSha256` from live repository bytes or from the export metadata `fileManifest`. They must never reconstruct baseline hashes from the text export body. Generated UTF-8 payload files must use LF, exactly one final newline, no additional EOF blank line and no trailing spaces or tabs.

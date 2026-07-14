@@ -29,7 +29,8 @@
     "*.zip",
     "*.tar",
     "*.gz",
-    ".DS_Store"
+    ".DS_Store",
+    "patches/logs/validation/**"
   ],
   "profiles": {
     "full": {
@@ -185,6 +186,3 @@
     ]
   }
 }
-
-
-

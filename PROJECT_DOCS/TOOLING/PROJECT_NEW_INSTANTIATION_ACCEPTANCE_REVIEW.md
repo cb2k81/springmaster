@@ -36,9 +36,9 @@ Die Acceptance prüft:
 | Zielpfadschutz | Das Ziel wird neu erzeugt und nicht überschrieben |
 | Maven-Basis | `pom.xml` enthält gerenderte `groupId` und `artifactId` |
 | Package Rendering | Application und Controller liegen unter dem Ziel-Basispaket |
-| Tooling | `patch.sh`, `export.sh`, `dbtool.sh`, `build.sh`, `tooling-selfcheck.sh` werden übernommen |
+| Tooling | `patch.sh`, Artifact-Preflight, `export.sh`, Exportintegritätscheck, `dbtool.sh`, `build.sh` und `tooling-selfcheck.sh` werden vollständig übernommen |
 | Patch-Bootstrap | Bootstrap-Patch `000001_project_new_bootstrap` ist registriert |
-| Export | Das generierte Projekt kann einen Full-ZIP-Export erzeugen |
+| Export | Das generierte Projekt kann einen Full-ZIP-Export erzeugen und dessen Rohbyte-Manifest erfolgreich verifizieren |
 | DBTool | `dbtool.sh status` validiert Konfiguration ohne DB-Verbindung |
 | `.env` Hygiene | `.env.example` wird erzeugt, `.env` nicht |
 | DB Defaults | Shell-Tooling nutzt sanitizierte DB-Namen, nicht den hyphenated Projektnamen |
@@ -100,3 +100,7 @@ Wichtig bleibt:
 * Core-Verteilung ist vor einer Slice-Erzeugung explizit zu entscheiden.
 * Zielprojekt-Delivery bleibt blockiert, bis ein eigener Freigabe- und Vergleichsschritt erfolgt.
 * Der CatalogItem-Slice ist eine Candidate-Referenz, keine Canonical-Quelle für unkritische Codekopie.
+
+## Ergänzung seit 000124
+
+Die Acceptance schützt zusätzlich die Integrität der mitgegebenen Tooling-Laufzeit: `patch.sh artifact-preflight` und `tooling-selfcheck.sh` dürfen in einem neu erzeugten Projekt keine fehlenden Hilfsskripte referenzieren. Deshalb werden Artifact-Preflight, Exportintegritätscheck und deren Integrationstests mitkopiert und als Pflichtdateien geprüft. Der erzeugte Full-ZIP-Export muss den eigenständigen Integritätscheck bestehen. Kanonische `springmaster.*.v1`-Schema-IDs bleiben bei der Projekttokenisierung unverändert und werden durch positive sowie negative Markerprüfungen abgesichert.

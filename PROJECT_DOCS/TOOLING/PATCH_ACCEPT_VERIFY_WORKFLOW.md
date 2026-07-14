@@ -365,3 +365,15 @@ Technisch entspricht er:
 ```
 
 Schlägt dieser Schritt fehl, wurde der Patch nicht gegen den aktuellen Working Tree gebaut oder die Manifest-Hash-Abdeckung ist unvollständig. Der Patch darf dann nicht angewendet werden.
+
+## Pre-delivery artifact qualification since 000124
+
+`accept` remains the host-side apply and verification workflow. `artifact-preflight` is the earlier producer-side qualification boundary:
+
+```text
+artifact-preflight -> deliver -> accept/apply -> targeted tests -> full tests -> final export
+```
+
+Artifact preflight is non-mutating for the live repository and applies only in an isolated worktree. It does not replace host acceptance tests.
+
+Final runners can provide a JSON file through `PATCH_EXPORT_EVIDENCE_FILE` or `export.sh --evidence`. The exporter embeds the prior-gate evidence and its digest together with `exportStatus=COMPLETE`, so one final export is sufficient and a transient runner `STATUS.txt` no longer needs to be interpreted as export completion evidence.

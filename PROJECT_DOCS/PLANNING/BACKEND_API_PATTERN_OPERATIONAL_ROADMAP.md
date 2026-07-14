@@ -311,10 +311,21 @@ The gate is strict for the neutral BusinessPartner golden fixture and is protect
 The remaining ordered work is:
 
 ```text
-P0  000124_springmaster_patch_artifact_preflight_hardening
 P1  000125_springmaster_generated_slice_intermediate_representation
 P1  000126_springmaster_generated_slice_patch_blueprint_dry_run
 P1  000127_springmaster_zbm_generated_slice_pilot_plan
 ```
 
 No ZBM apply or generated target delivery may occur without the current ZBM baseline and an explicit user instruction.
+
+## Status after Patch 000124
+
+Patch `000124_springmaster_patch_artifact_preflight_hardening` closes the remaining P0 process gap. Patch artifacts can now be qualified against a clean committed baseline, exact live hashes, strict payload hygiene and an isolated worktree apply. Full exports expose authoritative raw-byte file manifests and optional embedded closure evidence.
+
+The ordered remaining work is:
+
+```text
+P1  000125_springmaster_generated_slice_intermediate_representation
+P1  000126_springmaster_generated_slice_patch_blueprint_dry_run
+P1  000127_springmaster_zbm_generated_slice_pilot_plan
+```

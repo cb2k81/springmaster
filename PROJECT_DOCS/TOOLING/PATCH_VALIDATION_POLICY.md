@@ -353,3 +353,11 @@ Die Mindestvalidierung eines neuen Patch-Abschlusses umfasst seit `000104` zusä
 Der Guard läuft im `accept`-Workflow vor dem normalen Dry-run. Er verhindert, dass ein Patch mit unvollständiger, veralteter oder nur gegen eine rekonstruierte Baseline geprüfter `expectedBeforeSha256`-Map akzeptiert wird.
 
 Bei einem Fehler der Klassen `LIVE_BASELINE_HASH_MISSING`, `LIVE_BASELINE_HASH_INCOMPLETE`, `LIVE_BASELINE_HASH_UNSUPPORTED` oder `LIVE_BASELINE_HASH_MISMATCH` ist der Patch neu gegen den aktuellen Live-Stand zu erstellen. Ein Entfernen der Hash-Map ist keine zulässige Reparatur.
+
+## Artifact qualification policy since 000124
+
+A patch artifact is delivery-ready only after `patch.sh artifact-preflight` has passed against a clean committed baseline. The preflight must reject incomplete or mismatching live hashes, unchanged operations, CRLF, missing final LF, extra EOF blank lines and trailing spaces/tabs.
+
+A passing reconstructed test directory is not sufficient unless the directory is a detached Git worktree at the same source `HEAD` and the complete live hash map has also passed. Hashes taken from the presentation text of a Full Text Export are forbidden. Only the raw-byte `fileManifest` values in export metadata format version 2 are authoritative.
+
+The isolated qualification must prove exact operation scope, byte-identical applied payloads, `git diff --check` and one verified full export. `--no-export` is permitted only for focused fixture tests or when a later runner stage performs and verifies the single final export.
