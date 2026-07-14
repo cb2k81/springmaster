@@ -1058,3 +1058,19 @@ Erreicht:
 Nächster geplanter Schritt:
 
 `000121_springmaster_generated_slice_api_pattern_adoption_plan` zur Planung der Generator-/Template-Adoption für Query, Detail, Write, Error und Validation Patterns.
+
+## Stand nach Patch 000121
+
+Patch `000121_springmaster_generated_slice_api_pattern_adoption_plan` überführt die abgeschlossenen API-Basismuster in eine konkrete Generator-/Template-Adoptionsplanung.
+
+Erreicht:
+
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md` definiert das Zielbild eines generated service slice nach Query, Detail, Write, Error und Validation Patterns.
+* Die ältere Blueprint-Spezifikation wird an den aktuellen API-Stand angepasst: `/all` und `/count` sind für managementfähige Generated Slices jetzt Bestandteil des Standard-Query-Surface.
+* CatalogItem bleibt Candidate Reference, aber nicht Copy-and-Paste-Template.
+* Die Akzeptanzkriterien für generated target patches, Evidence, report-only Gates, Zielprojekt-Maven-Test und Full-ZIP-Export sind dokumentiert.
+* Zielprojekt-Delivery, Generator-Code, strict Gate Promotion, Bulk Commands, State Commands und Relationship Commands bleiben bewusst außerhalb dieses Patches.
+
+Nächster geplanter Schritt:
+
+`000122_springmaster_generated_slice_spec_contract` für den YAML-/JSON-Spec-Vertrag und eine Golden Spec eines neutralen Generated Slice.

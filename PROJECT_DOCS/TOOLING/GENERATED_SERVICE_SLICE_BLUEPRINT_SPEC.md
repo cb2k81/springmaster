@@ -192,37 +192,40 @@ evidence/generated-slice-business-partner.json
 
 Der Generator muss die bestehenden Springmaster-API-Standards erzwingen.
 
-Für ein Aggregate `BusinessPartner` sind die Standard-Endpunkte:
+Für ein managementfähiges Aggregate `BusinessPartner` sind nach dem API-Pattern-Reifegrad bis `000120` folgende Standard-Endpunkte der Baseline-Surface:
 
 ```text
 GET    /api/administration/business-partners
+GET    /api/administration/business-partners/all
+GET    /api/administration/business-partners/count
 GET    /api/administration/business-partners/{id}
 POST   /api/administration/business-partners
 PUT    /api/administration/business-partners/{id}
 DELETE /api/administration/business-partners/{id}
 ```
 
-Listenparameter:
+Listenparameter für die paged collection:
 
 ```text
 page
 size
 sortBy
 sortDir
-search
 ```
+
+Filterparameter werden aus der Slice-Spec abgeleitet und müssen für paged list, `/all` und `/count` konsistent sein. `/all` besitzt keine Paging-Parameter. `/count` besitzt keine Paging- und Sortierparameter.
 
 Nicht kanonisch als Standard:
 
 ```text
-/all
 /list
 /findOne
 /findFirst
+/findAny
 /getById
 ```
 
-Spezielle Lookups wie `by-number` sind nur zulässig, wenn der fachliche Schlüssel eindeutig und dokumentiert ist.
+Spezielle Lookups wie `by-number` sind nur zulässig, wenn der fachliche Schlüssel eindeutig und dokumentiert ist. Komplexe `POST /search`-Familien bleiben optional und benötigen einen separaten Such-DTO-Contract.
 
 ## DTO- und Boundary-Standard
 
@@ -380,3 +383,11 @@ Akzeptanzregeln:
 * Die Anwendung erfolgt über das lokale Patchsystem des Zielprojekts und wird anschließend mit `mvn test` und Full-ZIP-Export validiert.
 
 Erst nach erfolgreicher Core-Source-Copy-Acceptance ist die Grundlage für einen fachlichen Slice-Generator-Test vorhanden.
+
+## API Pattern adoption alignment after 000121
+
+Patch `000121_springmaster_generated_slice_api_pattern_adoption_plan` aligns this older blueprint with the now report-backed API pattern families.
+
+The earlier `000080` blueprint was written before `/all`, `/count`, global error handling, Detail/Lookup reports, Write API reports and Request Validation/OpenAPI evidence reached candidate-reference maturity. For generated management slices, `/all` and `/count` are no longer treated as non-canonical. They are part of the generated baseline unless a slice type explicitly opts out and documents why the operation family is not applicable.
+
+The concrete adoption rules are maintained in `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md`.

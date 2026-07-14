@@ -271,3 +271,23 @@ Patch `000120_springmaster_request_validation_openapi_gate` adds `REQUEST_VALIDA
 The command writes a JSON report to `reports/api/request-validation-openapi-gate-report.json` by default. The initial implementation validates the Springmaster CatalogItem candidate reference slice and proves alignment between `@Valid @RequestBody` DTO boundaries, Bean Validation required fields, OpenAPI `required` lists and the global `VALIDATION_FAILED` error contract.
 
 The report remains reference-project evidence and does not yet promote generated target-project scans or strict gate failure semantics.
+
+## Generated Slice API Pattern adoption plan since 000121
+
+Patch `000121_springmaster_generated_slice_api_pattern_adoption_plan` adds `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md`.
+
+The plan consolidates the report-backed Query, Detail/Lookup, Write API and Request Validation/OpenAPI evidence with the Core global API error contract into a generated-service-slice adoption target.
+
+For management-style generated slices the baseline API surface is now:
+
+```text
+GET    /api/<domain>/<resources>
+GET    /api/<domain>/<resources>/all
+GET    /api/<domain>/<resources>/count
+GET    /api/<domain>/<resources>/{id}
+POST   /api/<domain>/<resources>
+PUT    /api/<domain>/<resources>/{id}
+DELETE /api/<domain>/<resources>/{id}
+```
+
+Alternate-key lookups and complex `POST /search` families remain optional and require explicit Slice-Spec semantics. The plan is documentation-only and does not yet implement generator code or target-project delivery.

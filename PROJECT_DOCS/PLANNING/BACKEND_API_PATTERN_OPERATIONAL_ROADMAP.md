@@ -4,9 +4,9 @@
 
 Dieses Dokument persistiert die operative Aufgabenliste für die Weiterentwicklung von Springmaster als Master-/Template- und Validierungsbasis für Backend-Applikationen und API-Endpoints.
 
-Der Query-/List-/All-/Count-Strang ist mit Patch `000114_springmaster_query_security_scope_parity_reference` auf Candidate-Reference-Reifegrad abgeschlossen. Seit `000116`/`000117` ist der globale API Error Contract im Core etabliert und im CatalogItem-Demo-Slice operativ genutzt. Seit `000118` ist auch Detail/Lookup report-only und golden-fixture-backed belegt. Die nächsten Arbeiten dürfen diesen Query-Strang nicht unbegründet erweitern, sondern müssen die verbleibenden API- und Application-Patterns systematisch schließen.
+Der Query-/List-/All-/Count-Strang ist mit Patch `000114_springmaster_query_security_scope_parity_reference` auf Candidate-Reference-Reifegrad abgeschlossen. Seit `000116`/`000117` ist der globale API Error Contract im Core etabliert und im CatalogItem-Demo-Slice operativ genutzt. Seit `000118` ist Detail/Lookup report-only und golden-fixture-backed belegt. Seit `000119` ist Create/Update/Delete als Write API Contract report-only abgesichert. Seit `000120` ist Request Validation/OpenAPI-required-field alignment für CatalogItem belegt. Die nächsten Arbeiten dürfen diesen Query-Strang nicht unbegründet erweitern, sondern müssen die verbleibenden API- und Application-Patterns systematisch schließen.
 
-## 2. Aktueller Reifegrad nach 000118
+## 2. Aktueller Reifegrad nach 000120
 
 Erreicht ist:
 
@@ -35,22 +35,23 @@ Nicht Ziel weiterer unmittelbarer Arbeit sind:
 
 * erneute Query-Basisstandardisierung;
 * weitere Query-Dokumentation ohne neue operative Verifikation;
-* Strict-Gate-Promotion ohne vorherige Abdeckung von Error, Detail, Write und Validation;
+* Strict-Gate-Promotion ohne vorherige Generated-Slice-Adoptionsentscheidung;
 * Cursor-/Keyset-Pagination oder Async Export ohne konkrete Last-/SLA-Anforderung.
 
 ## 3. Priorisierte Aufgaben
 
 
-Aktueller operativer Stand nach `000118`:
+Aktueller operativer Stand nach `000120`:
 
 | Status | Patch | Ergebnis |
 |---|---|---|
 | abgeschlossen | `000116_springmaster_global_api_error_contract_core` | Core-globaler API Error Contract |
 | abgeschlossen | `000117_springmaster_catalogitem_global_api_error_handler_migration` | CatalogItem nutzt globalen Error Handler |
 | abgeschlossen | `000118_springmaster_detail_lookup_contract_report` | Detail/Lookup Report + Golden Fixture |
-| aktueller Schritt | `000119_springmaster_write_api_contract_report` | Create/Update/Delete Contract Report |
-| danach | `000120_springmaster_request_validation_openapi_gate` | Bean Validation ↔ OpenAPI required fields |
-| danach | `000121_springmaster_generated_slice_api_pattern_adoption_plan` | Generator-/Template-Adoption |
+| abgeschlossen | `000119_springmaster_write_api_contract_report` | Create/Update/Delete Contract Report |
+| abgeschlossen | `000120_springmaster_request_validation_openapi_gate` | Bean Validation ↔ OpenAPI required fields |
+| aktueller Schritt | `000121_springmaster_generated_slice_api_pattern_adoption_plan` | Generator-/Template-Adoption planen |
+| danach | `000122_springmaster_generated_slice_spec_contract` | Slice-Spec-Vertrag und Golden Spec definieren |
 
 
 ### Abgeschlossen – `000116_springmaster_global_api_error_contract_core` und `000117_springmaster_catalogitem_global_api_error_handler_migration`
@@ -158,6 +159,8 @@ git diff --check
 * keine direkte Target-Delivery.
 
 **Abhängigkeiten:** P0 bis P1 müssen abgeschlossen sein.
+
+**Status nach Umsetzung:** `000121` persistiert den Adoptionsplan unter `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md`. Die nächsten Schritte sind Spec Contract, Intermediate Model und Patch-Blueprint-Dry-run. Zielprojekt-Delivery bleibt weiterhin gesperrt.
 
 ## 4. Nachgelagerte Themen
 

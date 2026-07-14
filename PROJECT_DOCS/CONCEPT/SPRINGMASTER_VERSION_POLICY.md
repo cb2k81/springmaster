@@ -1735,3 +1735,14 @@ Reasoning:
 * It records CatalogItem as the first golden evidence for `CatalogItemCreateDTO` and `CatalogItemUpdateDTO` Bean Validation required fields.
 * It verifies that OpenAPI required fields are aligned with `@NotBlank` constraints for create and update request bodies.
 * It keeps Generated-Slice adoption, strict gate promotion, bulk commands, state commands and relationship commands as follow-up roadmap items.
+
+## Generated Slice API Pattern adoption plan since 000121
+
+Patch `000121_springmaster_generated_slice_api_pattern_adoption_plan` records a documentation-only Tooling/Planning state.
+
+Reasoning:
+
+* It consolidates the completed API pattern families Query, Detail/Lookup, Write, Request Validation/OpenAPI and global Error Contract into a generated-service-slice adoption target.
+* It aligns the older generated-service-slice blueprint with the current API surface, including `/all` and `/count` for management-style generated slices.
+* It defines the next generator implementation sequence: Slice-Spec Contract, Intermediate Model and Patch-Blueprint Dry-run before any target-project delivery.
+* It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.
