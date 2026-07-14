@@ -117,3 +117,19 @@ Patch `000114_springmaster_query_security_scope_parity_reference` adds a compact
 The reference keeps the current CatalogItem runtime lightweight, but proves the rule that paged list, `/all` and `/count` must use the same resolved read permission and data-scope predicate family. `CatalogItemScopedQueryReference` applies `catalog:item:read`, `allowedSkus`, `sku` and `name` through one shared matcher before operation-specific paging, sorting, DTO mapping or count-only behavior.
 
 This closes the security/data-scope parity gap for the Query/List/All/Count candidate reference track. CatalogItem remains candidate-level until a later canonical-promotion decision explicitly accepts it as canonical.
+
+
+## CatalogItem global API error handler migration since 000117
+
+Patch `000117_springmaster_catalogitem_global_api_error_handler_migration` migrates the CatalogItem candidate reference slice from controller-local error DTOs and `@ExceptionHandler` methods to the Core-owned `GlobalApiExceptionHandler`.
+
+The Demo slice now proves that standard API failures can be represented by the shared Core error envelope without local controller error code:
+
+* validation failures use `VALIDATION_FAILED`;
+* invalid query/request failures use `INVALID_REQUEST`;
+* missing resources use `RESOURCE_NOT_FOUND`;
+* duplicate business keys use `CONFLICT`;
+* CatalogItem-specific not-found and conflict cases retain catalog message keys;
+* correlation IDs are propagated by the global handler.
+
+The old CatalogItem-local error DTOs and local not-found exception are removed. Detail/Lookup and Write API contract reports remain follow-up roadmap items.

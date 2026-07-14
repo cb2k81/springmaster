@@ -5,28 +5,21 @@ import de.cocondo.platform.demo.catalog.CatalogItemCountQuery;
 import de.cocondo.platform.demo.catalog.CatalogItemCreateDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemListItemDTO;
-import de.cocondo.platform.demo.catalog.CatalogItemNotFoundException;
 import de.cocondo.platform.demo.catalog.CatalogItemPagedQuery;
 import de.cocondo.platform.demo.catalog.CatalogItemService;
 import de.cocondo.platform.demo.catalog.CatalogItemUpdateDTO;
 import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
-import de.cocondo.system.entity.validation.ValidationException;
-import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.UriUtils;
 
 @RestController
@@ -95,14 +87,18 @@ public class CatalogItemController {
     public ResponseEntity<CatalogItemDTO> findById(@PathVariable("id") String id) {
         return service.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new CatalogItemNotFoundException("Catalog item not found: id=" + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Catalog item not found: id=" + id,
+                        "catalog.item.not-found"));
     }
 
     @GetMapping("/by-sku/{sku}")
     public ResponseEntity<CatalogItemDTO> findBySku(@PathVariable("sku") String sku) {
         return service.findBySku(sku)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new CatalogItemNotFoundException("Catalog item not found: sku=" + sku));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Catalog item not found: sku=" + sku,
+                        "catalog.item.not-found"));
     }
 
     @PutMapping("/{id}")
@@ -119,78 +115,6 @@ public class CatalogItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CatalogApiErrorResponse> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException exception,
-            HttpServletRequest request
-    ) {
-        CatalogApiErrorResponse body = error(
-                HttpStatus.BAD_REQUEST,
-                "VALIDATION_FAILED",
-                "Validation failed",
-                "catalog.validation.failed",
-                request
-        );
-        List<CatalogApiViolation> violations = exception.getBindingResult().getFieldErrors().stream()
-                .map(this::violation)
-                .toList();
-        body.setViolations(violations);
-        return ResponseEntity.badRequest().body(body);
-    }
-
-    @ExceptionHandler({ValidationException.class})
-    public ResponseEntity<CatalogApiErrorResponse> handleValidationException(
-            ValidationException exception,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity.badRequest().body(error(
-                HttpStatus.BAD_REQUEST,
-                "VALIDATION_FAILED",
-                exception.getMessage(),
-                "catalog.validation.failed",
-                request
-        ));
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<CatalogApiErrorResponse> handleInvalidRequest(Exception exception, HttpServletRequest request) {
-        return ResponseEntity.badRequest().body(error(
-                HttpStatus.BAD_REQUEST,
-                "INVALID_REQUEST",
-                safeMessage(exception),
-                "catalog.request.invalid",
-                request
-        ));
-    }
-
-    @ExceptionHandler(CatalogItemNotFoundException.class)
-    public ResponseEntity<CatalogApiErrorResponse> handleNotFound(
-            CatalogItemNotFoundException exception,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(
-                HttpStatus.NOT_FOUND,
-                "RESOURCE_NOT_FOUND",
-                exception.getMessage(),
-                "catalog.item.not-found",
-                request
-        ));
-    }
-
-    @ExceptionHandler(EntityAlreadyExistsException.class)
-    public ResponseEntity<CatalogApiErrorResponse> handleEntityAlreadyExistsException(
-            EntityAlreadyExistsException exception,
-            HttpServletRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error(
-                HttpStatus.CONFLICT,
-                "CONFLICT",
-                exception.getMessage(),
-                "catalog.item.conflict",
-                request
-        ));
-    }
-
     private void validateCountQueryParameters(HttpServletRequest request) {
         List<String> unsupported = request.getParameterMap().keySet().stream()
                 .filter(parameter -> !COUNT_QUERY_PARAMETERS.contains(parameter))
@@ -200,39 +124,5 @@ public class CatalogItemController {
             throw new IllegalArgumentException(
                     "Unsupported count query parameter: " + unsupported.getFirst());
         }
-    }
-
-    private CatalogApiErrorResponse error(
-            HttpStatus status,
-            String errorType,
-            String message,
-            String messageKey,
-            HttpServletRequest request
-    ) {
-        CatalogApiErrorResponse body = new CatalogApiErrorResponse();
-        body.setStatus(status.value());
-        body.setError(status.getReasonPhrase());
-        body.setErrorType(errorType);
-        body.setMessage(message);
-        body.setMessageKey(messageKey);
-        body.setPath(request.getRequestURI());
-        body.setMethod(request.getMethod());
-        return body;
-    }
-
-    private CatalogApiViolation violation(FieldError error) {
-        return new CatalogApiViolation(
-                error.getField(),
-                error.getDefaultMessage(),
-                "catalog.item." + error.getField() + ".invalid"
-        );
-    }
-
-    private String safeMessage(Exception exception) {
-        String message = exception.getMessage();
-        if (message == null || message.isBlank()) {
-            return "Invalid request";
-        }
-        return message;
     }
 }

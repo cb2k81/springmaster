@@ -1666,3 +1666,21 @@ Reasoning:
 * It prepares the CatalogItem migration but leaves the Demo-scope migration to the next patch.
 * It establishes the Core-owned implementation that the next Demo-scope migration must consume.
 * It adds targeted Core error tests and keeps Detail/Lookup, Write, Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.
+
+
+## CatalogItem global API error handler migration since 000117
+
+Patch `000117_springmaster_catalogitem_global_api_error_handler_migration` advances the Demo and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.58-foundation
+PLATFORM_DEMO_VERSION=0.2.8
+PLATFORM_STATE_PATCH=000117_springmaster_catalogitem_global_api_error_handler_migration
+```
+
+Reasoning:
+
+* It consumes the Core global API error contract introduced by `000116` in the CatalogItem Demo slice.
+* It removes controller-local error DTOs and local `@ExceptionHandler` methods from CatalogItem.
+* It maps CatalogItem not-found and duplicate-SKU failures to Core-owned error handling while preserving domain message keys.
+* It keeps Detail/Lookup, Write, Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.

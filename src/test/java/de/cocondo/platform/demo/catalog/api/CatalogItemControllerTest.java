@@ -157,6 +157,7 @@ class CatalogItemControllerTest {
                         .param("page", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.messageKey").value("springmaster.request.invalid"))
                 .andExpect(jsonPath("$.message", containsString("Unsupported count query parameter")))
                 .andExpect(jsonPath("$.message", containsString("page")));
 
@@ -233,6 +234,7 @@ class CatalogItemControllerTest {
                         .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorType").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.messageKey").value("springmaster.validation.failed"))
                 .andExpect(jsonPath("$.violations[0].field").value("name"));
     }
 
@@ -274,6 +276,7 @@ class CatalogItemControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.errorType").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.messageKey").value("catalog.item.not-found"))
                 .andExpect(jsonPath("$.path").value("/api/demo/catalog/items/UNKNOWN-ID"))
                 .andExpect(jsonPath("$.method").value("GET"));
     }
@@ -282,7 +285,8 @@ class CatalogItemControllerTest {
     void returnsNotFoundErrorBodyForUnknownSku() throws Exception {
         mockMvc.perform(get("/api/demo/catalog/items/by-sku/UNKNOWN"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorType").value("RESOURCE_NOT_FOUND"));
+                .andExpect(jsonPath("$.errorType").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.messageKey").value("catalog.item.not-found"));
     }
 
     @Test
@@ -296,6 +300,7 @@ class CatalogItemControllerTest {
                 .andExpect(jsonPath("$.errorId").value(not(blankOrNullString())))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.errorType").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.messageKey").value("springmaster.validation.failed"))
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.path").value("/api/demo/catalog/items"))
                 .andExpect(jsonPath("$.method").value("POST"))
@@ -310,6 +315,7 @@ class CatalogItemControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorId").value(not(blankOrNullString())))
                 .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.messageKey").value("springmaster.request.invalid"))
                 .andExpect(jsonPath("$.message", containsString("sortBy")));
     }
 
@@ -346,7 +352,19 @@ class CatalogItemControllerTest {
                 .andExpect(jsonPath("$.errorId").value(not(blankOrNullString())))
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.errorType").value("CONFLICT"))
+                .andExpect(jsonPath("$.messageKey").value("catalog.item.conflict"))
                 .andExpect(jsonPath("$.message", containsString("SKU")));
+    }
+
+    @Test
+    void catalogErrorsUseGlobalHandlerCorrelationId() throws Exception {
+        mockMvc.perform(get("/api/demo/catalog/items/count")
+                        .header("X-Correlation-Id", "corr-catalog-1")
+                        .param("page", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.correlationId").value("corr-catalog-1"))
+                .andExpect(jsonPath("$.messageKey").value("springmaster.request.invalid"));
     }
 
     @Test

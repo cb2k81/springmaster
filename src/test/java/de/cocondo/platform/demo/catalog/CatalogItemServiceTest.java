@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.exception.ResourceNotFoundException;
 import de.cocondo.system.query.ResultSetQueryOperations;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -186,10 +187,10 @@ class CatalogItemServiceTest {
     @Test
     void rejectsUnknownIdForUpdateAndDelete() {
         assertThatThrownBy(() -> service.update("unknown", new CatalogItemUpdateDTO("Updated", null)))
-                .isInstanceOf(CatalogItemNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("id");
         assertThatThrownBy(() -> service.delete("unknown"))
-                .isInstanceOf(CatalogItemNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("id");
     }
 }

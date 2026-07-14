@@ -3,6 +3,7 @@ package de.cocondo.platform.demo.catalog;
 import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.exception.ResourceNotFoundException;
 import de.cocondo.system.list.PagedQuerySupport;
 import de.cocondo.system.query.ResultSetQueryOperations;
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ public class CatalogItemService implements ResultSetQueryOperations<
         validator.validate(request);
         String key = skuKey(request.getSku());
         if (itemsBySku.containsKey(key)) {
-            throw new EntityAlreadyExistsException("Catalog item already exists: SKU=" + request.getSku().trim());
+            throw new EntityAlreadyExistsException(
+                    "Catalog item already exists: SKU=" + request.getSku().trim(),
+                    "catalog.item.conflict");
         }
         CatalogItem item = mapper.toEntity(request);
         itemsById.put(item.getId(), item);
@@ -52,7 +55,9 @@ public class CatalogItemService implements ResultSetQueryOperations<
 
     public synchronized CatalogItemDTO update(String id, CatalogItemUpdateDTO request) {
         CatalogItem item = findEntityById(id)
-                .orElseThrow(() -> new CatalogItemNotFoundException("Catalog item not found: id=" + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Catalog item not found: id=" + id,
+                        "catalog.item.not-found"));
         validator.validate(request);
         mapper.updateEntity(item, request);
         return mapper.toDto(item);
@@ -60,7 +65,9 @@ public class CatalogItemService implements ResultSetQueryOperations<
 
     public synchronized void delete(String id) {
         CatalogItem item = findEntityById(id)
-                .orElseThrow(() -> new CatalogItemNotFoundException("Catalog item not found: id=" + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Catalog item not found: id=" + id,
+                        "catalog.item.not-found"));
         itemsById.remove(item.getId());
         itemsBySku.remove(skuKey(item.getSku()));
     }
