@@ -263,3 +263,26 @@ Der nächste priorisierte Schritt ist jetzt:
 ```
 
 Ziel dieses Folgepatches ist keine neue Runtime-Funktion, sondern die Überführung der belegten API-Pattern-Familien in Generator-/Template-Anforderungen, damit spätere Zielprojekte die Standards deterministisch übernehmen können.
+
+
+## Status nach Patch 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` konkretisiert den in `000121` geplanten Übergang in einen expliziten Slice-Spec-Vertrag.
+
+Erreicht:
+
+```text
+GeneratedServiceSlice YAML contract       dokumentiert
+Neutral golden slice spec                 vorhanden
+API surface families                      Query, Detail, Write, Validation, Error
+Target delivery boundary                  patch-zip only
+Demo package reuse                        explizit verboten
+```
+
+Der nächste priorisierte Schritt ist jetzt:
+
+```text
+000123_springmaster_generated_slice_spec_fixture_gate
+```
+
+Ziel dieses Folgepatches ist ein ausführbares Fixture-/Report-Gate für den Slice-Spec-Vertrag, bevor Intermediate Model oder Patch-Blueprint-Generator implementiert werden.

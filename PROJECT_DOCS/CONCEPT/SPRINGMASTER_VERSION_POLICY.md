@@ -1746,3 +1746,15 @@ Reasoning:
 * It aligns the older generated-service-slice blueprint with the current API surface, including `/all` and `/count` for management-style generated slices.
 * It defines the next generator implementation sequence: Slice-Spec Contract, Intermediate Model and Patch-Blueprint Dry-run before any target-project delivery.
 * It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+
+## Generated Slice Spec Contract since 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` records a documentation-only Tooling/Planning contract state.
+
+Reasoning:
+
+* It defines the `GeneratedServiceSlice` Slice-Spec YAML contract for later generator phases.
+* It adds a neutral golden example for `administration.business-partner` instead of reusing the CatalogItem demo package as a template.
+* It formalizes Query, Detail, Write, Request Validation/OpenAPI and global Error Contract as one generated-slice target surface.
+* It keeps generator implementation, Intermediate Representation, target patch generation and target-project delivery as follow-up work.

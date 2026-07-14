@@ -391,3 +391,20 @@ Patch `000121_springmaster_generated_slice_api_pattern_adoption_plan` aligns thi
 The earlier `000080` blueprint was written before `/all`, `/count`, global error handling, Detail/Lookup reports, Write API reports and Request Validation/OpenAPI evidence reached candidate-reference maturity. For generated management slices, `/all` and `/count` are no longer treated as non-canonical. They are part of the generated baseline unless a slice type explicitly opts out and documents why the operation family is not applicable.
 
 The concrete adoption rules are maintained in `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md`.
+
+
+## Slice-Spec contract alignment after 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` introduces an explicit `GeneratedServiceSlice` input contract.
+
+The blueprint must now treat generated-slice creation as a staged flow:
+
+```text
+Slice-Spec YAML
+-> validated Slice-Spec fixture/report
+-> Intermediate Representation
+-> patch blueprint
+-> target-local patch ZIP
+```
+
+The blueprint must not infer generated API surfaces directly from CatalogItem source files. CatalogItem remains candidate reference evidence only. The generated source of truth is the Slice-Spec contract.

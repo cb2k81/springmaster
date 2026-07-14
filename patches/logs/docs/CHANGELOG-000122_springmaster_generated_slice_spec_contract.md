@@ -1,0 +1,22 @@
+
+# Changelog: 000122_springmaster_generated_slice_spec_contract
+
+Scope: `docs`
+
+## Added
+
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md`
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml`
+
+## Modified
+
+* `PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md`
+* `PROJECT_DOCS/PLANNING/BACKEND_API_PATTERN_OPERATIONAL_ROADMAP.md`
+* `PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md`
+* `PROJECT_DOCS/STANDARDS/API/README.md`
+* `PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_BLUEPRINT_SPEC.md`
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_API_PATTERN_ADOPTION_PLAN.md`
+
+## Verification
+
+Documentation-only patch. The runner verifies live-baseline, dry-run, apply, documentation guard, YAML parseability, `git diff --check` and full export.

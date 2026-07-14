@@ -291,3 +291,12 @@ DELETE /api/<domain>/<resources>/{id}
 ```
 
 Alternate-key lookups and complex `POST /search` families remain optional and require explicit Slice-Spec semantics. The plan is documentation-only and does not yet implement generator code or target-project delivery.
+
+
+## Generated Slice Spec Contract since 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` adds the Slice-Spec contract used to describe future generated management slices before generator code emits Java files or target-project patch archives.
+
+The contract is documented in `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md` and represented by the neutral golden YAML `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml`.
+
+The API standard families Query, Detail/Lookup, Write, Request Validation/OpenAPI and global Error Contract are now expressible as one generated-slice input model.

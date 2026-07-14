@@ -1,0 +1,136 @@
+
+specVersion: 1
+kind: GeneratedServiceSlice
+metadata:
+  sliceId: administration.business-partner
+  status: candidate-reference-slice
+  owner: springmaster
+  sourceReference: catalogitem-pattern-family
+packageModel:
+  basePackage: de.cocondo.platform
+  modulePackage: de.cocondo.platform.administration.businesspartner
+  corePackage: de.cocondo.system
+  forbiddenPackagePrefixes:
+    - de.cocondo.platform.demo
+resource:
+  domain: administration
+  resourceName: businessPartner
+  collectionName: businessPartners
+  externalId:
+    field: id
+    type: string
+  displayField: name
+  businessKeys:
+    - name: code
+      field: code
+      unique: true
+      lookupPath: /by-code/{code}
+apiSurface:
+  basePath: /api/administration/business-partners
+  query:
+    list:
+      enabled: true
+      method: GET
+      path: ""
+      pagination: offset
+      sorting:
+        allowlist:
+          - code
+          - name
+        default:
+          sortBy: code
+          sortDir: asc
+      filters:
+        - code
+        - name
+    all:
+      enabled: true
+      method: GET
+      path: /all
+    count:
+      enabled: true
+      method: GET
+      path: /count
+  detail:
+    enabled: true
+    method: GET
+    path: /{id}
+  alternateLookups:
+    - name: byCode
+      method: GET
+      path: /by-code/{code}
+      unique: true
+  write:
+    create:
+      enabled: true
+      method: POST
+      path: ""
+      successStatus: 201
+      locationHeader: detail
+    update:
+      enabled: true
+      method: PUT
+      path: /{id}
+      successStatus: 200
+    delete:
+      enabled: true
+      method: DELETE
+      path: /{id}
+      successStatus: 204
+      requestBody: forbidden
+model:
+  entity:
+    name: BusinessPartner
+  dto:
+    read: BusinessPartnerDTO
+    listItem: BusinessPartnerListItemDTO
+    create: BusinessPartnerCreateDTO
+    update: BusinessPartnerUpdateDTO
+  fields:
+    - name: code
+      type: string
+      requiredOnCreate: true
+      requiredOnUpdate: false
+      maxLength: 64
+      filterable: true
+      sortable: true
+      businessKey: true
+    - name: name
+      type: string
+      requiredOnCreate: true
+      requiredOnUpdate: true
+      maxLength: 255
+      filterable: true
+      sortable: true
+    - name: description
+      type: string
+      requiredOnCreate: false
+      requiredOnUpdate: false
+      maxLength: 1000
+      filterable: false
+      sortable: false
+validation:
+  requestBodiesRequireValidAnnotation: true
+  entitiesAsRequestBody: forbidden
+  beanValidationToOpenApiRequiredAlignment: required
+  invalidRequestErrorType: VALIDATION_FAILED
+errorContract:
+  handler: global-core
+  responseType: ApiErrorResponse
+  requiredErrorTypes:
+    - VALIDATION_FAILED
+    - INVALID_REQUEST
+    - RESOURCE_NOT_FOUND
+    - CONFLICT
+    - INTERNAL_ERROR
+reports:
+  queryContract: required
+  detailLookupContract: required
+  writeApiContract: required
+  requestValidationOpenApiGate: required
+delivery:
+  outputMode: patch-zip
+  targetApply: forbidden-in-springmaster
+  targetPatchDryRun: required-before-apply
+  targetMavenTest: required-after-apply
+  targetFullExport: required-after-apply

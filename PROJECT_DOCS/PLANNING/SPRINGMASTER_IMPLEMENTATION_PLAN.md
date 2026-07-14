@@ -1074,3 +1074,19 @@ Erreicht:
 Nächster geplanter Schritt:
 
 `000122_springmaster_generated_slice_spec_contract` für den YAML-/JSON-Spec-Vertrag und eine Golden Spec eines neutralen Generated Slice.
+
+
+## Stand nach Patch 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` definiert den verbindlichen Dokumentationsvertrag für künftige Generated Service Slices.
+
+Erreicht:
+
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md` beschreibt den YAML-/JSON-fähigen `GeneratedServiceSlice` Contract.
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml` liefert eine neutrale Golden Spec ohne Demo-Package-Reuse.
+* Die Spec bündelt Query/List/All/Count, Detail/Lookup, Write, Request Validation/OpenAPI und global Error Contract in einem reviewbaren Modell.
+* Zielprojekt-Delivery bleibt Patch-ZIP-basiert und wird weiterhin nicht direkt aus Springmaster angewendet.
+
+Nächster geplanter Schritt:
+
+`000123_springmaster_generated_slice_spec_fixture_gate` für ein maschinenlesbares Fixture-/Report-Gate des Slice-Spec-Vertrags.

@@ -355,3 +355,21 @@ Nächster fachlich sinnvoller Schritt:
 ```text
 000122_springmaster_generated_slice_spec_contract
 ```
+
+
+## Contract concretization after 000122
+
+Patch `000122_springmaster_generated_slice_spec_contract` resolves the first implementation step named by this adoption plan.
+
+The generated-slice target is now represented by:
+
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md`
+* `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml`
+
+This moves the work from a planning-only adoption model to an explicit Slice-Spec contract. The next step is executable fixture validation, not target-project delivery.
+
+Nächster fachlich sinnvoller Schritt:
+
+```text
+000123_springmaster_generated_slice_spec_fixture_gate
+```
