@@ -1758,3 +1758,21 @@ Reasoning:
 * It adds a neutral golden example for `administration.business-partner` instead of reusing the CatalogItem demo package as a template.
 * It formalizes Query, Detail, Write, Request Validation/OpenAPI and global Error Contract as one generated-slice target surface.
 * It keeps generator implementation, Intermediate Representation, target patch generation and target-project delivery as follow-up work.
+
+
+## Generated Slice Spec Fixture Gate since 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.62-foundation
+PLATFORM_TOOLING_VERSION=0.3.22
+PLATFORM_STATE_PATCH=000123_springmaster_generated_slice_spec_fixture_gate
+```
+
+Reasoning:
+
+* It introduces executable Python/Shell Tooling and Java tests for the `GeneratedServiceSlice` contract.
+* It adds a deterministic BusinessPartner golden report and negative fail-closed fixtures.
+* It makes the global `400`, `404` and `409` error status families explicit in the machine-readable Slice-Spec.
+* It does not change Core runtime contracts, Demo runtime behavior, Templates, Platform-Update payloads or target-project files.

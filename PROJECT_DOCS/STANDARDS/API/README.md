@@ -300,3 +300,10 @@ Patch `000122_springmaster_generated_slice_spec_contract` adds the Slice-Spec co
 The contract is documented in `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md` and represented by the neutral golden YAML `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml`.
 
 The API standard families Query, Detail/Lookup, Write, Request Validation/OpenAPI and global Error Contract are now expressible as one generated-slice input model.
+
+
+## Generated Slice Spec Fixture Gate since 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` makes the combined generated-slice input contract executable. The gate is documented in `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_FIXTURE_GATE.md` and validates the neutral BusinessPartner YAML against the established Query, Detail/Lookup, Write, Request Validation/OpenAPI and global Error Contract families.
+
+The gate requires explicit `400`, `404` and `409` error status families, all four report families, patch-ZIP delivery, no direct target mutation and no Demo package reuse. It is an input-fixture gate, not a generated target-project gate.

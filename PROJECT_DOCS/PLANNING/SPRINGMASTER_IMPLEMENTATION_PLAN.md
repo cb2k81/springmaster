@@ -1090,3 +1090,30 @@ Erreicht:
 Nächster geplanter Schritt:
 
 `000123_springmaster_generated_slice_spec_fixture_gate` für ein maschinenlesbares Fixture-/Report-Gate des Slice-Spec-Vertrags.
+
+
+## Stand nach Patch 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` implements the first executable gate for the `GeneratedServiceSlice` contract.
+
+Erreicht:
+
+* dependency-free strict YAML parsing for contract version `1`;
+* deterministic JSON report and committed BusinessPartner golden fixture;
+* strict validation of all eleven top-level fields;
+* full management API surface including alternate lookup;
+* explicit CreateDTO/UpdateDTO and request validation boundary;
+* global Core error response with machine-readable `400`, `404` and `409` families;
+* all four required report families;
+* patch-only delivery and Demo-package prohibition;
+* negative fail-closed test cases for representative contract violations.
+
+Nicht Bestandteil dieses Patches sind Intermediate Representation, renderer, patch-blueprint generation and ZBM target delivery.
+
+Nächster P0-Schritt:
+
+```text
+000124_springmaster_patch_artifact_preflight_hardening
+```
+
+Nach dessen Abschluss folgt `000125_springmaster_generated_slice_intermediate_representation`.

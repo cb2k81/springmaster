@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "springmaster.generated-slice-spec-fixture-gate-report.v1",
+  "generatedAt": "2026-07-14T00:00:00Z",
+  "mode": "strict-fixture-gate",
+  "project": "springmaster",
+  "contract": {
+    "document": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md",
+    "specPath": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml",
+    "specSha256": "e0530da48e13d2149190dd165fe29b85652cb50b39d6a80b9f8f56d6ba0ee8cb",
+    "specVersion": 1,
+    "kind": "GeneratedServiceSlice"
+  },
+  "summary": {
+    "checks": 12,
+    "passed": 12,
+    "failed": 0,
+    "notRun": 0,
+    "findings": 0,
+    "status": "PASS"
+  },
+  "checks": [
+    {
+      "id": "SPEC-PARSE",
+      "title": "Strict YAML subset parsing",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-TOPLEVEL",
+      "title": "Required top-level contract fields",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-METADATA",
+      "title": "Slice metadata",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-PACKAGE",
+      "title": "Neutral package boundary",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-RESOURCE",
+      "title": "Resource identity and business keys",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-QUERY",
+      "title": "List, all and count query surface",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-DETAIL",
+      "title": "Detail and alternate lookup surface",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-WRITE",
+      "title": "Create, update and delete surface",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-DTO",
+      "title": "DTO boundary and field validation metadata",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-ERROR",
+      "title": "Global error contract and status families",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-REPORTS",
+      "title": "Required evidence report families",
+      "status": "passed"
+    },
+    {
+      "id": "SPEC-DELIVERY",
+      "title": "Patch-only target delivery boundary",
+      "status": "passed"
+    }
+  ],
+  "evidence": {
+    "sliceId": "administration.business-partner",
+    "modulePackage": "de.cocondo.platform.administration.businesspartner",
+    "apiSurface": [
+      "GET /api/administration/business-partners",
+      "GET /api/administration/business-partners/all",
+      "GET /api/administration/business-partners/count",
+      "GET /api/administration/business-partners/{id}",
+      "GET /api/administration/business-partners/by-code/{code}",
+      "POST /api/administration/business-partners",
+      "PUT /api/administration/business-partners/{id}",
+      "DELETE /api/administration/business-partners/{id}"
+    ],
+    "dtoBoundary": {
+      "entity": "BusinessPartner",
+      "create": "BusinessPartnerCreateDTO",
+      "update": "BusinessPartnerUpdateDTO",
+      "entitiesAsRequestBody": "forbidden"
+    },
+    "errorStatusFamilies": {
+      "400": [
+        "VALIDATION_FAILED",
+        "INVALID_REQUEST"
+      ],
+      "404": [
+        "RESOURCE_NOT_FOUND"
+      ],
+      "409": [
+        "CONFLICT"
+      ]
+    },
+    "reportFamilies": [
+      "queryContract",
+      "detailLookupContract",
+      "writeApiContract",
+      "requestValidationOpenApiGate"
+    ],
+    "delivery": {
+      "outputMode": "patch-zip",
+      "targetApply": "forbidden-in-springmaster",
+      "targetPatchDryRun": "required-before-apply",
+      "targetMavenTest": "required-after-apply",
+      "targetFullExport": "required-after-apply"
+    }
+  },
+  "findings": []
+}

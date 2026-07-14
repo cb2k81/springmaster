@@ -1,8 +1,7 @@
-
 # Generated Slice Spec Contract
 
-**Patch:** `000122_springmaster_generated_slice_spec_contract`  
-**Status:** candidate contract, documentation-only  
+**Patch:** `000122_springmaster_generated_slice_spec_contract`
+**Status:** executable contract, fixture-gate-backed since `000123`
 **Reference maturity:** follows `000121_springmaster_generated_slice_api_pattern_adoption_plan`
 
 ## 1. Purpose
@@ -172,6 +171,17 @@ errorContract:
     - RESOURCE_NOT_FOUND
     - CONFLICT
     - INTERNAL_ERROR
+  expectedStatusMappings:
+    - status: 400
+      errorTypes:
+        - VALIDATION_FAILED
+        - INVALID_REQUEST
+    - status: 404
+      errorTypes:
+        - RESOURCE_NOT_FOUND
+    - status: 409
+      errorTypes:
+        - CONFLICT
 
 reports:
   queryContract: required
@@ -238,6 +248,7 @@ Required rules:
 * Bean Validation required fields must align with OpenAPI `required` lists.
 * `maxLength` must align with Bean Validation and OpenAPI schema constraints.
 * Invalid DTO requests return the global `400 VALIDATION_FAILED` error response.
+* `errorContract.expectedStatusMappings` makes the required `400`, `404` and `409` families machine-readable.
 
 ## 7. Error contract rules
 
@@ -254,6 +265,14 @@ Required mappings:
 | Unexpected internal failure | `500` | `INTERNAL_ERROR` |
 
 A generated slice must not create local error response DTOs or controller-local error contracts.
+
+Contract version `1` must explicitly declare the following status families in `errorContract.expectedStatusMappings`:
+
+```text
+400 -> VALIDATION_FAILED, INVALID_REQUEST
+404 -> RESOURCE_NOT_FOUND
+409 -> CONFLICT
+```
 
 ## 8. Report evidence rules
 
@@ -294,7 +313,7 @@ A Generated Slice Spec is acceptable when:
 * operation-family opt-outs are explicit and justified;
 * `/all` and `/count` are present for management slices or explicitly opted out;
 * DTO required fields are explicit for create and update;
-* the global error contract is selected;
+* the global error contract is selected and `400`/`404`/`409` status families are explicit;
 * report evidence families are declared;
 * delivery is patch-ZIP based;
 * Demo packages are explicitly forbidden for target delivery.
@@ -305,12 +324,22 @@ CatalogItem remains the candidate reference for the current API pattern families
 
 It is not a template to copy. The generator must derive neutral artifacts from the Slice-Spec and reusable Core/Tooling contracts, not from `de.cocondo.platform.demo.catalog` package names.
 
-## 12. Next step
+## 12. Executable fixture gate since 000123
 
-The next implementation step should be:
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` adds the strict executable contract evidence documented in:
 
 ```text
-000123_springmaster_generated_slice_spec_fixture_gate
+PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_FIXTURE_GATE.md
 ```
 
-That patch should add an executable report/fixture gate for this contract before an Intermediate Representation or patch-blueprint generator is implemented.
+The gate parses the YAML fixture with a dependency-free strict YAML profile, validates all required API/DTO/Error/Report/Delivery families, writes a deterministic JSON report and fails with a non-zero exit code on findings.
+
+## 13. Next step
+
+Before broader generated patch delivery, the next P0 process step is:
+
+```text
+000124_springmaster_patch_artifact_preflight_hardening
+```
+
+After P0 closure, the generator sequence continues with the neutral Intermediate Representation and the patch-blueprint dry-run.

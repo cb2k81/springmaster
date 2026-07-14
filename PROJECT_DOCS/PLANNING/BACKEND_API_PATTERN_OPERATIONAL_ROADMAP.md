@@ -286,3 +286,35 @@ Der nächste priorisierte Schritt ist jetzt:
 ```
 
 Ziel dieses Folgepatches ist ein ausführbares Fixture-/Report-Gate für den Slice-Spec-Vertrag, bevor Intermediate Model oder Patch-Blueprint-Generator implementiert werden.
+
+
+## Status after Patch 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` closes the executable Slice-Spec fixture gate.
+
+```text
+GeneratedServiceSlice YAML parse       PASS
+Required top-level contract fields     PASS
+List/All/Count surface                 PASS
+Detail/alternate lookup surface        PASS
+Create/Update/Delete surface           PASS
+DTO and validation boundary            PASS
+Global 400/404/409 error families       PASS
+Required report families               PASS
+Patch-only delivery boundary            PASS
+Demo package reuse prohibition          PASS
+Golden report findings                  0
+```
+
+The gate is strict for the neutral BusinessPartner golden fixture and is protected by positive golden comparison and negative fail-closed tests. It does not generate Java code or mutate a target project.
+
+The remaining ordered work is:
+
+```text
+P0  000124_springmaster_patch_artifact_preflight_hardening
+P1  000125_springmaster_generated_slice_intermediate_representation
+P1  000126_springmaster_generated_slice_patch_blueprint_dry_run
+P1  000127_springmaster_zbm_generated_slice_pilot_plan
+```
+
+No ZBM apply or generated target delivery may occur without the current ZBM baseline and an explicit user instruction.

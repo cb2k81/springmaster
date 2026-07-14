@@ -1,4 +1,3 @@
-
 specVersion: 1
 kind: GeneratedServiceSlice
 metadata:
@@ -123,6 +122,17 @@ errorContract:
     - RESOURCE_NOT_FOUND
     - CONFLICT
     - INTERNAL_ERROR
+  expectedStatusMappings:
+    - status: 400
+      errorTypes:
+        - VALIDATION_FAILED
+        - INVALID_REQUEST
+    - status: 404
+      errorTypes:
+        - RESOURCE_NOT_FOUND
+    - status: 409
+      errorTypes:
+        - CONFLICT
 reports:
   queryContract: required
   detailLookupContract: required

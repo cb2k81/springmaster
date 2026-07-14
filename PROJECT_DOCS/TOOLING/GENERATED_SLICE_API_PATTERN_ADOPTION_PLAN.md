@@ -322,10 +322,12 @@ Empfohlene nächste Schritte:
 | Priorität | Patch-Kandidat | Ziel |
 |---:|---|---|
 | 1 | `000122_springmaster_generated_slice_spec_contract` | YAML/JSON-Spec-Vertrag und Golden Spec für einen neutralen Slice definieren |
-| 2 | `000123_springmaster_generated_slice_intermediate_model` | Spec parser und internes Slice-Modell report-only validieren |
-| 3 | `000124_springmaster_generated_slice_patch_blueprint_dry_run` | Patch-ZIP-Erzeugung als Dry-run-Artefakt ohne Target-Apply vorbereiten |
-| 4 | `000125_springmaster_generated_slice_catalogitem_pattern_projection` | CatalogItem-Patterns gegen neutrales Generated-Slice-Modell spiegeln |
-| 5 | später | ZBM oder anderes frisches Zielprojekt mit lokalem Patchsystem als Acceptance Target nutzen |
+| 2 | `000123_springmaster_generated_slice_spec_fixture_gate` | Golden Slice-Spec strikt parsen und API/DTO/Error/Report/Delivery-Verträge ausführbar validieren |
+| 3 | `000124_springmaster_patch_artifact_preflight_hardening` | Patch-Artefakte vor Auslieferung gegen exakte Baseline, ZIP-Identität und EOF-/Diff-Hygiene prüfen |
+| 4 | `000125_springmaster_generated_slice_intermediate_representation` | Validierte Spec in ein neutrales internes Slice-Modell überführen |
+| 5 | `000126_springmaster_generated_slice_patch_blueprint_dry_run` | Patch-Blueprint deterministisch erzeugen, ohne Target-Dateien zu mutieren |
+| 6 | `000127_springmaster_zbm_generated_slice_pilot_plan` | ZBM-Pilotinputs, Scope und Zielprojekt-Gates dokumentieren |
+| 7 | später | ZBM oder anderes frisches Zielprojekt mit lokalem Patchsystem als Acceptance Target nutzen |
 
 Diese Reihenfolge ist bewusst konservativ. Ein Zielprojekt wird erst verwendet, wenn Spec Contract, Intermediate Model und Patch Blueprint stabil sind.
 
@@ -373,3 +375,20 @@ Nächster fachlich sinnvoller Schritt:
 ```text
 000123_springmaster_generated_slice_spec_fixture_gate
 ```
+
+
+## Executable fixture validation after 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` closes the executable-input-contract step before the Intermediate Representation.
+
+The BusinessPartner golden YAML now proves:
+
+* strict dependency-free YAML parsing;
+* the complete list/all/count/detail/alternate-lookup/create/update/delete surface;
+* distinct CreateDTO and UpdateDTO boundaries;
+* explicit `400`, `404` and `409` global error families;
+* all four required report families;
+* patch-ZIP delivery without direct target-project mutation;
+* explicit prohibition of Demo package reuse.
+
+The gate is not an IR parser and does not generate a target patch. The next P0 step is Patch Artifact Preflight hardening; only then should `000125_springmaster_generated_slice_intermediate_representation` start.

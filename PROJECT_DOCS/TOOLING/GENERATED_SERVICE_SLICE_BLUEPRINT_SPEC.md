@@ -408,3 +408,10 @@ Slice-Spec YAML
 ```
 
 The blueprint must not infer generated API surfaces directly from CatalogItem source files. CatalogItem remains candidate reference evidence only. The generated source of truth is the Slice-Spec contract.
+
+
+## Executable Slice-Spec gate alignment after 000123
+
+Patch `000123_springmaster_generated_slice_spec_fixture_gate` makes the documented Slice-Spec boundary executable before this blueprint can be rendered.
+
+A future blueprint implementation may consume only a `GeneratedServiceSlice` input that passes the strict fixture gate. The gate verifies the neutral package boundary, full management API surface, DTO and validation metadata, global error status families, evidence reports and patch-only delivery rules. It does not yet create an Intermediate Representation or target-local patch ZIP.
