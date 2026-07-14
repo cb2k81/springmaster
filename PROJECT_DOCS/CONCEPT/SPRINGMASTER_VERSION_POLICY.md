@@ -1649,3 +1649,20 @@ Reasoning:
 * It defines the operative sequence for Global Error Contract, Detail/Lookup, Write API Contract, Request Validation/OpenAPI Gate and Generated Slice Adoption Plan.
 * It documents deferred topics so they are not accidentally started before the broader API foundations are closed.
 * It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.
+
+## Global API error contract Core since 000116
+
+Patch `000116_springmaster_global_api_error_contract_core` advances the Core and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.57-foundation
+PLATFORM_CORE_VERSION=0.3.6
+PLATFORM_STATE_PATCH=000116_springmaster_global_api_error_contract_core
+```
+
+Reasoning:
+
+* It establishes reusable System-Core DTOs and a global `@RestControllerAdvice` for the Springmaster API error envelope.
+* It prepares the CatalogItem migration but leaves the Demo-scope migration to the next patch.
+* It establishes the Core-owned implementation that the next Demo-scope migration must consume.
+* It adds targeted Core error tests and keeps Detail/Lookup, Write, Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.

@@ -1,0 +1,13 @@
+package de.cocondo.system.http;
+
+public enum ApiErrorType {
+    VALIDATION_FAILED,
+    INVALID_REQUEST,
+    UNSUPPORTED_QUERY_PARAMETER,
+    RESOURCE_NOT_FOUND,
+    CONFLICT,
+    UNAUTHORIZED,
+    FORBIDDEN,
+    BUSINESS_RULE_VIOLATION,
+    INTERNAL_ERROR
+}
