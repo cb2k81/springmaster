@@ -1638,3 +1638,14 @@ Reasoning:
 * It proves that paged list, `/all` and `/count` use the same permission/data-scope predicate family before operation-specific behavior.
 * It completes the planned five-step Query/List/All/Count maturity track at candidate-reference level.
 * It does not enable Spring Security runtime enforcement or promote CatalogItem to canonical status.
+
+## Backend API pattern operational roadmap since 000115
+
+Patch `000115_springmaster_backend_api_pattern_operational_roadmap` records a documentation-only planning state.
+
+Reasoning:
+
+* It persists the forensic prioritization of the remaining backend API pattern work after Query/List/All/Count reached candidate-reference maturity.
+* It defines the operative sequence for Global Error Contract, Detail/Lookup, Write API Contract, Request Validation/OpenAPI Gate and Generated Slice Adoption Plan.
+* It documents deferred topics so they are not accidentally started before the broader API foundations are closed.
+* It does not change Core runtime contracts, Demo runtime behavior, Tooling command behavior, Templates, Platform-Update artifacts or target-project delivery.

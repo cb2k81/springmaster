@@ -230,3 +230,17 @@ The dedicated test `CatalogItemOpenApiQueryContractTest` loads `/api-docs` and v
 - `/count` response schema: `CountResponseDTO.totalElements`.
 
 This evidence remains reference-project verification. It does not yet promote generated target-project OpenAPI scans or strict gate failure semantics.
+
+## Backend API Pattern operational roadmap since 000115
+
+Patch `000115_springmaster_backend_api_pattern_operational_roadmap` adds the operational roadmap `PROJECT_DOCS/PLANNING/BACKEND_API_PATTERN_OPERATIONAL_ROADMAP.md`.
+
+The roadmap freezes the current Query/List/All/Count maturity as complete at candidate-reference level and prioritizes the next API pattern families:
+
+1. global API error contract in System-Core;
+2. detail and alternate-key lookup contracts;
+3. create, update and delete write API contracts;
+4. request-validation and OpenAPI required-field gates;
+5. generated service-slice API pattern adoption planning.
+
+Further Query work, strict gate promotion, cursor/keyset pagination and async export are intentionally deferred until these broader API foundations are closed.

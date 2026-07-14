@@ -993,3 +993,20 @@ Erreicht:
 Nächster geplanter Schritt:
 
 Run the ZBM Core source-copy acceptance. After that, implement a first small generated fachlicher service slice for `zbm`.
+
+## Stand nach Patch 000115
+
+Patch `000115_springmaster_backend_api_pattern_operational_roadmap` persistiert die operative Priorisierung für die nächsten Backend-API-Pattern-Arbeiten.
+
+Erreicht:
+
+* Der Query-/List-/All-/Count-Strang ist nach `000114` als abgeschlossenes Candidate-Reference-Thema eingeordnet.
+* Die nächsten operativen Pattern-Familien sind priorisiert: Global Error Contract, Detail/Lookup, Write API Contract, Request Validation/OpenAPI Gate und Generated Slice Adoption Plan.
+* Nachgelagerte Themen wie Command-Bulk, Relationship Commands, Strict-Gate-Promotion, Cursor-/Keyset-Pagination, Async Export und Observability sind bewusst zurückgestellt.
+* Die Abarbeitung ist mit Patch-Schnitt, Vorprüfung, Baseline-Regel und Abschlusskriterien operationalisiert.
+
+Nächster geplanter Schritt:
+
+`000116_springmaster_global_api_error_contract_core` als Core-/Demo-/Test-Patch.
+
+Hinweis: Die Nummerierung verschiebt sich gegenüber der Analyseempfehlung, weil dieses operative Roadmap-Dokument als eigener Patch persistiert wird.
