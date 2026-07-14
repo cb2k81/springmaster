@@ -24,6 +24,7 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 | Count response contract candidate | `API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md` | optional `/count` and `/search/count` response shape with required `totalElements`; Core DTO and CatalogItem evidence now exist |
 | Query operations closure review | `QUERY_OPERATIONS_CONTRACT_CLOSURE_REVIEW.md` | closure review for paged list, `/all`, `/count`, Core query-operation interfaces and CatalogItem service adoption after 000102 |
 | Query contract gate report | `QUERY_CONTRACT_GATE_REPORT.md` | report-only gate artifact, rule IDs and finding schema for query-contract diagnostics since 000106 |
+| Detail/Lookup contract report | `DETAIL_LOOKUP_CONTRACT_REPORT.md` | report-only gate artifact and CatalogItem golden evidence for `/{id}` and `/by-sku/{sku}` since 000118 |
 | Error identity and status-code consistency standard | `API_ERROR_IDENTITY_STATUSCODE_CONSISTENCY_STANDARD.md` | `errorId`/correlation/message-key semantics and first-slice status defaults resolved with 000059 |
 
 ## ADR-backed decision since 000061
@@ -31,6 +32,13 @@ The initial standards were extracted from existing IDM API-readiness ADR themes.
 Patch `000061_springmaster_adr_0002_api_boundary_and_endpoint_contract` accepts `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`. The endpoint, DTO, validation, query/reference-data, error, command and first-slice status-code standards are now consolidated as an accepted architecture decision for new Springmaster reference APIs.
 
 Strict gate execution still requires `ADR-0006 Verification and Gate Strategy`, and operationId/tag/schema naming remains a separate standard gap.
+
+
+## Detail/Lookup report since 000118
+
+Patch `000118_springmaster_detail_lookup_contract_report` adds report-only Detail/Lookup evidence for CatalogItem. The report covers the canonical opaque-id detail endpoint `GET /api/demo/catalog/items/{id}` and the unique alternate-key lookup endpoint `GET /api/demo/catalog/items/by-sku/{sku}`. It records path variables, DTO response evidence, global `RESOURCE_NOT_FOUND` behavior, MockMvc coverage, OpenAPI route evidence and create-`Location` detail follow-up consistency.
+
+The report remains report-only. Strict-gate promotion is deferred until Write and Validation/OpenAPI report coverage exists and generated-slice adoption criteria are defined.
 
 ## Boundary to IDM
 

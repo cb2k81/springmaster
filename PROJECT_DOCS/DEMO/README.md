@@ -133,3 +133,16 @@ The Demo slice now proves that standard API failures can be represented by the s
 * correlation IDs are propagated by the global handler.
 
 The old CatalogItem-local error DTOs and local not-found exception are removed. Detail/Lookup and Write API contract reports remain follow-up roadmap items.
+
+## CatalogItem Detail/Lookup contract report since 000118
+
+Patch `000118_springmaster_detail_lookup_contract_report` adds report-only Detail/Lookup contract evidence for CatalogItem.
+
+The reference now proves the canonical read-by-one family:
+
+```text
+GET /api/demo/catalog/items/{id}
+GET /api/demo/catalog/items/by-sku/{sku}
+```
+
+The report and targeted tests cover opaque-id lookup, unique SKU lookup, global `RESOURCE_NOT_FOUND` error behavior, create `Location` follow-up and OpenAPI route/path-variable evidence. Write API and Request Validation/OpenAPI gates remain follow-up roadmap items.

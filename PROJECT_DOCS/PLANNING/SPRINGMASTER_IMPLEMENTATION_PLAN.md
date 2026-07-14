@@ -1010,3 +1010,19 @@ Nächster geplanter Schritt:
 `000116_springmaster_global_api_error_contract_core` als Core-/Demo-/Test-Patch.
 
 Hinweis: Die Nummerierung verschiebt sich gegenüber der Analyseempfehlung, weil dieses operative Roadmap-Dokument als eigener Patch persistiert wird.
+
+## Stand nach Patch 000118
+
+Patch `000118_springmaster_detail_lookup_contract_report` ergänzt nach Query und globaler Fehlerbehandlung die report-only Absicherung für Detail-/Alternate-Key-Lookup-Endpunkte.
+
+Erreicht:
+
+* `bin/detail-lookup-contract-gate-report.py` und `.sh` erzeugen ein maschinenlesbares Detail/Lookup-Report-Artefakt.
+* `DETAIL_LOOKUP_CONTRACT_REPORT.md` definiert Schema, Finding-Familien und Promotion-Regeln.
+* CatalogItem ist Golden Reference für `GET /api/demo/catalog/items/{id}` und `GET /api/demo/catalog/items/by-sku/{sku}`.
+* MockMvc- und OpenAPI-Evidence sichern positive Lookup-Fälle, `404 RESOURCE_NOT_FOUND`, path variables und create-`Location` Detail-Follow-up ab.
+* Der Report bleibt bewusst report-only; Write API, Validation/OpenAPI und Generated-Slice-Adoption bleiben Folgearbeiten.
+
+Nächster geplanter Schritt:
+
+`000119_springmaster_write_api_contract_report` für Create/Update/Delete-Basismuster.

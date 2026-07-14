@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "springmaster.detail-lookup-contract-gate-report.v1",
+  "generatedAt": "2026-07-14T00:00:00Z",
+  "project": "springmaster",
+  "mode": "report-only",
+  "source": {
+    "javaSources": "src/main/java",
+    "tests": "src/test/java",
+    "standards": "PROJECT_DOCS/STANDARDS/API"
+  },
+  "summary": {
+    "resources": 1,
+    "findings": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0
+  },
+  "resources": [
+    {
+      "resource": "CatalogItem",
+      "status": "pass",
+      "sourceType": "springmaster-candidate-reference-slice",
+      "operations": [
+        {
+          "kind": "detail",
+          "operation": "GET /api/demo/catalog/items/{id}",
+          "pathVariables": [
+            "id"
+          ],
+          "lookupSemantics": "opaque-external-id",
+          "response": "CatalogItemDTO",
+          "notFound": {
+            "status": 404,
+            "errorType": "RESOURCE_NOT_FOUND",
+            "messageKey": "catalog.item.not-found"
+          }
+        },
+        {
+          "kind": "alternate-key-lookup",
+          "operation": "GET /api/demo/catalog/items/by-sku/{sku}",
+          "pathVariables": [
+            "sku"
+          ],
+          "lookupSemantics": "unique-business-key",
+          "businessKey": "sku",
+          "response": "CatalogItemDTO",
+          "notFound": {
+            "status": 404,
+            "errorType": "RESOURCE_NOT_FOUND",
+            "messageKey": "catalog.item.not-found"
+          }
+        }
+      ],
+      "serviceEvidence": {
+        "findById": "present",
+        "findBySku": "present",
+        "alternateKeyUniquenessIndex": "itemsBySku"
+      },
+      "globalErrorContract": "present",
+      "mockMvcEvidence": "present",
+      "openApiEvidence": "present",
+      "createLocationDetailConsistency": "present",
+      "publicVocabulary": {
+        "forbiddenFindOneFindFirstFindAny": "absent",
+        "controllerMethodNames": [
+          "findById",
+          "findBySku"
+        ]
+      }
+    }
+  ],
+  "findings": []
+}

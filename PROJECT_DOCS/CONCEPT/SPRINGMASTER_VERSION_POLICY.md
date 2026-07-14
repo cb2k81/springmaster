@@ -1684,3 +1684,20 @@ Reasoning:
 * It removes controller-local error DTOs and local `@ExceptionHandler` methods from CatalogItem.
 * It maps CatalogItem not-found and duplicate-SKU failures to Core-owned error handling while preserving domain message keys.
 * It keeps Detail/Lookup, Write, Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.
+
+## Detail/Lookup contract report since 000118
+
+Patch `000118_springmaster_detail_lookup_contract_report` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.59-foundation
+PLATFORM_TOOLING_VERSION=0.3.19
+PLATFORM_STATE_PATCH=000118_springmaster_detail_lookup_contract_report
+```
+
+Reasoning:
+
+* It adds a report-only Detail/Lookup Contract Gate Report for single-object and alternate-key lookup endpoints.
+* It records CatalogItem as the first golden evidence for `GET /api/demo/catalog/items/{id}` and `GET /api/demo/catalog/items/by-sku/{sku}`.
+* It verifies detail/lookup route presence, path variables, global `RESOURCE_NOT_FOUND` error behavior and create-`Location` detail consistency through targeted tests.
+* It keeps Write, Request Validation/OpenAPI and Generated-Slice adoption as follow-up roadmap items.

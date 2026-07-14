@@ -4,9 +4,9 @@
 
 Dieses Dokument persistiert die operative Aufgabenliste für die Weiterentwicklung von Springmaster als Master-/Template- und Validierungsbasis für Backend-Applikationen und API-Endpoints.
 
-Der Query-/List-/All-/Count-Strang ist mit Patch `000114_springmaster_query_security_scope_parity_reference` auf Candidate-Reference-Reifegrad abgeschlossen. Die nächsten Arbeiten dürfen diesen Query-Strang nicht unbegründet erweitern, sondern müssen die verbleibenden API- und Application-Patterns systematisch schließen.
+Der Query-/List-/All-/Count-Strang ist mit Patch `000114_springmaster_query_security_scope_parity_reference` auf Candidate-Reference-Reifegrad abgeschlossen. Seit `000116`/`000117` ist der globale API Error Contract im Core etabliert und im CatalogItem-Demo-Slice operativ genutzt. Seit `000118` ist auch Detail/Lookup report-only und golden-fixture-backed belegt. Die nächsten Arbeiten dürfen diesen Query-Strang nicht unbegründet erweitern, sondern müssen die verbleibenden API- und Application-Patterns systematisch schließen.
 
-## 2. Aktueller Reifegrad nach 000114
+## 2. Aktueller Reifegrad nach 000118
 
 Erreicht ist:
 
@@ -27,7 +27,9 @@ Konkret vorhanden sind:
 * OpenAPI-Evidence für Query-Endpunkte;
 * JPA-Count-Referenz ohne Listenmaterialisierung;
 * Security-/Data-Scope-Paritätsreferenz für Query-Operationen;
-* Full-Maven-Verifikation in den zugehörigen Runnern.
+* Full-Maven-Verifikation in den zugehörigen Runnern;
+* Core-globaler API Error Contract mit CatalogItem-Migration;
+* Detail/Lookup Contract Report mit CatalogItem-Golden-Evidence und OpenAPI-/MockMvc-Nachweis.
 
 Nicht Ziel weiterer unmittelbarer Arbeit sind:
 
@@ -38,7 +40,20 @@ Nicht Ziel weiterer unmittelbarer Arbeit sind:
 
 ## 3. Priorisierte Aufgaben
 
-### P0 – `000115_springmaster_global_api_error_contract_core`
+
+Aktueller operativer Stand nach `000118`:
+
+| Status | Patch | Ergebnis |
+|---|---|---|
+| abgeschlossen | `000116_springmaster_global_api_error_contract_core` | Core-globaler API Error Contract |
+| abgeschlossen | `000117_springmaster_catalogitem_global_api_error_handler_migration` | CatalogItem nutzt globalen Error Handler |
+| abgeschlossen | `000118_springmaster_detail_lookup_contract_report` | Detail/Lookup Report + Golden Fixture |
+| nächster Schritt | `000119_springmaster_write_api_contract_report` | Create/Update/Delete Contract Report |
+| danach | `000120_springmaster_request_validation_openapi_gate` | Bean Validation ↔ OpenAPI required fields |
+| danach | `000121_springmaster_generated_slice_api_pattern_adoption_plan` | Generator-/Template-Adoption |
+
+
+### Abgeschlossen – `000116_springmaster_global_api_error_contract_core` und `000117_springmaster_catalogitem_global_api_error_handler_migration`
 
 **Ziel:** Wiederverwendbaren globalen API-Error-Contract im System-Core etablieren und CatalogItem vom lokalen Fehlerhandling auf den Core-Standard migrieren.
 
@@ -71,7 +86,7 @@ git diff --check
 ./bin/export.sh full --zip
 ```
 
-### P1 – `000116_springmaster_detail_lookup_contract_report`
+### Abgeschlossen – `000118_springmaster_detail_lookup_contract_report`
 
 **Ziel:** Detail- und Alternate-Key-Lookup-Endpunkte analog zum Query-Strang als Contract absichern.
 
@@ -89,7 +104,7 @@ git diff --check
 
 **Abhängigkeit:** P0 Error-Core muss abgeschlossen sein.
 
-### P1 – `000117_springmaster_write_api_contract_report`
+### P1 – `000119_springmaster_write_api_contract_report`
 
 **Ziel:** Create, Full Update und Single Delete als schreibende API-Basismuster report- und testfähig absichern.
 
@@ -114,7 +129,7 @@ git diff --check
 
 **Abhängigkeiten:** P0 Error-Core und P1 Detail-/Lookup-Contract.
 
-### P1 – `000118_springmaster_request_validation_openapi_gate`
+### P1 – `000120_springmaster_request_validation_openapi_gate`
 
 **Ziel:** Bean-Validation-Regeln, Boundary-DTOs und OpenAPI-required-Felder konsistent prüfen.
 
@@ -128,7 +143,7 @@ git diff --check
 
 **Abhängigkeiten:** P0 Error-Core und Write-API-Basismuster.
 
-### P2 – `000119_springmaster_generated_slice_api_pattern_adoption_plan`
+### P2 – `000121_springmaster_generated_slice_api_pattern_adoption_plan`
 
 **Ziel:** Die erreichten API-Patterns in die Generator-/Template-Schicht überführen, ohne sofort Zielprojekte zu verändern.
 
