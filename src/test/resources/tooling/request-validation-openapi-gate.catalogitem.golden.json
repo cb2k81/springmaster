@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "springmaster.request-validation-openapi-gate-report.v1",
+  "generatedAt": "2026-07-14T00:00:00Z",
+  "mode": "report-only",
+  "project": "springmaster",
+  "summary": {
+    "resources": 1,
+    "findings": 0,
+    "errors": 0,
+    "warnings": 0
+  },
+  "resources": [
+    {
+      "resource": "CatalogItem",
+      "status": "aligned",
+      "operations": [
+        "POST /api/demo/catalog/items",
+        "PUT /api/demo/catalog/items/{id}"
+      ],
+      "requestBodies": [
+        {
+          "operation": "POST /api/demo/catalog/items",
+          "requestDto": "CatalogItemCreateDTO",
+          "validAnnotation": "present",
+          "requiredFields": [
+            "name",
+            "sku"
+          ],
+          "stringSizeLimits": {
+            "description": 1000,
+            "name": 255,
+            "sku": 128
+          },
+          "openApiRequiredEvidence": "CatalogItemOpenApiRequestValidationContractTest"
+        },
+        {
+          "operation": "PUT /api/demo/catalog/items/{id}",
+          "requestDto": "CatalogItemUpdateDTO",
+          "validAnnotation": "present",
+          "requiredFields": [
+            "name"
+          ],
+          "stringSizeLimits": {
+            "description": 1000,
+            "name": 255
+          },
+          "openApiRequiredEvidence": "CatalogItemOpenApiRequestValidationContractTest"
+        }
+      ],
+      "boundary": {
+        "domainEntityRequestBody": "absent",
+        "createDtoImplementsDataTransferObject": true,
+        "updateDtoImplementsDataTransferObject": true
+      },
+      "runtimeErrorContract": {
+        "status": 400,
+        "errorType": "VALIDATION_FAILED",
+        "messageKey": "springmaster.validation.failed",
+        "mockMvcEvidence": "CatalogItemControllerTest"
+      }
+    }
+  ],
+  "findings": [],
+  "standards": [
+    "PROJECT_DOCS/STANDARDS/API/API_REQUEST_VALIDATION_STANDARD.md",
+    "PROJECT_DOCS/STANDARDS/API/DTO_BOUNDARY_AND_VALIDATION_STANDARD.md",
+    "PROJECT_DOCS/CORE/CORE_GLOBAL_API_ERROR_CONTRACT.md",
+    "PROJECT_DOCS/STANDARDS/API/REQUEST_VALIDATION_OPENAPI_GATE.md"
+  ]
+}

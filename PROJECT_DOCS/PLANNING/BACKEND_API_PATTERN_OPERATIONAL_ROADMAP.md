@@ -238,3 +238,25 @@ Generated Slice Adoption Plan
 ```
 
 Erst danach sollen nachgelagerte Themen wie Command-Bulk, Relationship Commands, Strict-Gate-Promotion oder Cursor-/Keyset-Pagination neu priorisiert werden.
+
+## 7. Fortschreibung nach Patch 000120
+
+Patch `000120_springmaster_request_validation_openapi_gate` schließt die P1-Basisfamilie Request Validation / DTO Boundary auf Candidate-Reference-Niveau ab.
+
+Erreicht:
+
+```text
+Query/List/All/Count                  abgeschlossen
+Global Error Contract                 abgeschlossen
+Detail/Lookup                         abgeschlossen
+Create/Update/Delete                  abgeschlossen
+Request Validation / DTO Boundary     abgeschlossen
+```
+
+Der nächste priorisierte Schritt ist jetzt:
+
+```text
+000121_springmaster_generated_slice_api_pattern_adoption_plan
+```
+
+Ziel dieses Folgepatches ist keine neue Runtime-Funktion, sondern die Überführung der belegten API-Pattern-Familien in Generator-/Template-Anforderungen, damit spätere Zielprojekte die Standards deterministisch übernehmen können.

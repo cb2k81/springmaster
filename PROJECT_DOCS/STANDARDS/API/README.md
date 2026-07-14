@@ -259,3 +259,15 @@ The roadmap freezes the current Query/List/All/Count maturity as complete at can
 5. generated service-slice API pattern adoption planning.
 
 Further Query work, strict gate promotion, cursor/keyset pagination and async export are intentionally deferred until these broader API foundations are closed.
+
+## Request Validation / OpenAPI gate since 000120
+
+Patch `000120_springmaster_request_validation_openapi_gate` adds `REQUEST_VALIDATION_OPENAPI_GATE.md` and a report-only executable MVP:
+
+```bash
+./bin/request-validation-openapi-gate-report.sh
+```
+
+The command writes a JSON report to `reports/api/request-validation-openapi-gate-report.json` by default. The initial implementation validates the Springmaster CatalogItem candidate reference slice and proves alignment between `@Valid @RequestBody` DTO boundaries, Bean Validation required fields, OpenAPI `required` lists and the global `VALIDATION_FAILED` error contract.
+
+The report remains reference-project evidence and does not yet promote generated target-project scans or strict gate failure semantics.

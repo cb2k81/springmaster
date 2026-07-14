@@ -1042,3 +1042,19 @@ Erreicht:
 Nächster geplanter Schritt:
 
 `000120_springmaster_request_validation_openapi_gate` für Bean Validation, Boundary-DTOs und OpenAPI-required-Feld-Abgleich.
+
+## Stand nach Patch 000120
+
+Patch `000120_springmaster_request_validation_openapi_gate` ergänzt das report-only Gate für Request Validation, DTO-Boundary und OpenAPI-required-Feld-Abgleich.
+
+Erreicht:
+
+* `REQUEST_VALIDATION_OPENAPI_GATE.md` definiert Ziel, Report-Schema, Finding-Familien und Promotion-Regeln.
+* CatalogItem ist Golden Reference für Bean Validation Required Fields in `CatalogItemCreateDTO` und `CatalogItemUpdateDTO`.
+* Das neue Tooling `request-validation-openapi-gate-report` erzeugt eine stabile JSON-Fixture.
+* Die OpenAPI-Evidenz prüft, dass Create `sku` und `name` sowie Update `name` als required dokumentiert.
+* Die globale `VALIDATION_FAILED` Fehlerbehandlung bleibt Runtime-Referenz für ungültige Request Bodies.
+
+Nächster geplanter Schritt:
+
+`000121_springmaster_generated_slice_api_pattern_adoption_plan` zur Planung der Generator-/Template-Adoption für Query, Detail, Write, Error und Validation Patterns.

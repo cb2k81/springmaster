@@ -1718,3 +1718,20 @@ Reasoning:
 * It records CatalogItem as the first golden evidence for `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` and bodyless `DELETE /api/demo/catalog/items/{id}`.
 * It verifies CreateDTO/UpdateDTO request-body evidence, `201 Created` with `Location`, `200 OK` update responses, `204 No Content` deletes and global error behavior through targeted tests.
 * It keeps Request Validation/OpenAPI required-field alignment, generated-slice adoption, bulk commands, state commands and relationship commands as follow-up roadmap items.
+
+## Request Validation/OpenAPI gate since 000120
+
+Patch `000120_springmaster_request_validation_openapi_gate` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.61-foundation
+PLATFORM_TOOLING_VERSION=0.3.21
+PLATFORM_STATE_PATCH=000120_springmaster_request_validation_openapi_gate
+```
+
+Reasoning:
+
+* It adds a report-only Request Validation/OpenAPI Gate Report for DTO-boundary and required-field alignment.
+* It records CatalogItem as the first golden evidence for `CatalogItemCreateDTO` and `CatalogItemUpdateDTO` Bean Validation required fields.
+* It verifies that OpenAPI required fields are aligned with `@NotBlank` constraints for create and update request bodies.
+* It keeps Generated-Slice adoption, strict gate promotion, bulk commands, state commands and relationship commands as follow-up roadmap items.

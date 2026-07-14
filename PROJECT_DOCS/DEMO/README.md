@@ -158,3 +158,18 @@ Erreicht:
 * CatalogItem is Golden Reference for `POST /api/demo/catalog/items`, `PUT /api/demo/catalog/items/{id}` and bodyless `DELETE /api/demo/catalog/items/{id}`.
 * MockMvc and OpenAPI evidence cover CreateDTO/UpdateDTO boundaries, `201 Created` plus `Location`, `200 OK` update, `204 No Content` delete and global error behavior for validation, not-found and conflict cases.
 * Bulk delete, state commands, relationship commands and optimistic locking remain deferred.
+
+## CatalogItem Request Validation/OpenAPI gate since 000120
+
+Patch `000120_springmaster_request_validation_openapi_gate` adds report-only Request Validation/OpenAPI evidence for the CatalogItem candidate reference slice.
+
+Erreicht:
+
+* `bin/request-validation-openapi-gate-report.py` and `.sh` generate a machine-readable validation/OpenAPI report.
+* `REQUEST_VALIDATION_OPENAPI_GATE.md` defines report schema, finding families and promotion rules for DTO-boundary and required-field alignment.
+* CatalogItem is Golden Reference for `CatalogItemCreateDTO` and `CatalogItemUpdateDTO`.
+* OpenAPI evidence covers required fields derived from Bean Validation: Create requires `sku` and `name`; Update requires `name`.
+* DTO-boundary evidence proves that the controller uses `@Valid @RequestBody` with CreateDTO/UpdateDTO and does not expose the Domain Entity as request body.
+* Runtime validation remains backed by the existing global `VALIDATION_FAILED` MockMvc tests.
+
+Generated-slice adoption planning remains the next roadmap item.
