@@ -2,6 +2,9 @@
 
 Patch: `000080_springmaster_generated_service_slice_blueprint_spec`
 
+> Historical evidence: This document records the initialization concept state from patch `000080`. It is not the current ZBM lifecycle or baseline. The current Springmaster descriptor and the first fachlicher pilot boundary are documented in `TARGET_REGISTRY.md` and `ZBM_GENERATED_SLICE_PILOT_PLAN.md`.
+
+
 ## Zweck
 
 Dieses Dokument beschreibt den ersten kontrollierten Praxistest des Springmaster-Initialisierungskonzepts am Zielprojekt `zbm`.

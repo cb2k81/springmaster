@@ -383,3 +383,27 @@ P1  000127_springmaster_zbm_generated_slice_pilot_plan
 
 No ZBM patch generation or apply may occur without a current ZBM baseline and
 explicit user instruction.
+
+## Status after Patch 000127
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` closes the P1.3
+planning boundary.
+
+```text
+Current ZBM descriptor classified                 PASS
+Historical initialization evidence separated      PASS
+Required ZBM baseline inputs defined              PASS
+Pilot aggregate selection gate defined            PASS
+Target binding contract defined                   PASS
+Persistence and Security decisions explicit       PASS
+Target-local scope and collision policy defined   PASS
+Sandbox dry-run and isolated-test path defined    PASS
+Explicit live-apply authorization required        PASS
+ZBM target files read or written                   0
+ZBM patch archives created                         0
+```
+
+There is no automatic next Springmaster patch. The next action is intake and
+forensic qualification of a current ZBM Full-ZIP baseline. Renderer, patch
+assembler, target dry-run and live delivery remain blocked until that evidence
+exists. No ZBM apply may occur without explicit user instruction.

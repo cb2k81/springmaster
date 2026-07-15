@@ -8,58 +8,90 @@ platform/update/targets/*.env
 
 ## Current delivery decision
 
-Springmaster is now aligned to a safe first-target strategy:
+Springmaster uses an explicit target lifecycle and profile allow-list:
 
-* `zbm` is the first planned Springmaster-delivered Java backend target.
-* Existing/running projects such as `idm` and `personnel` are intentionally deferred and must not be updated from Springmaster until explicitly reclassified.
-* `contacts` and `orders` remain non-delivery references until their project state and local patch systems are explicitly verified again.
-* Real target mutation is blocked unless the descriptor explicitly sets `TARGET_DELIVERY_ENABLED=true`.
+* `zbm` is the first established Springmaster-delivered Java backend target.
+* Existing/running projects such as `idm` and `personnel` remain deferred and
+  must not be updated until explicitly reclassified.
+* `contacts` and `orders` remain non-delivery references until their project
+  state and local patch systems are verified again.
+* Real target mutation is blocked unless delivery, update lifecycle and the
+  requested payload profile are all explicitly enabled.
 
 ## Current configured descriptors
 
-| Target | Status | Lifecycle | Delivery | Path |
-|---|---|---|---|---|
-| `zbm` | `INITIALIZATION_CANDIDATE` | `initialization` | `false` | `/opt/cocondo/zbm` |
-| `contacts` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/contacts` |
-| `idm` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/idm` |
-| `orders` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/orders` |
-| `personnel` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | `/opt/cocondo/personnel` |
+| Target | Status | Lifecycle | Delivery | Allowed profiles | Path |
+|---|---|---|---:|---|---|
+| `zbm` | `DELIVERY_ENABLED` | `update-enabled` | `true` | `tooling` | `/opt/cocondo/zbm` |
+| `contacts` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/contacts` |
+| `idm` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/idm` |
+| `orders` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/orders` |
+| `personnel` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/personnel` |
 
-## Descriptor fields
+The authoritative values are the descriptor files themselves. This document
+must not be used to override a descriptor or a target-local baseline.
 
-The stable required fields remain:
+## Current ZBM descriptor
+
+The Springmaster baseline after `000126` contains:
 
 ```env
 TARGET_NAME=zbm
-TARGET_STATUS=INITIALIZATION_CANDIDATE
+TARGET_STATUS=DELIVERY_ENABLED
 TARGET_PATH=/opt/cocondo/zbm
 TARGET_APP_NAME=zbm
+TARGET_BASE_PACKAGE=de.cocondo.zbm
+TARGET_LIFECYCLE=update-enabled
+TARGET_INITIALIZATION_ALLOWED=false
+TARGET_UPDATE_ALLOWED=true
+TARGET_DELIVERY_ENABLED=true
+TARGET_ALLOWED_PROFILES=tooling
 ```
 
-Since `000079`, target descriptors may also carry lifecycle and safety metadata:
+This records that ZBM initialization and controlled tooling-delivery acceptance
+have already occurred. It does **not** authorize Generated-Slice delivery:
+`generated-slice`, `domain` or an equivalent fachlicher profile is not present
+in `TARGET_ALLOWED_PROFILES`.
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` intentionally leaves
+the descriptor unchanged. The first Generated-Slice pilot is prepared as a
+reviewed target-local patch workflow. Any future `target-apply` profile
+extension requires its own explicit decision and current ZBM baseline.
+
+## Descriptor fields
+
+Stable identity fields:
 
 ```env
+TARGET_NAME=zbm
+TARGET_PATH=/opt/cocondo/zbm
+TARGET_APP_NAME=zbm
 TARGET_BASE_PACKAGE=de.cocondo.zbm
-TARGET_LIFECYCLE=initialization
-TARGET_INITIALIZATION_ALLOWED=true
-TARGET_UPDATE_ALLOWED=false
-TARGET_DELIVERY_ENABLED=false
-TARGET_ALLOWED_PROFILES=project-new,core,core-runtime,core-tests,tooling,defaults
 ```
 
-These fields distinguish **initialization** from **updates**:
+Lifecycle and safety fields:
+
+```env
+TARGET_STATUS=DELIVERY_ENABLED
+TARGET_LIFECYCLE=update-enabled
+TARGET_INITIALIZATION_ALLOWED=false
+TARGET_UPDATE_ALLOWED=true
+TARGET_DELIVERY_ENABLED=true
+TARGET_ALLOWED_PROFILES=tooling
+```
 
 | Field | Meaning |
 |---|---|
-| `TARGET_LIFECYCLE=initialization` | The project is not yet an established target project. It must be created from the master skeleton first. |
-| `TARGET_INITIALIZATION_ALLOWED=true` | The target may be created by a future initialization workflow based on `project-new`. |
-| `TARGET_UPDATE_ALLOWED=false` | Core/tool/default updates are not yet allowed because the target has not passed generated-project acceptance. |
-| `TARGET_DELIVERY_ENABLED=false` | `target-apply` is blocked for safety until the target is explicitly reclassified. |
-| `TARGET_ALLOWED_PROFILES` | Documentation of the intended initialization/update payload categories for the target. |
+| `TARGET_LIFECYCLE` | Distinguishes initialization, accepted update lifecycle and deferred existing projects. |
+| `TARGET_INITIALIZATION_ALLOWED` | Permits project creation only when explicitly true. |
+| `TARGET_UPDATE_ALLOWED` | Permits update planning only when explicitly true. |
+| `TARGET_DELIVERY_ENABLED` | Enables delivery only together with an allowed profile and all further gates. |
+| `TARGET_ALLOWED_PROFILES` | Exact allow-list for Platform-Update payload categories. |
+
+`TARGET_DELIVERY_ENABLED=true` never bypasses the profile allow-list, target
+compatibility, local patch preflight or explicit user authorization.
 
 ## Initialization vs. update
-
-Springmaster separates two lifecycles:
 
 ### Initialization
 
@@ -69,26 +101,52 @@ Initialization creates a new Java backend project from the master:
 project-new -> generated technical Backend-Skeleton -> acceptance -> export baseline
 ```
 
-For `zbm`, initialization means creating `/opt/cocondo/zbm` from the Springmaster skeleton with the intended app name and base package. Initialization must not mutate IDM, Personnel or other existing projects.
+For ZBM this is historical, verified evidence documented in
+`ZBM_INITIALIZATION_CONCEPT_TEST.md`. The current descriptor no longer permits
+initialization.
 
 ### Update
 
-Updates apply later master changes to an already initialized and accepted target project:
+Updates apply reviewed master changes to an accepted target project:
 
 ```text
-core-runtime/core-tests -> tooling -> defaults -> optional docs
+payload plan -> generated target patch -> preflight -> target-local review/apply
 ```
 
-Updates are performed through the Platform-Update review workflow:
+Platform-Update commands may be used only for a profile present in the target
+allow-list:
 
 ```bash
-./bin/platform-update.sh generate zbm --profile core
-./bin/platform-update.sh preflight zbm --zip "$ZIP"
-./bin/platform-update.sh apply-plan zbm --zip "$ZIP"
-./bin/platform-update.sh target-apply zbm --zip "$ZIP"
+./bin/platform-update.sh show zbm
+./bin/platform-update.sh validate zbm
+./bin/platform-update.sh plan zbm --profile tooling
 ```
 
-`target-apply` is only permitted when `TARGET_DELIVERY_ENABLED=true` in the target descriptor. This prevents accidental delivery into running projects.
+The current descriptor does not permit a generated fachlicher service-slice
+profile.
+
+## Generated-Slice pilot boundary
+
+The first ZBM Generated-Slice pilot follows:
+
+```text
+current ZBM full baseline
+-> forensic target qualification
+-> resolved target bindings
+-> generic renderer and patch assembler qualification
+-> target-local artifact preflight and dry-run
+-> isolated target tests
+-> explicit user approval
+-> optional live apply
+```
+
+The governing plan is:
+
+```text
+PROJECT_DOCS/TARGET_UPDATES/ZBM_GENERATED_SLICE_PILOT_PLAN.md
+```
+
+No ZBM patch generation or apply is authorized by planning documentation alone.
 
 ## Usage
 
@@ -98,27 +156,20 @@ The registry is read by `bin/platform-update.sh`:
 ./bin/platform-update.sh list
 ./bin/platform-update.sh show zbm
 ./bin/platform-update.sh validate all
-./bin/platform-update.sh plan zbm --profile core
+./bin/platform-update.sh plan zbm --profile tooling
 ```
 
 ## Verification rule
 
-Targets with non-delivery statuses such as `INITIALIZATION_CANDIDATE`, `TO_VERIFY_NO_DELIVERY` or `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` may be used for planning and review artefacts, but must not be mutated by `target-apply` unless the descriptor explicitly enables delivery.
+Before any real target delivery:
 
-Before real target patch generation/application is used for a project:
+1. the current target descriptor is reviewed;
+2. target lifecycle and requested profile are compatible;
+3. the target baseline is current, clean and integritätsgeprüft;
+4. the local target patch system passes preflight;
+5. exact target hashes and scope are verified;
+6. tests and export duties are defined;
+7. the user explicitly authorizes the concrete apply.
 
-1. the target descriptor must be reviewed,
-2. the target lifecycle must be correct,
-3. initialization or update mode must be explicit,
-4. the local target patch system must pass preflight,
-5. `TARGET_DELIVERY_ENABLED=true` must be set deliberately.
-
-## Generated plan patches
-
-The Target Registry remains an input for:
-
-```bash
-./bin/platform-update.sh generate <target> --profile core
-```
-
-Generation itself is non-invasive. Generated ZIPs and review plans are written to `build/platform-update/**` and do not change target projects.
+Generated plan patches and review artifacts do not themselves grant mutation
+permission.

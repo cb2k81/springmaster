@@ -1831,3 +1831,24 @@ Reasoning:
   contract cases.
 * It does not modify Core, Demo runtime behavior, target projects or ZBM
   delivery.
+
+## ZBM Generated Slice Pilot Plan since 000127
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` records a
+documentation-only Target/Tooling/Planning state.
+
+Reasoning:
+
+* It defines the current-ZBM-baseline intake, forensic qualification, target
+  bindings, persistence, security, compatibility and local patch-scope
+  decisions for the first Generated-Slice pilot.
+* It corrects the registry documentation to the already versioned descriptor
+  state `DELIVERY_ENABLED` / `update-enabled` / `TARGET_ALLOWED_PROFILES=tooling`
+  without changing the descriptor itself.
+* It keeps BusinessPartner as neutral Golden Reference rather than asserting
+  an unverified ZBM aggregate.
+* It defines sandbox dry-run, isolated tests, explicit apply authorization and
+  a single final target export without generating or applying a ZBM patch.
+* It changes no runtime, Tooling command, Core, Demo, Template, Platform-Update
+  descriptor or version metadata. `PLATFORM_VERSION`, component versions and
+  `PLATFORM_STATE_PATCH` therefore remain unchanged.

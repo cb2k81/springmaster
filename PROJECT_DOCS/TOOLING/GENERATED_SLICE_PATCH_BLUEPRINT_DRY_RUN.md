@@ -239,3 +239,24 @@ That phase may define the ZBM target inputs, package binding, persistence and
 security decision points, target-local patch scope and acceptance gates. It may
 not apply a ZBM patch without a current ZBM baseline and explicit user
 instruction.
+
+## 11. ZBM pilot boundary after `000127`
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` resolves the planning
+questions around the first target-bound pilot without weakening the blockers in
+this blueprint.
+
+The ZBM plan requires:
+
+* a current and integritätsgeprüft ZBM Full-ZIP baseline;
+* forensic architecture, API, persistence, security and scope qualification;
+* a reviewed pilot-aggregate decision;
+* a complete target-binding record;
+* a generic renderer and patch assembler qualified before target delivery;
+* target-local artifact preflight, dry-run and isolated tests;
+* explicit user authorization before any live apply.
+
+The Springmaster descriptor currently permits only the `tooling` Platform-Update
+profile. The plan neither expands that allow-list nor authorizes `target-apply`.
+The BusinessPartner blueprint remains reference evidence and is not an automatic
+ZBM domain decision.

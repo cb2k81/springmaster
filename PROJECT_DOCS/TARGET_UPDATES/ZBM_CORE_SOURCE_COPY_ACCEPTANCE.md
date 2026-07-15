@@ -2,6 +2,9 @@
 
 Patch: `000081_springmaster_zbm_core_source_copy_acceptance`
 
+> Historical evidence: This document records the Core source-copy acceptance state from patch `000081`. It does not prove the current ZBM HEAD, patch state, Persistence, Security or fachlicher service baseline. Those inputs must be supplied again under `ZBM_GENERATED_SLICE_PILOT_PLAN.md`.
+
+
 ## Zweck
 
 Dieses Dokument definiert den ersten kontrollierten Core-Update-Test für das neu initialisierte Zielprojekt `zbm`.

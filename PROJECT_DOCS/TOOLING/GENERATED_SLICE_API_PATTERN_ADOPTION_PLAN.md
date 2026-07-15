@@ -448,3 +448,20 @@ step is:
 ```text
 000127_springmaster_zbm_generated_slice_pilot_plan
 ```
+
+## ZBM Pilot Plan after 000127
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` closes the
+pre-delivery planning step.
+
+The first target pilot must now begin with a current ZBM Full-ZIP baseline and a
+forensic runtime-gap analysis. The neutral BusinessPartner Spec, IR and
+Blueprint remain generator references only. The actual pilot aggregate,
+package, routes, persistence, security, compatibility and target-local patch
+scope must be derived from the verified ZBM baseline.
+
+A generated patch is not permitted until a generic renderer and patch assembler
+have been qualified, exact target bindings are resolved, and a target-local
+artifact preflight plus isolated ZBM tests are green. A live apply additionally
+requires explicit user approval and exactly one final integritätsgeprüft ZBM
+Full-ZIP export.

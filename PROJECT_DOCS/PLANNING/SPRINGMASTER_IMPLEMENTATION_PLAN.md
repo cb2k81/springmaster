@@ -1181,3 +1181,30 @@ Nächster P1-Schritt:
 ```text
 000127_springmaster_zbm_generated_slice_pilot_plan
 ```
+
+## Stand nach Patch 000127
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` schließt die
+vorbereitende ZBM-Pilotplanung ab.
+
+Erreicht:
+
+* der aktuelle ZBM-Descriptor wird als `update-enabled` und ausschließlich für
+  das Profil `tooling` freigegeben eingeordnet;
+* frühere Initialisierungs- und Core-Copy-Dokumente werden als historische
+  Evidence, nicht als aktuelle Zielbaseline behandelt;
+* die benötigte aktuelle ZBM-Baseline und Hostnachweise sind vollständig
+  definiert;
+* Pilot-Aggregat, Target Bindings, Persistence, Security, Compatibility und
+  Patch-Scope sind verpflichtende Entscheidungen;
+* Renderer-/Assembler-Qualifizierung, ZBM-Sandbox-Dry-run, isolierte Tests,
+  explizite Apply-Freigabe und ein einzelner Abschluss-Export sind als
+  fail-closed Phasen beschrieben;
+* `BusinessPartner` bleibt Golden Reference und wird nicht ohne fachlichen
+  Nachweis als ZBM-Aggregat vorausgesetzt;
+* Patch `000127` erzeugt und verändert keine ZBM-Datei.
+
+Der nächste operative Schritt ist kein automatisch benannter Patch, sondern die
+Entgegennahme und forensische Prüfung einer aktuellen ZBM-Full-Baseline. Erst
+aus diesem Befund dürfen Renderer-, Patch-Assembler- oder Pilot-Delivery-Arbeiten
+abgeleitet werden.

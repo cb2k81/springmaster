@@ -442,3 +442,21 @@ remain forbidden.
 Persistence and Security are intentionally unresolved because IR version 1
 does not carry those contracts. The ZBM pilot plan must resolve or explicitly
 defer them before a renderer is allowed to create target payloads.
+
+## ZBM Generated-Slice Pilot Plan after 000127
+
+Patch `000127_springmaster_zbm_generated_slice_pilot_plan` supersedes the old
+assumption that ZBM is still an `INITIALIZATION_CANDIDATE`. The current
+Springmaster descriptor classifies ZBM as `update-enabled` with delivery limited
+to the `tooling` profile.
+
+The first fachlicher pilot therefore does not start with project initialization
+or an unreviewed `target-apply`. It starts with a current ZBM Full-ZIP baseline,
+forensic target qualification and a resolved target-binding record. Persistence,
+Security, compatibility and local patch scope are mandatory decisions before a
+renderer may create payload bytes.
+
+`administration.business-partner` remains the neutral Golden Reference. It may
+become the ZBM pilot only when current ZBM fachliche evidence confirms that
+choice. Otherwise an appropriate existing or planned ZBM aggregate is selected
+without changing the generic Spec, IR and Blueprint contracts.
