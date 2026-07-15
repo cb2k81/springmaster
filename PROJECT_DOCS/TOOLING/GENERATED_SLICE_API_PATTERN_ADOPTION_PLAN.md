@@ -424,3 +424,27 @@ The next ordered patch is:
 ```text
 000126_springmaster_generated_slice_patch_blueprint_dry_run
 ```
+
+## Patch Blueprint Dry-run after 000126
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` closes the
+second P1 implementation step.
+
+The canonical IR is now projected into a deterministic, target-neutral patch
+blueprint containing:
+
+* required target bindings and raw-byte baseline policy;
+* root-scope archive planning without archive creation;
+* planned Controller, Service, Domain, DTO, Mapper and Validator artifacts;
+* Controller, Service, Mapper and Validator tests;
+* all eight API operations and all four report gates;
+* target preflight, dry-run, Maven, diff and export duties;
+* explicit blockers for target package, baseline, persistence, security and
+  apply authorization.
+
+The blueprint writes no target files and creates no patch ZIP. The next ordered
+step is:
+
+```text
+000127_springmaster_zbm_generated_slice_pilot_plan
+```

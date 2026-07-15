@@ -185,3 +185,19 @@ non-mutating dry-run:
 That patch must derive expected files, scopes, tests and reports from the IR,
 without reading CatalogItem implementation packages and without writing to a
 target repository.
+
+## 8. Blueprint consumer after `000126`
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` is the first
+consumer of `springmaster.generated-service-slice-ir.v1`.
+
+It reads only the canonical IR JSON and projects target-neutral path templates,
+planned artifacts, API operations, tests, report gates and delivery blockers.
+It does not reopen Slice-Spec YAML, infer patterns from Demo sources, render
+source files or create a patch archive.
+
+The committed boundary is documented in:
+
+```text
+PROJECT_DOCS/TOOLING/GENERATED_SLICE_PATCH_BLUEPRINT_DRY_RUN.md
+```

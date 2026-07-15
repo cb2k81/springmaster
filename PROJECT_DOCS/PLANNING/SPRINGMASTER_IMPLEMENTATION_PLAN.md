@@ -1159,3 +1159,25 @@ Nächster P1-Schritt:
 ```text
 000126_springmaster_generated_slice_patch_blueprint_dry_run
 ```
+
+## Stand nach Patch 000126
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` implements
+the non-mutating IR-to-patch-plan boundary.
+
+Erreicht:
+
+* canonical IR is the sole generator input;
+* target package and path templates remain unresolved bindings;
+* the future root-scope patch content is listed without rendering bytes;
+* Query, Detail, Lookup and Write operations remain explicit;
+* source tests, report gates and target delivery gates are planned;
+* persistence and security are visible blockers rather than implicit defaults;
+* deterministic BusinessPartner golden and Supplier neutrality evidence exist;
+* target mutation and patch-ZIP creation remain forbidden.
+
+Nächster P1-Schritt:
+
+```text
+000127_springmaster_zbm_generated_slice_pilot_plan
+```

@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "springmaster.generated-service-slice-patch-blueprint.v1",
+  "source": {
+    "irContract": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_INTERMEDIATE_REPRESENTATION.md",
+    "blueprintContract": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_PATCH_BLUEPRINT_DRY_RUN.md",
+    "irPath": "src/test/resources/tooling/generated-slice-ir.business-partner.golden.json",
+    "irSha256": "67cd6d1d034b3f0c37b6721ec13cf74053ed7a79c55912bb3fbb3ec33b37a3b9",
+    "irSchemaVersion": "springmaster.generated-service-slice-ir.v1",
+    "specSha256": "e0530da48e13d2149190dd165fe29b85652cb50b39d6a80b9f8f56d6ba0ee8cb",
+    "sliceId": "administration.business-partner"
+  },
+  "projection": {
+    "mode": "target-neutral-template",
+    "sliceSlug": "business-partner",
+    "sourceModulePackage": "de.cocondo.platform.administration.businesspartner",
+    "modulePackageSuffix": "administration.businesspartner",
+    "modulePathSuffix": "administration/businesspartner",
+    "targetModulePackageTemplate": "${targetBasePackage}.administration.businesspartner",
+    "targetModulePathTemplate": "${targetBasePackagePath}/administration/businesspartner",
+    "requiredBindings": [
+      "targetProjectKey",
+      "targetBasePackage",
+      "targetBasePackagePath",
+      "targetPatchId",
+      "targetBaselineHead",
+      "targetBaselineSha256ByPath"
+    ]
+  },
+  "patch": {
+    "scope": "root",
+    "patchIdTemplate": "${targetPatchId}",
+    "archiveNameTemplate": "${targetPatchId}.zip",
+    "manifestRequired": true,
+    "baselinePolicy": "target-live-raw-repository-bytes",
+    "archiveEntries": [
+      "manifest.json",
+      "files/**",
+      "logs/CHANGELOG-${targetPatchId}.md"
+    ],
+    "mutationMode": "dry-run-only"
+  },
+  "artifacts": [
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/api/BusinessPartnerController.java",
+      "type": "java-source",
+      "role": "rest-controller",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/application/BusinessPartnerService.java",
+      "type": "java-source",
+      "role": "application-service",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/domain/BusinessPartner.java",
+      "type": "java-source",
+      "role": "domain-model",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/dto/BusinessPartnerDTO.java",
+      "type": "java-source",
+      "role": "read-dto",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/dto/BusinessPartnerListItemDTO.java",
+      "type": "java-source",
+      "role": "list-item-dto",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/dto/BusinessPartnerCreateDTO.java",
+      "type": "java-source",
+      "role": "create-dto",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/dto/BusinessPartnerUpdateDTO.java",
+      "type": "java-source",
+      "role": "update-dto",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/mapper/BusinessPartnerMapper.java",
+      "type": "java-source",
+      "role": "mapper",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/main/java/${targetBasePackagePath}/administration/businesspartner/validation/BusinessPartnerValidator.java",
+      "type": "java-source",
+      "role": "service-boundary-validator",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/api/BusinessPartnerControllerTest.java",
+      "type": "java-test",
+      "role": "controller-contract-test",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/application/BusinessPartnerServiceTest.java",
+      "type": "java-test",
+      "role": "service-contract-test",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/mapper/BusinessPartnerMapperTest.java",
+      "type": "java-test",
+      "role": "mapper-contract-test",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/validation/BusinessPartnerValidatorTest.java",
+      "type": "java-test",
+      "role": "validator-contract-test",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "PROJECT_DOCS/GENERATED_SLICES/business-partner/GENERATED_SLICE_EVIDENCE.json",
+      "type": "json-evidence",
+      "role": "generated-slice-evidence",
+      "required": true,
+      "state": "planned-not-rendered"
+    },
+    {
+      "pathTemplate": "patches/logs/root/CHANGELOG-${targetPatchId}.md",
+      "type": "markdown-changelog",
+      "role": "target-patch-changelog",
+      "required": true,
+      "state": "planned-not-rendered"
+    }
+  ],
+  "apiOperations": [
+    {
+      "key": "list",
+      "family": "query",
+      "method": "GET",
+      "path": "/api/administration/business-partners",
+      "responseShape": "paged-list-item",
+      "expectedSuccessStatus": 200,
+      "inherits": [
+        "filters",
+        "sorting",
+        "pagination"
+      ]
+    },
+    {
+      "key": "all",
+      "family": "query",
+      "method": "GET",
+      "path": "/api/administration/business-partners/all",
+      "responseShape": "list-item-array",
+      "expectedSuccessStatus": 200,
+      "inherits": [
+        "filters",
+        "sorting"
+      ]
+    },
+    {
+      "key": "count",
+      "family": "query",
+      "method": "GET",
+      "path": "/api/administration/business-partners/count",
+      "responseShape": "count-response",
+      "expectedSuccessStatus": 200,
+      "inherits": [
+        "filters"
+      ]
+    },
+    {
+      "key": "byId",
+      "family": "detail",
+      "method": "GET",
+      "path": "/api/administration/business-partners/{id}",
+      "responseShape": "read-dto",
+      "expectedSuccessStatus": 200
+    },
+    {
+      "key": "byCode",
+      "family": "alternate-lookup",
+      "method": "GET",
+      "path": "/api/administration/business-partners/by-code/{code}",
+      "responseShape": "read-dto",
+      "expectedSuccessStatus": 200,
+      "businessKey": "code"
+    },
+    {
+      "key": "create",
+      "family": "write",
+      "method": "POST",
+      "path": "/api/administration/business-partners",
+      "responseShape": "read-dto",
+      "expectedSuccessStatus": 201,
+      "requestDto": "BusinessPartnerCreateDTO"
+    },
+    {
+      "key": "update",
+      "family": "write",
+      "method": "PUT",
+      "path": "/api/administration/business-partners/{id}",
+      "responseShape": "read-dto",
+      "expectedSuccessStatus": 200,
+      "requestDto": "BusinessPartnerUpdateDTO"
+    },
+    {
+      "key": "delete",
+      "family": "write",
+      "method": "DELETE",
+      "path": "/api/administration/business-partners/{id}",
+      "responseShape": "empty",
+      "expectedSuccessStatus": 204,
+      "requestBody": "forbidden"
+    }
+  ],
+  "tests": {
+    "sourceTests": [
+      {
+        "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/api/BusinessPartnerControllerTest.java",
+        "covers": [
+          "query",
+          "detail",
+          "alternate-lookup",
+          "write",
+          "global-error-contract"
+        ]
+      },
+      {
+        "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/application/BusinessPartnerServiceTest.java",
+        "covers": [
+          "create",
+          "update",
+          "delete",
+          "not-found",
+          "business-key-conflict"
+        ]
+      },
+      {
+        "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/mapper/BusinessPartnerMapperTest.java",
+        "covers": [
+          "BusinessPartnerDTO",
+          "BusinessPartnerListItemDTO",
+          "BusinessPartnerCreateDTO",
+          "BusinessPartnerUpdateDTO"
+        ]
+      },
+      {
+        "pathTemplate": "src/test/java/${targetBasePackagePath}/administration/businesspartner/validation/BusinessPartnerValidatorTest.java",
+        "covers": [
+          "create-required-fields",
+          "update-required-fields",
+          "bean-validation-openapi-alignment"
+        ]
+      }
+    ],
+    "reportGates": [
+      {
+        "key": "queryContract",
+        "tool": "query-contract-gate-report",
+        "required": true,
+        "expectedResult": "findings=0"
+      },
+      {
+        "key": "detailLookupContract",
+        "tool": "detail-lookup-contract-gate-report",
+        "required": true,
+        "expectedResult": "findings=0"
+      },
+      {
+        "key": "writeApiContract",
+        "tool": "write-api-contract-gate-report",
+        "required": true,
+        "expectedResult": "findings=0"
+      },
+      {
+        "key": "requestValidationOpenApiGate",
+        "tool": "request-validation-openapi-gate-report",
+        "required": true,
+        "expectedResult": "findings=0"
+      }
+    ],
+    "deliveryGates": [
+      "target-patch-artifact-preflight",
+      "target-patch-dry-run",
+      "target-patch-apply-after-explicit-authorization",
+      "target-targeted-tests",
+      "target-full-maven-test",
+      "target-git-diff-check",
+      "target-full-export",
+      "target-export-integrity-check"
+    ]
+  },
+  "reports": [
+    {
+      "key": "queryContract",
+      "tool": "query-contract-gate-report",
+      "required": true,
+      "expectedResult": "findings=0"
+    },
+    {
+      "key": "detailLookupContract",
+      "tool": "detail-lookup-contract-gate-report",
+      "required": true,
+      "expectedResult": "findings=0"
+    },
+    {
+      "key": "writeApiContract",
+      "tool": "write-api-contract-gate-report",
+      "required": true,
+      "expectedResult": "findings=0"
+    },
+    {
+      "key": "requestValidationOpenApiGate",
+      "tool": "request-validation-openapi-gate-report",
+      "required": true,
+      "expectedResult": "findings=0"
+    }
+  ],
+  "delivery": {
+    "output": "blueprint-json-only",
+    "targetMutation": "forbidden",
+    "sourceRendering": "forbidden-in-000126",
+    "patchArchiveGeneration": "forbidden-in-000126",
+    "targetApply": "forbidden-in-springmaster",
+    "targetPatchDryRun": "required-before-apply",
+    "targetMavenTest": "required-after-apply",
+    "targetFullExport": "required-after-apply",
+    "nextPhase": "000127_springmaster_zbm_generated_slice_pilot_plan"
+  },
+  "blockers": [
+    {
+      "id": "target-baseline-binding",
+      "status": "unresolved",
+      "resolution": "current target Full-Export and clean committed HEAD required"
+    },
+    {
+      "id": "target-package-binding",
+      "status": "unresolved",
+      "resolution": "target project base package required"
+    },
+    {
+      "id": "persistence-contract",
+      "status": "not-represented-in-ir-v1",
+      "resolution": "pilot must explicitly choose candidate store or durable persistence before rendering"
+    },
+    {
+      "id": "security-contract",
+      "status": "not-represented-in-ir-v1",
+      "resolution": "pilot must explicitly document deferred or implemented security before rendering"
+    },
+    {
+      "id": "target-apply-authorization",
+      "status": "blocked",
+      "resolution": "explicit user approval required after target dry-run and tests"
+    }
+  ],
+  "summary": {
+    "plannedArtifacts": 15,
+    "plannedJavaSources": 9,
+    "plannedJavaTests": 4,
+    "apiOperations": 8,
+    "reportGates": 4,
+    "unresolvedBlockers": 5,
+    "targetFilesWritten": 0,
+    "patchArchivesWritten": 0
+  }
+}

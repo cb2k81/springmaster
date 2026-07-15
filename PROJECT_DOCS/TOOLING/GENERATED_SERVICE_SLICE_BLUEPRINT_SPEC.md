@@ -427,3 +427,18 @@ springmaster.generated-service-slice-ir.v1
 The blueprint renderer must consume the normalized IR sections for packages, resource identity, Query, Detail, Write, Model, Validation, Error, Reports and Delivery. It must not reparse CatalogItem source code, infer Demo package names or recompute API semantics from implementation files.
 
 The IR is still non-mutating. Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` may produce a deterministic expected-file/scope/test/report blueprint, but no target-project file tree or target patch apply is permitted in that phase.
+
+## Patch Blueprint Dry-run after 000126
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` turns the
+canonical IR into `springmaster.generated-service-slice-patch-blueprint.v1`.
+
+The blueprint now lists target-neutral package/path templates, the root patch
+scope, planned Java/test/evidence/changelog artifacts, all eight management API
+operations, four report families and the complete target delivery gate chain.
+It writes JSON only. Source rendering, patch-ZIP creation and target mutation
+remain forbidden.
+
+Persistence and Security are intentionally unresolved because IR version 1
+does not carry those contracts. The ZBM pilot plan must resolve or explicitly
+defer them before a renderer is allowed to create target payloads.

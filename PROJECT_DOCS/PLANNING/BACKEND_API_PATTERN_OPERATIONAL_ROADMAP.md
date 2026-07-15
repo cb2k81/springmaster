@@ -356,3 +356,30 @@ P1  000127_springmaster_zbm_generated_slice_pilot_plan
 ```
 
 The patch-blueprint phase must consume this IR rather than reading Demo source packages or inferring API patterns again.
+
+## Status after Patch 000126
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` closes the
+IR-to-blueprint planning step.
+
+```text
+Canonical IR validation                       PASS
+Target-neutral package/path projection         PASS
+Planned files and root patch scope              PASS
+Eight management API operations                PASS
+Source-test and report-gate plan                PASS
+Target delivery gate plan                      PASS
+BusinessPartner golden blueprint               PASS
+Independent Supplier neutrality fixture        PASS
+Target files written                            0
+Patch archives written                          0
+```
+
+The ordered remaining P1 work is:
+
+```text
+P1  000127_springmaster_zbm_generated_slice_pilot_plan
+```
+
+No ZBM patch generation or apply may occur without a current ZBM baseline and
+explicit user instruction.

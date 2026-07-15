@@ -1810,3 +1810,24 @@ Reasoning:
 * It normalizes Query, Detail, Write, Model, Validation, Error, Reports and Delivery semantics without generating target files.
 * It proves domain neutrality with BusinessPartner golden evidence and an independent Supplier projection.
 * It does not modify Core, Demo runtime behavior, target projects or ZBM delivery.
+
+## Generated Slice Patch Blueprint Dry-run since 000126
+
+Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` advances the
+Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.65-foundation
+PLATFORM_TOOLING_VERSION=0.3.25
+PLATFORM_STATE_PATCH=000126_springmaster_generated_slice_patch_blueprint_dry_run
+```
+
+Reasoning:
+
+* It adds deterministic IR-to-blueprint tooling and a committed golden output.
+* It plans target-neutral files, operations, tests, reports and delivery gates
+  without source rendering or target mutation.
+* It proves domain neutrality with a Supplier projection and fail-closed IR
+  contract cases.
+* It does not modify Core, Demo runtime behavior, target projects or ZBM
+  delivery.
