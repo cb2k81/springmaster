@@ -1137,3 +1137,25 @@ P0 is complete. The next implementation patch is:
 ```text
 000125_springmaster_generated_slice_intermediate_representation
 ```
+
+## Stand nach Patch 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` implements the first P1 generator model.
+
+Erreicht:
+
+* validated Slice-Spec YAML is normalized into `springmaster.generated-service-slice-ir.v1`;
+* the IR contains explicit Source, Packages, Resource, Query, Detail, Write, Model, Validation, Error, Reports and Delivery sections;
+* shared list/all/count filters and sorting semantics are represented once and inherited by operations;
+* active packages remain outside forbidden Demo prefixes;
+* DTO, field capability, business-key and alternate-lookup consistency is checked fail-closed;
+* repeated generation is byte-deterministic;
+* the BusinessPartner golden IR and a synthetic Supplier projection prove that the transformer is not tied to CatalogItem or one resource name.
+
+Nicht Bestandteil dieses Patches sind source rendering, target-project mutation, target patch generation and ZBM-specific delivery.
+
+Nächster P1-Schritt:
+
+```text
+000126_springmaster_generated_slice_patch_blueprint_dry_run
+```

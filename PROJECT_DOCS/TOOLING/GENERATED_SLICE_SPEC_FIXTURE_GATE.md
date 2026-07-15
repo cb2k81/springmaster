@@ -150,3 +150,20 @@ This gate validates the input fixture only. It deliberately does not provide:
 
 The next generator phase may consume only a Slice-Spec that passes this gate.
 Patch `000124_springmaster_patch_artifact_preflight_hardening` closes the separate P0 delivery-process boundary. The next generator phase is `000125_springmaster_generated_slice_intermediate_representation`.
+
+## IR handoff after 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` implements the next boundary named by this gate.
+
+The existing fixture gate remains the executable golden-contract evidence. The IR transformer reuses its strict dependency-free YAML parser, but performs generic contract-v1 consistency checks so the normalized model is not locked to BusinessPartner literals.
+
+The handoff is now:
+
+```text
+strict Slice-Spec parser
+-> executable golden fixture evidence
+-> generic contract-v1 IR normalization
+-> canonical byte-deterministic IR JSON
+```
+
+The next phase is `000126_springmaster_generated_slice_patch_blueprint_dry_run`.

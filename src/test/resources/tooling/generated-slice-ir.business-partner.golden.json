@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "springmaster.generated-service-slice-ir.v1",
+  "source": {
+    "specContract": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md",
+    "irContract": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_INTERMEDIATE_REPRESENTATION.md",
+    "specPath": "PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml",
+    "specSha256": "e0530da48e13d2149190dd165fe29b85652cb50b39d6a80b9f8f56d6ba0ee8cb",
+    "specVersion": 1,
+    "kind": "GeneratedServiceSlice",
+    "sliceId": "administration.business-partner"
+  },
+  "metadata": {
+    "status": "candidate-reference-slice",
+    "owner": "springmaster"
+  },
+  "packages": {
+    "base": "de.cocondo.platform",
+    "module": "de.cocondo.platform.administration.businesspartner",
+    "core": "de.cocondo.system",
+    "forbiddenPrefixes": [
+      "de.cocondo.platform.demo"
+    ],
+    "demoPackageReuse": "forbidden"
+  },
+  "resource": {
+    "domain": "administration",
+    "name": "businessPartner",
+    "collection": "businessPartners",
+    "displayField": "name",
+    "externalId": {
+      "field": "id",
+      "type": "string"
+    },
+    "businessKeys": [
+      {
+        "name": "code",
+        "field": "code",
+        "unique": true,
+        "lookupPath": "/by-code/{code}"
+      }
+    ]
+  },
+  "query": {
+    "filters": [
+      "code",
+      "name"
+    ],
+    "sorting": {
+      "allowlist": [
+        "code",
+        "name"
+      ],
+      "default": {
+        "field": "code",
+        "direction": "asc"
+      }
+    },
+    "pagination": {
+      "mode": "offset"
+    },
+    "operations": [
+      {
+        "key": "list",
+        "method": "GET",
+        "relativePath": "",
+        "absolutePath": "/api/administration/business-partners",
+        "responseShape": "paged-list-item",
+        "inherits": [
+          "filters",
+          "sorting",
+          "pagination"
+        ]
+      },
+      {
+        "key": "all",
+        "method": "GET",
+        "relativePath": "/all",
+        "absolutePath": "/api/administration/business-partners/all",
+        "responseShape": "list-item-array",
+        "inherits": [
+          "filters",
+          "sorting"
+        ]
+      },
+      {
+        "key": "count",
+        "method": "GET",
+        "relativePath": "/count",
+        "absolutePath": "/api/administration/business-partners/count",
+        "responseShape": "count-response",
+        "inherits": [
+          "filters"
+        ]
+      }
+    ]
+  },
+  "detail": {
+    "byId": {
+      "key": "byId",
+      "method": "GET",
+      "relativePath": "/{id}",
+      "absolutePath": "/api/administration/business-partners/{id}",
+      "responseShape": "read-dto"
+    },
+    "alternateLookups": [
+      {
+        "key": "byCode",
+        "method": "GET",
+        "relativePath": "/by-code/{code}",
+        "absolutePath": "/api/administration/business-partners/by-code/{code}",
+        "responseShape": "read-dto",
+        "unique": true,
+        "businessKey": "code"
+      }
+    ]
+  },
+  "write": {
+    "create": {
+      "key": "create",
+      "method": "POST",
+      "relativePath": "",
+      "absolutePath": "/api/administration/business-partners",
+      "responseShape": "read-dto",
+      "requestDto": "BusinessPartnerCreateDTO",
+      "successStatus": 201,
+      "locationHeader": "detail"
+    },
+    "update": {
+      "key": "update",
+      "method": "PUT",
+      "relativePath": "/{id}",
+      "absolutePath": "/api/administration/business-partners/{id}",
+      "responseShape": "read-dto",
+      "requestDto": "BusinessPartnerUpdateDTO",
+      "successStatus": 200
+    },
+    "delete": {
+      "key": "delete",
+      "method": "DELETE",
+      "relativePath": "/{id}",
+      "absolutePath": "/api/administration/business-partners/{id}",
+      "responseShape": "empty",
+      "successStatus": 204,
+      "requestBody": "forbidden"
+    }
+  },
+  "model": {
+    "entity": "BusinessPartner",
+    "dto": {
+      "read": "BusinessPartnerDTO",
+      "listItem": "BusinessPartnerListItemDTO",
+      "create": "BusinessPartnerCreateDTO",
+      "update": "BusinessPartnerUpdateDTO"
+    },
+    "fields": [
+      {
+        "name": "code",
+        "type": "string",
+        "required": {
+          "create": true,
+          "update": false
+        },
+        "constraints": {
+          "maxLength": 64
+        },
+        "capabilities": {
+          "filterable": true,
+          "sortable": true,
+          "businessKey": true
+        }
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": {
+          "create": true,
+          "update": true
+        },
+        "constraints": {
+          "maxLength": 255
+        },
+        "capabilities": {
+          "filterable": true,
+          "sortable": true,
+          "businessKey": false
+        }
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "required": {
+          "create": false,
+          "update": false
+        },
+        "constraints": {
+          "maxLength": 1000
+        },
+        "capabilities": {
+          "filterable": false,
+          "sortable": false,
+          "businessKey": false
+        }
+      }
+    ]
+  },
+  "validation": {
+    "requestBodiesRequireValidAnnotation": true,
+    "entitiesAsRequestBody": "forbidden",
+    "beanValidationToOpenApiRequiredAlignment": "required",
+    "invalidRequestErrorType": "VALIDATION_FAILED"
+  },
+  "errorContract": {
+    "handler": "global-core",
+    "responseType": "ApiErrorResponse",
+    "requiredErrorTypes": [
+      "VALIDATION_FAILED",
+      "INVALID_REQUEST",
+      "RESOURCE_NOT_FOUND",
+      "CONFLICT",
+      "INTERNAL_ERROR"
+    ],
+    "statusMappings": [
+      {
+        "status": 400,
+        "errorTypes": [
+          "VALIDATION_FAILED",
+          "INVALID_REQUEST"
+        ]
+      },
+      {
+        "status": 404,
+        "errorTypes": [
+          "RESOURCE_NOT_FOUND"
+        ]
+      },
+      {
+        "status": 409,
+        "errorTypes": [
+          "CONFLICT"
+        ]
+      }
+    ]
+  },
+  "reports": {
+    "queryContract": "required",
+    "detailLookupContract": "required",
+    "writeApiContract": "required",
+    "requestValidationOpenApiGate": "required"
+  },
+  "delivery": {
+    "outputMode": "patch-zip",
+    "targetApply": "forbidden-in-springmaster",
+    "targetPatchDryRun": "required-before-apply",
+    "targetMavenTest": "required-after-apply",
+    "targetFullExport": "required-after-apply"
+  }
+}

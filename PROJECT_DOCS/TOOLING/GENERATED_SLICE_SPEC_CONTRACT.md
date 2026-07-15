@@ -347,3 +347,15 @@ After P0 closure, the generator sequence continues with the neutral Intermediate
 ## Artifact qualification after 000124
 
 Any later generated-slice patch ZIP must pass `patch.sh artifact-preflight` against the committed source `HEAD`. `expectedBeforeSha256` values must come from raw repository bytes or the export metadata `fileManifest`, never from reconstructed text-export content.
+
+## Intermediate Representation consumption after 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` provides the canonical generator-facing projection of this contract:
+
+```text
+springmaster.generated-service-slice-ir.v1
+```
+
+The transformation preserves all generation-relevant Query, Detail, Write, Model, Validation, Error, Reports and Delivery semantics. Review-only provenance is not promoted into renderer assumptions. Active packages are checked against `forbiddenPackagePrefixes`, and filter/sort/business-key references are checked against normalized field capabilities.
+
+Later renderer phases must consume the IR. They must not bypass it by reading Demo implementation sources or by reconstructing API patterns independently.

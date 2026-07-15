@@ -1793,3 +1793,20 @@ Reasoning:
 * It rejects stale/incomplete hashes and text payload hygiene defects before delivery.
 * It upgrades export metadata with authoritative raw-byte file hashes and optional single-export closure evidence.
 * It does not change Core, Demo, generated-slice runtime code or target-project delivery.
+
+## Generated Slice Intermediate Representation since 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` advances the Tooling and Foundation versions:
+
+```text
+PLATFORM_VERSION=0.13.64-foundation
+PLATFORM_TOOLING_VERSION=0.3.24
+PLATFORM_STATE_PATCH=000125_springmaster_generated_slice_intermediate_representation
+```
+
+Reasoning:
+
+* It adds a deterministic, dependency-free transformation from a validated `GeneratedServiceSlice` YAML document into `springmaster.generated-service-slice-ir.v1`.
+* It normalizes Query, Detail, Write, Model, Validation, Error, Reports and Delivery semantics without generating target files.
+* It proves domain neutrality with BusinessPartner golden evidence and an independent Supplier projection.
+* It does not modify Core, Demo runtime behavior, target projects or ZBM delivery.

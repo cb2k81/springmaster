@@ -402,3 +402,25 @@ The next ordered patch is:
 ```text
 000125_springmaster_generated_slice_intermediate_representation
 ```
+
+## Intermediate Representation after 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` transforms a contract-v1 Slice-Spec into the canonical `springmaster.generated-service-slice-ir.v1` model.
+
+The IR now carries:
+
+* package and resource identity without active Demo packages;
+* shared Query filter, sorting and pagination semantics;
+* list, `/all`, `/count`, detail and alternate-lookup operations;
+* create, update and bodyless delete operations;
+* entity, DTO and field capability metadata;
+* validation, global error status families and required report evidence;
+* patch-only target delivery duties.
+
+The committed BusinessPartner golden output is supplemented by a synthetic Supplier test. This proves that the transformer is domain-neutral and does not treat CatalogItem implementation files as generator input.
+
+The next ordered patch is:
+
+```text
+000126_springmaster_generated_slice_patch_blueprint_dry_run
+```

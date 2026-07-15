@@ -415,3 +415,15 @@ The blueprint must not infer generated API surfaces directly from CatalogItem so
 Patch `000123_springmaster_generated_slice_spec_fixture_gate` makes the documented Slice-Spec boundary executable before this blueprint can be rendered.
 
 A future blueprint implementation may consume only a `GeneratedServiceSlice` input that passes the strict fixture gate. The gate verifies the neutral package boundary, full management API surface, DTO and validation metadata, global error status families, evidence reports and patch-only delivery rules. It does not yet create an Intermediate Representation or target-local patch ZIP.
+
+## Intermediate Representation alignment after 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` establishes the only supported generator input for the next blueprint phase:
+
+```text
+springmaster.generated-service-slice-ir.v1
+```
+
+The blueprint renderer must consume the normalized IR sections for packages, resource identity, Query, Detail, Write, Model, Validation, Error, Reports and Delivery. It must not reparse CatalogItem source code, infer Demo package names or recompute API semantics from implementation files.
+
+The IR is still non-mutating. Patch `000126_springmaster_generated_slice_patch_blueprint_dry_run` may produce a deterministic expected-file/scope/test/report blueprint, but no target-project file tree or target patch apply is permitted in that phase.

@@ -329,3 +329,30 @@ P1  000125_springmaster_generated_slice_intermediate_representation
 P1  000126_springmaster_generated_slice_patch_blueprint_dry_run
 P1  000127_springmaster_zbm_generated_slice_pilot_plan
 ```
+
+## Status after Patch 000125
+
+Patch `000125_springmaster_generated_slice_intermediate_representation` closes the first P1 implementation step.
+
+```text
+Validated Slice-Spec input                 PASS
+Domain-neutral IR schema                   PASS
+Query/List/All/Count normalization         PASS
+Detail/alternate lookup normalization      PASS
+Create/Update/Delete normalization         PASS
+DTO and field capability model             PASS
+Validation and global error model          PASS
+Required report and delivery model         PASS
+BusinessPartner golden IR                  PASS
+Independent Supplier neutrality fixture    PASS
+Direct target-project mutation             not implemented
+```
+
+The ordered remaining work is:
+
+```text
+P1  000126_springmaster_generated_slice_patch_blueprint_dry_run
+P1  000127_springmaster_zbm_generated_slice_pilot_plan
+```
+
+The patch-blueprint phase must consume this IR rather than reading Demo source packages or inferring API patterns again.
