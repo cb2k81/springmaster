@@ -139,3 +139,28 @@ This closure does not:
 - introduce ZBM-specific rules into Springmaster.
 
 Those steps remain governed by `PROJECT_DOCS/OPERATIONAL/SPRINT1_ZBM_SPRINGMASTER_CONFORMANT_IMPLEMENTATION_PLAN.md`.
+
+## Tooling-cutover closure since 000130
+
+Patch `000130_springmaster_tooling_cutover_delivery_guard` adds the atomic
+`tooling-cutover` bootstrap profile and closes target validation, export
+ownership, target-environment isolation and Closure-Evidence path integrity.
+
+The isolated delivery integration test now requires:
+
+```text
+generated profile=tooling-cutover
+producer preflight PASS
+target dry-run PASS
+STATUS=SUCCESS
+PROFILE=tooling
+FULL_TEST=True
+EXPORT=False
+exactly one target-apply-owned Full-v2 export
+Closure-Evidence and raw-byte integrity PASS
+registered source target mutation NONE
+```
+
+The generic fixture proves invocation of the full-test command. Actual ZBM Maven
+success remains a mandatory host-side sandbox gate before live delivery. Details:
+`PROJECT_DOCS/TOOLING/TOOLING_CUTOVER_DELIVERY_GUARD.md`.

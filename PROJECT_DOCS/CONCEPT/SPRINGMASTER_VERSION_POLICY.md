@@ -1878,3 +1878,27 @@ Reasoning:
 * It adds positive and fail-closed target-delivery integration qualification.
 * It does not change Core runtime contracts, Demo behavior, Templates, ZBM
   fachlogik or any target repository.
+
+## Tooling Cutover Delivery Guard since 000130
+
+Patch `000130_springmaster_tooling_cutover_delivery_guard` advances Foundation,
+Tooling and Platform-Update versions:
+
+```text
+PLATFORM_VERSION=0.13.67-foundation
+PLATFORM_TOOLING_VERSION=0.3.27
+PLATFORM_UPDATE_VERSION=0.8.6
+PLATFORM_STATE_PATCH=000130_springmaster_tooling_cutover_delivery_guard
+```
+
+Reasoning:
+
+* It adds the atomic, explicitly authorized `tooling-cutover` profile.
+* It synthesizes only the target-safe export configuration required for an
+  integer bootstrap closure and does not copy Springmaster defaults.
+* It requires explicit target validation and full-test evidence.
+* It assigns the only final export to `target-apply`, writes Closure-Evidence and
+  verifies target raw-byte integrity.
+* It prevents source-project environment leakage into target exports.
+* It validates changed and deleted evidence paths against the final manifest.
+* It does not change Core, Demo, Template or ZBM domain runtime contracts.

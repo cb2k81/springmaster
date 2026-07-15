@@ -333,3 +333,30 @@ Der vollständige Vertrag steht in:
 ```text
 PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_DELIVERY_CONTRACT_CLOSURE.md
 ```
+
+## Tooling-Cutover-Delivery-Vertrag seit 000130
+
+`target-apply` überlässt Test- und Exportentscheidungen nicht mehr impliziten
+Defaults des Zielprojekts. Das in `manifest.requires.profile` gebundene Profil
+bestimmt Accept-Profil und Full-Test-Pflicht.
+
+Für den initialen Tooling-Cutover gilt:
+
+```text
+generate --profile tooling-cutover
+→ dependency-complete Tooling
+→ target-sicher synthetisierte export.config.json
+→ Producer Artifact Preflight
+→ Target Dry-run
+→ accept --profile tooling --full-test --no-export
+→ genau ein target-apply Closure-Export
+→ Exportintegrität mit --require-evidence
+```
+
+Das Ziel-Accept muss `STATUS=SUCCESS`, `PROFILE=tooling`, `FULL_TEST=True`,
+`EXPORT=False` und `LATEST_EXPORT=-` nachweisen. Anschließend erzeugt nur
+`target-apply` den Full-v2-Export. Springmaster-Projektvariablen werden vor
+Target-Kommandos explizit durch die Target-Bindings ersetzt.
+
+Die vollständige Policy steht in
+`PROJECT_DOCS/TOOLING/TOOLING_CUTOVER_DELIVERY_GUARD.md`.

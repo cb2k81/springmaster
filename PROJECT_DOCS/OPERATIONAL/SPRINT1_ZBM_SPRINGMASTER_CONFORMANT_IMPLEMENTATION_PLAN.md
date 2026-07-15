@@ -208,9 +208,10 @@ Erforderlich sind mindestens:
 
 Der Tooling-Cutover erfolgt in getrennten Patches.
 
-#### AP2.1 Gemeinsames Tooling
+#### AP2.1 Atomarer Tooling-Bootstrap
 
-Der erste ZBM-Patch übernimmt ausschließlich gemeinsames Tooling, darunter insbesondere:
+Der erste ZBM-Patch verwendet das ausdrücklich freigegebene Profil
+`tooling-cutover`. Er übernimmt gemeinsames Tooling, darunter insbesondere:
 
 ```text
 bin/patch.py
@@ -226,22 +227,32 @@ bin/lib/**
 PROJECT_DOCS/TOOLING/**
 ```
 
-Nicht enthalten sind ZBM-Fachcode, `pom.xml`, Datenbankmigrationen und lokale ZBM-Defaults.
+Die Host-nahe Delivery-Analyse hat nachgewiesen, dass ein Legacy-Ziel nach einem
+reinen Tooling-Apply noch keinen integren Closure-Export erzeugen kann, solange
+seine Exportkonfiguration mutable Validation-Logs einschließt. Als eng begrenzte
+Bootstrap-Ausnahme enthält derselbe Patch deshalb eine aus der ZBM-Konfiguration
+synthetisierte `export.config.json`, die ausschließlich den verbindlichen
+Ausschluss `patches/logs/validation/**` ergänzt und alle ZBM-Werte erhält.
+Springmaster-Defaults werden nicht kopiert.
 
-#### AP2.2 ZBM-lokale Tooling-Konfiguration
+Das Ziel-Accept läuft mit `--profile tooling --full-test --no-export`. Danach
+erzeugt `target-apply` genau einen Full-v2-Export mit Closure-Evidence und prüft
+ihn gegen die echten ZBM-Bytes. Nicht enthalten sind ZBM-Fachcode, `pom.xml`,
+Kernel, Datenbankmigrationen oder lokale Fachscopes.
 
-Ein separater, reviewbarer ZBM-Patch aktualisiert ausschließlich die projektlokalen Tooling-Verträge, insbesondere:
+#### AP2.2 ZBM-lokale Tooling- und Versionskonfiguration
+
+Ein separater, reviewbarer ZBM-Patch ergänzt anschließend die übrigen
+projektlokalen Verträge, insbesondere:
 
 - `APP_EXPORT_PROJECT_KEY=zbm`;
 - `APP_CORE_PACKAGE=de.cocondo.system`;
 - projektlokale Patch-Scopes;
 - ZBM-spezifische Exportprofile;
-- Exportformat v2;
-- Raw-Byte-Manifest und Closure-Evidence;
-- Ausschluss von `patches/logs/validation/**`;
-- versionsgenaue Tooling-Angaben.
+- versionsgenaue Tooling-Angaben in `platform.env`.
 
-Springmaster-Defaults dürfen nicht blind über ZBM-Konfigurationen kopiert werden.
+Springmaster-Defaults dürfen weiterhin nicht blind über ZBM-Konfigurationen
+kopiert werden.
 
 **Gate G2:** ZBM-Tooling-Selfcheck, Artifact-Preflight-Fixtures, Exportintegrität und Full Maven sind grün; genau ein integerer ZBM-Full-Export liegt vor.
 
@@ -540,7 +551,7 @@ Der Runner:
 - direkte Tool-/Contract-Gates;
 - targeted Tests;
 - relevante Regressionstests;
-- vollständiger Maven-Test bei Java-, Test- oder Buildwirkung;
+- vollständiger Maven-Test für Tooling-, Kernel- und Fachcode-Patches;
 - DB-, API-, OpenAPI- und Security-Gates nach Scope;
 - `git diff --check`;
 - genau ein Full-Export;

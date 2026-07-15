@@ -19,8 +19,8 @@ Usage:
   ./bin/platform-update.sh list
   ./bin/platform-update.sh show <target>
   ./bin/platform-update.sh validate <target|all>
-  ./bin/platform-update.sh plan <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|defaults|demo|platform-update] [--output <dir>]
-  ./bin/platform-update.sh generate <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|defaults|demo|platform-update] [--output <dir>] [--dry-run]
+  ./bin/platform-update.sh plan <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update] [--output <dir>]
+  ./bin/platform-update.sh generate <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update] [--output <dir>] [--dry-run]
   ./bin/platform-update.sh preflight <target> --zip <generated-patch.zip> [--output <dir>]
   ./bin/platform-update.sh compatibility-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
   ./bin/platform-update.sh apply-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
@@ -92,7 +92,7 @@ safe_target_name() {
 safe_profile_name() {
   local value="$1"
   case "${value}" in
-    core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|defaults|demo|platform-update) printf '%s' "${value}" ;;
+    core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update) printf '%s' "${value}" ;;
     *) fail_update "Unsupported update profile: ${value}" ;;
   esac
 }
@@ -184,7 +184,7 @@ collect_payload_paths_for_profile() {
     core-docs)
       core_docs_payload_paths
       ;;
-    tooling)
+    tooling|tooling-cutover)
       tooling_payload_paths
       ;;
     defaults)
@@ -204,7 +204,7 @@ generated_scope_for_profile() {
   case "${profile}" in
     core|core-runtime|core-tests) echo "core" ;;
     core-docs|platform-update-doc) echo "docs" ;;
-    tooling) echo "tooling" ;;
+    tooling|tooling-cutover) echo "tooling" ;;
     defaults) echo "root" ;;
     demo) echo "demo" ;;
     platform-update) echo "platform-update" ;;
@@ -215,7 +215,7 @@ generated_scope_for_profile() {
 profile_generates_payload() {
   local profile="$1"
   case "${profile}" in
-    core|core-runtime|core-tests|core-docs|tooling|defaults|platform-update-doc) return 0 ;;
+    core|core-runtime|core-tests|core-docs|tooling|tooling-cutover|defaults|platform-update-doc) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -229,6 +229,7 @@ profile_payload_summary() {
     core-docs) echo "master Core documentation only" ;;
     platform-update-doc) echo "generated platform-update document only" ;;
     tooling) echo "shared tooling payload without target-local defaults" ;;
+    tooling-cutover) echo "shared tooling payload plus target-safe synthesized export configuration" ;;
     defaults) echo "baseline configuration defaults (.env.example, export.config.json, env template)" ;;
     demo|platform-update) echo "profile reserved for later dedicated payload rules" ;;
     *) echo "unknown" ;;
@@ -244,6 +245,9 @@ profile_payload_listing() {
   else
     printf '%s\n' "${listing}"
   fi
+  if [[ "${profile}" == "tooling-cutover" ]]; then
+    echo "export.config.json (target-safe synthesized bootstrap configuration)"
+  fi
 }
 
 generated_doc_rel_for_profile() {
@@ -253,7 +257,7 @@ generated_doc_rel_for_profile() {
     core|core-runtime|core-tests|core-docs)
       echo "PROJECT_DOCS/CORE/PLATFORM_UPDATES/${patch_id}.md"
       ;;
-    tooling)
+    tooling|tooling-cutover)
       echo "PROJECT_DOCS/TOOLING/PLATFORM_UPDATES/${patch_id}.md"
       ;;
     platform-update-doc|platform-update)
@@ -335,6 +339,9 @@ count_profile_payload_files() {
       total=$((total + 1))
     fi
   done < <(collect_payload_paths_for_profile "${profile}")
+  if [[ "${profile}" == "tooling-cutover" ]]; then
+    total=$((total + 1))
+  fi
   echo "${total}"
 }
 
@@ -390,6 +397,48 @@ validate_generated_patch_binding() {
   if [[ -n "${required_profile}" ]]; then
     require_profile_allowed_for_loaded_target "${required_profile}"
   fi
+}
+
+accept_validation_profile_for_generated_profile() {
+  local generated_profile="$1"
+  case "${generated_profile}" in
+    tooling|tooling-cutover)
+      echo "tooling"
+      ;;
+    core|core-runtime|core-tests)
+      echo "code"
+      ;;
+    core-docs|platform-update-doc)
+      echo "docs"
+      ;;
+    defaults|platform-update)
+      echo "tooling"
+      ;;
+    *)
+      fail_update "No target accept validation profile is defined for generated profile: ${generated_profile}"
+      ;;
+  esac
+}
+
+generated_profile_requires_full_test() {
+  local generated_profile="$1"
+  case "${generated_profile}" in
+    tooling|tooling-cutover|core|core-runtime|core-tests|defaults|platform-update)
+      return 0
+      ;;
+    core-docs|platform-update-doc)
+      return 1
+      ;;
+    *)
+      fail_update "No full-test policy is defined for generated profile: ${generated_profile}"
+      ;;
+  esac
+}
+
+accept_summary_value() {
+  local summary_file="$1"
+  local key="$2"
+  sed -n "s/^${key}=//p" "${summary_file}" | tail -n 1
 }
 
 
@@ -718,6 +767,13 @@ create_target_plan_patch() {
     [[ -n "${rel}" ]] || continue
     copy_tree_payload "${rel}" "${tmp_dir}/files"
   done < <(collect_payload_paths_for_profile "${UPDATE_PROFILE}")
+
+  if [[ "${UPDATE_PROFILE}" == "tooling-cutover" ]]; then
+    python3 "${PROJECT_ROOT}/platform/update/tools/synthesize-tooling-cutover-config.py" \
+      --target-root "${TARGET_PATH}" \
+      --output-root "${tmp_dir}/files" \
+      --target-name "${TARGET_NAME}" >/dev/null
+  fi
 
   if profile_requires_target_pom_core_dependencies "${UPDATE_PROFILE}"; then
     write_core_ready_target_pom "${TARGET_PATH}/pom.xml" "${tmp_dir}/files/pom.xml"
@@ -1475,7 +1531,10 @@ parse_target_apply_args() {
 create_target_apply() {
   parse_target_apply_args "$@"
   local file timestamp patch_id patch_name patch_scope zip_name patch_id_for_log target_zip_rel target_zip_path apply_log summary_file target_export
-  local producer_preflight_dir accept_log_dir accept_summary latest_export
+  local producer_preflight_dir accept_log_dir accept_summary latest_export generated_profile accept_profile expected_full_test
+  local accept_status accept_profile_result accept_full_test_result accept_export_result latest_export_result
+  local evidence_file export_log integrity_log source_target_git_head target_export_rel export_before export_after new_export_count
+  local -a accept_args
   file="$(target_file "${UPDATE_TARGET}")"
   load_target "${file}"
   load_platform_versions
@@ -1485,8 +1544,20 @@ create_target_apply() {
   patch_id="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "id")"
   patch_name="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "name")"
   patch_scope="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "scope")"
+  generated_profile="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "requires.profile")"
   [[ -n "${patch_id}" ]] || fail_update "manifest.id missing in ${UPDATE_PATCH_ZIP}"
   [[ -n "${patch_scope}" ]] || fail_update "manifest.scope missing in ${UPDATE_PATCH_ZIP}"
+  [[ -n "${generated_profile}" ]] || fail_update "manifest.requires.profile missing in ${UPDATE_PATCH_ZIP}"
+
+  accept_profile="$(accept_validation_profile_for_generated_profile "${generated_profile}")"
+  accept_args=(--profile "${accept_profile}" --no-export)
+  if generated_profile_requires_full_test "${generated_profile}"; then
+    expected_full_test="True"
+    accept_args+=(--full-test)
+  else
+    expected_full_test="False"
+    accept_args+=(--no-full-test)
+  fi
 
   ensure_build_workspace
   mkdir -p "${UPDATE_OUTPUT_DIR}"
@@ -1500,6 +1571,10 @@ create_target_apply() {
   producer_preflight_dir="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_producer_preflight"
   accept_log_dir="${TARGET_PATH}/patches/logs/validation/platform-update-${patch_id}"
   accept_summary="${accept_log_dir}/SUMMARY.txt"
+  evidence_file="${TARGET_PATH}/tmp/platform-updates/${patch_id}_EXPORT_EVIDENCE.json"
+  export_log="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_export.log"
+  integrity_log="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_export_integrity.log"
+  source_target_git_head="$(git -C "${TARGET_PATH}" rev-parse HEAD)"
 
   if ! run_producer_artifact_preflight "${UPDATE_PATCH_ZIP}" "${producer_preflight_dir}" >"${apply_log}.producer-preflight" 2>&1; then
     echo "Platform-Update-Target-Apply:"
@@ -1540,6 +1615,7 @@ create_target_apply() {
     echo "  Delivery:     ${TARGET_DELIVERY_ENABLED:-false}"
     echo "  Producer:     ${producer_preflight_dir}/REPORT.json"
     echo "  Target-Dry:   ${PREFLIGHT_LOG}"
+    echo "  Validation:   profile=${accept_profile}, full-test=${expected_full_test}"
     echo "  Export-Pfad:  "
     echo "  Hinweis:      Zielprojekt wurde nicht verändert."
     return 0
@@ -1560,11 +1636,19 @@ create_target_apply() {
     echo "TARGET_ZIP=${target_zip_path}"
     echo "PRODUCER_PREFLIGHT=${producer_preflight_dir}/REPORT.json"
     echo "TARGET_DRY_RUN=${PREFLIGHT_LOG}"
+    echo "GENERATED_PROFILE=${generated_profile}"
+    echo "ACCEPT_PROFILE=${accept_profile}"
+    echo "EXPECTED_FULL_TEST=${expected_full_test}"
     echo
     mkdir -p "$(dirname "${target_zip_path}")"
     cp "${UPDATE_PATCH_ZIP}" "${target_zip_path}"
     cd "${TARGET_PATH}"
-    PATCH_ACCEPT_LOG_DIR="${accept_log_dir}" ./bin/patch.sh accept "${target_zip_rel}"
+    export APP_EXPORT_PROJECT_KEY="${TARGET_APP_NAME:-${TARGET_NAME}}"
+    export APP_NAME="${TARGET_APP_NAME:-${TARGET_NAME}}"
+    if [[ -n "${TARGET_BASE_PACKAGE:-}" ]]; then
+      export APP_BASE_PACKAGE="${TARGET_BASE_PACKAGE}"
+    fi
+    PATCH_ACCEPT_LOG_DIR="${accept_log_dir}" ./bin/patch.sh accept "${target_zip_rel}" "${accept_args[@]}"
     echo
     echo "== Latest patch =="
     ./bin/patch.sh show latest
@@ -1572,15 +1656,66 @@ create_target_apply() {
       echo "Missing target accept summary: ${accept_summary}" >&2
       exit 1
     }
-    latest_export="$(sed -n 's/^LATEST_EXPORT=//p' "${accept_summary}" | tail -n 1)"
-    [[ -n "${latest_export}" && "${latest_export}" != "-" ]] || {
-      echo "Target accept did not produce the required single final export." >&2
+    accept_status="$(accept_summary_value "${accept_summary}" "STATUS")"
+    accept_profile_result="$(accept_summary_value "${accept_summary}" "PROFILE")"
+    accept_full_test_result="$(accept_summary_value "${accept_summary}" "FULL_TEST")"
+    accept_export_result="$(accept_summary_value "${accept_summary}" "EXPORT")"
+    latest_export_result="$(accept_summary_value "${accept_summary}" "LATEST_EXPORT")"
+    [[ "${accept_status}" == "SUCCESS" ]] || {
+      echo "Target accept status is not SUCCESS: ${accept_status:-<empty>}" >&2
       exit 1
     }
+    [[ "${accept_profile_result}" == "${accept_profile}" ]] || {
+      echo "Target accept profile mismatch: expected=${accept_profile}, actual=${accept_profile_result:-<empty>}" >&2
+      exit 1
+    }
+    [[ "${accept_full_test_result}" == "${expected_full_test}" ]] || {
+      echo "Target full-test evidence mismatch: expected=${expected_full_test}, actual=${accept_full_test_result:-<empty>}" >&2
+      exit 1
+    }
+    [[ "${accept_export_result}" == "False" && "${latest_export_result}" == "-" ]] || {
+      echo "Target accept must not own the final export: EXPORT=${accept_export_result:-<empty>}, LATEST_EXPORT=${latest_export_result:-<empty>}" >&2
+      exit 1
+    }
+
+    echo
+    echo "== Closure evidence =="
+    python3 "${PROJECT_ROOT}/platform/update/tools/write-target-apply-evidence.py" \
+      --patch-zip "${UPDATE_PATCH_ZIP}" \
+      --output "${evidence_file}" \
+      --target-name "${TARGET_NAME}" \
+      --generated-profile "${generated_profile}" \
+      --accept-profile "${accept_profile}" \
+      --full-test "${expected_full_test}" \
+      --source-target-git-head "${source_target_git_head}"
+
+    echo
+    echo "== Single target closure export =="
+    export_before="$(mktemp)"
+    export_after="$(mktemp)"
+    find exports/text -maxdepth 1 -type f -name '*.zip' -printf '%f\n' 2>/dev/null | sort > "${export_before}" || true
+    ./bin/export.sh full --zip --evidence "${evidence_file}" > "${export_log}"
+    target_export_rel="$(tail -n 1 "${export_log}")"
+    [[ -n "${target_export_rel}" ]] || {
+      echo "Target export command returned no ZIP path." >&2
+      exit 1
+    }
+    latest_export="${TARGET_PATH}/${target_export_rel}"
     [[ -f "${latest_export}" ]] || {
-      echo "Target export path from accept summary does not exist: ${latest_export}" >&2
+      echo "Target export does not exist: ${latest_export}" >&2
       exit 1
     }
+    find exports/text -maxdepth 1 -type f -name '*.zip' -printf '%f\n' 2>/dev/null | sort > "${export_after}" || true
+    new_export_count="$(comm -13 "${export_before}" "${export_after}" | sed '/^$/d' | wc -l | tr -d ' ')"
+    [[ "${new_export_count}" == "1" ]] || {
+      echo "Expected exactly one new target ZIP export, found ${new_export_count}." >&2
+      exit 1
+    }
+    rm -f "${export_before}" "${export_after}"
+
+    python3 ./bin/export-integrity-check.py \
+      "${latest_export}" --source-root "${TARGET_PATH}" --require-evidence \
+      > "${integrity_log}" 2>&1
     printf 'TARGET_EXPORT=%s\n' "${latest_export}" > "${summary_file}"
   ) > "${apply_log}" 2>&1; then
     target_export=""
@@ -1599,10 +1734,12 @@ create_target_apply() {
     echo "  Delivery:     ${TARGET_DELIVERY_ENABLED:-false}"
     echo "  Producer:     ${producer_preflight_dir}/REPORT.json"
     echo "  Target-Dry:   ${PREFLIGHT_LOG}"
+    echo "  Validation:   profile=${accept_profile}, full-test=${expected_full_test}"
     echo "  Accept-Log:   ${accept_log_dir}"
     echo "  Log:          ${apply_log}"
+    echo "  Export-Check: ${integrity_log}"
     echo "  Export-Pfad:  ${target_export}"
-    echo "  Hinweis:      Zielprojekt wurde genau einmal angewendet und exportiert."
+    echo "  Hinweis:      Zielprojekt wurde genau einmal angewendet; target-apply erzeugte und prüfte genau einen Closure-Export."
     return 0
   fi
 

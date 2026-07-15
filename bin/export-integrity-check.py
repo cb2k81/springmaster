@@ -47,7 +47,7 @@ def validate_meta(
     meta_member: str,
     source_root: Path | None,
     require_evidence: bool,
-) -> tuple[int, str | None]:
+) -> tuple[int, str | None, set[str]]:
     meta = read_json(archive, meta_member)
     if meta.get("exportFormatVersion") != 2:
         fail(f"{meta_member}: exportFormatVersion must be 2")
@@ -112,10 +112,15 @@ def validate_meta(
             fail(f"{meta_member}: closureEvidenceFile must be a plain member filename or null")
     if require_evidence and not evidence_file:
         fail(f"{meta_member}: closure evidence is required")
-    return len(entries), evidence_file
+    return len(entries), evidence_file, set(paths)
 
 
-def validate_evidence(archive: zipfile.ZipFile, meta_member: str, evidence_file: str) -> str:
+def validate_evidence(
+    archive: zipfile.ZipFile,
+    meta_member: str,
+    evidence_file: str,
+    manifest_paths: set[str],
+) -> str:
     evidence_member = str(PurePosixPath(meta_member).parent / evidence_file)
     if evidence_member not in archive.namelist():
         fail(f"{meta_member}: closure evidence member missing: {evidence_member}")
@@ -136,6 +141,36 @@ def validate_evidence(archive: zipfile.ZipFile, meta_member: str, evidence_file:
     ).encode("utf-8")
     if sha256_bytes(canonical_source) != source_digest:
         fail(f"{evidence_member}: source evidence digest mismatch")
+
+    if not isinstance(source_evidence, dict):
+        fail(f"{evidence_member}: sourceEvidence must be an object")
+
+    changed_paths = source_evidence.get("changedPaths")
+    deleted_paths = source_evidence.get("deletedPaths", [])
+    if changed_paths is not None:
+        if not isinstance(changed_paths, list) or not all(isinstance(item, str) for item in changed_paths):
+            fail(f"{evidence_member}: changedPaths must be a list of paths")
+        if len(changed_paths) != len(set(changed_paths)):
+            fail(f"{evidence_member}: changedPaths contains duplicates")
+        if not isinstance(deleted_paths, list) or not all(isinstance(item, str) for item in deleted_paths):
+            fail(f"{evidence_member}: deletedPaths must be a list of paths")
+        if len(deleted_paths) != len(set(deleted_paths)):
+            fail(f"{evidence_member}: deletedPaths contains duplicates")
+        deleted_set = set(deleted_paths)
+        if not deleted_set.issubset(set(changed_paths)):
+            fail(f"{evidence_member}: deletedPaths must be a subset of changedPaths")
+        for path in changed_paths:
+            pure = PurePosixPath(path)
+            if not path or path.startswith("/") or ".." in pure.parts:
+                fail(f"{evidence_member}: invalid changedPaths entry: {path!r}")
+            if path not in manifest_paths and path not in deleted_set:
+                fail(
+                    f"{evidence_member}: changedPaths entry is neither present in the final manifest "
+                    f"nor declared deleted: {path}"
+                )
+    elif deleted_paths:
+        fail(f"{evidence_member}: deletedPaths requires changedPaths")
+
     return evidence_member
 
 
@@ -165,7 +200,7 @@ def main() -> None:
             total_files = 0
             evidence_members: set[str] = set()
             for meta_member in meta_members:
-                file_count, evidence_file = validate_meta(
+                file_count, evidence_file, manifest_paths = validate_meta(
                     archive,
                     meta_member,
                     source_root,
@@ -173,7 +208,9 @@ def main() -> None:
                 )
                 total_files += file_count
                 if evidence_file:
-                    evidence_members.add(validate_evidence(archive, meta_member, evidence_file))
+                    evidence_members.add(
+                        validate_evidence(archive, meta_member, evidence_file, manifest_paths)
+                    )
     except zipfile.BadZipFile as exc:
         fail(f"invalid ZIP: {exc}")
 
