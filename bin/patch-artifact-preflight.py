@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 USAGE = """Usage:
-  ./bin/patch.sh artifact-preflight <patch.zip> [--output <dir>] [--no-export] [--keep-test-copy]
+  ./bin/patch.sh artifact-preflight <patch.zip> [--output <dir>] [--no-export] [--keep-test-copy] [--engine <patch.py>]
 
 The command is non-mutating for the live repository. It requires a clean Git
 working tree, validates the complete live baseline and payload hygiene, then
@@ -494,6 +494,7 @@ def parse_args(args: list[str]) -> dict:
     output = None
     run_export = True
     keep_test_copy = False
+    engine = None
     i = 0
     while i < len(args):
         arg = args[i]
@@ -511,6 +512,11 @@ def parse_args(args: list[str]) -> dict:
         elif arg == "--keep-test-copy":
             keep_test_copy = True
             i += 1
+        elif arg == "--engine":
+            if i + 1 >= len(args):
+                fail("PATCH_ARTIFACT_ARGUMENT_INVALID: --engine requires a path")
+            engine = args[i + 1]
+            i += 2
         elif arg.startswith("--"):
             fail(f"PATCH_ARTIFACT_ARGUMENT_INVALID: unknown option {arg}")
         elif subject is None:
@@ -525,6 +531,7 @@ def parse_args(args: list[str]) -> dict:
         "output": output,
         "runExport": run_export,
         "keepTestCopy": keep_test_copy,
+        "engine": engine,
     }
 
 
@@ -581,9 +588,14 @@ def main() -> None:
             project_root, operations, payload, payload_modes
         )
 
-        engine = project_root / "bin" / "patch.py"
+        engine = (
+            Path(options["engine"]).expanduser().resolve()
+            if options.get("engine")
+            else project_root / "bin" / "patch.py"
+        )
         if not engine.is_file():
             fail(f"PATCH_ARTIFACT_ENGINE_MISSING: {engine}")
+        report["engine"] = str(engine)
         live_result = run_logged(
             [sys.executable, str(engine), str(project_root), "live-baseline", str(zip_path)],
             project_root,
@@ -610,7 +622,7 @@ def main() -> None:
         if (project_root / ".env").is_file():
             shutil.copy2(project_root / ".env", test_root / ".env")
 
-        test_engine = test_root / "bin" / "patch.py"
+        test_engine = engine if options.get("engine") else test_root / "bin" / "patch.py"
         steps = [
             ("04_testcopy_live_baseline.log", [sys.executable, str(test_engine), str(test_root), "live-baseline", str(zip_path)]),
             ("05_testcopy_dry_run.log", [sys.executable, str(test_engine), str(test_root), "apply", "--dry-run", str(zip_path)]),

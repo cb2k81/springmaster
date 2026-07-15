@@ -68,5 +68,3 @@ ZIP="$(ls -1t build/platform-update/generated/*_springmaster_platform_update_cor
 ./bin/platform-update.sh preflight zbm --zip "$ZIP"
 ./bin/platform-update.sh apply-plan zbm --zip "$ZIP"
 ```
-
-

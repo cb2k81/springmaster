@@ -142,5 +142,3 @@ Patch `000033_springmaster_platform_update_target_compatibility_plan` ergänzt d
 ```
 
 Der Befehl erzeugt einen nicht-invasiven Plan und ein Kompatibilitäts-ZIP. Erst nach bewusster Ausführung des erzeugten Skripts im Zielprojekt soll der ursprüngliche Core-Payload-Patch erneut per `preflight` geprüft werden.
-
-

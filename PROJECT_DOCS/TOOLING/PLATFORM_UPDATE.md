@@ -306,3 +306,30 @@ mvn test
 ## Local Configuration Protection
 
 Das Profil `tooling` darf Zielprojektparameter nicht überschreiben. `.env.example`, `export.config.json` und `PROJECT_DOCS/CONFIG/**` gehören nicht zum regulären Tooling-Payload, sondern ausschließlich zum expliziten Profil `defaults`. Das gemeinsame Tooling liest Projektname, Export-Key, Datenbanknamen, Namespace und Patch-Scopes aus der Zielprojektkonfiguration.
+
+## Delivery-Contract Closure seit 000129
+
+Seit `000129_springmaster_platform_update_delivery_contract_closure` erzeugt
+`platform-update generate` target-gebundene Patchartefakte statt
+zeitstempelbasierter Plan-Patches.
+
+Verbindlich sind:
+
+- ein sauberer registrierter Target-Git-Stand;
+- ein durch `TARGET_ALLOWED_PROFILES` freigegebenes Profil;
+- die nächste sechsstellige Patchnummer des Zielprojekts;
+- identische Werte für Archivname, `manifest.id` und `manifest.patchId`;
+- vollständige `baseline.expectedBeforeSha256`-Werte aus den Rohbytes des Targets;
+- Entfernung byte- und modusgleicher Operationen;
+- ein Springmaster Producer Artifact Preflight in einer isolierten Target-Worktree;
+- genau ein Target-`accept` und damit genau ein finaler Target-Export.
+
+Für den Bootstrap eines älteren Target-Patchsystems verwendet der Producer den
+aktuellen Springmaster-Patch-Engine explizit. Dies qualifiziert das Artefakt,
+installiert den Engine aber nicht im Target.
+
+Der vollständige Vertrag steht in:
+
+```text
+PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_DELIVERY_CONTRACT_CLOSURE.md
+```

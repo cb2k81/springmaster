@@ -1852,3 +1852,29 @@ Reasoning:
 * It changes no runtime, Tooling command, Core, Demo, Template, Platform-Update
   descriptor or version metadata. `PLATFORM_VERSION`, component versions and
   `PLATFORM_STATE_PATCH` therefore remain unchanged.
+
+## Platform-Update Delivery Contract Closure since 000129
+
+Patch `000129_springmaster_platform_update_delivery_contract_closure` advances
+Foundation, Tooling and Platform-Update versions:
+
+```text
+PLATFORM_VERSION=0.13.66-foundation
+PLATFORM_TOOLING_VERSION=0.3.26
+PLATFORM_UPDATE_VERSION=0.8.5
+PLATFORM_STATE_PATCH=000129_springmaster_platform_update_delivery_contract_closure
+```
+
+Reasoning:
+
+* It makes generated target patches target-bound, identity-safe and complete in
+  their raw-byte baseline preconditions.
+* It makes the Tooling delivery profile dependency-complete for current patch,
+  export, database and integrity selfchecks.
+* It adds producer Artifact Preflight support for targets whose installed patch
+  engine predates the current live-baseline command.
+* It removes the duplicate target export from `target-apply` and consumes the
+  single export evidence produced by target `patch.sh accept`.
+* It adds positive and fail-closed target-delivery integration qualification.
+* It does not change Core runtime contracts, Demo behavior, Templates, ZBM
+  fachlogik or any target repository.

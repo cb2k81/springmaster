@@ -48,5 +48,3 @@ Bei Erfolg werden Plan- und Skriptdatei erzeugt. Bei Fehlern wird kein Apply-Pla
 ## Bedeutung für Zielprojekte
 
 Der Preflight stellt sicher, dass ein generierter Zielpatch nicht erst beim manuellen Anwenden im Zielprojekt scheitert. Insbesondere für `core`-Payload-Patches wird sichtbar, ob das Zielprojekt bereits den Scope `core` und projektspezifische Scope-Erweiterungen aus `.env` unterstützt.
-
-

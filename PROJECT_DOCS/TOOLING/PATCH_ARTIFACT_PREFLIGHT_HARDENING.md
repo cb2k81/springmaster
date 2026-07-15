@@ -205,3 +205,21 @@ Host-side targeted tests, full tests and the actual apply remain separate accept
 ## Project-New-Verteilung
 
 `project-new.sh` übernimmt Artifact-Preflight, Exportintegritätscheck und beide Integrationstests vollständig in neue Backend-Skeletons. Die Instantiation Acceptance beweist, dass die referenzierten Dateien vorhanden sind, der generierte Export den Integritätscheck besteht und die kanonischen `springmaster.*.v1`-Schema-IDs nicht durch Projekttokenisierung verändert werden.
+
+## Externer Producer-Engine seit 000129
+
+Für einen Tooling-Cutover kann das Zielprojekt noch einen älteren Patch-Engine
+besitzen. Der Artifact Preflight unterstützt deshalb zusätzlich:
+
+```bash
+python3 bin/patch-artifact-preflight.py \
+  /path/to/target \
+  /path/to/target-bound-patch.zip \
+  --no-export \
+  --engine /path/to/springmaster/bin/patch.py
+```
+
+Der angegebene Engine wird mit dem Zielprojektroot aufgerufen und auch für den
+isolierten Worktree-Apply verwendet. Das Zielrepository wird nicht verändert.
+Die Option ist ausschließlich eine Producer-Qualifikation; sie ersetzt keinen
+Tooling-Apply im Zielprojekt.

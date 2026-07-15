@@ -182,6 +182,3 @@ Festgelegt wird:
 * fachliche Slice-Erzeugung bleibt ein eigener Folgepatch.
 
 Der nächste operative Schritt ist der `ZBM Initialization Concept Test` gegen `/opt/cocondo/zbm`.
-
-
-

@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${SCRIPT_DIR}/init.env.sh"
 
-TARGET_DIR="${PROJECT_ROOT}/platform/update/targets"
-BUILD_WORKSPACE_DIR="${PROJECT_ROOT}/build/platform-update"
+TARGET_DIR="${PLATFORM_UPDATE_TARGET_DIR:-${PROJECT_ROOT}/platform/update/targets}"
+BUILD_WORKSPACE_DIR="${PLATFORM_UPDATE_BUILD_WORKSPACE_DIR:-${PROJECT_ROOT}/build/platform-update}"
 MANIFEST_DIR="${BUILD_WORKSPACE_DIR}/manifests"
 GENERATED_DIR="${BUILD_WORKSPACE_DIR}/generated"
 LOG_DIR="${BUILD_WORKSPACE_DIR}/logs"
@@ -150,6 +150,11 @@ bin/patch.sh
 bin/export.sh
 bin/init.env.sh
 bin/tooling-selfcheck.sh
+bin/dbtool.sh
+bin/patch-artifact-preflight.py
+bin/patch-artifact-preflight-it.sh
+bin/export-integrity-check.py
+bin/export-integrity-it.sh
 bin/lib
 PROJECT_DOCS/TOOLING
 PAYLOAD_EOF
@@ -361,12 +366,30 @@ field = sys.argv[2]
 with zipfile.ZipFile(zip_path) as zf:
     with zf.open("manifest.json") as fh:
         manifest = json.load(fh)
-value = manifest.get(field, "")
+value = manifest
+for part in field.split("."):
+    if not isinstance(value, dict):
+        value = ""
+        break
+    value = value.get(part, "")
 if isinstance(value, (dict, list)):
     print(json.dumps(value, ensure_ascii=False))
 else:
     print(value)
 PY_FIELD
+}
+
+validate_generated_patch_binding() {
+  local zip_path="$1"
+  local required_target required_profile
+  required_target="$(read_patch_manifest_field "${zip_path}" "requires.target")"
+  required_profile="$(read_patch_manifest_field "${zip_path}" "requires.profile")"
+  if [[ -n "${required_target}" && "${required_target}" != "${TARGET_NAME}" ]]; then
+    fail_update "Generated patch target mismatch: manifest=${required_target}, command=${TARGET_NAME}."
+  fi
+  if [[ -n "${required_profile}" ]]; then
+    require_profile_allowed_for_loaded_target "${required_profile}"
+  fi
 }
 
 
@@ -468,6 +491,63 @@ validate_loaded_target() {
 target_delivery_enabled() {
   [[ "${TARGET_DELIVERY_ENABLED:-false}" == "true" ]]
 }
+
+profile_allowed_for_loaded_target() {
+  local requested="$1"
+  local token
+  while IFS= read -r token; do
+    [[ -n "${token}" ]] || continue
+    [[ "${token}" == "${requested}" ]] && return 0
+  done < <(printf '%s\n' "${TARGET_ALLOWED_PROFILES:-}" | tr ',;' '\n' | tr ' ' '\n' | sed '/^$/d')
+  return 1
+}
+
+require_profile_allowed_for_loaded_target() {
+  local requested="$1"
+  profile_allowed_for_loaded_target "${requested}" || fail_update     "${TARGET_NAME}: profile ${requested} is not allowed by TARGET_ALLOWED_PROFILES=${TARGET_ALLOWED_PROFILES:-}."
+}
+
+require_clean_target_git() {
+  [[ -d "${TARGET_PATH}/.git" || -f "${TARGET_PATH}/.git" ]] ||     fail_update "${TARGET_NAME}: target path is not a Git worktree: ${TARGET_PATH}"
+  local status
+  status="$(git -C "${TARGET_PATH}" status --porcelain --untracked-files=all)" ||     fail_update "${TARGET_NAME}: cannot read target Git status."
+  [[ -z "${status}" ]] || fail_update     "${TARGET_NAME}: target Git working tree is not clean; generated baseline hashes would be unsafe."
+}
+
+latest_target_patch_id() {
+  local latest=""
+  if [[ -x "${TARGET_PATH}/bin/patch.sh" ]]; then
+    latest="$(cd "${TARGET_PATH}" && ./bin/patch.sh show latest 2>/dev/null | sed -n 's/^Patch-ID:[[:space:]]*//p' | head -n 1 || true)"
+  fi
+  if [[ -z "${latest}" && -d "${TARGET_PATH}/patches/archives" ]]; then
+    latest="$(find "${TARGET_PATH}/patches/archives" -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9][0-9][0-9]_*.zip' -printf '%f\n' 2>/dev/null | sed 's/\.zip$//' | sort | tail -n 1 || true)"
+  fi
+  printf '%s' "${latest}"
+}
+
+next_target_patch_number() {
+  local latest digits number
+  latest="$(latest_target_patch_id)"
+  if [[ "${latest}" =~ ^([0-9]{6})_ ]]; then
+    digits="${BASH_REMATCH[1]}"
+    number=$((10#${digits} + 1))
+  else
+    number=1
+  fi
+  printf '%06d' "${number}"
+}
+
+run_producer_artifact_preflight() {
+  local zip_path="$1"
+  local output_dir="$2"
+  [[ -f "${PROJECT_ROOT}/bin/patch-artifact-preflight.py" ]] || \
+    fail_update "Producer artifact preflight is missing: ${PROJECT_ROOT}/bin/patch-artifact-preflight.py"
+  rm -rf "${output_dir}"
+  python3 "${PROJECT_ROOT}/bin/patch-artifact-preflight.py" \
+    "${TARGET_PATH}" "${zip_path}" --output "${output_dir}" --no-export \
+    --engine "${PROJECT_ROOT}/bin/patch.py"
+}
+
 
 require_target_delivery_enabled_for_apply() {
   if target_delivery_enabled; then
@@ -577,24 +657,29 @@ PLAN_EOF
 
 create_target_plan_patch() {
   parse_profile_output_args "generate" "$@"
-  local file timestamp safe_profile target_patch_name target_patch_id zip_path tmp_dir doc_rel changelog_name changelog_rel manifest_path generated_scope payload_file_count payload_status payload_summary payload_listing
+  local file safe_profile target_patch_name target_patch_id zip_path tmp_dir doc_rel changelog_rel generated_scope payload_file_count payload_status payload_summary payload_listing
+  local finalizer_summary producer_preflight_dir target_latest
   file="$(target_file "${UPDATE_TARGET}")"
   load_target "${file}"
   load_platform_versions
 
-  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  require_profile_allowed_for_loaded_target "${UPDATE_PROFILE}"
+  [[ "${TARGET_UPDATE_ALLOWED:-false}" == "true" ]] || \
+    fail_update "${TARGET_NAME}: target updates are disabled by descriptor."
+  require_clean_target_git
+
   safe_profile="$(sanitize_token "${UPDATE_PROFILE}")"
   target_patch_name="springmaster_platform_update_${safe_profile}_for_${TARGET_NAME}"
-  target_patch_id="${timestamp}_${target_patch_name}"
+  target_patch_id="$(next_target_patch_number)_${target_patch_name}"
   zip_path="${UPDATE_OUTPUT_DIR}/${target_patch_id}.zip"
   doc_rel="$(generated_doc_rel_for_profile "${UPDATE_PROFILE}" "${target_patch_id}")"
-  changelog_name="CHANGELOG-${target_patch_id}.md"
-  changelog_rel="logs/${changelog_name}"
+  changelog_rel="logs/CHANGELOG-${target_patch_id}.md"
   generated_scope="$(generated_scope_for_profile "${UPDATE_PROFILE}")"
   payload_status="plan-only"
   payload_file_count="$(count_profile_payload_files "${UPDATE_PROFILE}")"
   payload_summary="$(profile_payload_summary "${UPDATE_PROFILE}")"
   payload_listing="$(profile_payload_listing "${UPDATE_PROFILE}")"
+  target_latest="$(latest_target_patch_id)"
 
   if profile_generates_payload "${UPDATE_PROFILE}"; then
     payload_status="payload"
@@ -606,12 +691,11 @@ create_target_plan_patch() {
     echo "  Target:       ${TARGET_NAME}"
     echo "  Profile:      ${UPDATE_PROFILE}"
     echo "  Scope:        ${generated_scope}"
+    echo "  Patch-ID:     ${target_patch_id}"
+    echo "  Previous:     ${target_latest:-<none>}"
     echo "  ZIP:          ${zip_path}"
     echo "  Payload:      ${payload_status}"
     echo "  Payload-Files:${payload_file_count}"
-    echo "  Payload-Profile:${payload_summary}"
-    echo "  Plan:         files/${doc_rel}"
-    echo "  Changelog:    ${changelog_rel}"
     echo "  Target path:  ${TARGET_PATH}"
     echo "  Hinweis:      Zielprojekt wird nicht verändert."
     return 0
@@ -628,7 +712,6 @@ create_target_plan_patch() {
   trap '[[ -n "${tmp_dir:-}" ]] && rm -rf "${tmp_dir}"' RETURN
 
   mkdir -p "${tmp_dir}/files/$(dirname "${doc_rel}")" "${tmp_dir}/logs"
-  manifest_path="${tmp_dir}/manifest.json"
 
   local rel
   while IFS= read -r rel; do
@@ -645,9 +728,8 @@ create_target_plan_patch() {
 
 ## Status
 
-This target-local patch was generated by Springmaster \`platform-update generate\`.
-
-The patch is non-invasive at generation time: Springmaster writes only the ZIP into \`build/platform-update/generated/**\` by default. The target project is not modified until the generated ZIP is explicitly applied via the review-gated \`platform-update target-apply\` command or by the target-local patch system after review.
+This target-bound patch was generated by Springmaster \`platform-update generate\`.
+Generation and producer preflight are non-mutating for the target repository.
 
 ## Target
 
@@ -659,14 +741,15 @@ The patch is non-invasive at generation time: Springmaster writes only the ZIP i
 | App | ${TARGET_APP_NAME:-} |
 | Base Package | ${TARGET_BASE_PACKAGE:-} |
 | Lifecycle | ${TARGET_LIFECYCLE:-} |
-| Initialization Allowed | ${TARGET_INITIALIZATION_ALLOWED:-} |
 | Update Allowed | ${TARGET_UPDATE_ALLOWED:-} |
 | Delivery Enabled | ${TARGET_DELIVERY_ENABLED:-false} |
 | Allowed Profiles | ${TARGET_ALLOWED_PROFILES:-} |
 | Profile | ${UPDATE_PROFILE} |
 | Generated Scope | ${generated_scope} |
+| Patch ID | ${target_patch_id} |
+| Previous Target Patch | ${target_latest:-none} |
 | Payload Mode | ${payload_status} |
-| Payload Files | ${payload_file_count} |
+| Source Payload Files | ${payload_file_count} |
 
 ## Master Versions
 
@@ -686,24 +769,25 @@ Selected payload profile: \`${UPDATE_PROFILE}\`
 
 Payload summary: ${payload_summary}
 
-The generated patch uses manifest scope \`${generated_scope}\` and contains these source payload paths in addition to the generated platform-update document and changelog:
+The generated patch contains only files whose bytes or executable mode differ from the current target baseline. Every effective operation has a target-bound \`expectedBeforeSha256\` entry.
+
+Source payload paths:
 
 \`\`\`text
 ${payload_listing}
 \`\`\`
 
-Important: profile \`core\` intentionally means runtime + tests only. Master Core documentation is transferred only via explicit profile \`core-docs\`.
+## Qualification
+
+The generator performs the Springmaster producer artifact preflight against an isolated Git worktree of the clean target baseline. No target file is changed during generation or preflight.
 
 ## Application
 
-The generated ZIP must pass \`platform-update preflight\` first. After review, the real target application is performed explicitly:
+After review, the real target application remains explicit:
 
 \`\`\`bash
-cd ${PROJECT_ROOT}
-./bin/platform-update.sh target-apply ${TARGET_NAME} --zip ${zip_path}
+./bin/platform-update.sh target-apply ${TARGET_NAME} --zip build/platform-update/generated/${target_patch_id}.zip
 \`\`\`
-
-If the target project does not yet support the generated patch scope, update its local patch tooling first via a compatibility plan and review gate.
 DOC_EOF
 
   cat > "${tmp_dir}/${changelog_rel}" <<CHANGELOG_EOF
@@ -712,39 +796,31 @@ DOC_EOF
 Generated by Springmaster \`platform-update generate\`.
 
 * Target: ${TARGET_NAME}
+* Previous target patch: ${target_latest:-none}
 * Profile: ${UPDATE_PROFILE}
 * Generated scope: ${generated_scope}
 * Payload mode: ${payload_status}
-* Payload files: ${payload_file_count}
+* Source payload files: ${payload_file_count}
 * Master platform version: ${PLATFORM_VERSION:-}
 * Master core version: ${PLATFORM_CORE_VERSION:-}
+* Master tooling version: ${PLATFORM_TOOLING_VERSION:-}
 * Master platform-update version: ${PLATFORM_UPDATE_VERSION:-}
 
-Springmaster did not modify the target project. The generated ZIP must be accepted by the target-local patch system.
+The target repository was not modified during generation or producer artifact preflight.
 CHANGELOG_EOF
 
-  cat > "${manifest_path}" <<MANIFEST_EOF
-{
-  "id": "${target_patch_id}",
-  "name": "${target_patch_name}",
-  "scope": "${generated_scope}",
-  "description": "Generated Springmaster platform-update patch for target ${TARGET_NAME} and profile ${UPDATE_PROFILE}.",
-  "type": "platform-update",
-  "requires": {
-    "target": "${TARGET_NAME}",
-    "profile": "${UPDATE_PROFILE}",
-    "masterPlatformVersion": "${PLATFORM_VERSION:-}",
-    "masterCoreVersion": "${PLATFORM_CORE_VERSION:-}",
-    "masterPlatformUpdateVersion": "${PLATFORM_UPDATE_VERSION:-}"
-  },
-  "changes": [
-    "Adds a generated Springmaster update document for target ${TARGET_NAME}",
-    "Uses split payload profile ${UPDATE_PROFILE} with scope ${generated_scope}",
-    "Adds target-local Core compile dependencies when the selected profile requires them",
-    "Does not automatically apply the generated patch in the target project"
-  ]
-}
-MANIFEST_EOF
+  finalizer_summary="$(python3 "${PROJECT_ROOT}/platform/update/tools/finalize-target-patch.py" \
+    --root "${tmp_dir}" \
+    --target-root "${TARGET_PATH}" \
+    --patch-id "${target_patch_id}" \
+    --name "${target_patch_name}" \
+    --scope "${generated_scope}" \
+    --target-name "${TARGET_NAME}" \
+    --profile "${UPDATE_PROFILE}" \
+    --master-platform-version "${PLATFORM_VERSION:-}" \
+    --master-core-version "${PLATFORM_CORE_VERSION:-}" \
+    --master-tooling-version "${PLATFORM_TOOLING_VERSION:-}" \
+    --master-platform-update-version "${PLATFORM_UPDATE_VERSION:-}")"
 
   python3 - "${tmp_dir}" "${zip_path}" <<'ZIP_PY'
 import pathlib
@@ -753,21 +829,28 @@ import zipfile
 
 root = pathlib.Path(sys.argv[1])
 zip_path = pathlib.Path(sys.argv[2])
+zip_path.parent.mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
     for path in sorted(root.rglob("*")):
         if path.is_file():
             zf.write(path, path.relative_to(root).as_posix())
 ZIP_PY
 
+  producer_preflight_dir="${MANIFEST_DIR}/${target_patch_id}_producer_preflight"
+  run_producer_artifact_preflight "${zip_path}" "${producer_preflight_dir}" >/dev/null
+
   echo "Platform-Update-Generate:"
-  echo "  Status:       GENERATED"
+  echo "  Status:       GENERATED_AND_PREFLIGHTED"
   echo "  Target:       ${TARGET_NAME}"
   echo "  Profile:      ${UPDATE_PROFILE}"
   echo "  Scope:        ${generated_scope}"
-  echo "  Payload:      ${payload_status}"
-  echo "  Payload-Files:${payload_file_count}"
-  echo "  Payload-Profile:${payload_summary}"
+  echo "  Patch-ID:     ${target_patch_id}"
+  echo "  Previous:     ${target_latest:-<none>}"
+  echo "  Source-Files: ${payload_file_count}"
+  echo "  Operations:   $(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["operationCount"])' "${finalizer_summary}")"
   echo "  ZIP:          ${zip_path}"
+  echo "  ZIP-SHA256:   $(sha256sum "${zip_path}" | awk '{print $1}')"
+  echo "  Preflight:    ${producer_preflight_dir}/REPORT.json"
   echo "  Target path:  ${TARGET_PATH}"
   echo "  Hinweis:      Zielprojekt wurde nicht verändert."
 }
@@ -851,6 +934,8 @@ create_preflight() {
   file="$(target_file "${UPDATE_TARGET}")"
   load_target "${file}"
   load_platform_versions
+  validate_generated_patch_binding "${UPDATE_PATCH_ZIP}"
+  require_clean_target_git
 
   patch_id="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "id")"
   patch_name="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "name")"
@@ -1389,10 +1474,13 @@ parse_target_apply_args() {
 
 create_target_apply() {
   parse_target_apply_args "$@"
-  local file timestamp patch_id patch_name patch_scope zip_name patch_id_for_log target_zip_rel target_zip_path apply_log summary_file target_export export_rel
+  local file timestamp patch_id patch_name patch_scope zip_name patch_id_for_log target_zip_rel target_zip_path apply_log summary_file target_export
+  local producer_preflight_dir accept_log_dir accept_summary latest_export
   file="$(target_file "${UPDATE_TARGET}")"
   load_target "${file}"
   load_platform_versions
+  validate_generated_patch_binding "${UPDATE_PATCH_ZIP}"
+  require_clean_target_git
 
   patch_id="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "id")"
   patch_name="$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "name")"
@@ -1400,13 +1488,36 @@ create_target_apply() {
   [[ -n "${patch_id}" ]] || fail_update "manifest.id missing in ${UPDATE_PATCH_ZIP}"
   [[ -n "${patch_scope}" ]] || fail_update "manifest.scope missing in ${UPDATE_PATCH_ZIP}"
 
-  if [[ "${UPDATE_DRY_RUN}" != "true" ]]; then
-    require_target_delivery_enabled_for_apply
+  ensure_build_workspace
+  mkdir -p "${UPDATE_OUTPUT_DIR}"
+  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  zip_name="$(basename "${UPDATE_PATCH_ZIP}")"
+  patch_id_for_log="$(sanitize_token "${patch_id}")"
+  target_zip_rel="tmp/platform-updates/${zip_name}"
+  target_zip_path="${TARGET_PATH}/${target_zip_rel}"
+  apply_log="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_apply.log"
+  summary_file="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_apply.summary"
+  producer_preflight_dir="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_producer_preflight"
+  accept_log_dir="${TARGET_PATH}/patches/logs/validation/platform-update-${patch_id}"
+  accept_summary="${accept_log_dir}/SUMMARY.txt"
+
+  if ! run_producer_artifact_preflight "${UPDATE_PATCH_ZIP}" "${producer_preflight_dir}" >"${apply_log}.producer-preflight" 2>&1; then
+    echo "Platform-Update-Target-Apply:"
+    echo "  Status:       PRODUCER_PREFLIGHT_FAILED"
+    echo "  Target:       ${TARGET_NAME}"
+    echo "  Patch-ID:     ${patch_id}"
+    echo "  Patch-Scope:  ${patch_scope}"
+    echo "  Source ZIP:   ${UPDATE_PATCH_ZIP}"
+    echo "  Preflight:    ${producer_preflight_dir}/REPORT.json"
+    echo "  Log:          ${apply_log}.producer-preflight"
+    echo "  Export-Pfad:  "
+    echo "  Hinweis:      Zielprojekt wurde nicht verändert."
+    return 1
   fi
 
   if ! run_target_patch_preflight; then
     echo "Platform-Update-Target-Apply:"
-    echo "  Status:       PREFLIGHT_FAILED"
+    echo "  Status:       TARGET_DRY_RUN_FAILED"
     echo "  Target:       ${TARGET_NAME}"
     echo "  Patch-ID:     ${patch_id}"
     echo "  Patch-Scope:  ${patch_scope}"
@@ -1418,16 +1529,6 @@ create_target_apply() {
     return 1
   fi
 
-  ensure_build_workspace
-  mkdir -p "${UPDATE_OUTPUT_DIR}"
-  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  zip_name="$(basename "${UPDATE_PATCH_ZIP}")"
-  patch_id_for_log="$(sanitize_token "${patch_id}")"
-  target_zip_rel="tmp/platform-updates/${zip_name}"
-  target_zip_path="${TARGET_PATH}/${target_zip_rel}"
-  apply_log="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_apply.log"
-  summary_file="${UPDATE_OUTPUT_DIR}/${timestamp}_${TARGET_NAME}_${patch_id_for_log}_target_apply.summary"
-
   if [[ "${UPDATE_DRY_RUN}" == "true" ]]; then
     echo "Platform-Update-Target-Apply:"
     echo "  Status:       DRY-RUN"
@@ -1437,12 +1538,16 @@ create_target_apply() {
     echo "  Source ZIP:   ${UPDATE_PATCH_ZIP}"
     echo "  Target ZIP:   ${target_zip_path}"
     echo "  Delivery:     ${TARGET_DELIVERY_ENABLED:-false}"
-    echo "  Preflight:    ${PREFLIGHT_LOG}"
-    echo "  Log:          ${apply_log}"
+    echo "  Producer:     ${producer_preflight_dir}/REPORT.json"
+    echo "  Target-Dry:   ${PREFLIGHT_LOG}"
     echo "  Export-Pfad:  "
-    echo "  Hinweis:      Zielprojekt würde nur bei target-apply ohne --dry-run verändert."
+    echo "  Hinweis:      Zielprojekt wurde nicht verändert."
     return 0
   fi
+
+  require_target_delivery_enabled_for_apply
+  [[ ! -e "${accept_log_dir}" ]] || fail_update \
+    "Target accept log directory already exists; refusing ambiguous reapply: ${accept_log_dir}"
 
   if (
     set -euo pipefail
@@ -1453,27 +1558,30 @@ create_target_apply() {
     echo "PATCH_SCOPE=${patch_scope}"
     echo "SOURCE_ZIP=${UPDATE_PATCH_ZIP}"
     echo "TARGET_ZIP=${target_zip_path}"
-    echo "PREFLIGHT_LOG=${PREFLIGHT_LOG}"
+    echo "PRODUCER_PREFLIGHT=${producer_preflight_dir}/REPORT.json"
+    echo "TARGET_DRY_RUN=${PREFLIGHT_LOG}"
     echo
     mkdir -p "$(dirname "${target_zip_path}")"
     cp "${UPDATE_PATCH_ZIP}" "${target_zip_path}"
     cd "${TARGET_PATH}"
-    ./bin/patch.sh accept "${target_zip_rel}"
+    PATCH_ACCEPT_LOG_DIR="${accept_log_dir}" ./bin/patch.sh accept "${target_zip_rel}"
     echo
     echo "== Latest patch =="
     ./bin/patch.sh show latest
-    export_rel=""
-    if [[ -x ./bin/export.sh ]]; then
-      echo
-      echo "== Target full export =="
-      ./bin/export.sh full --zip
-      export_rel="$(ls -1t exports/text/*_export_full_*.zip 2>/dev/null | head -n 1 || true)"
-    fi
-    if [[ -n "${export_rel}" ]]; then
-      echo "TARGET_EXPORT=${TARGET_PATH}/${export_rel}" > "${summary_file}"
-    else
-      echo "TARGET_EXPORT=" > "${summary_file}"
-    fi
+    [[ -f "${accept_summary}" ]] || {
+      echo "Missing target accept summary: ${accept_summary}" >&2
+      exit 1
+    }
+    latest_export="$(sed -n 's/^LATEST_EXPORT=//p' "${accept_summary}" | tail -n 1)"
+    [[ -n "${latest_export}" && "${latest_export}" != "-" ]] || {
+      echo "Target accept did not produce the required single final export." >&2
+      exit 1
+    }
+    [[ -f "${latest_export}" ]] || {
+      echo "Target export path from accept summary does not exist: ${latest_export}" >&2
+      exit 1
+    }
+    printf 'TARGET_EXPORT=%s\n' "${latest_export}" > "${summary_file}"
   ) > "${apply_log}" 2>&1; then
     target_export=""
     if [[ -f "${summary_file}" ]]; then
@@ -1489,10 +1597,12 @@ create_target_apply() {
     echo "  Source ZIP:   ${UPDATE_PATCH_ZIP}"
     echo "  Target ZIP:   ${target_zip_path}"
     echo "  Delivery:     ${TARGET_DELIVERY_ENABLED:-false}"
-    echo "  Preflight:    ${PREFLIGHT_LOG}"
+    echo "  Producer:     ${producer_preflight_dir}/REPORT.json"
+    echo "  Target-Dry:   ${PREFLIGHT_LOG}"
+    echo "  Accept-Log:   ${accept_log_dir}"
     echo "  Log:          ${apply_log}"
     echo "  Export-Pfad:  ${target_export}"
-    echo "  Hinweis:      Zielprojekt wurde verändert. Details stehen ausschließlich im Log."
+    echo "  Hinweis:      Zielprojekt wurde genau einmal angewendet und exportiert."
     return 0
   fi
 
@@ -1504,12 +1614,15 @@ create_target_apply() {
   echo "  Patch-Scope:  ${patch_scope}"
   echo "  Source ZIP:   ${UPDATE_PATCH_ZIP}"
   echo "  Target ZIP:   ${target_zip_path}"
-  echo "  Preflight:    ${PREFLIGHT_LOG}"
+  echo "  Producer:     ${producer_preflight_dir}/REPORT.json"
+  echo "  Target-Dry:   ${PREFLIGHT_LOG}"
+  echo "  Accept-Log:   ${accept_log_dir}"
   echo "  Log:          ${apply_log}"
   echo "  Export-Pfad:  "
-  echo "  Hinweis:      Zielprojektzustand anhand des Logs prüfen. Stacktraces werden nicht im Terminal ausgegeben."
+  echo "  Hinweis:      Kein Reapply. Zielzustand anhand der Logs prüfen."
   return 1
 }
+
 
 main() {
   local command="${1:-help}"
@@ -1568,11 +1681,3 @@ main() {
 }
 
 main "$@"
-
-
-
-
-
-
-
-
