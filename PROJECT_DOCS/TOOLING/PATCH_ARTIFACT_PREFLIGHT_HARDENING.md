@@ -8,6 +8,12 @@ Implemented by:
 000124_springmaster_patch_artifact_preflight_hardening
 ```
 
+Output-directory collision repair:
+
+```text
+000132_springmaster_patch_artifact_preflight_output_collision_repair
+```
+
 ## Purpose
 
 This hardening closes the gap between a structurally valid patch ZIP and a patch artifact that is safe to deliver against the exact committed repository baseline.
@@ -46,8 +52,10 @@ Options:
 The default output is written below:
 
 ```text
-build/patch-artifact-preflight/<timestamp>_<patch-id>/
+build/patch-artifact-preflight/<timestamp>_<patch-id>_<random-suffix>/
 ```
+
+The default directory is allocated atomically with `tempfile.mkdtemp`. The timestamp and patch ID remain readable evidence attributes, while the random suffix guarantees that concurrent or same-second invocations cannot claim the same path. An explicit `--output` path remains exclusive and fails closed when the selected directory already exists.
 
 The command never applies the patch to the live working tree.
 
@@ -178,7 +186,8 @@ The check validates:
 
 `bin/patch-artifact-preflight-it.sh` proves:
 
-* a valid artifact passes in an isolated worktree;
+* a valid artifact passes twice in immediate succession with distinct report directories;
+* the atomic allocator remains collision-free even when both allocations use an identical fixed timestamp;
 * a wrong live baseline hash fails;
 * trailing whitespace fails;
 * an extra EOF blank line fails;

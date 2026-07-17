@@ -18,6 +18,7 @@ patches/logs/validation/
 .env
 .env.*
 !.env.example
+!PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
 .idea/
 *.iml
 
@@ -37,5 +38,3 @@ __pycache__/
 *.tar
 *.gz
 .DS_Store
-
-

@@ -270,7 +270,18 @@ Vor dem Kernel-Patch werden geprüft:
 
 Der Kernel-Patch darf nur Springmaster-eigene Kernelpfade und unmittelbar notwendige Versions-/Dependency-Dateien enthalten. Änderungen unter `de.cocondo.zbm` sind ausgeschlossen.
 
-**Gate G3:** ZBM verwendet den freigegebenen Springmaster-Kernel; Core-targeted Tests, ZBM-Domain-Regression, Full Maven und Full-v2-Export sind grün.
+Die Compatibility Review nach der committed ZBM-Baseline `000014` hat ergeben:
+
+- Core `0.3.6` ist gegenüber ZBM Core `0.3.2` source-kompatibel und additiv;
+- der bestehende ZBM-POM enthält bereits alle Compile-Abhängigkeiten;
+- das generierte Core-Delta benötigt keine `pom.xml`-Operation;
+- ZBM-Fachcode verwendet keine der geänderten Core-Typen;
+- das Profil `core` darf als einzige zusätzliche Delivery-Kategorie freigegeben werden;
+- eine separate ZBM-Version-Truth-Closure bleibt nach erfolgreichem Core-Apply erforderlich.
+
+Die verbindliche Evidence ist `PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_0_3_6_COMPATIBILITY_REVIEW.md`.
+
+**Gate G3:** ZBM verwendet den freigegebenen Springmaster-Kernel; Core-targeted Tests, ZBM-Domain-Regression, Full Maven und Full-v2-Export sind grün und `PLATFORM_CORE_VERSION` bildet den angewendeten Stand wahrheitsgemäß ab.
 
 ### AP4: ZBM Pilot-Readiness
 

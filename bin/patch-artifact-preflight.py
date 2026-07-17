@@ -61,6 +61,27 @@ def timestamp() -> str:
     return datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S")
 
 
+def allocate_output_directory(
+    project_root: Path, configured_output: str | None, patch_id: str
+) -> Path:
+    if configured_output:
+        output_dir = Path(configured_output).expanduser()
+        if not output_dir.is_absolute():
+            output_dir = project_root / output_dir
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=False)
+        return output_dir
+
+    output_parent = (project_root / "build" / "patch-artifact-preflight").resolve()
+    output_parent.mkdir(parents=True, exist_ok=True)
+    return Path(
+        tempfile.mkdtemp(
+            prefix=f"{timestamp()}_{patch_id}_",
+            dir=str(output_parent),
+        )
+    ).resolve()
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -565,15 +586,9 @@ def main() -> None:
     try:
         manifest, operations, payload, payload_modes = parse_patch(zip_path, extract_root, project_root)
         patch_id = manifest["patchId"]
-        output_dir = (
-            Path(options["output"]).expanduser()
-            if options["output"]
-            else project_root / "build" / "patch-artifact-preflight" / f"{timestamp()}_{patch_id}"
+        output_dir = allocate_output_directory(
+            project_root, options["output"], patch_id
         )
-        if not output_dir.is_absolute():
-            output_dir = project_root / output_dir
-        output_dir = output_dir.resolve()
-        output_dir.mkdir(parents=True, exist_ok=False)
         report["patchId"] = patch_id
         report["scope"] = manifest["scope"]
         report["outputDirectory"] = str(output_dir)

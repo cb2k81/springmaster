@@ -147,16 +147,56 @@ run_expect_fail() {
   grep -q "${expected}" "${LOG_DIR}/${name}.log"
 }
 
-run_expect_pass valid \
+python3 - "${FIXTURE}/bin/patch-artifact-preflight.py" "${FIXTURE}" <<'PY' \
+  > "${LOG_DIR}/atomic-output-allocation.log" 2>&1
+import importlib.util
+import shutil
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+script = Path(sys.argv[1])
+fixture = Path(sys.argv[2])
+spec = importlib.util.spec_from_file_location("patch_artifact_preflight", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+module.timestamp = lambda: "20260101_000000"
+first = module.allocate_output_directory(fixture, None, "000001_fixture_valid")
+second = module.allocate_output_directory(fixture, None, "000001_fixture_valid")
+if first == second or not first.is_dir() or not second.is_dir():
+    raise SystemExit(f"atomic output allocation failed: first={first} second={second}")
+print(f"FIRST_OUTPUT={first}")
+print(f"SECOND_OUTPUT={second}")
+print("OUTPUT_DIRECTORY_ATOMIC_ALLOCATION=PASS")
+shutil.rmtree(first)
+shutil.rmtree(second)
+shutil.rmtree(script.parent / "__pycache__", ignore_errors=True)
+PY
+grep -Fxq 'OUTPUT_DIRECTORY_ATOMIC_ALLOCATION=PASS' \
+  "${LOG_DIR}/atomic-output-allocation.log"
+
+run_expect_pass valid-first \
+  ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000001_fixture_valid.zip" --no-export
+run_expect_pass valid-second \
   ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000001_fixture_valid.zip" --no-export
 run_expect_pass list-baseline \
   ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000006_fixture_list_baseline.zip" --no-export
 run_expect_pass mode-only \
   ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000007_fixture_mode_only.zip" --no-export
 
-grep -q 'ARTIFACT_PREFLIGHT=PASS' "${LOG_DIR}/valid.log"
+grep -q 'ARTIFACT_PREFLIGHT=PASS' "${LOG_DIR}/valid-first.log"
+grep -q 'ARTIFACT_PREFLIGHT=PASS' "${LOG_DIR}/valid-second.log"
 grep -q 'ARTIFACT_PREFLIGHT=PASS' "${LOG_DIR}/list-baseline.log"
 grep -q 'ARTIFACT_PREFLIGHT=PASS' "${LOG_DIR}/mode-only.log"
+FIRST_REPORT="$(sed -n 's/^REPORT=//p' "${LOG_DIR}/valid-first.log" | tail -n 1)"
+SECOND_REPORT="$(sed -n 's/^REPORT=//p' "${LOG_DIR}/valid-second.log" | tail -n 1)"
+test -n "${FIRST_REPORT}"
+test -n "${SECOND_REPORT}"
+test "${FIRST_REPORT}" != "${SECOND_REPORT}"
+test -f "${FIRST_REPORT}"
+test -f "${SECOND_REPORT}"
+echo "OUTPUT_COLLISION_REGRESSION=PASS first=${FIRST_REPORT} second=${SECOND_REPORT}"
 test -z "$(cd "${FIXTURE}" && git status --porcelain=v1 --untracked-files=all)"
 
 run_expect_fail hash-mismatch PATCH_ARTIFACT_LIVE_BASELINE_MISMATCH \

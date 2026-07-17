@@ -104,3 +104,26 @@ Wichtig bleibt:
 ## Ergänzung seit 000124
 
 Die Acceptance schützt zusätzlich die Integrität der mitgegebenen Tooling-Laufzeit: `patch.sh artifact-preflight` und `tooling-selfcheck.sh` dürfen in einem neu erzeugten Projekt keine fehlenden Hilfsskripte referenzieren. Deshalb werden Artifact-Preflight, Exportintegritätscheck und deren Integrationstests mitkopiert und als Pflichtdateien geprüft. Der erzeugte Full-ZIP-Export muss den eigenständigen Integritätscheck bestehen. Kanonische `springmaster.*.v1`-Schema-IDs bleiben bei der Projekttokenisierung unverändert und werden durch positive sowie negative Markerprüfungen abgesichert.
+
+## Repository-Tracking-Closure seit 000133
+
+Der vollständige Maven-Lauf in einer isolierten Git-Kopie hat eine zuvor verdeckte Repository-Schuld offengelegt: Die erforderliche Quelldatei
+
+```text
+PROJECT_DOCS/TEMPLATES/project-skeleton/files/.env.example.tpl
+```
+
+war im lokalen Full-v2-Export vorhanden, wurde aber durch die generische Ignore-Regel `.env.*` vom Git-Tracking ausgeschlossen. Dadurch blieb der lokale Working Tree scheinbar sauber, während ein frischer Clone die Datei nicht enthielt. `project-new.sh` konnte dort folglich keine `.env.example` erzeugen und die `ProjectNewInstantiationAcceptanceTest`-Acceptance brach korrekt fail-closed ab.
+
+Patch `000133_springmaster_project_new_env_template_repository_tracking_repair` ergänzt eine präzise Ausnahme ausschließlich für diese Template-Quelldatei. Der Dateiinhalt wird nicht verändert. Der Repair-/Resume-Runner bindet den bekannten SHA-256-Wert der Datei, nimmt sie in den gemeinsamen Closure-Pfad auf und validiert die Project-New-Acceptance sowie den vollständigen Maven-Test in einem nach dem synthetischen Commit neu erzeugten Clone.
+
+Verbindlicher Nachweis:
+
+```text
+PROJECT_NEW_ENV_TEMPLATE_PRESENT=PASS
+PROJECT_NEW_ENV_TEMPLATE_SHA256=8b0f5be28f17be60d75bac9fb0e7d485b99a58de5972a1de99ede49308f30b1f
+PROJECT_NEW_ENV_TEMPLATE_TRACKED_IN_FRESH_CLONE=PASS
+PROJECT_NEW_ACCEPTANCE_FRESH_CLONE=PASS
+```
+
+Damit darf die gemeinsame Closure von `000131`, `000132` und `000133` erst freigegeben werden, wenn der frische Clone die Template-Datei tatsächlich aus Git erhält und daraus die erwartete `.env.example` erzeugt.

@@ -22,7 +22,7 @@ Springmaster uses an explicit target lifecycle and profile allow-list:
 
 | Target | Status | Lifecycle | Delivery | Allowed profiles | Path |
 |---|---|---|---:|---|---|
-| `zbm` | `DELIVERY_ENABLED` | `update-enabled` | `true` | `tooling` | `/opt/cocondo/zbm` |
+| `zbm` | `DELIVERY_ENABLED` | `update-enabled` | `true` | `tooling-cutover,core` | `/opt/cocondo/zbm` |
 | `contacts` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/contacts` |
 | `idm` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/idm` |
 | `orders` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/orders` |
@@ -33,7 +33,7 @@ must not be used to override a descriptor or a target-local baseline.
 
 ## Current ZBM descriptor
 
-The Springmaster baseline after `000126` contains:
+The Springmaster baseline after `000131` contains:
 
 ```env
 TARGET_NAME=zbm
@@ -45,18 +45,21 @@ TARGET_LIFECYCLE=update-enabled
 TARGET_INITIALIZATION_ALLOWED=false
 TARGET_UPDATE_ALLOWED=true
 TARGET_DELIVERY_ENABLED=true
-TARGET_ALLOWED_PROFILES=tooling
+TARGET_ALLOWED_PROFILES=tooling-cutover,core
 ```
 
-This records that ZBM initialization and controlled tooling-delivery acceptance
-have already occurred. It does **not** authorize Generated-Slice delivery:
+This records that ZBM initialization, tooling cutover and the Core `0.3.6`
+compatibility review have completed. It authorizes only the atomic tooling
+cutover profile and the reviewed Core source-copy profile. It does **not**
+authorize Generated-Slice delivery:
 `generated-slice`, `domain` or an equivalent fachlicher profile is not present
 in `TARGET_ALLOWED_PROFILES`.
 
-Patch `000127_springmaster_zbm_generated_slice_pilot_plan` intentionally leaves
-the descriptor unchanged. The first Generated-Slice pilot is prepared as a
-reviewed target-local patch workflow. Any future `target-apply` profile
-extension requires its own explicit decision and current ZBM baseline.
+Patch `000131_springmaster_zbm_core_0_3_6_delivery_enablement` adds only the
+`core` profile after the committed ZBM `000014` baseline was checked for source,
+dependency and runtime compatibility. The governing evidence is
+`ZBM_CORE_0_3_6_COMPATIBILITY_REVIEW.md`. Generated-Slice and fachliche profiles
+remain disabled and require their own later decision.
 
 ## Descriptor fields
 
@@ -77,7 +80,7 @@ TARGET_LIFECYCLE=update-enabled
 TARGET_INITIALIZATION_ALLOWED=false
 TARGET_UPDATE_ALLOWED=true
 TARGET_DELIVERY_ENABLED=true
-TARGET_ALLOWED_PROFILES=tooling
+TARGET_ALLOWED_PROFILES=tooling-cutover,core
 ```
 
 | Field | Meaning |
@@ -119,7 +122,7 @@ allow-list:
 ```bash
 ./bin/platform-update.sh show zbm
 ./bin/platform-update.sh validate zbm
-./bin/platform-update.sh plan zbm --profile tooling
+./bin/platform-update.sh plan zbm --profile core
 ```
 
 The current descriptor does not permit a generated fachlicher service-slice
@@ -156,7 +159,7 @@ The registry is read by `bin/platform-update.sh`:
 ./bin/platform-update.sh list
 ./bin/platform-update.sh show zbm
 ./bin/platform-update.sh validate all
-./bin/platform-update.sh plan zbm --profile tooling
+./bin/platform-update.sh plan zbm --profile core
 ```
 
 ## Verification rule

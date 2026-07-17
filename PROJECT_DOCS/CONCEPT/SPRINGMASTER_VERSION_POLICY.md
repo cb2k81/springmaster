@@ -1902,3 +1902,22 @@ Reasoning:
 * It prevents source-project environment leakage into target exports.
 * It validates changed and deleted evidence paths against the final manifest.
 * It does not change Core, Demo, Template or ZBM domain runtime contracts.
+
+## ZBM Core 0.3.6 Delivery Enablement since 000131
+
+Patch `000131_springmaster_zbm_core_0_3_6_delivery_enablement` advances Foundation and Platform-Update versions:
+
+```text
+PLATFORM_VERSION=0.13.68-foundation
+PLATFORM_UPDATE_VERSION=0.8.7
+PLATFORM_STATE_PATCH=000131_springmaster_zbm_core_0_3_6_delivery_enablement
+```
+
+Reasoning:
+
+* It records the committed ZBM `000014` Core compatibility review.
+* It proves that Core `0.3.6` is additive against ZBM Core `0.3.2` and requires no target POM mutation.
+* It adds a target-bound Core delivery integration contract.
+* It extends the ZBM descriptor allow-list only by `core`; fachliche and Generated-Slice profiles remain forbidden.
+* It changes no Java Core source, Demo runtime, Template, shared Tooling implementation or target repository.
+* `PLATFORM_CORE_VERSION` and `PLATFORM_TOOLING_VERSION` therefore remain unchanged.
