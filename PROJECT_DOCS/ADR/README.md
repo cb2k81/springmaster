@@ -25,6 +25,8 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0007-catalog-demo-canonicalization-strategy.md` | Accepted | Catalog-demo canonicalization states, evidence, deferrals and target-comparison boundary |
 | `ADR-0011-command-precheck-and-capability-boundary.md` | Accepted | optional command precheck endpoints and backend/frontend capability boundary |
 
+| `ADR-0012-patch-transaction-and-evidence-boundary.md` | Accepted | Patch transaction, evidence, retention and export boundary |
+
 ## Planned ADR backlog
 
 The next ADRs are planned but not yet accepted after ADR-0005. ADR-0011 was accepted out of sequence because command prechecks became an immediate cross-project architecture decision; ADR-0008 through ADR-0010 remain reserved for their existing planned topics.

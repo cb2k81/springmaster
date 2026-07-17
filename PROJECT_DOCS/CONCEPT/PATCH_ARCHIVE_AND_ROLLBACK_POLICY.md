@@ -1,82 +1,30 @@
 # Patch Archive and Rollback Policy
 
-## Zweck
+## Purpose
 
-Diese Policy regelt, wie lokale Patcharchive, Baseline-Exporte und Rollback-Fähigkeit voneinander abgegrenzt werden.
+The patch system applies repository changes safely and reproducibly. It is not a product documentation or audit database.
 
-## Grundsatz
+## Identity
 
-Ein Full-Parts-Baseline-Export beschreibt den aktuellen Projektstand. Er ersetzt kein vollständiges Rollback-Archiv.
+New artifacts carry two identities:
 
-Rollback-Fähigkeit entsteht aus:
+- `artifactId`: immutable and independent from repository sequence;
+- `patchId`: local apply sequence required by the current legacy engine.
 
-```text
-patches/archives/**
-```
+Only `artifactId` identifies the delivered ZIP globally. `patchId` remains repository provenance and must not appear in product contracts or ADR decisions.
 
-Diese Archive enthalten die angewendeten Patch-ZIPs beziehungsweise die für Rollback erforderlichen Vorher-/Nachher-Informationen des lokalen Patchsystems.
+## Transaction data
 
-## Export-Abgrenzung
+Patch ZIP, baseline hashes of directly changed files, sandbox output, status markers and test logs are transaction data. They are retained only until the change is committed and qualified, unless release or audit requirements explicitly require longer retention.
 
-`patches/archives/**` bleibt aus regulären Full- und Full-Parts-Baseline-Exporten ausgeschlossen.
+## Archives and rollback
 
-Begründung:
+Before commit, local archives and backups support rollback. After a qualified commit, Git is the canonical rollback boundary. Rollback must not overwrite later changes silently; the future engine cutover must verify the current after-state before restoration.
 
-* Archive können schnell groß werden.
-* Baseline-Exporte sollen kompakt und reviewfähig bleiben.
-* Rollback-Archive sind operative Artefakte, nicht automatisch Review-Artefakte.
+## Changelog transition
 
-Exportiert werden regulär:
+The current engine still requires one minimal `CHANGELOG` file. This is a bootstrap constraint, not the target policy. The manifest becomes the sole mandatory machine-readable transaction summary in the next engine wave.
 
-```text
-patches/logs/**
-```
+## Export boundary
 
-Damit bleibt nachvollziehbar, welche Patches angewendet wurden.
-
-## Konsequenz
-
-Aus einer Baseline allein kann der aktuelle Zustand rekonstruiert und geprüft werden. Ein vollständiger lokaler Rollback auf jeden früheren Patchstand ist daraus aber nicht garantiert.
-
-Für echte Rollback-Sicherheit müssen Patcharchive separat gesichert werden.
-
-## Mindestregel für kritische Änderungen
-
-Vor riskanten Änderungen ist mindestens ein aktueller Full-Parts-Baseline-Export zu erzeugen.
-
-Für Änderungen an folgenden Bereichen ist zusätzlich eine Sicherung von `patches/archives/**` empfohlen:
-
-* Patchsystem
-* Exporttool
-* Platform-Update-Generator
-* Buildtool
-* DBTool
-* Migrationen mit Zielprojektwirkung
-
-## Künftige Erweiterung
-
-Später soll ein dediziertes Exportprofil ergänzt werden, z. B.:
-
-```text
-rollback-archives
-```
-
-Dieses Profil darf nicht automatisch Teil von `baseline` sein. Es dient der bewussten operativen Sicherung.
-
-## Zielprojekt-Regel
-
-Wenn Springmaster später Update-Patches für Zielprojekte erzeugt, muss jeder Update-Patch einen Rollback-Hinweis enthalten:
-
-* Ausgangsversion
-* Zielversion
-* betroffene Dateien
-* lokaler Patcharchive-Pfad im Zielprojekt
-* Hinweis, ob ein Rollback-Patch technisch möglich ist
-
-## Nicht zulässig
-
-Nicht zulässig ist:
-
-* Baseline-Export als vollständige Rollback-Garantie zu bezeichnen.
-* Patcharchive stillschweigend in reguläre Review-Baselines aufzunehmen.
-* Zielprojekt-Updates ohne Rollback-Hinweis zu erzeugen.
+Normal baseline exports exclude patch and validation history. Patch Context and Audit are explicit profiles. Apply and qualification do not automatically require an export.

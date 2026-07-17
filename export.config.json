@@ -16,7 +16,6 @@
     "!.env.example",
     "patches/archives/**",
     "patches/runtime/**",
-    "patches/logs/validation/**",
     "platform/update/generated/**",
     "platform/update/manifests/**",
     ".idea/**",
@@ -42,10 +41,14 @@
         "**/*",
         ".*"
       ],
-      "exclude": []
+      "exclude": [
+        "patches/logs/validation/**",
+        "patches/logs/accept/**"
+      ]
     },
     "root": {
       "include": [
+        "AGENTS.md",
         "README.md",
         "pom.xml",
         ".gitignore",
@@ -64,10 +67,11 @@
     },
     "patches": {
       "include": [
-        "patches/logs/**"
+        "patches/logs/**/CHANGELOG-*.md"
       ],
       "exclude": [
-        "patches/archives/**"
+        "patches/logs/validation/**",
+        "patches/logs/accept/**"
       ]
     },
     "java": {
@@ -163,13 +167,18 @@
         "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE*.md"
       ],
       "exclude": []
+    },
+    "audit": {
+      "include": [
+        "patches/logs/**"
+      ],
+      "exclude": []
     }
   },
   "splitProfiles": {
     "baseline": [
       "root",
       "docs",
-      "patches",
       "tooling",
       "platform",
       "templates",
@@ -181,7 +190,6 @@
     "review": [
       "root",
       "docs",
-      "patches",
       "tooling",
       "platform",
       "templates",
@@ -191,6 +199,30 @@
       "root",
       "java",
       "resources"
+    ],
+    "patch-context": [
+      "root",
+      "docs",
+      "tooling",
+      "platform",
+      "templates",
+      "planning",
+      "java",
+      "resources",
+      "tests",
+      "patches"
+    ],
+    "audit": [
+      "root",
+      "docs",
+      "tooling",
+      "platform",
+      "templates",
+      "planning",
+      "java",
+      "resources",
+      "tests",
+      "audit"
     ]
   }
 }
