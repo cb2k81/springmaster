@@ -8,18 +8,6 @@ import sys
 from pathlib import Path
 
 SCHEMA = "springmaster.managed-target-state.v1"
-PROFILE_COMPONENTS = {
-    "core": ("PLATFORM_CORE_VERSION",),
-    "core-runtime": ("PLATFORM_CORE_VERSION",),
-    "core-tests": ("PLATFORM_CORE_VERSION",),
-    "core-docs": ("PLATFORM_CORE_VERSION",),
-    "tooling": ("PLATFORM_TOOLING_VERSION",),
-    "tooling-cutover": ("PLATFORM_TOOLING_VERSION",),
-    "defaults": ("PLATFORM_TEMPLATE_VERSION",),
-    "demo": ("PLATFORM_DEMO_VERSION",),
-    "platform-update": ("PLATFORM_UPDATE_VERSION",),
-    "platform-update-doc": ("PLATFORM_UPDATE_VERSION",),
-}
 VERSION_KEYS = (
     "PLATFORM_VERSION",
     "PLATFORM_CORE_VERSION",
@@ -86,12 +74,15 @@ def validate_identity(artifact_id: str, patch_id: str) -> None:
         fail(f"invalid patch id: {patch_id}")
 
 
-def component_keys(profile: str) -> tuple[str, ...]:
+def component_keys(profile: str, rules_path: Path) -> tuple[str, ...]:
     try:
-        return PROFILE_COMPONENTS[profile]
-    except KeyError as exc:
-        fail(f"unsupported profile for managed state: {profile}")
-        raise AssertionError from exc
+        rules = json.loads(rules_path.read_text(encoding="utf-8"))
+        values = rules["profiles"][profile]["versionComponents"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        fail(f"cannot resolve versionComponents for profile {profile}: {exc}")
+    if not isinstance(values, list) or not values or any(value not in VERSION_KEYS for value in values):
+        fail(f"invalid versionComponents for profile {profile}")
+    return tuple(values)
 
 
 def synthesize(args: argparse.Namespace) -> int:
@@ -103,7 +94,7 @@ def synthesize(args: argparse.Namespace) -> int:
     updated = dict(target_values)
     for key in VERSION_KEYS:
         updated.setdefault(key, "0.0.0")
-    for key in component_keys(args.profile):
+    for key in component_keys(args.profile, args.rules):
         value = master_values.get(key)
         if not value:
             fail(f"master version key missing for profile {args.profile}: {key}")
@@ -137,7 +128,7 @@ def synthesize(args: argparse.Namespace) -> int:
         "artifactId": args.artifact_id,
         "patchId": args.patch_id,
         "profile": args.profile,
-        "updatedComponents": list(component_keys(args.profile)),
+        "updatedComponents": list(component_keys(args.profile, args.rules)),
         "sourceMasterVersions": source,
         "installedVersions": installed,
         "platformStatePatch": args.patch_id,
@@ -196,6 +187,7 @@ def parser() -> argparse.ArgumentParser:
     synth = sub.add_parser("synthesize", parents=[common])
     synth.add_argument("--output-root", required=True, type=Path)
     synth.add_argument("--master-env", required=True, type=Path)
+    synth.add_argument("--rules", required=True, type=Path)
     sub.add_parser("verify", parents=[common])
     return root
 
@@ -206,6 +198,7 @@ def main() -> int:
     if args.command == "synthesize":
         args.output_root = args.output_root.resolve()
         args.master_env = args.master_env.resolve()
+        args.rules = args.rules.resolve()
         return synthesize(args)
     return verify(args)
 

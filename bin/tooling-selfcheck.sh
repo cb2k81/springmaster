@@ -72,6 +72,10 @@ log_info "Checking configuration contract"
 log_info "Checking release manifest contract"
 "${PROJECT_ROOT}/bin/release-manifest-it.sh" >/dev/null
 
+log_info "Checking declarative Platform-Update profile rules"
+python3 "${PROJECT_ROOT}/platform/update/tools/profile-rules.py" --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" validate >/dev/null
+"${PROJECT_ROOT}/platform/update/tests/platform-update-profile-rules-it.sh" >/dev/null
+
 log_info "Checking managed target version and provenance state"
 "${PROJECT_ROOT}/platform/update/tests/platform-update-managed-state-it.sh" >/dev/null
 

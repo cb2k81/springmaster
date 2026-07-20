@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "springmaster.platform-update-profile-rules.v1",
+  "profiles": {
+    "core": {
+      "acceptProfile": "code",
+      "documentFamily": "core",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": [
+        "src/main/java/de/cocondo/system",
+        "src/test/java/de/cocondo/system"
+      ],
+      "requiresCorePom": true,
+      "scope": "core",
+      "summary": "core runtime + core tests; no master Core documentation",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_CORE_VERSION"]
+    },
+    "core-runtime": {
+      "acceptProfile": "code",
+      "documentFamily": "core",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": ["src/main/java/de/cocondo/system"],
+      "requiresCorePom": true,
+      "scope": "core",
+      "summary": "core runtime only",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_CORE_VERSION"]
+    },
+    "core-tests": {
+      "acceptProfile": "code",
+      "documentFamily": "core",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": ["src/test/java/de/cocondo/system"],
+      "requiresCorePom": false,
+      "scope": "core",
+      "summary": "core tests only",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_CORE_VERSION"]
+    },
+    "core-docs": {
+      "acceptProfile": "docs",
+      "documentFamily": "core",
+      "fullTest": false,
+      "payloadMode": "payload",
+      "payloadPaths": ["PROJECT_DOCS/CORE"],
+      "requiresCorePom": false,
+      "scope": "docs",
+      "summary": "master Core documentation only",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_CORE_VERSION"]
+    },
+    "tooling": {
+      "acceptProfile": "tooling",
+      "documentFamily": "tooling",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": [
+        "bin/patch.py",
+        "bin/patch.sh",
+        "bin/export.sh",
+        "bin/init.env.sh",
+        "bin/tooling-selfcheck.sh",
+        "bin/dbtool.sh",
+        "bin/patch-artifact-preflight.py",
+        "bin/patch-artifact-preflight-it.sh",
+        "bin/export-integrity-check.py",
+        "bin/export-integrity-it.sh",
+        "bin/lib",
+        "PROJECT_DOCS/TOOLING"
+      ],
+      "requiresCorePom": false,
+      "scope": "tooling",
+      "summary": "shared tooling payload without target-local defaults",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_TOOLING_VERSION"]
+    },
+    "tooling-cutover": {
+      "acceptProfile": "tooling",
+      "documentFamily": "tooling",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": [
+        "bin/patch.py",
+        "bin/patch.sh",
+        "bin/export.sh",
+        "bin/init.env.sh",
+        "bin/tooling-selfcheck.sh",
+        "bin/dbtool.sh",
+        "bin/patch-artifact-preflight.py",
+        "bin/patch-artifact-preflight-it.sh",
+        "bin/export-integrity-check.py",
+        "bin/export-integrity-it.sh",
+        "bin/lib",
+        "PROJECT_DOCS/TOOLING"
+      ],
+      "requiresCorePom": false,
+      "scope": "tooling",
+      "summary": "shared tooling payload plus target-safe synthesized export configuration",
+      "synthesizeToolingCutoverConfig": true,
+      "versionComponents": ["PLATFORM_TOOLING_VERSION"]
+    },
+    "defaults": {
+      "acceptProfile": "tooling",
+      "documentFamily": "general",
+      "fullTest": true,
+      "payloadMode": "payload",
+      "payloadPaths": [
+        ".env.example",
+        "export.config.json",
+        "PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env"
+      ],
+      "requiresCorePom": false,
+      "scope": "root",
+      "summary": "baseline configuration defaults (.env.example, export.config.json, env template)",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_TEMPLATE_VERSION"]
+    },
+    "platform-update-doc": {
+      "acceptProfile": "docs",
+      "documentFamily": "platform-update",
+      "fullTest": false,
+      "payloadMode": "generated-document",
+      "payloadPaths": [],
+      "requiresCorePom": false,
+      "scope": "docs",
+      "summary": "generated platform-update document only",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_UPDATE_VERSION"]
+    },
+    "demo": {
+      "acceptProfile": "code",
+      "documentFamily": "general",
+      "fullTest": true,
+      "payloadMode": "reserved",
+      "payloadPaths": [],
+      "requiresCorePom": false,
+      "scope": "demo",
+      "summary": "profile reserved for a later dedicated demo payload rule",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_DEMO_VERSION"]
+    },
+    "platform-update": {
+      "acceptProfile": "tooling",
+      "documentFamily": "platform-update",
+      "fullTest": true,
+      "payloadMode": "reserved",
+      "payloadPaths": [],
+      "requiresCorePom": false,
+      "scope": "platform-update",
+      "summary": "profile reserved for a later dedicated platform-update payload rule",
+      "synthesizeToolingCutoverConfig": false,
+      "versionComponents": ["PLATFORM_UPDATE_VERSION"]
+    }
+  }
+}

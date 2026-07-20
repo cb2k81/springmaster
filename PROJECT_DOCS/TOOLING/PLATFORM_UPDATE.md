@@ -368,3 +368,7 @@ Jeder durch Platform Update erzeugte Target-Patch und jeder Compatibility-Patch 
 ## Atomic managed target state since 000146
 
 Every generated payload now includes `platform/versions/platform.env` and `platform/update/managed-state.json`. Component version and provenance changes are part of the same target-local patch as the payload. `target-apply` verifies the installed state before closure evidence and export.
+
+## Declarative profile rules since 000147
+
+Profile scope, payload, target validation policy and managed component version mapping are sourced from `platform/update/rules/profiles.json`. The shell entrypoint no longer owns a second profile contract.

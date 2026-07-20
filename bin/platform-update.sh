@@ -11,6 +11,8 @@ MANIFEST_DIR="${BUILD_WORKSPACE_DIR}/manifests"
 GENERATED_DIR="${BUILD_WORKSPACE_DIR}/generated"
 LOG_DIR="${BUILD_WORKSPACE_DIR}/logs"
 PAYLOAD_DIR="${BUILD_WORKSPACE_DIR}/payload"
+PROFILE_RULES_FILE="${PLATFORM_UPDATE_PROFILE_RULES_FILE:-${PROJECT_ROOT}/platform/update/rules/profiles.json}"
+PROFILE_RULES_TOOL="${PROJECT_ROOT}/platform/update/tools/profile-rules.py"
 
 print_usage() {
   cat <<'USAGE'
@@ -89,12 +91,23 @@ safe_target_name() {
   printf '%s' "${value}"
 }
 
+profile_rule_get() {
+  local profile="$1"
+  local field="$2"
+  python3 "${PROFILE_RULES_TOOL}" --rules "${PROFILE_RULES_FILE}" get --profile "${profile}" --field "${field}"
+}
+
+profile_rule_bool() {
+  [[ "$(profile_rule_get "$1" "$2")" == "true" ]]
+}
+
 safe_profile_name() {
   local value="$1"
-  case "${value}" in
-    core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update) printf '%s' "${value}" ;;
-    *) fail_update "Unsupported update profile: ${value}" ;;
-  esac
+  if python3 "${PROFILE_RULES_TOOL}" --rules "${PROFILE_RULES_FILE}" get --profile "${value}" --field scope >/dev/null 2>&1; then
+    printf '%s' "${value}"
+    return 0
+  fi
+  fail_update "Unsupported update profile: ${value}"
 }
 
 sanitize_token() {
@@ -125,115 +138,20 @@ copy_tree_payload() {
   fi
 }
 
-core_runtime_payload_paths() {
-  cat <<'PAYLOAD_EOF'
-src/main/java/de/cocondo/system
-PAYLOAD_EOF
-}
-
-core_tests_payload_paths() {
-  cat <<'PAYLOAD_EOF'
-src/test/java/de/cocondo/system
-PAYLOAD_EOF
-}
-
-core_docs_payload_paths() {
-  cat <<'PAYLOAD_EOF'
-PROJECT_DOCS/CORE
-PAYLOAD_EOF
-}
-
-tooling_payload_paths() {
-  cat <<'PAYLOAD_EOF'
-bin/patch.py
-bin/patch.sh
-bin/export.sh
-bin/init.env.sh
-bin/tooling-selfcheck.sh
-bin/dbtool.sh
-bin/patch-artifact-preflight.py
-bin/patch-artifact-preflight-it.sh
-bin/export-integrity-check.py
-bin/export-integrity-it.sh
-bin/lib
-PROJECT_DOCS/TOOLING
-PAYLOAD_EOF
-}
-
-defaults_payload_paths() {
-  cat <<'PAYLOAD_EOF'
-.env.example
-export.config.json
-PROJECT_DOCS/CONFIG/SPRINGMASTER_ENV_TEMPLATE.env
-PAYLOAD_EOF
-}
-
 collect_payload_paths_for_profile() {
-  local profile="$1"
-  case "${profile}" in
-    core)
-      core_runtime_payload_paths
-      core_tests_payload_paths
-      ;;
-    core-runtime)
-      core_runtime_payload_paths
-      ;;
-    core-tests)
-      core_tests_payload_paths
-      ;;
-    core-docs)
-      core_docs_payload_paths
-      ;;
-    tooling|tooling-cutover)
-      tooling_payload_paths
-      ;;
-    defaults)
-      defaults_payload_paths
-      ;;
-    platform-update-doc)
-      return 0
-      ;;
-    *)
-      return 0
-      ;;
-  esac
+  python3 "${PROFILE_RULES_TOOL}" --rules "${PROFILE_RULES_FILE}" paths --profile "$1"
 }
 
 generated_scope_for_profile() {
-  local profile="$1"
-  case "${profile}" in
-    core|core-runtime|core-tests) echo "core" ;;
-    core-docs|platform-update-doc) echo "docs" ;;
-    tooling|tooling-cutover) echo "tooling" ;;
-    defaults) echo "root" ;;
-    demo) echo "demo" ;;
-    platform-update) echo "platform-update" ;;
-    *) echo "root" ;;
-  esac
+  profile_rule_get "$1" scope
 }
 
 profile_generates_payload() {
-  local profile="$1"
-  case "${profile}" in
-    core|core-runtime|core-tests|core-docs|tooling|tooling-cutover|defaults|platform-update-doc) return 0 ;;
-    *) return 1 ;;
-  esac
+  [[ "$(profile_rule_get "$1" payloadMode)" != "reserved" ]]
 }
 
 profile_payload_summary() {
-  local profile="$1"
-  case "${profile}" in
-    core) echo "core runtime + core tests; no master Core documentation" ;;
-    core-runtime) echo "core runtime only" ;;
-    core-tests) echo "core tests only" ;;
-    core-docs) echo "master Core documentation only" ;;
-    platform-update-doc) echo "generated platform-update document only" ;;
-    tooling) echo "shared tooling payload without target-local defaults" ;;
-    tooling-cutover) echo "shared tooling payload plus target-safe synthesized export configuration" ;;
-    defaults) echo "baseline configuration defaults (.env.example, export.config.json, env template)" ;;
-    demo|platform-update) echo "profile reserved for later dedicated payload rules" ;;
-    *) echo "unknown" ;;
-  esac
+  profile_rule_get "$1" summary
 }
 
 profile_payload_listing() {
@@ -243,9 +161,10 @@ profile_payload_listing() {
   if [[ -z "${listing}" ]]; then
     echo "(generated scope-local PROJECT_DOCS/<scope>/PLATFORM_UPDATES/<update-id>.md only)"
   else
-    printf '%s\n' "${listing}"
+    printf '%s
+' "${listing}"
   fi
-  if [[ "${profile}" == "tooling-cutover" ]]; then
+  if profile_rule_bool "${profile}" synthesizeToolingCutoverConfig; then
     echo "export.config.json (target-safe synthesized bootstrap configuration)"
   fi
 }
@@ -253,28 +172,17 @@ profile_payload_listing() {
 generated_doc_rel_for_profile() {
   local profile="$1"
   local patch_id="$2"
-  case "${profile}" in
-    core|core-runtime|core-tests|core-docs)
-      echo "PROJECT_DOCS/CORE/PLATFORM_UPDATES/${patch_id}.md"
-      ;;
-    tooling|tooling-cutover)
-      echo "PROJECT_DOCS/TOOLING/PLATFORM_UPDATES/${patch_id}.md"
-      ;;
-    platform-update-doc|platform-update)
-      echo "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_${patch_id}.md"
-      ;;
-    defaults|*)
-      echo "PROJECT_DOCS/PLATFORM_UPDATES/${patch_id}.md"
-      ;;
+  case "$(profile_rule_get "${profile}" documentFamily)" in
+    core) echo "PROJECT_DOCS/CORE/PLATFORM_UPDATES/${patch_id}.md" ;;
+    tooling) echo "PROJECT_DOCS/TOOLING/PLATFORM_UPDATES/${patch_id}.md" ;;
+    platform-update) echo "PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_${patch_id}.md" ;;
+    general) echo "PROJECT_DOCS/PLATFORM_UPDATES/${patch_id}.md" ;;
+    *) fail_update "Unsupported document family for profile ${profile}" ;;
   esac
 }
 
 profile_requires_target_pom_core_dependencies() {
-  local profile="$1"
-  case "${profile}" in
-    core|core-runtime) return 0 ;;
-    *) return 1 ;;
-  esac
+  profile_rule_bool "$1" requiresCorePom
 }
 
 write_core_ready_target_pom() {
@@ -400,39 +308,11 @@ validate_generated_patch_binding() {
 }
 
 accept_validation_profile_for_generated_profile() {
-  local generated_profile="$1"
-  case "${generated_profile}" in
-    tooling|tooling-cutover)
-      echo "tooling"
-      ;;
-    core|core-runtime|core-tests)
-      echo "code"
-      ;;
-    core-docs|platform-update-doc)
-      echo "docs"
-      ;;
-    defaults|platform-update)
-      echo "tooling"
-      ;;
-    *)
-      fail_update "No target accept validation profile is defined for generated profile: ${generated_profile}"
-      ;;
-  esac
+  profile_rule_get "$1" acceptProfile
 }
 
 generated_profile_requires_full_test() {
-  local generated_profile="$1"
-  case "${generated_profile}" in
-    tooling|tooling-cutover|core|core-runtime|core-tests|defaults|platform-update)
-      return 0
-      ;;
-    core-docs|platform-update-doc)
-      return 1
-      ;;
-    *)
-      fail_update "No full-test policy is defined for generated profile: ${generated_profile}"
-      ;;
-  esac
+  profile_rule_bool "$1" fullTest
 }
 
 accept_summary_value() {
@@ -770,7 +650,7 @@ create_target_plan_patch() {
     copy_tree_payload "${rel}" "${tmp_dir}/files"
   done < <(collect_payload_paths_for_profile "${UPDATE_PROFILE}")
 
-  if [[ "${UPDATE_PROFILE}" == "tooling-cutover" ]]; then
+  if profile_rule_bool "${UPDATE_PROFILE}" synthesizeToolingCutoverConfig; then
     python3 "${PROJECT_ROOT}/platform/update/tools/synthesize-tooling-cutover-config.py" \
       --target-root "${TARGET_PATH}" \
       --output-root "${tmp_dir}/files" \
@@ -788,7 +668,8 @@ create_target_plan_patch() {
     --profile "${UPDATE_PROFILE}" \
     --artifact-id "${target_artifact_id}" \
     --patch-id "${target_patch_id}" \
-    --master-env "${PROJECT_ROOT}/platform/versions/platform.env" >/dev/null
+    --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
+    --rules "${PROFILE_RULES_FILE}" >/dev/null
 
   cat > "${tmp_dir}/files/${doc_rel}" <<DOC_EOF
 # Springmaster Platform Update

@@ -25,7 +25,8 @@ python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" synthesi
   --profile core \
   --artifact-id "${ARTIFACT_ID}" \
   --patch-id "${PATCH_ID}" \
-  --master-env "${PROJECT_ROOT}/platform/versions/platform.env" >/dev/null
+  --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
+  --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" >/dev/null
 cp -a "${OUTPUT_ROOT}/." "${TARGET_ROOT}/"
 python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" verify \
   --target-root "${TARGET_ROOT}" \
