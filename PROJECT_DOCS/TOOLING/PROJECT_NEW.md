@@ -103,3 +103,7 @@ Dort werden Core-Verteilung, Slice-Blueprint, DTO-/Validation-/Error-Contract, E
 Project-New übernimmt die vollständige Laufzeitkette für `patch.sh artifact-preflight` und den Exportintegritätscheck. Dadurch referenzieren `patch.sh` und `tooling-selfcheck.sh` in einem neu erzeugten Projekt ausschließlich tatsächlich mitgelieferte Dateien. Die Instantiation Acceptance prüft diese Vollständigkeit sowie einen realen Full-ZIP-Export mit `EXPORT_INTEGRITY=PASS`.
 
 Die maschinenlesbaren Schema-IDs der Tooling-Verträge bleiben bei der Projekttokenisierung kanonisch (`springmaster.*.v1`). Sie werden nicht auf den Projektnamen umgeschrieben, damit Exporte und Preflight-Reports zwischen Master- und Zielprojekten portabel validierbar bleiben.
+
+## Patch Manifest V2 seit 000140
+
+Der registrierte Bootstrap-Eintrag eines neu erzeugten Projekts verwendet `springmaster.patch-manifest.v2`. `project-new` erzeugt pro Projekt eine neue globale UUID-basierte `artifactId`; die lokale Bootstrap-`patchId` bleibt `000001_project_new_bootstrap`. Manifest und Bootstrap-Log müssen dieselbe globale Identität tragen.

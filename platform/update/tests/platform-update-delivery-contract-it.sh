@@ -103,7 +103,7 @@ PY
   fail "unexpected target-bound patch id: ${generated_id}"
 
 python3 - "${zip_path}" "${TARGET_COPY}" "${PROJECT_ROOT}" <<'PY'
-import hashlib,json,stat,sys,zipfile
+import hashlib,json,stat,sys,uuid,zipfile
 from pathlib import Path
 zip_path=Path(sys.argv[1]); target=Path(sys.argv[2]); source=Path(sys.argv[3])
 with zipfile.ZipFile(zip_path) as zf:
@@ -116,7 +116,9 @@ with zipfile.ZipFile(zip_path) as zf:
         elif name.startswith('logs/'):
             ops.append((name,'patches/logs/tooling/'+Path(name).name))
     expected=manifest['baseline']['expectedBeforeSha256']
+    assert manifest['schemaVersion']=='springmaster.patch-manifest.v2'
     assert manifest['id']==manifest['patchId']
+    assert manifest['artifactId']==f"urn:uuid:{uuid.UUID(manifest['artifactId'].removeprefix('urn:uuid:'))}"
     assert manifest['scope']=='tooling'
     assert manifest['requires']['target']
     assert manifest['requires']['profile']=='tooling-cutover'
@@ -150,6 +152,7 @@ with zipfile.ZipFile(zip_path) as zf:
             assert 'files/'+rel in names, rel
 report=json.loads(Path(sys.argv[1]).parent.parent.joinpath('manifests',manifest['patchId']+'_producer_preflight','REPORT.json').read_text())
 assert report['status']=='PASS'
+assert report['artifactId']==manifest['artifactId']
 PY
 
 run_update preflight "${SOURCE_TARGET_NAME}" --zip "${zip_path}" > "${WORK_ROOT}/target-preflight.log"
@@ -216,6 +219,7 @@ with zipfile.ZipFile(sys.argv[1]) as zf:
     evidence_name=str(PurePosixPath(meta_name).parent / meta['closureEvidenceFile'])
     evidence=json.loads(zf.read(evidence_name))['sourceEvidence']
     assert evidence['patchId']==sys.argv[2]
+    assert evidence['artifactId'].startswith('urn:uuid:')
     assert evidence['generatedProfile']=='tooling-cutover'
     assert evidence['acceptProfile']=='tooling'
     assert evidence['fullTest'] is True

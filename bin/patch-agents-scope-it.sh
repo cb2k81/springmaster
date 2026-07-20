@@ -21,12 +21,15 @@ printf 'build/\npatches/archives/\npatches/runtime/\n' > "${FIXTURE}/.gitignore"
 python3 - "${PATCH_ZIP}" <<'PY'
 import json
 import sys
+import uuid
 import zipfile
 from pathlib import Path
 
 zip_path = Path(sys.argv[1])
 patch_id = zip_path.stem
 manifest = {
+    "schemaVersion": "springmaster.patch-manifest.v2",
+    "artifactId": f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, 'springmaster-test:' + patch_id)}",
     "id": patch_id,
     "patchId": patch_id,
     "scope": "docs",

@@ -13,6 +13,7 @@ import sys
 import tempfile
 import zipfile
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,6 +31,8 @@ USAGE = """Verwendung:
 
 Pflichtregeln:
   - manifest.json ist verpflichtend.
+  - manifest.schemaVersion muss springmaster.patch-manifest.v2 sein.
+  - manifest.artifactId ist als kanonische UUID-URN verpflichtend und repositoryweit eindeutig.
   - manifest.id und manifest.patchId sind verpflichtend und müssen identisch sein.
   - manifest.patchId muss dem Archivnamen ohne .zip entsprechen.
   - manifest.scope ist verpflichtend.
@@ -636,6 +639,48 @@ def extract_archive(zip_path):
         raise
 
 PATCH_ID_PATTERN = re.compile(r"^\d{6}_[A-Za-z0-9._-]+$")
+PATCH_MANIFEST_SCHEMA = "springmaster.patch-manifest.v2"
+ARTIFACT_ID_PREFIX = "urn:uuid:"
+
+
+def validate_artifact_id(value):
+    if not isinstance(value, str) or not value.strip():
+        fail("PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId is required.")
+    artifact_id = value.strip()
+    if not artifact_id.startswith(ARTIFACT_ID_PREFIX):
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId must be a canonical "
+            f"UUID URN ({ARTIFACT_ID_PREFIX}<uuid>)."
+        )
+    raw_uuid = artifact_id[len(ARTIFACT_ID_PREFIX):]
+    try:
+        parsed = uuid.UUID(raw_uuid)
+    except (ValueError, AttributeError) as exc:
+        fail(f"PATCH_ARTIFACT_IDENTITY_INVALID: invalid artifactId {artifact_id!r}: {exc}")
+    canonical = f"{ARTIFACT_ID_PREFIX}{parsed}"
+    if artifact_id != canonical or parsed.int == 0:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId must use canonical "
+            f"lowercase UUID-URN form, got {artifact_id!r}."
+        )
+    return artifact_id
+
+
+def archived_artifact_conflict(artifact_id):
+    for patch_dir in archive_dirs():
+        for candidate in (patch_dir / "manifest.json", patch_dir / "patch-log.json"):
+            if not candidate.is_file():
+                continue
+            try:
+                data = json.loads(candidate.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            archived_id = data.get("artifactId")
+            if archived_id is None and isinstance(data.get("manifest"), dict):
+                archived_id = data["manifest"].get("artifactId")
+            if archived_id == artifact_id:
+                return patch_dir.name
+    return None
 
 def manifest_required_string(manifest, field):
     value = manifest.get(field)
@@ -644,8 +689,22 @@ def manifest_required_string(manifest, field):
     return value.strip()
 
 def validate_manifest_identity(manifest, name, zip_path=None):
+    schema_version = manifest.get("schemaVersion")
+    if not isinstance(schema_version, str) or schema_version != PATCH_MANIFEST_SCHEMA:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.schemaVersion must be "
+            f"{PATCH_MANIFEST_SCHEMA}, got {schema_version!r}."
+        )
+    artifact_id = validate_artifact_id(manifest.get("artifactId"))
     patch_id = manifest_required_string(manifest, "patchId")
     legacy_id = manifest_required_string(manifest, "id")
+    conflict = archived_artifact_conflict(artifact_id)
+    if conflict is not None and conflict != patch_id:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_CONFLICT: manifest.artifactId is already archived.\n"
+            f"  artifactId: {artifact_id}\n"
+            f"  archivedPatch: {conflict}"
+        )
     if patch_id != legacy_id:
         fail(
             "PATCH_IDENTITY_CONFLICT: manifest.patchId und manifest.id müssen identisch sein.\n"
@@ -961,6 +1020,7 @@ def live_baseline_command(args):
         print("Patch-Live-Baseline-Preflight:")
         print(f"  Projekt:      {PROJECT_ROOT}")
         print(f"  Archiv:       {zip_path}")
+        print(f"  Artifact-ID:  {manifest['artifactId']}")
         print(f"  Patch-ID:     {patch_id}")
         print(f"  Scope:        {scope}")
         print(f"  Operationen:  {len(operations)}")
@@ -1030,6 +1090,8 @@ def apply_command(args):
                     entry["expectedBeforeSha256"] = expected_before[entry["path"]]
 
         log = {
+            "schemaVersion": PATCH_MANIFEST_SCHEMA,
+            "artifactId": manifest["artifactId"],
             "patchId": patch_id,
             "patchNumber": patch_number,
             "archiveName": zip_path.name,
@@ -1049,6 +1111,7 @@ def apply_command(args):
         print("Patch-Apply:")
         print(f"  Projekt:      {PROJECT_ROOT}")
         print(f"  Archiv:       {zip_path}")
+        print(f"  Artifact-ID:  {manifest['artifactId']}")
         print(f"  Patch-ID:     {patch_id}")
         print(f"  Scope:        {scope}")
         print(f"  Modus:        {'DRY-RUN' if dry_run else 'AUSFÜHREN'}")
@@ -1102,6 +1165,10 @@ def show_command(args):
         fail(f"Patch-Log fehlt: {log_path}")
     data = read_json(log_path)
     summary = data.get("summary", {})
+    artifact_id = data.get("artifactId")
+    if artifact_id is None and isinstance(data.get("manifest"), dict):
+        artifact_id = data["manifest"].get("artifactId")
+    print(f"Artifact-ID:   {artifact_id or '<legacy-v1-missing>'}")
     print(f"Patch-ID:      {data.get('patchId', d.name)}")
     print(f"Archiv:        {data.get('archiveName', '-')}")
     print(f"Erstellt am:   {data.get('createdAt', '-')}")
@@ -1349,6 +1416,7 @@ def inspect_patch_zip(zip_path):
         summary, entries = apply_operations(operations, tmp_dir, ARCHIVES_DIR / "__dry_run_inspection__", True)
         return {
             "manifest": manifest,
+            "artifactId": manifest["artifactId"],
             "scope": scope,
             "name": name,
             "patchId": patch_id,
@@ -1648,6 +1716,7 @@ def execute_git_commit(log_dir, patch_id, latest_export_path=None, push=False):
     data, scope, name = git_commit_metadata(patch_id)
     commit_message = f"patch({scope}): {patch_id}"
     commit_body = "\n".join([
+        f"Artifact-ID: {data.get('artifactId') or data.get('manifest', {}).get('artifactId', '-')}",
         f"Patch-ID: {patch_id}",
         f"Name: {name}",
         f"Scope: {scope}",

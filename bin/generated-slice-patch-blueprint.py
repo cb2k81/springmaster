@@ -270,6 +270,7 @@ def build_blueprint(ir: dict[str, Any], ir_path: str, ir_sha256: str) -> dict[st
                 "targetProjectKey",
                 "targetBasePackage",
                 "targetBasePackagePath",
+                "targetArtifactId",
                 "targetPatchId",
                 "targetBaselineHead",
                 "targetBaselineSha256ByPath",
@@ -277,6 +278,7 @@ def build_blueprint(ir: dict[str, Any], ir_path: str, ir_sha256: str) -> dict[st
         },
         "patch": {
             "scope": "root",
+            "artifactIdTemplate": "${targetArtifactId}",
             "patchIdTemplate": "${targetPatchId}",
             "archiveNameTemplate": "${targetPatchId}.zip",
             "manifestRequired": True,

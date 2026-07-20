@@ -122,6 +122,7 @@ REPORT_PATH="$(printf '%s\n' "${OUTPUT}" | sed -n 's/^  Preflight:[[:space:]]*//
 GENERATED_PATCH_ID="$(python3 - "${ZIP_PATH}" <<'PY_ID'
 import json
 import sys
+import uuid
 import zipfile
 with zipfile.ZipFile(sys.argv[1]) as zf:
     manifest=json.loads(zf.read('manifest.json'))
@@ -144,7 +145,9 @@ expected_id=sys.argv[3]
 with zipfile.ZipFile(zip_path) as zf:
     manifest=json.loads(zf.read('manifest.json'))
     names=[name for name in zf.namelist() if not name.endswith('/')]
+    assert manifest['schemaVersion']=='springmaster.patch-manifest.v2'
     assert manifest['id']==manifest['patchId']==expected_id, (manifest.get('id'),manifest.get('patchId'),expected_id)
+    assert manifest['artifactId']==f"urn:uuid:{uuid.UUID(manifest['artifactId'].removeprefix('urn:uuid:'))}"
     assert manifest['scope']=='core'
     assert manifest['requires']['profile']=='core'
     assert manifest['requires']['target']=='zbm'

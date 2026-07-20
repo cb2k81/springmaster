@@ -47,10 +47,23 @@ test "$(stat -c '%a' "${FIXTURE}/custom/existing.txt")" = "664"
 test "$(stat -c '%a' "${FIXTURE}/custom/tool.bash")" = "775"
 test "$(stat -c '%a' "${FIXTURE}/custom/mode-only.bash")" = "664"
 
+mkdir -p "${FIXTURE}/patches/archives/000000_existing_artifact"
+cat > "${FIXTURE}/patches/archives/000000_existing_artifact/manifest.json" <<'JSON'
+{
+  "schemaVersion": "springmaster.patch-manifest.v2",
+  "artifactId": "urn:uuid:11111111-1111-4111-8111-111111111111",
+  "id": "000000_existing_artifact",
+  "patchId": "000000_existing_artifact",
+  "name": "existing_artifact",
+  "scope": "custom"
+}
+JSON
+
 python3 - "${FIXTURE}" "${PATCH_DIR}" <<'PY'
 import hashlib
 import json
 import sys
+import uuid
 import zipfile
 from pathlib import Path
 
@@ -60,7 +73,7 @@ existing_sha = hashlib.sha256((fixture / "custom/existing.txt").read_bytes()).he
 tool_sha = hashlib.sha256((fixture / "custom/tool.bash").read_bytes()).hexdigest()
 mode_only_sha = hashlib.sha256((fixture / "custom/mode-only.bash").read_bytes()).hexdigest()
 
-def write_patch(patch_id, body, baseline_existing=existing_sha, baseline_format="map"):
+def write_patch(patch_id, body, baseline_existing=existing_sha, baseline_format="map", artifact_id=None):
     name = patch_id.split("_", 1)[1]
     target = f"custom/{name}.txt"
     baseline_map = {
@@ -78,6 +91,8 @@ def write_patch(patch_id, body, baseline_existing=existing_sha, baseline_format=
             ]
         }
     manifest = {
+        "schemaVersion": "springmaster.patch-manifest.v2",
+        "artifactId": artifact_id or f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, 'springmaster-test:' + patch_id)}",
         "id": patch_id,
         "patchId": patch_id,
         "scope": "custom",
@@ -97,6 +112,8 @@ def write_patch(patch_id, body, baseline_existing=existing_sha, baseline_format=
 def write_mode_only_patch():
     patch_id = "000007_fixture_mode_only"
     manifest = {
+        "schemaVersion": "springmaster.patch-manifest.v2",
+        "artifactId": f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, 'springmaster-test:' + patch_id)}",
         "id": patch_id,
         "patchId": patch_id,
         "scope": "custom",
@@ -122,6 +139,35 @@ write_patch("000004_fixture_eof_blank_line", "bad\n\n")
 write_patch("000005_fixture_missing_newline", "bad")
 write_patch("000006_fixture_list_baseline", "list-valid\n", baseline_format="list")
 write_mode_only_patch()
+write_patch(
+    "000010_fixture_duplicate_artifact",
+    "duplicate-artifact\n",
+    artifact_id="urn:uuid:11111111-1111-4111-8111-111111111111",
+)
+
+
+def rewrite_manifest(source_name, target_name, transform):
+    source = patch_dir / source_name
+    target = patch_dir / target_name
+    with zipfile.ZipFile(source) as src, zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as dst:
+        for info in src.infolist():
+            data = src.read(info.filename)
+            if info.filename == "manifest.json":
+                manifest = json.loads(data)
+                transform(manifest)
+                data = (json.dumps(manifest, indent=2) + "\n").encode()
+            dst.writestr(info, data)
+
+rewrite_manifest(
+    "000001_fixture_valid.zip",
+    "000008_fixture_missing_artifact.zip",
+    lambda manifest: manifest.pop("artifactId"),
+)
+rewrite_manifest(
+    "000001_fixture_valid.zip",
+    "000009_fixture_invalid_artifact.zip",
+    lambda manifest: manifest.__setitem__("artifactId", "not-a-uuid"),
+)
 PY
 
 run_expect_pass() {
@@ -175,6 +221,13 @@ shutil.rmtree(script.parent / "__pycache__", ignore_errors=True)
 PY
 grep -Fxq 'OUTPUT_DIRECTORY_ATOMIC_ALLOCATION=PASS' \
   "${LOG_DIR}/atomic-output-allocation.log"
+
+run_expect_fail missing-artifact PATCH_ARTIFACT_IDENTITY_INVALID \
+  ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000008_fixture_missing_artifact.zip" --no-export
+run_expect_fail invalid-artifact PATCH_ARTIFACT_IDENTITY_INVALID \
+  ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000009_fixture_invalid_artifact.zip" --no-export
+run_expect_fail duplicate-artifact PATCH_ARTIFACT_IDENTITY_CONFLICT \
+  ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000010_fixture_duplicate_artifact.zip" --no-export
 
 run_expect_pass valid-first \
   ./bin/patch.sh artifact-preflight "${PATCH_DIR}/000001_fixture_valid.zip" --no-export

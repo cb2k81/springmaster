@@ -18,6 +18,10 @@ Springmaster besitzt starke Patchartefakt- und Sandboxprüfungen. Patchidentitä
 6. Das Manifest ist die Transaktionswahrheit. Die aktuelle Changelogpflicht ist eine Legacy-Übergangsregel.
 7. Prüfungen werden risikobasiert gewählt. Vollständige Maven-, Fresh-Clone- und Zielprojektprüfungen bleiben für Tooling-, Plattform-, Core- und Releaseänderungen verbindlich, nicht für jede redaktionelle Änderung.
 
+## Implementation status
+
+Patch `000140_springmaster_patch_artifact_identity_v2` implements Decision 2 with Patch Manifest V2. New artifacts use a canonical UUID URN as global `artifactId`; the numeric `patchId` remains repository-local. Historical V1 archives remain readable but no new V1 artifact is accepted.
+
 ## Consequences
 
 - Exportprofile werden in Baseline, Patch Context und Audit getrennt.

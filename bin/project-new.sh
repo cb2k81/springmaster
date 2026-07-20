@@ -12,6 +12,7 @@ import re
 import shutil
 import stat
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -292,8 +293,11 @@ Initiale Projektanlage für `{tokens['__PROJECT_NAME__']}` aus dem Springmaster 
 
 def bootstrap_manifest(tokens: dict) -> dict:
     return {
-        "id": "000001-project-new-bootstrap",
-        "name": "project new bootstrap",
+        "schemaVersion": "springmaster.patch-manifest.v2",
+        "artifactId": tokens["__BOOTSTRAP_ARTIFACT_ID__"],
+        "id": "000001_project_new_bootstrap",
+        "patchId": "000001_project_new_bootstrap",
+        "name": "project_new_bootstrap",
         "scope": "bootstrap",
         "status": "registered-after-project-new",
         "projectName": tokens["__PROJECT_NAME__"],
@@ -304,6 +308,8 @@ def bootstrap_manifest(tokens: dict) -> dict:
 def bootstrap_patch_log(tokens: dict) -> dict:
     now = datetime.now(timezone.utc).astimezone().isoformat()
     return {
+        "schemaVersion": "springmaster.patch-manifest.v2",
+        "artifactId": tokens["__BOOTSTRAP_ARTIFACT_ID__"],
         "patchId": "000001_project_new_bootstrap",
         "patchNumber": "000001",
         "archiveName": "project-new-generated-bootstrap",
@@ -424,6 +430,7 @@ def build_tokens(args) -> dict:
     return {
         "__PROJECT_NAME__": name,
         "__ARTIFACT_ID__": artifact_id,
+        "__BOOTSTRAP_ARTIFACT_ID__": f"urn:uuid:{uuid.uuid4()}",
         "__GROUP_ID__": group_id,
         "__BASE_PACKAGE__": base_package,
         "__BASE_PACKAGE_PATH__": base_package_path,

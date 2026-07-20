@@ -360,3 +360,7 @@ Target-Kommandos explizit durch die Target-Bindings ersetzt.
 
 Die vollständige Policy steht in
 `PROJECT_DOCS/TOOLING/TOOLING_CUTOVER_DELIVERY_GUARD.md`.
+
+## Patch Manifest V2 seit 000140
+
+Jeder durch Platform Update erzeugte Target-Patch und jeder Compatibility-Patch erhält eine neue globale UUID-basierte `artifactId` und das Schema `springmaster.patch-manifest.v2`. Generierung, Artifact-Preflight, Apply-Plan und Target-Apply-Evidence führen `artifactId` und lokale `patchId` gemeinsam. Die globale Identität bleibt bei einer repository-lokalen Umnummerierung erhalten; veränderte Payloadbytes erfordern ein neues Artefakt und damit eine neue `artifactId`.

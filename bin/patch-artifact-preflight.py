@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -26,6 +27,9 @@ also creates and verifies one full ZIP export.
 
 MISSING_MARKERS = {"", "-", "missing", "absent", "none", "null", "not-exists", "not_exists"}
 ALLOWED_ROOTS = ("files/", "delete/", "logs/")
+PATCH_MANIFEST_SCHEMA = "springmaster.patch-manifest.v2"
+ARTIFACT_ID_PREFIX = "urn:uuid:"
+
 BASE_SCOPE_LOG_DIRS = {
     "root": "root",
     "bin": "bin",
@@ -174,6 +178,49 @@ def expected_map(manifest: dict) -> dict[str, str | None]:
     fail("PATCH_ARTIFACT_BASELINE_INVALID: baseline preconditions must be an object or list")
 
 
+def validate_artifact_id(value: object) -> str:
+    if not isinstance(value, str) or not value.strip():
+        fail("PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId is required")
+    artifact_id = value.strip()
+    if not artifact_id.startswith(ARTIFACT_ID_PREFIX):
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId must be a canonical "
+            f"UUID URN ({ARTIFACT_ID_PREFIX}<uuid>)"
+        )
+    raw_uuid = artifact_id[len(ARTIFACT_ID_PREFIX):]
+    try:
+        parsed = uuid.UUID(raw_uuid)
+    except (ValueError, AttributeError) as exc:
+        fail(f"PATCH_ARTIFACT_IDENTITY_INVALID: invalid artifactId {artifact_id!r}: {exc}")
+    canonical = f"{ARTIFACT_ID_PREFIX}{parsed}"
+    if artifact_id != canonical or parsed.int == 0:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.artifactId must use canonical "
+            f"lowercase UUID-URN form, got {artifact_id!r}"
+        )
+    return artifact_id
+
+
+def archived_artifact_conflict(project_root: Path, artifact_id: str) -> str | None:
+    archives = project_root / "patches" / "archives"
+    if not archives.is_dir():
+        return None
+    for patch_dir in sorted(path for path in archives.iterdir() if path.is_dir()):
+        for candidate in (patch_dir / "manifest.json", patch_dir / "patch-log.json"):
+            if not candidate.is_file():
+                continue
+            try:
+                data = json.loads(candidate.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            archived_id = data.get("artifactId")
+            if archived_id is None and isinstance(data.get("manifest"), dict):
+                archived_id = data["manifest"].get("artifactId")
+            if archived_id == artifact_id:
+                return patch_dir.name
+    return None
+
+
 def parse_patch(
     zip_path: Path,
     extract_root: Path,
@@ -206,8 +253,21 @@ def parse_patch(
     except zipfile.BadZipFile as exc:
         fail(f"PATCH_ARTIFACT_ZIP_INVALID: {exc}")
 
+    schema_version = manifest.get("schemaVersion")
+    if schema_version != PATCH_MANIFEST_SCHEMA:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.schemaVersion must be "
+            f"{PATCH_MANIFEST_SCHEMA}, got {schema_version!r}"
+        )
+    artifact_id = validate_artifact_id(manifest.get("artifactId"))
     patch_id = manifest.get("patchId")
     legacy_id = manifest.get("id")
+    conflict = archived_artifact_conflict(project_root, artifact_id)
+    if conflict is not None and conflict != patch_id:
+        fail(
+            "PATCH_ARTIFACT_IDENTITY_CONFLICT: manifest.artifactId is already archived; "
+            f"artifactId={artifact_id} archivedPatch={conflict}"
+        )
     name = manifest.get("name")
     scope = manifest.get("scope")
     if not all(isinstance(value, str) and value.strip() for value in (patch_id, legacy_id, name, scope)):
@@ -589,6 +649,7 @@ def main() -> None:
         output_dir = allocate_output_directory(
             project_root, options["output"], patch_id
         )
+        report["artifactId"] = manifest["artifactId"]
         report["patchId"] = patch_id
         report["scope"] = manifest["scope"]
         report["outputDirectory"] = str(output_dir)
@@ -672,6 +733,7 @@ def main() -> None:
             evidence_payload = {
                 "schemaVersion": "springmaster.patch-export-evidence.v1",
                 "status": "PRIOR_GATES_PASSED",
+                "artifactId": manifest["artifactId"],
                 "patchId": patch_id,
                 "sourcePatchSha256": report["sourcePatchSha256"],
                 "sourceGitHead": head,

@@ -27,17 +27,22 @@ make_patch() {
   local mode="$3"
   local expected_existing_sha="${4:-}"
   local expected_deleted_sha="${5:-}"
-  python3 - "$patch_id" "$zip_path" "$mode" "$expected_existing_sha" "$expected_deleted_sha" <<'PY'
+  local artifact_seed="${6:-${patch_id}}"
+  python3 - "$patch_id" "$zip_path" "$mode" "$expected_existing_sha" "$expected_deleted_sha" "$artifact_seed" <<'PY'
 import json
 import re
 import sys
+import uuid
 import zipfile
 from pathlib import Path
 
-patch_id, zip_path, mode, expected_existing_sha, expected_deleted_sha = sys.argv[1:6]
+patch_id, zip_path, mode, expected_existing_sha, expected_deleted_sha, artifact_seed = sys.argv[1:7]
 zip_path = Path(zip_path)
 name = re.sub(r"^\d{6}_", "", patch_id)
+artifact_id = f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, 'springmaster-test:' + artifact_seed)}"
 manifest = {
+    "schemaVersion": "springmaster.patch-manifest.v2",
+    "artifactId": artifact_id,
     "id": patch_id,
     "patchId": patch_id,
     "scope": "custom",
@@ -114,6 +119,14 @@ make_patch "000002_fixture_background" "${PATCH2}" new-only
 run python3 "${ENGINE}" "${FIXTURE}" live-baseline "${PATCH1}"
 run python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${PATCH1}"
 run python3 "${ENGINE}" "${FIXTURE}" accept "${PATCH1}" --profile docs --no-full-test --no-export --skip-tooling-selfcheck
+
+DUPLICATE_PATCH="${PATCHES}/000004_fixture_duplicate_artifact.zip"
+make_patch "000004_fixture_duplicate_artifact" "${DUPLICATE_PATCH}" new-only "" "" "000001_fixture_mixed"
+if python3 "${ENGINE}" "${FIXTURE}" apply --dry-run "${DUPLICATE_PATCH}" >>"${LOG}" 2>&1; then
+  log "ERROR: duplicate artifactId unexpectedly succeeded"
+  exit 1
+fi
+grep -q 'PATCH_ARTIFACT_IDENTITY_CONFLICT' "${LOG}"
 
 test -f "${FIXTURE}/custom/new-file.txt"
 grep -qx 'changed' "${FIXTURE}/custom/existing.txt"
@@ -251,6 +264,24 @@ BG_OUT="${WORK_ROOT}/${RUN_ID}/background.out"
 else
   log "SKIP: background fixture test (set PATCH_SYSTEM_IT_WITH_BACKGROUND=1 to enable)"
 fi
+
+IDENTITY_A="${WORK_ROOT}/${RUN_ID}/identity-a"
+IDENTITY_B="${WORK_ROOT}/${RUN_ID}/identity-b"
+IDENTITY_PATCH_A="${PATCHES}/000001_fixture_identity_a.zip"
+IDENTITY_PATCH_B="${PATCHES}/000777_fixture_identity_b.zip"
+for identity_root in "${IDENTITY_A}" "${IDENTITY_B}"; do
+  mkdir -p "${identity_root}/custom" "${identity_root}/patches/logs/custom"
+  cat > "${identity_root}/.env" <<'ENV'
+PATCH_LOCAL_SCOPES=custom
+PATCH_SCOPE_CUSTOM_PATHS=custom/**
+PATCH_SCOPE_CUSTOM_LOG_DIR=custom
+ENV
+done
+make_patch "000001_fixture_identity_a" "${IDENTITY_PATCH_A}" new-only "" "" "shared-cross-repository-artifact"
+make_patch "000777_fixture_identity_b" "${IDENTITY_PATCH_B}" new-only "" "" "shared-cross-repository-artifact"
+run python3 "${ENGINE}" "${IDENTITY_A}" apply "${IDENTITY_PATCH_A}"
+run python3 "${ENGINE}" "${IDENTITY_B}" apply "${IDENTITY_PATCH_B}"
+grep -q 'Artifact-ID:' "${LOG}"
 
 log "PASS: patch-system integration and rollback fixture"
 log "Log: ${LOG}"

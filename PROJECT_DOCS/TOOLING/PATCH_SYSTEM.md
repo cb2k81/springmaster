@@ -42,28 +42,29 @@ Optional:
 delete/**
 ```
 
-## Manifest-Identity-Guard seit 000096
+## Patch Manifest V2 seit 000140
 
-Seit `000096_springmaster_patch_manifest_identity_guard` ist die Patch-Identität Teil des harten Preflights. Neue Patch-ZIPs müssen eine explizite und konsistente Identität tragen:
+Neue Patch-ZIPs verwenden den Vertrag aus:
+
+```text
+PROJECT_DOCS/TOOLING/PATCH_MANIFEST_V2.md
+```
+
+Verbindliche Identitätsfelder sind:
 
 ```json
 {
-  "id": "000096_springmaster_patch_manifest_identity_guard",
-  "patchId": "000096_springmaster_patch_manifest_identity_guard",
-  "scope": "tooling",
-  "name": "springmaster_patch_manifest_identity_guard"
+  "schemaVersion": "springmaster.patch-manifest.v2",
+  "artifactId": "urn:uuid:<canonical-lowercase-uuid>",
+  "id": "000140_example",
+  "patchId": "000140_example",
+  "name": "example"
 }
 ```
 
-Verbindliche Regeln:
+`artifactId` identifiziert das unveränderliche Artefakt global und sequenzunabhängig. `patchId` steuert nur die lokale Apply-Reihenfolge und den Archivnamen. Innerhalb eines Repositories darf dieselbe `artifactId` nicht unter einer anderen `patchId` archiviert werden.
 
-* `manifest.id` und `manifest.patchId` sind verpflichtend.
-* Beide Werte müssen identisch sein.
-* Der Archivname muss exakt `<patchId>.zip` lauten.
-* `patchId` muss dem Format `000000_name` entsprechen.
-* Der Namensanteil der `patchId` muss aus `manifest.name` ableitbar sein.
-
-Patches ohne explizite Identität oder mit abweichendem Archivnamen werden bereits beim `apply --dry-run` abgelehnt. Dadurch darf das Patchsystem keine neue Nummer mehr stillschweigend aus `manifest.name` und dem lokalen Archivstand ableiten. Die bei `000094` beobachtete Klasse `Archivname != Patch-ID` wird damit vor dem mutierenden Apply verhindert.
+Historische V1-Archive bleiben für `list`, `show` und Rollback lesbar. Neue V1-Artefakte ohne Schema und globale Identität werden beim Live-Baseline- und Artifact-Preflight fail-closed abgelehnt. `manifest.id` bleibt vorerst als Kompatibilitätsalias erhalten und muss `manifest.patchId` entsprechen.
 
 ## Erweiterte Scopes seit 000003
 

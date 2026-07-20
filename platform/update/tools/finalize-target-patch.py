@@ -9,14 +9,28 @@ import re
 import shutil
 import stat
 import sys
+import uuid
 from pathlib import Path
 
+PATCH_MANIFEST_SCHEMA = "springmaster.patch-manifest.v2"
+ARTIFACT_ID_PREFIX = "urn:uuid:"
 PATCH_ID_RE = re.compile(r"^\d{6}_[A-Za-z0-9][A-Za-z0-9._-]*$")
 CHANGELOG_RE = re.compile(r"^CHANGELOG-[A-Za-z0-9._-]+\.md$")
 
 
 class FinalizeError(RuntimeError):
     pass
+
+
+def validate_artifact_id(value: str) -> str:
+    try:
+        parsed = uuid.UUID(value.removeprefix(ARTIFACT_ID_PREFIX))
+    except (ValueError, AttributeError) as exc:
+        fail(f"invalid artifact id: {value!r}: {exc}")
+    canonical = f"{ARTIFACT_ID_PREFIX}{parsed}"
+    if value != canonical or parsed.int == 0:
+        fail(f"artifact id must be canonical lowercase UUID URN: {value!r}")
+    return value
 
 
 def fail(message: str) -> None:
@@ -135,6 +149,8 @@ def build_manifest(args: argparse.Namespace, operations: list[dict]) -> dict:
         expected[operation["target"]] = sha256_file(args.target_root / operation["target"])
 
     return {
+        "schemaVersion": PATCH_MANIFEST_SCHEMA,
+        "artifactId": args.artifact_id,
         "id": args.patch_id,
         "patchId": args.patch_id,
         "name": args.name,
@@ -167,6 +183,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--target-root", required=True, type=Path)
     parser.add_argument("--patch-id", required=True)
+    parser.add_argument("--artifact-id", default=None)
     parser.add_argument("--name", required=True)
     parser.add_argument("--scope", required=True)
     parser.add_argument("--target-name", required=True)
@@ -182,6 +199,7 @@ def main() -> int:
     args = parse_args()
     args.root = args.root.resolve()
     args.target_root = args.target_root.resolve()
+    args.artifact_id = validate_artifact_id(args.artifact_id or f"urn:uuid:{uuid.uuid4()}")
     if not args.root.is_dir():
         fail(f"patch staging root missing: {args.root}")
     if not args.target_root.is_dir():
@@ -198,6 +216,7 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     summary = {
+        "artifactId": args.artifact_id,
         "patchId": args.patch_id,
         "scope": args.scope,
         "operationCount": len(operations),

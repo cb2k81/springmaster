@@ -38,17 +38,19 @@ Die Ausgabe muss leer sein. Unabhängige Änderungen, alte Validierungsartefakte
 
 ## Patch-Identität
 
-Generierte Patch-ZIPs müssen seit `000096` eine explizite Identität enthalten. Die folgenden Werte müssen konsistent sein:
+Generierte Patch-ZIPs müssen Patch Manifest V2 verwenden. Die folgenden Werte müssen konsistent sein:
 
 | Feld / Artefakt | Regel |
 |---|---|
-| `manifest.id` | Pflichtwert, exakt identisch zu `manifest.patchId` |
-| `manifest.patchId` | Pflichtwert im Format `000000_name` |
+| `manifest.schemaVersion` | exakt `springmaster.patch-manifest.v2` |
+| `manifest.artifactId` | neue kanonische lowercase UUID-URN für das immutable Artefakt |
+| `manifest.id` | Kompatibilitätsalias, exakt identisch zu `manifest.patchId` |
+| `manifest.patchId` | repository-lokaler Pflichtwert im Format `000000_name` |
 | Archivname | exakt `<patchId>.zip` |
 | `manifest.name` | muss dem Namensanteil der `patchId` entsprechen |
-| Runner-Erwartung | muss dieselbe `patchId` prüfen |
+| Runner-Erwartung | muss dieselbe `patchId` und nach Möglichkeit dieselbe `artifactId` prüfen |
 
-Runner dürfen nach dem Apply nicht nur `DONE` melden, sondern müssen `./bin/patch.sh show latest` gegen die erwartete Patch-ID prüfen. Bei Abweichung ist der Lauf als fehlerhaft zu behandeln, selbst wenn Tests und Export erfolgreich waren.
+Runner dürfen nach dem Apply nicht nur `DONE` melden, sondern müssen `./bin/patch.sh show latest` gegen die erwartete lokale Patch-ID prüfen. Bei Abweichung ist der Lauf als fehlerhaft zu behandeln. Die globale `artifactId` darf nicht aus Patchnummer, Sprint, Datum oder Zielprojekt abgeleitet werden.
 
 ## Kein `git add .`
 

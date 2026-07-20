@@ -10,7 +10,7 @@ Die Validierung richtet sich nach dem tatsächlichen Patch-Inhalt, nicht allein 
 
 Jeder Patch wird mindestens mit Dry-run, Apply, Patch-Log und Full-ZIP-Export abgeschlossen. Build- und Testbefehle werden nur dort ausgeführt, wo sie zur geänderten Artefaktklasse passen. Full-Parts-Baseline-Exporte werden nur erzeugt, wenn sie für Review, Wiederherstellung oder explizite Baseline-Übergabe benötigt werden.
 
-Seit `000096` gehört die Manifest-Identität zur Mindestvalidierung. `manifest.id`, `manifest.patchId`, Archivname und Runner-Erwartung müssen übereinstimmen. Ein Patch ohne explizite Identität oder mit abweichendem Archivnamen ist kein gültiger Patch und darf weder per `apply` noch per `accept` verarbeitet werden.
+Seit `000140` gehört Patch Manifest V2 zur Mindestvalidierung. `schemaVersion`, globale `artifactId`, lokale `patchId`, Kompatibilitätsfeld `id`, Archivname und Runner-Erwartung müssen übereinstimmen. Ein neues Artefakt ohne kanonische UUID-URN, mit abweichendem Archivnamen oder mit einer im Repository bereits unter anderer `patchId` archivierten `artifactId` ist ungültig und darf weder per `apply` noch per `accept` verarbeitet werden. Historische V1-Archive bleiben lesbar.
 
 
 ## Command-Generation-Contract seit 000090

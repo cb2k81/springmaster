@@ -21,6 +21,7 @@
       "targetProjectKey",
       "targetBasePackage",
       "targetBasePackagePath",
+      "targetArtifactId",
       "targetPatchId",
       "targetBaselineHead",
       "targetBaselineSha256ByPath"
@@ -28,6 +29,7 @@
   },
   "patch": {
     "scope": "root",
+    "artifactIdTemplate": "${targetArtifactId}",
     "patchIdTemplate": "${targetPatchId}",
     "archiveNameTemplate": "${targetPatchId}.zip",
     "manifestRequired": true,

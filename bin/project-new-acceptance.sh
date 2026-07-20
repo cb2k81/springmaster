@@ -128,6 +128,19 @@ require_file "PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md"
 require_file "PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env"
 require_file "patches/archives/000001_project_new_bootstrap/manifest.json"
 require_file "patches/archives/000001_project_new_bootstrap/patch-log.json"
+python3 - <<'PY_BOOTSTRAP_IDENTITY'
+import json
+import uuid
+from pathlib import Path
+
+archive = Path("patches/archives/000001_project_new_bootstrap")
+manifest = json.loads((archive / "manifest.json").read_text(encoding="utf-8"))
+patch_log = json.loads((archive / "patch-log.json").read_text(encoding="utf-8"))
+assert manifest["schemaVersion"] == "springmaster.patch-manifest.v2"
+assert manifest["id"] == manifest["patchId"] == "000001_project_new_bootstrap"
+assert patch_log["artifactId"] == manifest["artifactId"]
+assert str(uuid.UUID(manifest["artifactId"].removeprefix("urn:uuid:"))) in manifest["artifactId"]
+PY_BOOTSTRAP_IDENTITY
 require_file "src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java"
 require_file "src/main/java/de/cocondo/acceptance/sample/app/api/PlatformInfoController.java"
 require_file "src/test/java/de/cocondo/acceptance/sample/app/SampleBackendApplicationTests.java"
