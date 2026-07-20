@@ -58,6 +58,9 @@ log_info "Checking patch registry"
 log_info "Checking patch artifact preflight fixtures"
 "${PROJECT_ROOT}/bin/patch-artifact-preflight-it.sh" >/dev/null
 
+log_info "Checking AGENTS.md patch scope fixture"
+"${PROJECT_ROOT}/bin/patch-agents-scope-it.sh" >/dev/null
+
 if is_true "${RUN_EXPORT}"; then
   log_info "Checking one full export and its integrity manifest"
   EXPORT_REL="$("${PROJECT_ROOT}/bin/export.sh" full --zip)"

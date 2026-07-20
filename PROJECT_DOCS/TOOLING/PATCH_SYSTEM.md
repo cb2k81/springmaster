@@ -374,3 +374,9 @@ Details:
 ```text
 PROJECT_DOCS/TOOLING/PATCH_ARTIFACT_PREFLIGHT_HARDENING.md
 ```
+
+## Root-AGENTS-Scope seit 000136
+
+Die Repository-Arbeitsanweisung `AGENTS.md` ist ein kontrollierter Patchpfad. Sie ist in den Scopes `root` und `docs` erlaubt. Dadurch kann die Arbeitsanweisung erst nach der expliziten Scope-Erweiterung als eigener, baselinegebundener Patch aufgenommen und später dokumentarisch gepflegt werden.
+
+Die Scope-Erweiterung ist bewusst getrennt von der erstmaligen Anlage der Datei: Der alte Patch-Preflight muss Patch `000136` noch ohne einen zuvor unbekannten Rootpfad validieren können.

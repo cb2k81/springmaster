@@ -508,6 +508,7 @@ def base_scope_patterns():
             "patches/logs/tests/**",
         ],
         "docs": [
+            "AGENTS.md",
             "docs/**",
             "PROJECT_DOCS/**",
             "README.md",
