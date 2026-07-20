@@ -372,3 +372,7 @@ Every generated payload now includes `platform/versions/platform.env` and `platf
 ## Declarative profile rules since 000147
 
 Profile scope, payload, target validation policy and managed component version mapping are sourced from `platform/update/rules/profiles.json`. The shell entrypoint no longer owns a second profile contract.
+
+## Version compatibility since 000148
+
+`compatibility-check` and every generated/apply flow evaluate the target component version against `platform/update/compatibility/platform-compatibility-matrix.json`. The exact PASS decision becomes a patch operation and part of the manifest and closure evidence.

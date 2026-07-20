@@ -69,8 +69,9 @@ def main() -> int:
     target_root = args.target_root.resolve()
     state_path = target_root / "platform/update/managed-state.json"
     version_path = target_root / "platform/versions/platform.env"
-    if not state_path.is_file() or not version_path.is_file():
-        raise SystemExit("managed target state or version file missing after apply")
+    compatibility_path = target_root / "platform/update/compatibility-decision.json"
+    if not state_path.is_file() or not version_path.is_file() or not compatibility_path.is_file():
+        raise SystemExit("managed target state, compatibility decision or version file missing after apply")
     managed_state = json.loads(state_path.read_text(encoding="utf-8"))
     required_state = (requires.get("managedState") or {})
     for key in ("schemaVersion", "target", "artifactId", "patchId", "profile", "installedVersions"):
@@ -97,6 +98,8 @@ def main() -> int:
         "managedState": managed_state,
         "managedStateSha256": sha256_file(state_path),
         "platformVersionStateSha256": sha256_file(version_path),
+        "compatibilityDecision": json.loads(compatibility_path.read_text(encoding="utf-8")),
+        "compatibilityDecisionSha256": sha256_file(compatibility_path),
     }
     if not SHA256_RE.fullmatch(evidence["patchSha256"]):
         raise SystemExit("invalid patch SHA-256")

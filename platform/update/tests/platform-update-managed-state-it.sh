@@ -18,6 +18,12 @@ PLATFORM_BASE_PACKAGE=de.cocondo.fixture
 EOF
 ARTIFACT_ID=urn:uuid:11111111-1111-4111-8111-111111111111
 PATCH_ID=000002_springmaster_platform_update_core_for_managed-fixture
+python3 "${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py" \
+  --matrix "${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json" check \
+  --profile core \
+  --target-env "${TARGET_ROOT}/platform/versions/platform.env" \
+  --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
+  --output "${OUTPUT_ROOT}/platform/update/compatibility-decision.json" >/dev/null
 python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" synthesize \
   --target-root "${TARGET_ROOT}" \
   --output-root "${OUTPUT_ROOT}" \
@@ -26,7 +32,8 @@ python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" synthesi
   --artifact-id "${ARTIFACT_ID}" \
   --patch-id "${PATCH_ID}" \
   --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
-  --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" >/dev/null
+  --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" \
+  --compatibility-file "${OUTPUT_ROOT}/platform/update/compatibility-decision.json" >/dev/null
 cp -a "${OUTPUT_ROOT}/." "${TARGET_ROOT}/"
 python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" verify \
   --target-root "${TARGET_ROOT}" \

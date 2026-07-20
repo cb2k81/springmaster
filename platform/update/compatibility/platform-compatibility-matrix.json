@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "springmaster.platform-update-compatibility-matrix.v1",
+  "policy": {
+    "denyCrossMajor": true,
+    "denyDowngrade": true
+  },
+  "profiles": {
+    "core": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.3.6",
+      "sourceComponent": "PLATFORM_CORE_VERSION"
+    },
+    "core-runtime": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.3.6",
+      "sourceComponent": "PLATFORM_CORE_VERSION"
+    },
+    "core-tests": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.3.6",
+      "sourceComponent": "PLATFORM_CORE_VERSION"
+    },
+    "core-docs": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.3.6",
+      "sourceComponent": "PLATFORM_CORE_VERSION"
+    },
+    "tooling": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.5.0",
+      "sourceComponent": "PLATFORM_TOOLING_VERSION"
+    },
+    "tooling-cutover": {
+      "allowMissingSource": false,
+      "minimumSourceVersion": "0.1.0",
+      "sourceComponent": "PLATFORM_TOOLING_VERSION"
+    },
+    "defaults": {
+      "allowMissingSource": true,
+      "minimumSourceVersion": "0.0.0",
+      "sourceComponent": "PLATFORM_TEMPLATE_VERSION"
+    },
+    "platform-update-doc": {
+      "allowMissingSource": true,
+      "minimumSourceVersion": "0.0.0",
+      "sourceComponent": "PLATFORM_UPDATE_VERSION"
+    },
+    "demo": {
+      "allowMissingSource": true,
+      "minimumSourceVersion": "0.0.0",
+      "sourceComponent": "PLATFORM_DEMO_VERSION"
+    },
+    "platform-update": {
+      "allowMissingSource": true,
+      "minimumSourceVersion": "0.0.0",
+      "sourceComponent": "PLATFORM_UPDATE_VERSION"
+    }
+  }
+}

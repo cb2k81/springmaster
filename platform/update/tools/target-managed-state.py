@@ -121,6 +121,13 @@ def synthesize(args: argparse.Namespace) -> int:
 
     installed = {key: updated.get(key, "") for key in VERSION_KEYS}
     source = {key: master_values.get(key, "") for key in VERSION_KEYS}
+    try:
+        compatibility = json.loads(args.compatibility_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"invalid compatibility decision: {exc}")
+    if compatibility.get("status") != "PASS" or compatibility.get("profile") != args.profile:
+        fail("compatibility decision is not a PASS for the selected profile")
+
     state = {
         "schemaVersion": SCHEMA,
         "status": "INSTALLED_BY_PATCH",
@@ -133,6 +140,7 @@ def synthesize(args: argparse.Namespace) -> int:
         "installedVersions": installed,
         "platformStatePatch": args.patch_id,
         "previous": previous,
+        "compatibility": compatibility,
     }
     state_output.parent.mkdir(parents=True, exist_ok=True)
     state_output.write_text(json.dumps(state, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
@@ -143,10 +151,14 @@ def synthesize(args: argparse.Namespace) -> int:
 def verify(args: argparse.Namespace) -> int:
     validate_identity(args.artifact_id, args.patch_id)
     state_path = args.target_root / "platform/update/managed-state.json"
+    compatibility_path = args.target_root / "platform/update/compatibility-decision.json"
     env_path = args.target_root / "platform/versions/platform.env"
     if not state_path.is_file():
         fail(f"managed state missing: {state_path}")
+    if not compatibility_path.is_file():
+        fail(f"compatibility decision missing: {compatibility_path}")
     state = json.loads(state_path.read_text(encoding="utf-8"))
+    compatibility = json.loads(compatibility_path.read_text(encoding="utf-8"))
     _, env_values = read_env(env_path)
     expected = {
         "schemaVersion": SCHEMA,
@@ -160,6 +172,8 @@ def verify(args: argparse.Namespace) -> int:
     for key, value in expected.items():
         if state.get(key) != value:
             fail(f"managed state mismatch for {key}: expected={value!r} actual={state.get(key)!r}")
+    if state.get("compatibility") != compatibility or compatibility.get("status") != "PASS":
+        fail("managed state compatibility decision mismatch")
     installed = state.get("installedVersions")
     if not isinstance(installed, dict):
         fail("managed state installedVersions missing")
@@ -188,6 +202,7 @@ def parser() -> argparse.ArgumentParser:
     synth.add_argument("--output-root", required=True, type=Path)
     synth.add_argument("--master-env", required=True, type=Path)
     synth.add_argument("--rules", required=True, type=Path)
+    synth.add_argument("--compatibility-file", required=True, type=Path)
     sub.add_parser("verify", parents=[common])
     return root
 
@@ -199,6 +214,7 @@ def main() -> int:
         args.output_root = args.output_root.resolve()
         args.master_env = args.master_env.resolve()
         args.rules = args.rules.resolve()
+        args.compatibility_file = args.compatibility_file.resolve()
         return synthesize(args)
     return verify(args)
 

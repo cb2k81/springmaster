@@ -192,6 +192,7 @@ def build_manifest(args: argparse.Namespace, operations: list[dict]) -> dict:
             "masterToolingVersion": args.master_tooling_version,
             "masterPlatformUpdateVersion": args.master_platform_update_version,
             "managedState": managed_state,
+            "compatibility": managed_state.get("compatibility"),
         },
         "changes": [
             "Uses a target-bound six-digit patch identity",

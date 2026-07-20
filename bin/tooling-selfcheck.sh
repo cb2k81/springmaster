@@ -72,6 +72,10 @@ log_info "Checking configuration contract"
 log_info "Checking release manifest contract"
 "${PROJECT_ROOT}/bin/release-manifest-it.sh" >/dev/null
 
+log_info "Checking Platform-Update compatibility matrix"
+python3 "${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py" --matrix "${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json" validate >/dev/null
+"${PROJECT_ROOT}/platform/update/tests/platform-update-compatibility-matrix-it.sh" >/dev/null
+
 log_info "Checking declarative Platform-Update profile rules"
 python3 "${PROJECT_ROOT}/platform/update/tools/profile-rules.py" --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" validate >/dev/null
 "${PROJECT_ROOT}/platform/update/tests/platform-update-profile-rules-it.sh" >/dev/null

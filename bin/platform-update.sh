@@ -13,6 +13,8 @@ LOG_DIR="${BUILD_WORKSPACE_DIR}/logs"
 PAYLOAD_DIR="${BUILD_WORKSPACE_DIR}/payload"
 PROFILE_RULES_FILE="${PLATFORM_UPDATE_PROFILE_RULES_FILE:-${PROJECT_ROOT}/platform/update/rules/profiles.json}"
 PROFILE_RULES_TOOL="${PROJECT_ROOT}/platform/update/tools/profile-rules.py"
+COMPATIBILITY_MATRIX_FILE="${PLATFORM_UPDATE_COMPATIBILITY_MATRIX_FILE:-${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json}"
+COMPATIBILITY_MATRIX_TOOL="${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py"
 
 print_usage() {
   cat <<'USAGE'
@@ -24,6 +26,7 @@ Usage:
   ./bin/platform-update.sh plan <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update] [--output <dir>]
   ./bin/platform-update.sh generate <target> [--profile core|core-runtime|core-tests|core-docs|platform-update-doc|tooling|tooling-cutover|defaults|demo|platform-update] [--output <dir>] [--dry-run]
   ./bin/platform-update.sh preflight <target> --zip <generated-patch.zip> [--output <dir>]
+  ./bin/platform-update.sh compatibility-check <target> [--profile <profile>]
   ./bin/platform-update.sh compatibility-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
   ./bin/platform-update.sh apply-plan <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
   ./bin/platform-update.sh target-apply <target> --zip <generated-patch.zip> [--output <dir>] [--dry-run]
@@ -36,7 +39,8 @@ Commands:
   plan       create a non-invasive update plan file; no target project is modified
   generate   create a target-local plan patch ZIP; no target project is modified
   preflight  run the target-local patch system in dry-run mode for a generated patch ZIP
-  compatibility-plan create a target compatibility patch ZIP and review plan; no target project is modified
+  compatibility-check verify target component versions against the declarative compatibility matrix
+  compatibility-plan create a target patch-engine compatibility ZIP and review plan; no target project is modified
   apply-plan create a review-gated target apply plan; no target project is modified
   target-apply explicitly apply a generated patch in the target project with compact logging
   workspace  print the current platform-update build workspace paths
@@ -294,6 +298,47 @@ else:
 PY_FIELD
 }
 
+write_target_compatibility_decision() {
+  local profile="$1"
+  local output="$2"
+  python3 "${COMPATIBILITY_MATRIX_TOOL}" --matrix "${COMPATIBILITY_MATRIX_FILE}" check \
+    --profile "${profile}" \
+    --target-env "${TARGET_PATH}/platform/versions/platform.env" \
+    --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
+    --output "${output}" >/dev/null
+}
+
+verify_manifest_compatibility_decision() {
+  local zip_path="$1"
+  local profile="$2"
+  local temp_decision
+  temp_decision="$(mktemp)"
+  write_target_compatibility_decision "${profile}" "${temp_decision}"
+  python3 - "${zip_path}" "${temp_decision}" <<'PY_COMPAT'
+import json,sys,zipfile
+with zipfile.ZipFile(sys.argv[1]) as archive:
+    manifest=json.loads(archive.read('manifest.json'))
+expected=(manifest.get('requires') or {}).get('compatibility')
+actual=json.load(open(sys.argv[2],encoding='utf-8'))
+if expected != actual:
+    raise SystemExit(f"compatibility decision drift: expected={expected!r} actual={actual!r}")
+PY_COMPAT
+  rm -f "${temp_decision}"
+}
+
+create_compatibility_check() {
+  parse_profile_output_args "plan" "$@"
+  local file
+  file="$(target_file "${UPDATE_TARGET}")"
+  load_target "${file}"
+  load_platform_versions
+  require_profile_allowed_for_loaded_target "${UPDATE_PROFILE}"
+  python3 "${COMPATIBILITY_MATRIX_TOOL}" --matrix "${COMPATIBILITY_MATRIX_FILE}" check \
+    --profile "${UPDATE_PROFILE}" \
+    --target-env "${TARGET_PATH}/platform/versions/platform.env" \
+    --master-env "${PROJECT_ROOT}/platform/versions/platform.env"
+}
+
 validate_generated_patch_binding() {
   local zip_path="$1"
   local required_target required_profile
@@ -304,6 +349,7 @@ validate_generated_patch_binding() {
   fi
   if [[ -n "${required_profile}" ]]; then
     require_profile_allowed_for_loaded_target "${required_profile}"
+    verify_manifest_compatibility_decision "${zip_path}" "${required_profile}"
   fi
 }
 
@@ -661,6 +707,10 @@ create_target_plan_patch() {
     write_core_ready_target_pom "${TARGET_PATH}/pom.xml" "${tmp_dir}/files/pom.xml"
   fi
 
+  mkdir -p "${tmp_dir}/files/platform/update"
+  write_target_compatibility_decision "${UPDATE_PROFILE}" \
+    "${tmp_dir}/files/platform/update/compatibility-decision.json"
+
   python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" synthesize \
     --target-root "${TARGET_PATH}" \
     --output-root "${tmp_dir}/files" \
@@ -669,7 +719,8 @@ create_target_plan_patch() {
     --artifact-id "${target_artifact_id}" \
     --patch-id "${target_patch_id}" \
     --master-env "${PROJECT_ROOT}/platform/versions/platform.env" \
-    --rules "${PROFILE_RULES_FILE}" >/dev/null
+    --rules "${PROFILE_RULES_FILE}" \
+    --compatibility-file "${tmp_dir}/files/platform/update/compatibility-decision.json" >/dev/null
 
   cat > "${tmp_dir}/files/${doc_rel}" <<DOC_EOF
 # Springmaster Platform Update
@@ -1712,6 +1763,10 @@ main() {
     preflight)
       shift
       create_preflight "$@"
+      ;;
+    compatibility-check)
+      shift
+      create_compatibility_check "$@"
       ;;
     compatibility-plan)
       shift
