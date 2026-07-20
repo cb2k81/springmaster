@@ -22,6 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--accept-profile", required=True)
     parser.add_argument("--full-test", required=True, choices=("True", "False"))
     parser.add_argument("--source-target-git-head", required=True)
+    parser.add_argument("--target-root", required=True, type=Path)
     return parser.parse_args()
 
 
@@ -65,6 +66,16 @@ def main() -> int:
     if not isinstance(expected, dict) or not expected:
         raise SystemExit("manifest baseline.expectedBeforeSha256 missing")
     changed_paths = sorted(expected)
+    target_root = args.target_root.resolve()
+    state_path = target_root / "platform/update/managed-state.json"
+    version_path = target_root / "platform/versions/platform.env"
+    if not state_path.is_file() or not version_path.is_file():
+        raise SystemExit("managed target state or version file missing after apply")
+    managed_state = json.loads(state_path.read_text(encoding="utf-8"))
+    required_state = (requires.get("managedState") or {})
+    for key in ("schemaVersion", "target", "artifactId", "patchId", "profile", "installedVersions"):
+        if managed_state.get(key) != required_state.get(key):
+            raise SystemExit(f"applied managed state mismatch for {key}")
     evidence = {
         "schemaVersion": "springmaster.platform-update-target-apply-evidence.v1",
         "status": "PRIOR_GATES_PASSED",
@@ -83,6 +94,9 @@ def main() -> int:
         "sourceTargetGitHead": args.source_target_git_head,
         "changedPaths": changed_paths,
         "deletedPaths": [],
+        "managedState": managed_state,
+        "managedStateSha256": sha256_file(state_path),
+        "platformVersionStateSha256": sha256_file(version_path),
     }
     if not SHA256_RE.fullmatch(evidence["patchSha256"]):
         raise SystemExit("invalid patch SHA-256")

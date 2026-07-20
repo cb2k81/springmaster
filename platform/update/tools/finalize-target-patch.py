@@ -143,10 +143,33 @@ def collect_operations(root: Path, target_root: Path, scope: str) -> list[dict]:
     return effective
 
 
+def load_managed_state(root: Path, args: argparse.Namespace) -> dict:
+    path = root / "files/platform/update/managed-state.json"
+    if not path.is_file():
+        fail("generated target patch requires files/platform/update/managed-state.json")
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"invalid managed target state: {exc}")
+    expected = {
+        "schemaVersion": "springmaster.managed-target-state.v1",
+        "target": args.target_name,
+        "artifactId": args.artifact_id,
+        "patchId": args.patch_id,
+        "profile": args.profile,
+    }
+    for key, value in expected.items():
+        if state.get(key) != value:
+            fail(f"managed target state mismatch for {key}: expected={value!r} actual={state.get(key)!r}")
+    return state
+
+
 def build_manifest(args: argparse.Namespace, operations: list[dict]) -> dict:
     expected: dict[str, str | None] = {}
     for operation in sorted(operations, key=lambda item: item["target"]):
         expected[operation["target"]] = sha256_file(args.target_root / operation["target"])
+
+    managed_state = load_managed_state(args.root, args)
 
     return {
         "schemaVersion": PATCH_MANIFEST_SCHEMA,
@@ -168,12 +191,14 @@ def build_manifest(args: argparse.Namespace, operations: list[dict]) -> dict:
             "masterCoreVersion": args.master_core_version,
             "masterToolingVersion": args.master_tooling_version,
             "masterPlatformUpdateVersion": args.master_platform_update_version,
+            "managedState": managed_state,
         },
         "changes": [
             "Uses a target-bound six-digit patch identity",
             "Contains complete live target baseline hashes",
             "Omits byte- and mode-identical payload files",
             "Requires producer artifact preflight before delivery",
+            "Updates target component versions and provenance atomically with the payload",
         ],
     }
 

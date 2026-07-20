@@ -467,6 +467,9 @@ def base_scope_patterns():
         ],
         "tooling": [
             "bin/**",
+            "platform/versions/platform.env",
+            "platform/update/managed-state.json",
+            "platform/update/compatibility-decision.json",
             "export.config.json",
             ".env.example",
             "PROJECT_DOCS/TOOLING/**",
@@ -483,6 +486,8 @@ def base_scope_patterns():
         "core": [
             "pom.xml",
             "platform/versions/platform.env",
+            "platform/update/managed-state.json",
+            "platform/update/compatibility-decision.json",
             f"src/main/java/{core_package_path}/**",
             f"src/test/java/{core_package_path}/**",
             "PROJECT_DOCS/CORE/**",
@@ -491,6 +496,8 @@ def base_scope_patterns():
         ],
         "demo": [
             "platform/versions/platform.env",
+            "platform/update/managed-state.json",
+            "platform/update/compatibility-decision.json",
             f"src/main/java/{app_package_path}/demo/**",
             f"src/test/java/{app_package_path}/demo/**",
             "PROJECT_DOCS/DEMO/**",
@@ -512,6 +519,9 @@ def base_scope_patterns():
         ],
         "docs": [
             "AGENTS.md",
+            "platform/versions/platform.env",
+            "platform/update/managed-state.json",
+            "platform/update/compatibility-decision.json",
             "docs/**",
             "PROJECT_DOCS/**",
             "README.md",

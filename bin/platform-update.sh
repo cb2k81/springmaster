@@ -781,6 +781,15 @@ create_target_plan_patch() {
     write_core_ready_target_pom "${TARGET_PATH}/pom.xml" "${tmp_dir}/files/pom.xml"
   fi
 
+  python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" synthesize \
+    --target-root "${TARGET_PATH}" \
+    --output-root "${tmp_dir}/files" \
+    --target-name "${TARGET_NAME}" \
+    --profile "${UPDATE_PROFILE}" \
+    --artifact-id "${target_artifact_id}" \
+    --patch-id "${target_patch_id}" \
+    --master-env "${PROJECT_ROOT}/platform/versions/platform.env" >/dev/null
+
   cat > "${tmp_dir}/files/${doc_rel}" <<DOC_EOF
 # Springmaster Platform Update
 
@@ -1693,6 +1702,15 @@ create_target_apply() {
     }
 
     echo
+    echo "== Managed target state =="
+    python3 "${PROJECT_ROOT}/platform/update/tools/target-managed-state.py" verify \
+      --target-root "${TARGET_PATH}" \
+      --target-name "${TARGET_NAME}" \
+      --profile "${generated_profile}" \
+      --artifact-id "$(read_patch_manifest_field "${UPDATE_PATCH_ZIP}" "artifactId")" \
+      --patch-id "${patch_id}"
+
+    echo
     echo "== Closure evidence =="
     python3 "${PROJECT_ROOT}/platform/update/tools/write-target-apply-evidence.py" \
       --patch-zip "${UPDATE_PATCH_ZIP}" \
@@ -1701,7 +1719,8 @@ create_target_apply() {
       --generated-profile "${generated_profile}" \
       --accept-profile "${accept_profile}" \
       --full-test "${expected_full_test}" \
-      --source-target-git-head "${source_target_git_head}"
+      --source-target-git-head "${source_target_git_head}" \
+      --target-root "${TARGET_PATH}"
 
     echo
     echo "== Single target closure export =="

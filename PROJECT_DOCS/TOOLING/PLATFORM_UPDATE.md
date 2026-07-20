@@ -364,3 +364,7 @@ Die vollständige Policy steht in
 ## Patch Manifest V2 seit 000140
 
 Jeder durch Platform Update erzeugte Target-Patch und jeder Compatibility-Patch erhält eine neue globale UUID-basierte `artifactId` und das Schema `springmaster.patch-manifest.v2`. Generierung, Artifact-Preflight, Apply-Plan und Target-Apply-Evidence führen `artifactId` und lokale `patchId` gemeinsam. Die globale Identität bleibt bei einer repository-lokalen Umnummerierung erhalten; veränderte Payloadbytes erfordern ein neues Artefakt und damit eine neue `artifactId`.
+
+## Atomic managed target state since 000146
+
+Every generated payload now includes `platform/versions/platform.env` and `platform/update/managed-state.json`. Component version and provenance changes are part of the same target-local patch as the payload. `target-apply` verifies the installed state before closure evidence and export.

@@ -72,6 +72,9 @@ log_info "Checking configuration contract"
 log_info "Checking release manifest contract"
 "${PROJECT_ROOT}/bin/release-manifest-it.sh" >/dev/null
 
+log_info "Checking managed target version and provenance state"
+"${PROJECT_ROOT}/platform/update/tests/platform-update-managed-state-it.sh" >/dev/null
+
 if is_true "${RUN_EXPORT}"; then
   log_info "Checking one full export and its integrity manifest"
   EXPORT_REL="$("${PROJECT_ROOT}/bin/export.sh" full --zip)"
