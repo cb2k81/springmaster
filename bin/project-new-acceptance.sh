@@ -182,6 +182,8 @@ require_marker 'APP_DEV_DB_USER="${APP_DEV_DB_USER:-sample_backend}"' "bin/lib/c
 require_marker 'APP_STAGE_DB_NAME="${APP_STAGE_DB_NAME:-${APP_BUILD_DB_NAME:-sample_backend_build}}"' "bin/lib/core/env.sh"
 reject_marker "__PROJECT_NAME__" "README.md"
 reject_marker "__BASE_PACKAGE__" "src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java"
+require_marker "include-stacktrace: never" "src/main/resources/application.yml"
+require_marker "show-details: never" "src/main/resources/application.yml"
 require_marker 'springmaster.export-closure-evidence.v1' "bin/export.sh"
 require_marker 'springmaster.export-closure-evidence.v1' "bin/export-integrity-check.py"
 require_marker 'springmaster.patch-artifact-preflight.v1' "bin/patch-artifact-preflight.py"

@@ -81,6 +81,10 @@ else
   "${PROJECT_ROOT}/bin/export-integrity-it.sh" >/dev/null
 fi
 
+log_info "Checking observability contract"
+"${PROJECT_ROOT}/bin/observability-contract.sh" --check >/dev/null
+"${PROJECT_ROOT}/bin/observability-contract-it.sh" >/dev/null
+
 log_info "Checking database migration contract"
 "${PROJECT_ROOT}/bin/db-migration-contract.sh" --check >/dev/null
 "${PROJECT_ROOT}/bin/db-migration-contract-it.sh" >/dev/null

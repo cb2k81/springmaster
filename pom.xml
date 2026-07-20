@@ -7,7 +7,7 @@
 
     <groupId>de.cocondo.platform</groupId>
     <artifactId>springmaster</artifactId>
-    <version>0.15.0-foundation-SNAPSHOT</version>
+    <version>0.16.0-foundation-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>springmaster</name>

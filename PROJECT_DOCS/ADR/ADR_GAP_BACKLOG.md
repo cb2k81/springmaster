@@ -330,7 +330,7 @@ Decision scope:
 - generated versus hand-authored changelogs;
 - Catalog-demo persistence proof.
 
-### ADR-0010: Observability and Error Trace Strategy
+### ADR-0010: Observability and Error Trace Strategy — accepted by patch 000145
 
 Priority: `P1`
 

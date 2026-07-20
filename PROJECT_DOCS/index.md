@@ -21,6 +21,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0008-configuration-and-runtime-profile-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0009-database-migration-and-dbtool-strategy.md`
+- `PROJECT_DOCS/ADR/ADR-0010-observability-and-error-trace-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md`
 - `PROJECT_DOCS/ADR/ADR-0012-patch-transaction-and-evidence-boundary.md`
 - `PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md`
@@ -78,6 +79,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 ## GOVERNANCE
 
 - `PROJECT_DOCS/GOVERNANCE/SPRINT_RELEASE_GOVERNANCE.md`
+- `PROJECT_DOCS/GOVERNANCE/SPRINT_P1_RUNTIME_CONTRACT_FOUNDATION.md`
 ## OPERATIONAL
 
 - `PROJECT_DOCS/OPERATIONAL/SPRINT1_ZBM_SPRINGMASTER_CONFORMANT_IMPLEMENTATION_PLAN.md`
@@ -115,6 +117,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/MAPPING_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/OBSERVABILITY_AND_TRACE_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/README.md`
 - `PROJECT_DOCS/STANDARDS/REAL_APP_PATTERN_FORENSICS.md`
 - `PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md`

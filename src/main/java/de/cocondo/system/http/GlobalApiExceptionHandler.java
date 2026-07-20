@@ -3,6 +3,7 @@ package de.cocondo.system.http;
 import de.cocondo.system.entity.validation.ValidationException;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import de.cocondo.system.exception.ResourceNotFoundException;
+import de.cocondo.system.observability.CorrelationIdSupport;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -224,10 +225,6 @@ public class GlobalApiExceptionHandler {
     }
 
     private String correlationId(HttpServletRequest request) {
-        String value = request.getHeader("X-Correlation-Id");
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return value;
+        return CorrelationIdSupport.from(request);
     }
 }

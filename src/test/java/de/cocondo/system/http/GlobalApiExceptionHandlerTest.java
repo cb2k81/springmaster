@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import de.cocondo.system.exception.ResourceNotFoundException;
+import de.cocondo.system.observability.CorrelationIdSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -67,7 +68,7 @@ class GlobalApiExceptionHandlerTest {
     @Test
     void propagatesCorrelationIdWhenProvided() {
         MockHttpServletRequest request = request("GET", "/api/demo/catalog/items/UNKNOWN");
-        request.addHeader("X-Correlation-Id", "corr-123");
+        request.setAttribute(CorrelationIdSupport.REQUEST_ATTRIBUTE, "corr-123");
 
         ResponseEntity<ApiErrorResponse> response = handler.handleResourceNotFound(
                 new ResourceNotFoundException("Catalog item not found"),

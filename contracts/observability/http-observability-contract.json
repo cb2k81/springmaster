@@ -1,0 +1,27 @@
+{
+  "schema": "springmaster.http-observability-contract.v1",
+  "correlation": {
+    "header": "X-Correlation-Id",
+    "requestAttribute": "springmaster.correlationId",
+    "mdcKey": "correlationId",
+    "acceptedPattern": "^[A-Za-z0-9._-]{1,128}$",
+    "generateWhenMissingOrInvalid": true,
+    "responseHeaderRequired": true,
+    "apiErrorField": "correlationId"
+  },
+  "trace": {
+    "publicField": "traceId",
+    "status": "reserved-not-populated"
+  },
+  "management": {
+    "exposedEndpoints": ["health", "info"],
+    "healthShowDetails": "never",
+    "healthShowComponents": "never"
+  },
+  "serverError": {
+    "includeException": false,
+    "includeMessage": "never",
+    "includeStacktrace": "never",
+    "includeBindingErrors": "never"
+  }
+}

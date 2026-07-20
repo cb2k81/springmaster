@@ -9,8 +9,17 @@ spring:
 
 server:
   port: ${APP_PORT:__HTTP_PORT__}
+  error:
+    include-exception: false
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
 
 management:
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
   endpoints:
     web:
       exposure:
@@ -23,5 +32,7 @@ springdoc:
     path: /swagger-ui.html
 
 logging:
+  pattern:
+    level: "%5p [correlationId:%X{correlationId:-}]"
   level:
     root: ${LOG_LEVEL:INFO}

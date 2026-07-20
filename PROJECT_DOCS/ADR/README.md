@@ -25,19 +25,20 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0007-catalog-demo-canonicalization-strategy.md` | Accepted | Catalog-demo canonicalization states, evidence, deferrals and target-comparison boundary |
 | `ADR-0008-configuration-and-runtime-profile-strategy.md` | Accepted | configuration sources, runtime profiles, secret classification and generated-project contract |
 | `ADR-0009-database-migration-and-dbtool-strategy.md` | Accepted | Liquibase structure, changeSet identity, rollback policy and DBTool safety |
+| `ADR-0010-observability-and-error-trace-strategy.md` | Accepted | HTTP correlation, MDC lifecycle, safe Actuator/error defaults and trace deferral |
 | `ADR-0011-command-precheck-and-capability-boundary.md` | Accepted | optional command precheck endpoints and backend/frontend capability boundary |
 
 | `ADR-0012-patch-transaction-and-evidence-boundary.md` | Accepted | Patch transaction, evidence, retention and export boundary |
 
 ## Planned ADR backlog
 
-ADR-0008 and ADR-0009 are accepted. ADR-0010 remains planned; ADR-0011 was accepted out of sequence because command prechecks became an immediate cross-project architecture decision.
+ADR-0008 through ADR-0010 are accepted; ADR-0011 was accepted out of sequence because command prechecks became an immediate cross-project architecture decision.
 
 | ADR | Priority | Planning status | Topic |
 |---|---|---|---|
 | ADR-0008 | P1 | accepted | Configuration and Runtime Profile Strategy |
 | ADR-0009 | P1 | accepted | Database Migration and DBTool Strategy |
-| ADR-0010 | P1 | needed | Observability and Error Trace Strategy |
+| ADR-0010 | P1 | accepted | Observability and Error Trace Strategy |
 | ADR-0011 | P0 | accepted | Command Precheck and Capability Boundary |
 
 ## ADR-0002 update
@@ -99,3 +100,7 @@ Patch `000143_springmaster_configuration_contract` accepts the configuration and
 ## ADR-0009 update
 
 Patch `000144_springmaster_database_migration_contract` accepts the Liquibase and DBTool strategy and adds a deterministic static migration-contract gate.
+
+## ADR-0010 update
+
+Patch `000145_springmaster_observability_contract` accepts the observability and error-trace strategy, implements validated HTTP correlation and hardens management/error defaults.
