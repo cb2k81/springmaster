@@ -61,6 +61,10 @@ log_info "Checking patch artifact preflight fixtures"
 log_info "Checking AGENTS.md patch scope fixture"
 "${PROJECT_ROOT}/bin/patch-agents-scope-it.sh" >/dev/null
 
+log_info "Checking documentation governance"
+"${PROJECT_ROOT}/bin/documentation-gate.sh" --check >/dev/null
+"${PROJECT_ROOT}/bin/documentation-gate-it.sh" >/dev/null
+
 if is_true "${RUN_EXPORT}"; then
   log_info "Checking one full export and its integrity manifest"
   EXPORT_REL="$("${PROJECT_ROOT}/bin/export.sh" full --zip)"
