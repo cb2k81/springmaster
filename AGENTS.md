@@ -358,6 +358,10 @@ platform/update/manifests/
 - Target-Deskriptor, erlaubtes Profil, erwartete Versionen, Baseline-Hashes, Kompatibilität und Ziel-Tests vor jeder Lieferung prüfen.
 - Keine Springmaster-`.env`, lokalen Defaults oder projektspezifischen Pfade ungeprüft in ein Zielprojekt kopieren.
 - Generated-Slice-Spec, IR und Patch-Blueprint sind Planungs-/Generierungsverträge. Sie autorisieren weder Source Rendering noch Target Mutation allein durch ihre Existenz.
+- Jeder generierte Target-Patch führt Payload, betroffene Komponentenstände, `PLATFORM_STATE_PATCH`, Compatibility-Entscheidung und Managed-State-Provenienz atomar in derselben Transaktion.
+- Profile, Payloadpfade, Scope und Validation Policy stammen aus `platform/update/rules/profiles.json`; neue Hardcodierungen im Shell-Dispatcher sind nicht zulässig.
+- Vor Generate, Preflight und Apply muss die Compatibility Matrix den konkreten Source-to-Target-Übergang freigeben. Downgrades und ungeprüfte Major-Sprünge bleiben fail-closed.
+- Ein isolierter Pilot unter `target/` oder einem temporären Pfad ist Evidence, aber keine Freigabe für ein reales Zielprojekt.
 
 ## Definition of Done
 

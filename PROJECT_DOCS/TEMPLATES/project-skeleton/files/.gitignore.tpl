@@ -21,3 +21,13 @@ __pycache__/
 .idea/
 *.iml
 .DS_Store
+
+patches/runtime/
+patches/logs/accept/
+patches/logs/validation/
+
+# Keep the generated bootstrap provenance, ignore later local patch archives.
+patches/archives/*
+!patches/archives/000001_project_new_bootstrap/
+!patches/archives/000001_project_new_bootstrap/manifest.json
+!patches/archives/000001_project_new_bootstrap/patch-log.json

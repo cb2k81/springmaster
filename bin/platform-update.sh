@@ -515,12 +515,20 @@ next_target_patch_number() {
 run_producer_artifact_preflight() {
   local zip_path="$1"
   local output_dir="$2"
-  [[ -f "${PROJECT_ROOT}/bin/patch-artifact-preflight.py" ]] || \
-    fail_update "Producer artifact preflight is missing: ${PROJECT_ROOT}/bin/patch-artifact-preflight.py"
+  local preflight_tool engine
+  preflight_tool="${TARGET_PATH}/bin/patch-artifact-preflight.py"
+  engine="${TARGET_PATH}/bin/patch.py"
+  if [[ ! -f "${preflight_tool}" ]]; then
+    preflight_tool="${PROJECT_ROOT}/bin/patch-artifact-preflight.py"
+  fi
+  if [[ ! -f "${engine}" ]]; then
+    engine="${PROJECT_ROOT}/bin/patch.py"
+  fi
+  [[ -f "${preflight_tool}" ]] || fail_update "Producer artifact preflight is missing for target ${TARGET_NAME}"
   rm -rf "${output_dir}"
-  python3 "${PROJECT_ROOT}/bin/patch-artifact-preflight.py" \
+  python3 "${preflight_tool}" \
     "${TARGET_PATH}" "${zip_path}" --output "${output_dir}" --no-export \
-    --engine "${PROJECT_ROOT}/bin/patch.py"
+    --engine "${engine}"
 }
 
 
@@ -1052,14 +1060,31 @@ parse_compatibility_plan_args() {
   [[ -f "${UPDATE_PATCH_ZIP}" ]] || fail_update "Generated patch ZIP not found: ${UPDATE_PATCH_ZIP}"
 }
 
+target_patch_manifest_schema() {
+  python3 - "${TARGET_PATH}/bin/patch.py" <<'PY_SCHEMA'
+import re
+import sys
+from pathlib import Path
+path = Path(sys.argv[1])
+if not path.is_file():
+    print("springmaster.patch-manifest.v2")
+    raise SystemExit(0)
+match = re.search(r'^PATCH_MANIFEST_SCHEMA\s*=\s*["\']([^"\']+)["\']\s*$', path.read_text(encoding="utf-8"), re.MULTILINE)
+if not match or not match.group(1).endswith('.patch-manifest.v2'):
+    raise SystemExit(f"cannot resolve target patch schema from {path}")
+print(match.group(1))
+PY_SCHEMA
+}
+
 create_target_compatibility_patch_zip() {
   local target_patch_id="$1"
   local target_patch_name="$2"
   local requested_scope="$3"
   local zip_path="$4"
-  local tmp_dir doc_rel changelog_rel manifest_path target_artifact_id
+  local tmp_dir doc_rel changelog_rel manifest_path target_artifact_id target_manifest_schema
 
   target_artifact_id="$(python3 -c 'import uuid; print(f"urn:uuid:{uuid.uuid4()}")')"
+  target_manifest_schema="$(target_patch_manifest_schema)"
 
   tmp_dir="$(mktemp -d)"
   doc_rel="$(generated_doc_rel_for_profile "${UPDATE_PROFILE}" "${target_patch_id}")"
@@ -1122,7 +1147,7 @@ CHANGELOG_EOF
 
   cat > "${manifest_path}" <<MANIFEST_EOF
 {
-  "schemaVersion": "springmaster.patch-manifest.v2",
+  "schemaVersion": "${target_manifest_schema}",
   "artifactId": "${target_artifact_id}",
   "id": "${target_patch_id}",
   "patchId": "${target_patch_id}",
@@ -1505,7 +1530,7 @@ create_target_apply() {
   [[ -n "${generated_profile}" ]] || fail_update "manifest.requires.profile missing in ${UPDATE_PATCH_ZIP}"
 
   accept_profile="$(accept_validation_profile_for_generated_profile "${generated_profile}")"
-  accept_args=(--profile "${accept_profile}" --no-export)
+  accept_args=(--profile "${accept_profile}" --no-export --commit)
   if generated_profile_requires_full_test "${generated_profile}"; then
     expected_full_test="True"
     accept_args+=(--full-test)

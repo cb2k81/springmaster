@@ -249,7 +249,11 @@ def platform_env_content(tokens: dict) -> str:
         f"PLATFORM_VERSION={tokens['__PLATFORM_VERSION__']}\n",
         f"PLATFORM_CORE_VERSION={tokens['__CORE_VERSION__']}\n",
         f"PLATFORM_TOOLING_VERSION={tokens['__TOOLING_VERSION__']}\n",
+        f"PLATFORM_TEMPLATE_VERSION={tokens['__TEMPLATE_VERSION__']}\n",
         "PLATFORM_DEMO_VERSION=0.0.0\n",
+        f"PLATFORM_UPDATE_VERSION={tokens['__UPDATE_VERSION__']}\n",
+        "PLATFORM_STATE_PATCH=000001_project_new_bootstrap\n",
+        "PLATFORM_BASELINE_KIND=project-new\n",
         f"PLATFORM_BASE_PACKAGE={tokens['__BASE_PACKAGE__']}\n",
     ])
 
@@ -271,6 +275,9 @@ STAGE_DB_NAME={tokens['__STAGE_DB_NAME__']}
 PLATFORM_VERSION={tokens['__PLATFORM_VERSION__']}
 CORE_VERSION={tokens['__CORE_VERSION__']}
 TOOLING_VERSION={tokens['__TOOLING_VERSION__']}
+TEMPLATE_VERSION={tokens['__TEMPLATE_VERSION__']}
+UPDATE_VERSION={tokens['__UPDATE_VERSION__']}
+STATE_PATCH=000001_project_new_bootstrap
 ```
 
 ## Standardprüfung
@@ -391,6 +398,8 @@ def build_tokens(args) -> dict:
     platform_version = args.platform_version or platform.get("PLATFORM_VERSION", "0.1.0-bootstrap")
     core_version = args.core_version or platform.get("PLATFORM_CORE_VERSION", "0.0.0")
     tooling_version = args.tooling_version or platform.get("PLATFORM_TOOLING_VERSION", "0.1.0-bootstrap")
+    template_version = platform.get("PLATFORM_TEMPLATE_VERSION", "0.0.0")
+    update_version = platform.get("PLATFORM_UPDATE_VERSION", "0.0.0")
 
     env_example = "".join([
         f"# {name} local configuration template\n",
@@ -455,6 +464,8 @@ def build_tokens(args) -> dict:
         "__PLATFORM_VERSION__": platform_version,
         "__CORE_VERSION__": core_version,
         "__TOOLING_VERSION__": tooling_version,
+        "__TEMPLATE_VERSION__": template_version,
+        "__UPDATE_VERSION__": update_version,
         "__ENV_EXAMPLE_CONTENT__": env_example,
     }
 

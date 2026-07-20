@@ -376,3 +376,13 @@ Profile scope, payload, target validation policy and managed component version m
 ## Version compatibility since 000148
 
 `compatibility-check` and every generated/apply flow evaluate the target component version against `platform/update/compatibility/platform-compatibility-matrix.json`. The exact PASS decision becomes a patch operation and part of the manifest and closure evidence.
+
+## P2 managed-project lifecycle closure
+
+The complete controlled path is now:
+
+```text
+profile rule -> compatibility decision -> generated payload + version/provenance state -> producer preflight -> target preflight -> explicit target-apply -> target-local commit -> closure export
+```
+
+Generated manifests use the schema required by the live target patch engine. This supports Project-New targets whose patch schema is project-key-specific and targets already cut over to the Springmaster schema. Tooling selfchecks are capability-aware so a target does not need Springmaster-only Platform-Update source files.

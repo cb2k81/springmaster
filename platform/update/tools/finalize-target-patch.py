@@ -12,7 +12,8 @@ import sys
 import uuid
 from pathlib import Path
 
-PATCH_MANIFEST_SCHEMA = "springmaster.patch-manifest.v2"
+PATCH_MANIFEST_SCHEMA_FALLBACK = "springmaster.patch-manifest.v2"
+PATCH_MANIFEST_SCHEMA_RE = re.compile(r'^PATCH_MANIFEST_SCHEMA\s*=\s*["\']([^"\']+)["\']\s*$', re.MULTILINE)
 ARTIFACT_ID_PREFIX = "urn:uuid:"
 PATCH_ID_RE = re.compile(r"^\d{6}_[A-Za-z0-9][A-Za-z0-9._-]*$")
 CHANGELOG_RE = re.compile(r"^CHANGELOG-[A-Za-z0-9._-]+\.md$")
@@ -21,6 +22,20 @@ CHANGELOG_RE = re.compile(r"^CHANGELOG-[A-Za-z0-9._-]+\.md$")
 class FinalizeError(RuntimeError):
     pass
 
+
+
+
+def target_manifest_schema(target_root: Path) -> str:
+    patch_engine = target_root / "bin/patch.py"
+    if not patch_engine.is_file():
+        return PATCH_MANIFEST_SCHEMA_FALLBACK
+    match = PATCH_MANIFEST_SCHEMA_RE.search(patch_engine.read_text(encoding="utf-8"))
+    if not match:
+        fail(f"cannot resolve target patch manifest schema from {patch_engine}")
+    value = match.group(1)
+    if not value.endswith(".patch-manifest.v2"):
+        fail(f"unsupported target patch manifest schema: {value}")
+    return value
 
 def validate_artifact_id(value: str) -> str:
     try:
@@ -172,7 +187,7 @@ def build_manifest(args: argparse.Namespace, operations: list[dict]) -> dict:
     managed_state = load_managed_state(args.root, args)
 
     return {
-        "schemaVersion": PATCH_MANIFEST_SCHEMA,
+        "schemaVersion": target_manifest_schema(args.target_root),
         "artifactId": args.artifact_id,
         "id": args.patch_id,
         "patchId": args.patch_id,

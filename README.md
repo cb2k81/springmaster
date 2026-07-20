@@ -33,3 +33,7 @@ mvn test
 ```
 
 Repository-wide working rules are defined in `AGENTS.md`. The active documentation inventory starts at `PROJECT_DOCS/index.md`.
+
+## Managed target lifecycle
+
+Springmaster validates target updates through declarative profile rules, an explicit compatibility matrix and atomic managed-state evidence. The P2 pilot proves tooling and Core upgrades on a disposable second target; real target mutation remains descriptor-bound and explicitly authorized.

@@ -49,8 +49,9 @@ def main() -> int:
     scope = manifest.get("scope")
     requires = manifest.get("requires") or {}
     expected = (manifest.get("baseline") or {}).get("expectedBeforeSha256")
-    if manifest.get("schemaVersion") != "springmaster.patch-manifest.v2":
-        raise SystemExit("manifest.schemaVersion is not springmaster.patch-manifest.v2")
+    manifest_schema = manifest.get("schemaVersion")
+    if not isinstance(manifest_schema, str) or not manifest_schema.endswith(".patch-manifest.v2"):
+        raise SystemExit(f"manifest.schemaVersion is not a supported v2 patch schema: {manifest_schema!r}")
     if not isinstance(artifact_id, str) or not artifact_id.startswith("urn:uuid:"):
         raise SystemExit("manifest.artifactId missing or invalid")
     if not isinstance(patch_id, str) or not patch_id:

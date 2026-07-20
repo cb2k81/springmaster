@@ -153,7 +153,9 @@ with zipfile.ZipFile(zip_path) as zf:
     assert manifest['requires']['target']=='zbm'
     assert manifest['requires']['masterCoreVersion']=='0.3.6'
     assert 'files/pom.xml' not in names
-    assert 'files/platform/versions/platform.env' not in names
+    assert 'files/platform/versions/platform.env' in names
+    assert 'files/platform/update/managed-state.json' in names
+    assert 'files/platform/update/compatibility-decision.json' in names
     for name in names:
         if name.startswith('files/src/main/java/') or name.startswith('files/src/test/java/'):
             assert '/de/cocondo/system/' in name, name
@@ -179,6 +181,7 @@ run_update preflight "${SOURCE_TARGET_NAME}" --zip "${ZIP_PATH}" > "${WORK_ROOT}
 grep -q 'Status:[[:space:]]*PASSED' "${WORK_ROOT}/preflight.log" || fail "target dry-run did not pass"
 
 CORE_VERSION_BEFORE="$(sed -n 's/^PLATFORM_CORE_VERSION=//p' "${TARGET_COPY}/platform/versions/platform.env")"
+MASTER_CORE_VERSION="$(sed -n 's/^PLATFORM_CORE_VERSION=//p' "${PROJECT_ROOT}/platform/versions/platform.env")"
 APPLY_OUTPUT="$(run_update target-apply "${SOURCE_TARGET_NAME}" --zip "${ZIP_PATH}")"
 printf '%s\n' "${APPLY_OUTPUT}" > "${WORK_ROOT}/target-apply.log"
 grep -q 'Status:[[:space:]]*OK' "${WORK_ROOT}/target-apply.log" || fail "target apply did not finish OK"
@@ -190,29 +193,23 @@ fi
 LATEST_AFTER="$(cd "${TARGET_COPY}" && ./bin/patch.sh show latest | sed -n 's/^Patch-ID:[[:space:]]*//p' | head -n 1)"
 [[ "${LATEST_AFTER}" == "${EXPECTED_PATCH_ID}" ]] || fail "unexpected latest patch: ${LATEST_AFTER}"
 CORE_VERSION_AFTER="$(sed -n 's/^PLATFORM_CORE_VERSION=//p' "${TARGET_COPY}/platform/versions/platform.env")"
-[[ "${CORE_VERSION_AFTER}" == "${CORE_VERSION_BEFORE}" ]] || fail "core profile must not mutate target version metadata"
-
-python3 - "${ZIP_PATH}" "${TARGET_COPY}" <<'PY'
-import json
-import subprocess
-import sys
-import zipfile
+[[ "${CORE_VERSION_AFTER}" == "${MASTER_CORE_VERSION}" ]] || fail "core profile did not atomically update target Core version"
+[[ "${CORE_VERSION_AFTER}" != "${CORE_VERSION_BEFORE}" || "${CORE_VERSION_BEFORE}" == "${MASTER_CORE_VERSION}" ]] || fail "core version transition was not observable"
+python3 - "${TARGET_COPY}" "${EXPECTED_PATCH_ID}" <<'PY_MANAGED_CORE'
+import json,sys
 from pathlib import Path
-zip_path=Path(sys.argv[1]); target=Path(sys.argv[2])
-with zipfile.ZipFile(zip_path) as zf:
-    manifest=json.loads(zf.read('manifest.json'))
-expected=set(manifest['baseline']['expectedBeforeSha256'])
-raw=subprocess.run(
-    ['git','-C',str(target),'status','--porcelain=v1','-z','--untracked-files=all'],
-    check=True,stdout=subprocess.PIPE
-).stdout
-actual=set()
-for record in raw.split(b'\0'):
-    if record:
-        line=record.decode('utf-8','surrogateescape')
-        actual.add(line[3:].split(' -> ',1)[-1])
-assert actual==expected, (sorted(expected),sorted(actual))
-PY
+root=Path(sys.argv[1]); patch_id=sys.argv[2]
+state=json.loads((root/'platform/update/managed-state.json').read_text())
+decision=json.loads((root/'platform/update/compatibility-decision.json').read_text())
+assert state['patchId']==patch_id
+assert state['profile']=='core'
+assert state['platformStatePatch']==patch_id
+assert state['compatibility']==decision
+assert decision['status']=='PASS'
+assert decision['profile']=='core'
+PY_MANAGED_CORE
+
+[[ -z "$(git -C "${TARGET_COPY}" status --porcelain --untracked-files=all)" ]] || fail "target must be clean after committed core apply"
 
 EXPORT_PATH="$(printf '%s\n' "${APPLY_OUTPUT}" | sed -n 's/^  Export-Pfad:[[:space:]]*//p' | tail -n 1)"
 [[ -f "${EXPORT_PATH}" ]] || fail "target closure export missing: ${EXPORT_PATH}"

@@ -58,30 +58,62 @@ log_info "Checking patch registry"
 log_info "Checking patch artifact preflight fixtures"
 "${PROJECT_ROOT}/bin/patch-artifact-preflight-it.sh" >/dev/null
 
-log_info "Checking AGENTS.md patch scope fixture"
-"${PROJECT_ROOT}/bin/patch-agents-scope-it.sh" >/dev/null
+if [[ -x "${PROJECT_ROOT}/bin/patch-agents-scope-it.sh" ]]; then
+  log_info "Checking AGENTS.md patch scope fixture"
+  "${PROJECT_ROOT}/bin/patch-agents-scope-it.sh" >/dev/null
+else
+  log_info "Skipping AGENTS.md patch scope fixture; capability is not installed in this project"
+fi
 
-log_info "Checking documentation governance"
-"${PROJECT_ROOT}/bin/documentation-gate.sh" --check >/dev/null
-"${PROJECT_ROOT}/bin/documentation-gate-it.sh" >/dev/null
+run_optional_contract_check() {
+  local label="$1"
+  local entrypoint="$2"
+  shift 2
+  if [[ -x "${entrypoint}" || -f "${entrypoint}" ]]; then
+    log_info "Checking ${label}"
+    "$@"
+  else
+    log_info "Skipping ${label}; capability is not installed in this project"
+  fi
+}
 
-log_info "Checking configuration contract"
-"${PROJECT_ROOT}/bin/config-contract.sh" --check >/dev/null
-"${PROJECT_ROOT}/bin/config-contract-it.sh" >/dev/null
+run_optional_contract_check \
+  "documentation governance" \
+  "${PROJECT_ROOT}/bin/documentation-gate.sh" \
+  bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/documentation-gate.sh" \
+  "${PROJECT_ROOT}/bin/documentation-gate-it.sh"
 
-log_info "Checking release manifest contract"
-"${PROJECT_ROOT}/bin/release-manifest-it.sh" >/dev/null
+run_optional_contract_check \
+  "configuration contract" \
+  "${PROJECT_ROOT}/bin/config-contract.sh" \
+  bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/config-contract.sh" \
+  "${PROJECT_ROOT}/bin/config-contract-it.sh"
 
-log_info "Checking Platform-Update compatibility matrix"
-python3 "${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py" --matrix "${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json" validate >/dev/null
-"${PROJECT_ROOT}/platform/update/tests/platform-update-compatibility-matrix-it.sh" >/dev/null
+run_optional_contract_check \
+  "release manifest contract" \
+  "${PROJECT_ROOT}/bin/release-manifest-it.sh" \
+  "${PROJECT_ROOT}/bin/release-manifest-it.sh"
 
-log_info "Checking declarative Platform-Update profile rules"
-python3 "${PROJECT_ROOT}/platform/update/tools/profile-rules.py" --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" validate >/dev/null
-"${PROJECT_ROOT}/platform/update/tests/platform-update-profile-rules-it.sh" >/dev/null
+if [[ -f "${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py" \
+   && -f "${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json" \
+   && -f "${PROJECT_ROOT}/platform/update/tools/profile-rules.py" \
+   && -f "${PROJECT_ROOT}/platform/update/rules/profiles.json" \
+   && -x "${PROJECT_ROOT}/platform/update/tests/platform-update-managed-state-it.sh" ]]; then
+  log_info "Checking Platform-Update compatibility matrix"
+  python3 "${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py" --matrix "${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json" validate >/dev/null
+  "${PROJECT_ROOT}/platform/update/tests/platform-update-compatibility-matrix-it.sh" >/dev/null
 
-log_info "Checking managed target version and provenance state"
-"${PROJECT_ROOT}/platform/update/tests/platform-update-managed-state-it.sh" >/dev/null
+  log_info "Checking declarative Platform-Update profile rules"
+  python3 "${PROJECT_ROOT}/platform/update/tools/profile-rules.py" --rules "${PROJECT_ROOT}/platform/update/rules/profiles.json" validate >/dev/null
+  "${PROJECT_ROOT}/platform/update/tests/platform-update-profile-rules-it.sh" >/dev/null
+
+  log_info "Checking managed target version and provenance state"
+  "${PROJECT_ROOT}/platform/update/tests/platform-update-managed-state-it.sh" >/dev/null
+else
+  log_info "Skipping Springmaster-only Platform-Update source contracts"
+fi
 
 if is_true "${RUN_EXPORT}"; then
   log_info "Checking one full export and its integrity manifest"
@@ -92,13 +124,19 @@ else
   "${PROJECT_ROOT}/bin/export-integrity-it.sh" >/dev/null
 fi
 
-log_info "Checking observability contract"
-"${PROJECT_ROOT}/bin/observability-contract.sh" --check >/dev/null
-"${PROJECT_ROOT}/bin/observability-contract-it.sh" >/dev/null
+run_optional_contract_check \
+  "observability contract" \
+  "${PROJECT_ROOT}/bin/observability-contract.sh" \
+  bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/observability-contract.sh" \
+  "${PROJECT_ROOT}/bin/observability-contract-it.sh"
 
-log_info "Checking database migration contract"
-"${PROJECT_ROOT}/bin/db-migration-contract.sh" --check >/dev/null
-"${PROJECT_ROOT}/bin/db-migration-contract-it.sh" >/dev/null
+run_optional_contract_check \
+  "database migration contract" \
+  "${PROJECT_ROOT}/bin/db-migration-contract.sh" \
+  bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/db-migration-contract.sh" \
+  "${PROJECT_ROOT}/bin/db-migration-contract-it.sh"
 
 log_info "Checking DBTool env/status"
 "${PROJECT_ROOT}/bin/dbtool.sh" env >/dev/null

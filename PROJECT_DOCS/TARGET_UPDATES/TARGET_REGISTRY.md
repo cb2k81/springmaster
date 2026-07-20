@@ -176,3 +176,9 @@ Before any real target delivery:
 
 Generated plan patches and review artifacts do not themselves grant mutation
 permission.
+
+## Isolated second managed-target pilot
+
+Patch `000149_springmaster_managed_project_lifecycle_pilot` adds a self-contained integration pilot. It creates a fresh target with Project-New in a disposable directory, proves N-1 tooling and Core upgrades, validates atomic version/provenance state, commits target-local patches and verifies closure exports.
+
+The pilot is not a persistent descriptor and grants no delivery permission to a real Fachprojekt. A second real managed target requires a separate compatibility review and explicit descriptor reclassification.

@@ -116,10 +116,13 @@ with zipfile.ZipFile(zip_path) as zf:
         elif name.startswith('logs/'):
             ops.append((name,'patches/logs/tooling/'+Path(name).name))
     expected=manifest['baseline']['expectedBeforeSha256']
-    assert manifest['schemaVersion']=='springmaster.patch-manifest.v2'
+    assert manifest['schemaVersion'].endswith('.patch-manifest.v2')
     assert manifest['id']==manifest['patchId']
     assert manifest['artifactId']==f"urn:uuid:{uuid.UUID(manifest['artifactId'].removeprefix('urn:uuid:'))}"
     assert manifest['scope']=='tooling'
+    assert 'files/platform/versions/platform.env' in names
+    assert 'files/platform/update/managed-state.json' in names
+    assert 'files/platform/update/compatibility-decision.json' in names
     assert manifest['requires']['target']
     assert manifest['requires']['profile']=='tooling-cutover'
     assert set(expected)=={target_path for _,target_path in ops}
@@ -237,6 +240,24 @@ PY
 
 latest_after="$(cd "${TARGET_COPY}" && ./bin/patch.sh show latest | sed -n 's/^Patch-ID:[[:space:]]*//p' | head -n 1)"
 [[ "${latest_after}" == "${generated_id}" ]] || fail "isolated target latest patch mismatch: ${latest_after}"
+python3 - "${TARGET_COPY}" "${generated_id}" <<'PY_MANAGED_TOOLING'
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1]); patch_id=sys.argv[2]
+state=json.loads((root/'platform/update/managed-state.json').read_text())
+decision=json.loads((root/'platform/update/compatibility-decision.json').read_text())
+versions={}
+for line in (root/'platform/versions/platform.env').read_text().splitlines():
+    if '=' in line and not line.lstrip().startswith('#'):
+        k,v=line.split('=',1); versions[k]=v
+assert state['patchId']==patch_id
+assert state['profile']=='tooling-cutover'
+assert state['compatibility']==decision
+assert decision['status']=='PASS'
+assert versions['PLATFORM_STATE_PATCH']==patch_id
+assert versions['PLATFORM_BASELINE_KIND']=='managed-target'
+assert state['installedVersions']['PLATFORM_TOOLING_VERSION']==versions['PLATFORM_TOOLING_VERSION']
+PY_MANAGED_TOOLING
 
 [[ "$(git -C "${SOURCE_TARGET_PATH}" rev-parse HEAD)" == "${source_head_before}" ]] || \
   fail "source target HEAD changed during isolated delivery test"
