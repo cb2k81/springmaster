@@ -1931,6 +1931,210 @@ def run_validation_steps(log_dir, options):
 
     return None, latest_export_path
 
+
+def transaction_child_args(args):
+    result = []
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg in ("--background", "--wait", "--push"):
+            i += 1
+            continue
+        if arg == "--lock-timeout":
+            i += 2
+            continue
+        result.append(arg)
+        i += 1
+    if "--commit" not in result:
+        result.append("--commit")
+    return result
+
+
+def copy_tree_if_present(source, target):
+    source = Path(source)
+    target = Path(target)
+    if not source.exists():
+        return
+    if source.is_dir():
+        shutil.copytree(source, target, dirs_exist_ok=True)
+    else:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
+def git_output_at(root, *args):
+    result = subprocess.run(
+        ["git", *args],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if result.returncode != 0:
+        fail(f"Git command failed in {root}: git {' '.join(args)}\n{result.stdout}")
+    return result.stdout.strip()
+
+
+def transactional_accept_command(args, options, zip_path, patch_info):
+    patch_id = patch_info["patchId"]
+    baseline_head = git_output_at(PROJECT_ROOT, "rev-parse", "HEAD")
+    log_dir, fixed_log_dir = make_accept_log_dir(f"transaction-{patch_id}")
+    ensure_git_clean_before_commit(log_dir)
+
+    transaction_parent = Path(tempfile.mkdtemp(prefix=f"springmaster-accept-{patch_id}-"))
+    worktree = transaction_parent / "worktree"
+    child_log = log_dir / "worktree-child.log"
+    worktree_added = False
+    child_rc = 1
+
+    try:
+        add_result = subprocess.run(
+            ["git", "worktree", "add", "--detach", str(worktree), baseline_head],
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        (log_dir / "worktree-add.log").write_text(add_result.stdout or "", encoding="utf-8")
+        if add_result.returncode != 0:
+            fail(f"PATCH_ACCEPT_WORKTREE_CREATE_FAILED: see {log_dir / 'worktree-add.log'}")
+        worktree_added = True
+
+        child_env = dict(os.environ)
+        child_env["PATCH_ACCEPT_WORKTREE_CHILD"] = "1"
+        child_env.pop("PATCH_ACCEPT_LOG_DIR", None)
+        child_command = [
+            sys.executable,
+            str(worktree / "bin" / "patch.py"),
+            str(worktree),
+            "accept",
+            *transaction_child_args(args),
+        ]
+        with child_log.open("w", encoding="utf-8") as out:
+            out.write(f"$ {command_to_text(child_command)}\n\n")
+            out.flush()
+            child = subprocess.run(
+                child_command,
+                cwd=worktree,
+                env=child_env,
+                stdout=out,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+        child_rc = child.returncode
+
+        current_head = git_output_at(PROJECT_ROOT, "rev-parse", "HEAD")
+        current_dirty = git_status_paths(log_dir=log_dir, ignore_accept_log=True)
+        if current_head != baseline_head or current_dirty:
+            fail(
+                "PATCH_ACCEPT_LIVE_STATE_CHANGED_DURING_VALIDATION: the live repository "
+                "must remain unchanged while the worktree is validated."
+            )
+
+        child_accept = worktree / "patches" / "logs" / "accept" / patch_id
+        if child_rc != 0:
+            copy_tree_if_present(child_accept, log_dir / "child-accept")
+            write_accept_summary(
+                log_dir,
+                "FAILED",
+                "accept",
+                patch_id=patch_id,
+                failed_step="worktree-validation",
+                options=options,
+            )
+            print_accept_result(
+                "FAILED",
+                "accept",
+                log_dir,
+                patch_id=patch_id,
+                failed_step="worktree-validation",
+                options=options,
+            )
+            raise SystemExit(child_rc)
+
+        child_head = git_output_at(worktree, "rev-parse", "HEAD")
+        child_parent = git_output_at(worktree, "rev-parse", "HEAD^")
+        if child_parent != baseline_head:
+            fail(
+                "PATCH_ACCEPT_WORKTREE_PARENT_MISMATCH: qualified commit does not descend "
+                "directly from the live baseline."
+            )
+
+        cherry_pick_args = ["cherry-pick", child_head]
+        if not options.get("gitCommit"):
+            cherry_pick_args = ["cherry-pick", "--no-commit", child_head]
+        cherry = git_run(cherry_pick_args, log_dir=log_dir)
+        if cherry.returncode != 0:
+            git_run(["cherry-pick", "--abort"], log_dir=log_dir)
+            fail("PATCH_ACCEPT_CHERRY_PICK_FAILED: qualified commit could not be transferred to live.")
+
+        live_archive = ARCHIVES_DIR / patch_id
+        if live_archive.exists():
+            fail(f"PATCH_ACCEPT_ARCHIVE_CONFLICT_AFTER_VALIDATION: {live_archive}")
+        copy_tree_if_present(worktree / "patches" / "archives" / patch_id, live_archive)
+
+        final_log_dir = accept_log_base() / patch_id
+        if final_log_dir.exists() and final_log_dir != log_dir:
+            shutil.rmtree(final_log_dir)
+        if final_log_dir != log_dir:
+            final_log_dir.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(log_dir), str(final_log_dir))
+            log_dir = final_log_dir
+        copy_tree_if_present(child_accept, log_dir / "child-accept")
+        copy_tree_if_present(worktree / "exports", PROJECT_ROOT / "exports")
+
+        latest_export = latest_full_export()
+        latest_export_path = str(latest_export) if latest_export else None
+        git_commit_result = {
+            "status": "COMMITTED" if options.get("gitCommit") else "VALIDATED_NOT_COMMITTED",
+            "hash": git_output_at(PROJECT_ROOT, "rev-parse", "--short", "HEAD") if options.get("gitCommit") else None,
+            "pushStatus": "SKIPPED",
+            "message": f"qualified in isolated worktree: {child_head[:12]}",
+        }
+        if options.get("gitPush"):
+            push_result = git_run(["push"], log_dir=log_dir)
+            if push_result.returncode != 0:
+                fail("PATCH_ACCEPT_PUSH_FAILED: qualified live commit was not pushed.")
+            git_commit_result["pushStatus"] = "PUSHED"
+
+        git_commit_script = generate_git_commit_script(log_dir, patch_id)
+        write_accept_summary(
+            log_dir,
+            "SUCCESS",
+            "accept",
+            patch_id=patch_id,
+            latest_export_path=latest_export_path,
+            options=options,
+            git_commit_script=git_commit_script,
+            git_commit_result=git_commit_result,
+        )
+        print_accept_result(
+            "SUCCESS",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            latest_export_path=latest_export_path,
+            options=options,
+            git_commit_script=git_commit_script,
+            git_commit_result=git_commit_result,
+        )
+    finally:
+        if worktree_added:
+            subprocess.run(
+                ["git", "worktree", "remove", "--force", str(worktree)],
+                cwd=PROJECT_ROOT,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        subprocess.run(
+            ["git", "worktree", "prune"],
+            cwd=PROJECT_ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        shutil.rmtree(transaction_parent, ignore_errors=True)
+
+
 def accept_command(args):
     options = parse_accept_verify_args(args, "Patch-ZIP")
     zip_path = Path(options["subject"]).expanduser().resolve()
@@ -1944,6 +2148,10 @@ def accept_command(args):
     patch_info = inspect_patch_zip(zip_path)
     target_paths = patch_info["targetPaths"]
     options = resolve_validation_profile(options, target_paths)
+
+    if os.environ.get("PATCH_ACCEPT_WORKTREE_CHILD") != "1" and summary_has_effect(patch_info["summary"]):
+        transactional_accept_command(args, options, zip_path, patch_info)
+        return
 
     log_dir, fixed_log_dir = make_accept_log_dir(zip_path.name)
 

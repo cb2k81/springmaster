@@ -380,6 +380,10 @@ Eine Änderung ist erst abgeschlossen, wenn:
 
 A failed `patch.sh accept` is not an accepted repository state. Before another patch, roll the failed patch back and run `./bin/patch-state-audit.sh --check --require-clean`. Preserve the failed acceptance evidence; do not amend or hide it. Historical exceptions require an explicit entry in `contracts/governance/patch-state-reconciliations.json` with immutable closure evidence; never infer reconciliation from patch numbering or file presence alone.
 
+### Transactional accept
+
+Never treat copied payload as accepted state. Effective accepts validate in a detached Git worktree and transfer only a qualified commit. A failed accept must leave the live repository and live patch registry unchanged.
+
 ### Scope least privilege
 
 Do not widen `root` for an entire roadmap. Use the narrow built-in scope whenever possible; project templates may not inherit Springmaster-specific package paths. Every scope expansion requires a separate bounded patch and a removal decision.

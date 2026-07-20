@@ -377,3 +377,6 @@ artifact-preflight -> deliver -> accept/apply -> targeted tests -> full tests ->
 Artifact preflight is non-mutating for the live repository and applies only in an isolated worktree. It does not replace host acceptance tests.
 
 Final runners can provide a JSON file through `PATCH_EXPORT_EVIDENCE_FILE` or `export.sh --evidence`. The exporter embeds the prior-gate evidence and its digest together with `exportStatus=COMPLETE`, so one final export is sufficient and a transient runner `STATUS.txt` no longer needs to be interpreted as export completion evidence.
+## Transactional acceptance
+
+Effective `accept` runs in a detached Git worktree. The live repository receives the qualified commit and patch evidence only after all configured validation steps succeed. A failed validation must leave live `HEAD`, Working Tree and archive registry unchanged. See `PROJECT_DOCS/TOOLING/PATCH_TRANSACTIONAL_ACCEPTANCE.md`.

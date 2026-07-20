@@ -34,3 +34,6 @@ Patch `000140_springmaster_patch_artifact_identity_v2` implements Decision 2 wit
 - Vorgängerexport als allgemeine Folgerun-Precondition;
 - vollständiger Export als Bestandteil jedes erfolgreichen Apply;
 - dreifach vendierter gemeinsamer Core vor Governance- und Retention-Cutover.
+## Accepted operational refinement: isolated acceptance
+
+An effective patch acceptance is executed in a detached Git worktree. Validation failure does not mutate the live repository or create a live applied archive. Only a qualified patch commit whose parent is the live baseline may be transferred into the live branch. This refinement closes the previously observed `applied`-but-failed state gap without changing patch artifact identity.

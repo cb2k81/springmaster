@@ -157,6 +157,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/TOOLING/FAILED_ACCEPT_RECOVERY.md` — recovery invariant for failed patch acceptance
 - `contracts/governance/patch-state-reconciliations.json` — explicit immutable closure evidence for historical failed accepts retained in committed baselines
 - `PROJECT_DOCS/TOOLING/PATCH_SCOPE_LEAST_PRIVILEGE.md` — least-privilege rules for Springmaster and generated project scopes
+- `PROJECT_DOCS/TOOLING/PATCH_TRANSACTIONAL_ACCEPTANCE.md` — detached-worktree validation and live commit transfer contract
 - `PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md`
 - `PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md`
 - `PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md`

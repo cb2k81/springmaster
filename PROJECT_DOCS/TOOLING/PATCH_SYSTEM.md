@@ -381,3 +381,6 @@ PROJECT_DOCS/TOOLING/PATCH_ARTIFACT_PREFLIGHT_HARDENING.md
 Die Repository-Arbeitsanweisung `AGENTS.md` ist ein kontrollierter Patchpfad. Sie ist in den Scopes `root` und `docs` erlaubt. Dadurch kann die Arbeitsanweisung erst nach der expliziten Scope-Erweiterung als eigener, baselinegebundener Patch aufgenommen und später dokumentarisch gepflegt werden.
 
 Die Scope-Erweiterung ist bewusst getrennt von der erstmaligen Anlage der Datei: Der alte Patch-Preflight muss Patch `000136` noch ohne einen zuvor unbekannten Rootpfad validieren können.
+## Transactional acceptance
+
+Effective `accept` runs in a detached Git worktree. The live repository receives the qualified commit and patch evidence only after all configured validation steps succeed. A failed validation must leave live `HEAD`, Working Tree and archive registry unchanged. See `PROJECT_DOCS/TOOLING/PATCH_TRANSACTIONAL_ACCEPTANCE.md`.

@@ -145,4 +145,5 @@ log_info "Checking DBTool env/status"
 log_info "Tooling selfcheck completed successfully."
 
 "${SCRIPT_DIR}/patch-scope-least-privilege-it.sh" >/dev/null
+"${SCRIPT_DIR}/patch-transactional-accept-it.sh" >/dev/null
 "${SCRIPT_DIR}/patch-state-audit.sh" --check
