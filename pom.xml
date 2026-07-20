@@ -7,7 +7,7 @@
 
     <groupId>de.cocondo.platform</groupId>
     <artifactId>springmaster</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.13.71-foundation-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>springmaster</name>
@@ -84,6 +84,18 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>platform/versions</directory>
+                <includes>
+                    <include>platform.env</include>
+                </includes>
+                <targetPath>META-INF/springmaster</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -137,4 +149,3 @@
     </profiles>
 
 </project>
-
