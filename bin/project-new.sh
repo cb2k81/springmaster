@@ -417,6 +417,8 @@ def build_tokens(args) -> dict:
         "APP_DBTOOL_ALLOW_DESTRUCTIVE=false\n",
         "LOG_LEVEL=INFO\n",
         "\n",
+        "PATCH_SCOPE_ROOT_EXTRA_PATHS=\"AGENTS.md;contracts/**;src/main/java/de/cocondo/system/http/GlobalApiExceptionHandler.java;src/main/java/de/cocondo/system/observability/**\"\n",
+        "\n",
         "# Generated target-project scopes. Keep these values project-local.\n",
         f"PATCH_LOCAL_SCOPES=\"domain;{name}\"\n",
         f"PATCH_SCOPE_DOMAIN_PATHS=\"src/main/java/{base_package_path}/**;src/test/java/{base_package_path}/**;src/main/resources/db/**;PROJECT_DOCS/CONCEPT/**;PROJECT_DOCS/DOMAIN/**\"\n",

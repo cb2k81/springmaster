@@ -32,6 +32,8 @@ APP_DIST_DIR=target/dist
 APP_DBTOOL_ALLOW_DESTRUCTIVE=false
 LOG_LEVEL=INFO
 
+PATCH_SCOPE_ROOT_EXTRA_PATHS="AGENTS.md;contracts/**"
+
 # Project-local patch scope extensions. Keep project-specific scopes and paths here,
 # not in the shared Springmaster patch tooling. Values are semicolon-separated.
 # Extend an existing standard scope:
