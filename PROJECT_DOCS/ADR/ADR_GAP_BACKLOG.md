@@ -307,7 +307,7 @@ Decision scope:
 - actuator exposure;
 - feature flags.
 
-### ADR-0009: Database Migration and DBTool Strategy
+### ADR-0009: Database Migration and DBTool Strategy — accepted by patch 000144
 
 Priority: `P1`
 

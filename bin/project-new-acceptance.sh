@@ -127,6 +127,7 @@ require_file "platform/versions/platform.env"
 require_file "PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md"
 require_file "PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env"
 require_file "contracts/configuration/environment-contract.json"
+require_file "contracts/database/migration-contract.json"
 require_file "patches/archives/000001_project_new_bootstrap/manifest.json"
 require_file "patches/archives/000001_project_new_bootstrap/patch-log.json"
 python3 - <<'PY_BOOTSTRAP_IDENTITY'
@@ -152,6 +153,8 @@ require_file "bin/export.sh"
 require_file "bin/export-integrity-check.py"
 require_file "bin/export-integrity-it.sh"
 require_file "bin/dbtool.sh"
+require_file "bin/db-migration-contract.py"
+require_file "bin/db-migration-contract.sh"
 require_file "bin/build.sh"
 require_file "bin/config-contract.py"
 require_file "bin/config-contract.sh"
@@ -196,11 +199,15 @@ echo "Project-New Acceptance: configuration contract"
 ./bin/config-contract.sh --check > "${LOG_DIR}/04_generated_config_contract.log" 2>&1
 require_marker "CONFIG_CONTRACT=PASS" "${LOG_DIR}/04_generated_config_contract.log"
 
+echo "Project-New Acceptance: migration contract"
+./bin/db-migration-contract.sh --check > "${LOG_DIR}/04b_generated_db_migration_contract.log" 2>&1
+require_marker "DB_MIGRATION_CONTRACT=PASS" "${LOG_DIR}/04b_generated_db_migration_contract.log"
+
 echo "Project-New Acceptance: DBTool status"
 ./bin/dbtool.sh status > "${LOG_DIR}/04_generated_dbtool_status.log" 2>&1
 require_marker "APP_DEV_DB_NAME=sample_backend" "${LOG_DIR}/04_generated_dbtool_status.log"
 require_marker "APP_STAGE_DB_NAME=sample_backend_build" "${LOG_DIR}/04_generated_dbtool_status.log"
-require_marker "DBTool configuration is valid" "${LOG_DIR}/04_generated_dbtool_status.log"
+require_marker "DBTool configuration and migration contract are valid" "${LOG_DIR}/04_generated_dbtool_status.log"
 
 echo "Project-New Acceptance: export"
 ./bin/export.sh full --zip > "${LOG_DIR}/05_generated_export.log" 2>&1

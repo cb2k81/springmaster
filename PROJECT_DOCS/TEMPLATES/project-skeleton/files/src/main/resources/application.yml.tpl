@@ -3,6 +3,9 @@ spring:
     name: __PROJECT_NAME__
   profiles:
     default: ${APP_PROFILE:dev}
+  liquibase:
+    enabled: ${APP_LIQUIBASE_ENABLED:false}
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
 server:
   port: ${APP_PORT:__HTTP_PORT__}

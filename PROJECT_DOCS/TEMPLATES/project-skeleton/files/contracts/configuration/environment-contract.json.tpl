@@ -240,6 +240,18 @@
       ]
     },
     {
+      "name": "APP_LIQUIBASE_ENABLED",
+      "type": "boolean",
+      "required": true,
+      "secret": false,
+      "default": "false",
+      "consumers": [
+        "shell",
+        "runtime",
+        "dbtool"
+      ]
+    },
+    {
       "name": "APP_OPENAPI_PATH",
       "type": "http-path",
       "required": true,

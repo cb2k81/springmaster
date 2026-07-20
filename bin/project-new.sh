@@ -27,7 +27,11 @@ TOOLING_FILES = [
     "bin/build.sh",
     "bin/config-contract.py",
     "bin/config-contract.sh",
+    "bin/config-contract-it.sh",
     "bin/dbtool.sh",
+    "bin/db-migration-contract.py",
+    "bin/db-migration-contract.sh",
+    "bin/db-migration-contract-it.sh",
     "bin/export-completion.bash",
     "bin/export-integrity-check.py",
     "bin/export-integrity-it.sh",
@@ -131,6 +135,8 @@ def render_text(text: str, tokens: dict) -> str:
         "springmaster.patch-export-evidence.v1": "__CANONICAL_PATCH_EXPORT_EVIDENCE_SCHEMA__",
         "springmaster.environment-contract.v1": "__CANONICAL_ENVIRONMENT_CONTRACT_SCHEMA__",
         "springmaster.configuration-contract-report.v1": "__CANONICAL_CONFIGURATION_CONTRACT_REPORT_SCHEMA__",
+        "springmaster.database-migration-contract.v1": "__CANONICAL_DATABASE_MIGRATION_CONTRACT_SCHEMA__",
+        "springmaster.database-migration-contract-report.v1": "__CANONICAL_DATABASE_MIGRATION_CONTRACT_REPORT_SCHEMA__",
     }
     for literal, placeholder in protected_literals.items():
         rendered = rendered.replace(literal, placeholder)
@@ -412,6 +418,7 @@ def build_tokens(args) -> dict:
         "APP_CHANGELOG_DIR=src/main/resources/db/changelog\n",
         "APP_CHANGELOG_MASTER=src/main/resources/db/changelog/db.changelog-master.xml\n",
         "APP_LIQUIBASE_CONTEXTS=\n",
+        "APP_LIQUIBASE_ENABLED=false\n",
         "\n",
         "APP_OPENAPI_PATH=/api-docs\n",
         "APP_EXPORT_CONFIG_FILE=export.config.json\n",

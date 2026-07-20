@@ -6,6 +6,7 @@ usage() {
 Usage:
   ./bin/dbtool.sh env
   ./bin/dbtool.sh status
+  ./bin/dbtool.sh contract
   ./bin/dbtool.sh changelogs
   ./bin/dbtool.sh validate-stage
   ./bin/dbtool.sh update-stage
@@ -21,10 +22,15 @@ Safety:
 EOF
 }
 
+dbtool_contract() {
+  "${PROJECT_DIR}/bin/db-migration-contract.sh" --check
+}
+
 dbtool_status() {
   print_dbtool_env
   require_project_changelog
-  log_info "DBTool configuration is valid. No database connection was opened for status."
+  dbtool_contract >/dev/null
+  log_info "DBTool configuration and migration contract are valid. No database connection was opened for status."
 }
 
 dbtool_rebuild_dev() {
@@ -44,6 +50,9 @@ dbtool_main() {
       ;;
     status)
       dbtool_status
+      ;;
+    contract)
+      dbtool_contract
       ;;
     changelogs)
       list_changelog_files

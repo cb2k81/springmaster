@@ -5,6 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <include file="db/changelog/changes/db.changelog-0000-foundation.xml"/>
+    <changeSet id="0000-foundation-baseline" author="springmaster">
+        <tagDatabase tag="springmaster-foundation"/>
+    </changeSet>
 
 </databaseChangeLog>

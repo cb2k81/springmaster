@@ -20,6 +20,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0007-catalog-demo-canonicalization-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0008-configuration-and-runtime-profile-strategy.md`
+- `PROJECT_DOCS/ADR/ADR-0009-database-migration-and-dbtool-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md`
 - `PROJECT_DOCS/ADR/ADR-0012-patch-transaction-and-evidence-boundary.md`
 - `PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md`

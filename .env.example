@@ -23,6 +23,7 @@ APP_DB_ADMIN_PASS=
 APP_CHANGELOG_DIR=src/main/resources/db/changelog
 APP_CHANGELOG_MASTER=src/main/resources/db/changelog/db.changelog-master.xml
 APP_LIQUIBASE_CONTEXTS=
+APP_LIQUIBASE_ENABLED=false
 
 APP_OPENAPI_PATH=/api-docs
 APP_EXPORT_CONFIG_FILE=export.config.json

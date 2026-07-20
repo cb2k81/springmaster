@@ -81,6 +81,10 @@ else
   "${PROJECT_ROOT}/bin/export-integrity-it.sh" >/dev/null
 fi
 
+log_info "Checking database migration contract"
+"${PROJECT_ROOT}/bin/db-migration-contract.sh" --check >/dev/null
+"${PROJECT_ROOT}/bin/db-migration-contract-it.sh" >/dev/null
+
 log_info "Checking DBTool env/status"
 "${PROJECT_ROOT}/bin/dbtool.sh" env >/dev/null
 "${PROJECT_ROOT}/bin/dbtool.sh" status >/dev/null
