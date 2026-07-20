@@ -143,3 +143,5 @@ log_info "Checking DBTool env/status"
 "${PROJECT_ROOT}/bin/dbtool.sh" status >/dev/null
 
 log_info "Tooling selfcheck completed successfully."
+
+"${SCRIPT_DIR}/patch-state-audit.sh" --check

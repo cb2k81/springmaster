@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "springmaster.patch-state-reconciliations.v1",
+  "entries": [
+    {
+      "patchId": "000131_springmaster_zbm_core_0_3_6_delivery_enablement",
+      "observedArchiveStatus": "applied",
+      "observedAcceptStatus": "FAILED",
+      "resolution": "historical_joint_closure",
+      "closurePatchIds": [
+        "000133_springmaster_project_new_env_template_repository_tracking_repair",
+        "000134_springmaster_platform_update_core_delivery_clone_state_repair"
+      ],
+      "evidencePaths": [
+        "patches/logs/root/CHANGELOG-000133_springmaster_project_new_env_template_repository_tracking_repair.md",
+        "patches/logs/platform-update/CHANGELOG-000134_springmaster_platform_update_core_delivery_clone_state_repair.md",
+        "PROJECT_DOCS/TARGET_UPDATES/ZBM_CORE_DELIVERY_CLONE_STATE_REPAIR.md"
+      ],
+      "rationale": "The original accept failed, but patches 000131, 000132 and 000133 were closed by a synthetic commit and the isolated ZBM delivery path was subsequently repaired and requalified by 000134. The failed accept summary remains immutable historical evidence."
+    }
+  ]
+}

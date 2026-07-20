@@ -375,3 +375,7 @@ Eine Änderung ist erst abgeschlossen, wenn:
 - keine Secrets, lokalen Artefakte oder fremden Änderungen enthalten sind;
 - keine unbelegte Canonicalization-, Security-, Persistence-, Strict-Gate- oder Target-Delivery-Behauptung gemacht wird;
 - der Abschlussbericht geänderte Dateien, ausgeführte Kommandos, Resultate und verbleibende Deferrals enthält.
+
+### Failed accept recovery
+
+A failed `patch.sh accept` is not an accepted repository state. Before another patch, roll the failed patch back and run `./bin/patch-state-audit.sh --check --require-clean`. Preserve the failed acceptance evidence; do not amend or hide it. Historical exceptions require an explicit entry in `contracts/governance/patch-state-reconciliations.json` with immutable closure evidence; never infer reconciliation from patch numbering or file presence alone.
