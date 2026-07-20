@@ -1,6 +1,8 @@
 spring:
   application:
     name: springmaster
+  profiles:
+    default: ${APP_PROFILE:dev}
 
 server:
   port: ${APP_PORT:8080}
@@ -13,6 +15,10 @@ management:
 
 springdoc:
   api-docs:
-    path: /api-docs
+    path: ${APP_OPENAPI_PATH:/api-docs}
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

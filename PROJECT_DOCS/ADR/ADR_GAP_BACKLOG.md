@@ -283,7 +283,7 @@ Remaining deferrals after ADR acceptance:
 - security test fixtures;
 - strict security gate promotion.
 
-### ADR-0008: Configuration and Runtime Profile Strategy
+### ADR-0008: Configuration and Runtime Profile Strategy — accepted by patch 000143
 
 Priority: `P1`
 

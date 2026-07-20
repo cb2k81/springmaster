@@ -1,15 +1,24 @@
 spring:
   application:
     name: __PROJECT_NAME__
-  liquibase:
-    enabled: false
-    change-log: classpath:db/changelog/db.changelog-master.xml
+  profiles:
+    default: ${APP_PROFILE:dev}
 
 server:
-  port: __HTTP_PORT__
+  port: ${APP_PORT:__HTTP_PORT__}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+springdoc:
+  api-docs:
+    path: ${APP_OPENAPI_PATH:/api-docs}
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

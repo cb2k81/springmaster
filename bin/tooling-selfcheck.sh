@@ -65,6 +65,10 @@ log_info "Checking documentation governance"
 "${PROJECT_ROOT}/bin/documentation-gate.sh" --check >/dev/null
 "${PROJECT_ROOT}/bin/documentation-gate-it.sh" >/dev/null
 
+log_info "Checking configuration contract"
+"${PROJECT_ROOT}/bin/config-contract.sh" --check >/dev/null
+"${PROJECT_ROOT}/bin/config-contract-it.sh" >/dev/null
+
 log_info "Checking release manifest contract"
 "${PROJECT_ROOT}/bin/release-manifest-it.sh" >/dev/null
 

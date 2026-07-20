@@ -25,6 +25,8 @@ PLATFORM_ENV = PROJECT_ROOT / "platform" / "versions" / "platform.env"
 
 TOOLING_FILES = [
     "bin/build.sh",
+    "bin/config-contract.py",
+    "bin/config-contract.sh",
     "bin/dbtool.sh",
     "bin/export-completion.bash",
     "bin/export-integrity-check.py",
@@ -127,6 +129,8 @@ def render_text(text: str, tokens: dict) -> str:
         "springmaster.export-closure-evidence.v1": "__CANONICAL_EXPORT_CLOSURE_SCHEMA__",
         "springmaster.patch-artifact-preflight.v1": "__CANONICAL_PATCH_ARTIFACT_PREFLIGHT_SCHEMA__",
         "springmaster.patch-export-evidence.v1": "__CANONICAL_PATCH_EXPORT_EVIDENCE_SCHEMA__",
+        "springmaster.environment-contract.v1": "__CANONICAL_ENVIRONMENT_CONTRACT_SCHEMA__",
+        "springmaster.configuration-contract-report.v1": "__CANONICAL_CONFIGURATION_CONTRACT_REPORT_SCHEMA__",
     }
     for literal, placeholder in protected_literals.items():
         rendered = rendered.replace(literal, placeholder)

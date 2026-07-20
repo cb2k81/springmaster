@@ -126,6 +126,7 @@ require_file "export.config.json"
 require_file "platform/versions/platform.env"
 require_file "PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md"
 require_file "PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env"
+require_file "contracts/configuration/environment-contract.json"
 require_file "patches/archives/000001_project_new_bootstrap/manifest.json"
 require_file "patches/archives/000001_project_new_bootstrap/patch-log.json"
 python3 - <<'PY_BOOTSTRAP_IDENTITY'
@@ -152,6 +153,8 @@ require_file "bin/export-integrity-check.py"
 require_file "bin/export-integrity-it.sh"
 require_file "bin/dbtool.sh"
 require_file "bin/build.sh"
+require_file "bin/config-contract.py"
+require_file "bin/config-contract.sh"
 require_file "bin/tooling-selfcheck.sh"
 require_file "bin/lib/core/env.sh"
 
@@ -188,6 +191,10 @@ echo "Project-New Acceptance: patch registry"
 ./bin/patch.sh list > "${LOG_DIR}/03_generated_patch_list.log"
 require_marker "000001" "${LOG_DIR}/03_generated_patch_list.log"
 require_marker "project_new_bootstrap" "${LOG_DIR}/03_generated_patch_list.log"
+
+echo "Project-New Acceptance: configuration contract"
+./bin/config-contract.sh --check > "${LOG_DIR}/04_generated_config_contract.log" 2>&1
+require_marker "CONFIG_CONTRACT=PASS" "${LOG_DIR}/04_generated_config_contract.log"
 
 echo "Project-New Acceptance: DBTool status"
 ./bin/dbtool.sh status > "${LOG_DIR}/04_generated_dbtool_status.log" 2>&1

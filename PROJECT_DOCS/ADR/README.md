@@ -23,17 +23,18 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0005-security-and-permission-boundary.md` | Accepted | endpoint security classification, permission naming, role mapping, authorization placement and Catalog-demo security evidence |
 | `ADR-0006-verification-and-gate-strategy.md` | Accepted | verification, gate severity, report structure, Maven profile model and target-comparison policy |
 | `ADR-0007-catalog-demo-canonicalization-strategy.md` | Accepted | Catalog-demo canonicalization states, evidence, deferrals and target-comparison boundary |
+| `ADR-0008-configuration-and-runtime-profile-strategy.md` | Accepted | configuration sources, runtime profiles, secret classification and generated-project contract |
 | `ADR-0011-command-precheck-and-capability-boundary.md` | Accepted | optional command precheck endpoints and backend/frontend capability boundary |
 
 | `ADR-0012-patch-transaction-and-evidence-boundary.md` | Accepted | Patch transaction, evidence, retention and export boundary |
 
 ## Planned ADR backlog
 
-The next ADRs are planned but not yet accepted after ADR-0005. ADR-0011 was accepted out of sequence because command prechecks became an immediate cross-project architecture decision; ADR-0008 through ADR-0010 remain reserved for their existing planned topics.
+ADR-0008 is accepted. ADR-0009 and ADR-0010 remain planned; ADR-0011 was accepted out of sequence because command prechecks became an immediate cross-project architecture decision.
 
 | ADR | Priority | Planning status | Topic |
 |---|---|---|---|
-| ADR-0008 | P1 | needed | Configuration and Runtime Profile Strategy |
+| ADR-0008 | P1 | accepted | Configuration and Runtime Profile Strategy |
 | ADR-0009 | P1 | needed | Database Migration and DBTool Strategy |
 | ADR-0010 | P1 | needed | Observability and Error Trace Strategy |
 | ADR-0011 | P0 | accepted | Command Precheck and Capability Boundary |
@@ -89,3 +90,7 @@ Report-only G4 security diagnostics may reference ADR-0005 as a rule source. Str
 Patch `000082_springmaster_command_precheck_capability_standard` accepts the command precheck and capability boundary ADR. Command prechecks are optional side-effect-free backend capability queries for concrete commands. They support UI control state but never replace execution-time permission and policy validation.
 
 The accepted decision keeps target projects read-only: IDM, Personnel, Contacts and Orders are not updated by this Springmaster standard patch. Any target-project adoption must happen through a later explicit project patch or Springmaster update workflow.
+
+## ADR-0008 update
+
+Patch `000143_springmaster_configuration_contract` accepts the configuration and runtime-profile strategy. The machine-readable environment contract, validator and Project-New propagation are now normative.

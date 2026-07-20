@@ -53,7 +53,7 @@ Wichtige aktuelle Zustände:
 - Die produktive CatalogItem-Demo arbeitet weiterhin in-memory. `CatalogItemJpaQueryReference` ist Referenzcode, kein registrierter Runtime-Bean und kein Nachweis einer vollständigen persistenten Anwendung.
 - Zielprojektvergleich und Zielprojektauslieferung sind für eine automatische Catalog-demo-Übernahme nicht freigegeben.
 - Gate-Ausführung ist grundsätzlich report-only, solange eine Regel nicht nach ADR-0006 ausdrücklich als strict-ready promoviert wurde.
-- ADR-0008 bis ADR-0010 sind noch nicht akzeptiert. Konfigurations-, DB-Migrations-/DBTool- und Observability-Entscheidungen daher nicht als vollständig ADR-abgesichert darstellen.
+- ADR-0008 ist akzeptiert und durch den maschinenlesbaren Konfigurationsvertrag abgesichert. ADR-0009 und ADR-0010 sind noch nicht akzeptiert; DB-Migrations-/DBTool- und Observability-Entscheidungen daher noch nicht als vollständig ADR-abgesichert darstellen.
 
 ## Repository-Orientierung
 
