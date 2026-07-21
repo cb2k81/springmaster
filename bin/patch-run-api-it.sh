@@ -129,6 +129,30 @@ grep -q 'status=SUCCESS' "${TMP_ROOT}/wait.out"
 ) > "${TMP_ROOT}/status.env"
 grep -Fxq 'STATUS=APPLIED' "${TMP_ROOT}/status.env"
 grep -Fxq 'GIT_COMMIT_STATUS=COMMITTED' "${TMP_ROOT}/status.env"
+grep -Fxq "RUN_ID=${RUN_ID}" "${TMP_ROOT}/status.env"
+grep -Eq '^ARTIFACT_ID=urn:uuid:[0-9a-f-]+$' "${TMP_ROOT}/status.env"
+grep -Eq '^UPDATED_AT=.+$' "${TMP_ROOT}/status.env"
+! grep -Fxq 'UPDATED_AT=-' "${TMP_ROOT}/status.env"
+
+CANONICAL_ACCEPT="${FIXTURE}/patches/logs/accept/000001_run_api_success"
+RECORDED_RUN_LOG_DIR="$(
+  python3 - "${CANONICAL_ACCEPT}/accepted.json" <<'PYJSON'
+import json
+import sys
+print(json.load(open(sys.argv[1], encoding='utf-8')).get('runLogDir', ''))
+PYJSON
+)"
+if [[ -n "${RECORDED_RUN_LOG_DIR}" && "${RECORDED_RUN_LOG_DIR}" != "${CANONICAL_ACCEPT}" ]]; then
+  rm -rf "${RECORDED_RUN_LOG_DIR}"
+fi
+(
+  cd "${FIXTURE}"
+  ./bin/patch.sh status "${RUN_ID}" --format env
+) > "${TMP_ROOT}/status-by-run-id-after-compaction.env"
+grep -Fxq 'STATUS=APPLIED' "${TMP_ROOT}/status-by-run-id-after-compaction.env"
+grep -Fxq "RUN_ID=${RUN_ID}" "${TMP_ROOT}/status-by-run-id-after-compaction.env"
+grep -Eq '^ARTIFACT_ID=urn:uuid:[0-9a-f-]+$' "${TMP_ROOT}/status-by-run-id-after-compaction.env"
+! grep -Fxq 'UPDATED_AT=-' "${TMP_ROOT}/status-by-run-id-after-compaction.env"
 
 HEAD_AFTER_FIRST="$(git -C "${FIXTURE}" rev-parse HEAD)"
 (
@@ -168,6 +192,41 @@ test "$(git -C "${FIXTURE}" rev-parse HEAD)" = "${WHITESPACE_HEAD}"
 grep -q 'Failed-Step:  whitespace' "${TMP_ROOT}/whitespace.out"
 test ! -e "${FIXTURE}/patches/archives/000002_run_api_whitespace"
 grep -Fxq 'accepted' "${FIXTURE}/custom/value.txt"
+
+mkdir -p "${FIXTURE}/patches/archives/000000_legacy_applied"
+cat > "${FIXTURE}/patches/archives/000000_legacy_applied/patch-log.json" <<'JSON'
+{
+  "status": "applied",
+  "name": "legacy_applied",
+  "artifactId": "urn:uuid:00000000-0000-4000-8000-000000000000"
+}
+JSON
+
+(
+  cd "${FIXTURE}"
+  ./bin/patch.sh doctor
+) > "${TMP_ROOT}/doctor-legacy.out"
+grep -q 'Status:        PASS' "${TMP_ROOT}/doctor-legacy.out"
+grep -q 'Historical-Applied-Without-Canonical: 1' "${TMP_ROOT}/doctor-legacy.out"
+grep -q 'WARNING HISTORICAL_APPLIED_WITHOUT_CANONICAL_ACCEPTANCE count=1' "${TMP_ROOT}/doctor-legacy.out"
+
+mkdir -p "${FIXTURE}/patches/archives/999999_current_missing_acceptance"
+cat > "${FIXTURE}/patches/archives/999999_current_missing_acceptance/patch-log.json" <<'JSON'
+{
+  "status": "applied",
+  "name": "current_missing_acceptance",
+  "artifactId": "urn:uuid:99999999-9999-4999-8999-999999999999"
+}
+JSON
+if (
+  cd "${FIXTURE}"
+  ./bin/patch.sh doctor
+) > "${TMP_ROOT}/doctor-current.out" 2>&1; then
+  echo 'Expected post-cutover missing canonical acceptance to fail doctor.' >&2
+  exit 1
+fi
+grep -q 'ERROR APPLIED_WITHOUT_CANONICAL_ACCEPTANCE 999999_current_missing_acceptance' "${TMP_ROOT}/doctor-current.out"
+rm -rf "${FIXTURE}/patches/archives/999999_current_missing_acceptance"
 
 (
   cd "${FIXTURE}"

@@ -406,3 +406,8 @@ Die Scope-Erweiterung ist bewusst getrennt von der erstmaligen Anlage der Datei:
 ## Transactional acceptance
 
 Effective `accept` runs in a detached Git worktree. The live repository receives the qualified commit and patch evidence only after all configured validation steps succeed. A failed validation must leave live `HEAD`, Working Tree and archive registry unchanged. See `PROJECT_DOCS/TOOLING/PATCH_TRANSACTIONAL_ACCEPTANCE.md`.
+## Run-API-Cutover und historische Evidence
+
+Seit Patch `000164_springmaster_patch_run_api_git_transaction_hardening` ist kanonische Acceptance-Evidence Bestandteil des verbindlichen Patchabschlusses. Der Doctor bewertet ältere angewendete Patcharchive ohne `accepted.json` als aggregierte historische Warnung. Für Patchnummern ab `000164` ist derselbe Zustand `APPLIED_WITHOUT_CANONICAL_ACCEPTANCE` ein Fehler.
+
+Statusabfragen verwenden Run-ID oder Patch-ID. Temporäre, zeitgestempelte Summary-Pfade sind keine stabilen Schnittstellen und dürfen insbesondere bei Selbstupdates nicht als dauerhafte Pointer verwendet werden. Die Statusauflösung liest die kanonische `accepted.json` und liefert Run-ID, Artifact-ID, Commit und Aktualisierungszeit auch dann, wenn der ursprüngliche Attempt-Pfad bereits entfernt oder kompaktiert wurde.

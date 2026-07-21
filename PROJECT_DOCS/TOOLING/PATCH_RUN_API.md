@@ -27,6 +27,8 @@ Git remains the durable repository truth. Runtime run records are operational ev
 
 `status` is a one-shot read. `watch` prints only when status or phase changes. `wait` stays silent until a terminal state and returns a stable exit code. `result` is intended for scripts. `diagnose` writes a bounded report instead of streaming large logs to the terminal. `doctor` checks Git, locks, run records, archives and acceptance evidence for contradictions.
 
+`doctor` is backward-compatible with repository history. Applied patches with numbers below the Run API cutover (`000164`) may legitimately lack canonical `accepted.json` evidence and are aggregated into one historical warning. An applied patch at or after the cutover without canonical acceptance remains an error and blocks a clean doctor result.
+
 ## Canonical acceptance flow
 
 ```bash
@@ -51,6 +53,8 @@ The start command prints a `RUN_ID`. Observe that exact run:
 ```
 
 A terminal or SSH session may close after the background start. The run continues independently. Do not start another acceptance merely because the original terminal is gone.
+
+Raw paths to timestamped `SUMMARY.txt` files are not stable API handles. A successful self-update or evidence publication may compact temporary attempt evidence into the canonical acceptance directory. Observe by run ID or patch ID; `status`, `watch`, `wait` and `result` resolve durable `accepted.json` evidence even when the temporary attempt directory no longer exists.
 
 ## Lock waiting versus run waiting
 
@@ -127,7 +131,7 @@ patches/logs/accept/<patch-id>/SUMMARY.txt
 patches/logs/accept/<patch-id>/child-accept/
 ```
 
-Individual attempts remain in timestamped run directories. A failed retry must not overwrite `accepted.json` or downgrade the canonical success summary.
+Individual attempts normally remain in timestamped run directories. A successful engine self-update or evidence compaction may remove the temporary attempt directory after the run identity and result have been published to `accepted.json`. A failed retry must not overwrite `accepted.json` or downgrade the canonical success summary.
 
 `verify` writes to:
 
@@ -172,6 +176,7 @@ New untracked files are exposed to the first check with intent-to-add inside the
 - Do not search for the newest summary as a substitute for `status`.
 - Do not infer liveness from a PID alone; the run resolver also checks run metadata and process state.
 - Do not restart before `status <patch-id>` and `doctor` have ruled out `APPLIED` and `RUNNING`.
+- During a patch-engine self-update, switch from any bootstrap pointer to `status <patch-id>` as soon as the new commit is visible; the bootstrap attempt directory may be compacted.
 - Use `diagnose` for bounded failure evidence.
 
 ## Exit-code contract

@@ -62,6 +62,7 @@ PROJECT_ROOT = Path(sys.argv[1]).resolve()
 COMMAND = sys.argv[2]
 ARGS = sys.argv[3:]
 ARCHIVES_DIR = PROJECT_ROOT / "patches" / "archives"
+PATCH_RUN_API_CUTOVER_NUMBER = 164
 
 def fail(message, code=1):
     print(f"Fehler: {message}", file=sys.stderr)
@@ -202,6 +203,16 @@ def next_patch_number():
     for entry in archive_dirs():
         max_num = max(max_num, int(entry.name.split("_", 1)[0]))
     return f"{max_num + 1:06d}"
+
+def patch_number_from_id(patch_id):
+    match = re.match(r"^(\d{6})_", str(patch_id or ""))
+    return int(match.group(1)) if match else None
+
+
+def is_historical_pre_run_api_patch(patch_id):
+    number = patch_number_from_id(patch_id)
+    return number is not None and number < PATCH_RUN_API_CUTOVER_NUMBER
+
 
 def resolve_patch_ref(ref):
     dirs = archive_dirs()
@@ -3397,7 +3408,7 @@ def resolve_patch_id_for_status(ref):
 def find_run_log_dir(ref):
     path = Path(ref).expanduser()
     if path.is_file():
-        return path.parent if path.name in ("SUMMARY.txt", "summary.log", "run.json") else None
+        return path.parent if path.name in ("SUMMARY.txt", "summary.log", "run.json", "accepted.json") else None
     if path.is_dir():
         return path
     for base in (accept_log_base(), validation_log_base()):
@@ -3408,37 +3419,67 @@ def find_run_log_dir(ref):
         log_dir for log_dir in run_log_candidates()
         if log_dir.name == ref or load_run_record(log_dir).get("runId") == ref
     ]
-    if not matches:
-        return None
-    matches.sort(key=lambda item: load_run_record(item).get("updatedAt", ""), reverse=True)
-    return matches[0]
+    if matches:
+        matches.sort(key=lambda item: load_run_record(item).get("updatedAt", ""), reverse=True)
+        return matches[0]
+
+    # Successful acceptance may compact or remove the temporary attempt directory.
+    # Resolve the original run-id through durable accepted.json evidence instead of
+    # requiring callers to retain a raw SUMMARY.txt path.
+    if accept_log_base().is_dir():
+        for accepted_path in accept_log_base().glob("*/accepted.json"):
+            try:
+                accepted = json.loads(accepted_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if accepted.get("runId") == ref:
+                return accepted_path.parent
+    return None
 
 
 def snapshot_from_log_dir(log_dir):
     log_dir = Path(log_dir).resolve()
     run = load_run_record(log_dir)
     fields = read_summary_fields(log_dir / "SUMMARY.txt")
-    status = fields.get("STATUS") or run.get("status") or "UNKNOWN"
+    accepted = {}
+    accepted_path = log_dir / "accepted.json"
+    if accepted_path.is_file():
+        try:
+            accepted = json.loads(accepted_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            accepted = {}
+
+    status = fields.get("STATUS") or run.get("status") or accepted.get("status") or "UNKNOWN"
     if status == "RUNNING" and run and not run_is_active(run):
         status = "STALE"
     live_phase = run.get("phase") if status == "RUNNING" else None
+    patch_id = fields.get("PATCH_ID") or run.get("patchId") or accepted.get("patchId") or "-"
     snapshot = {
         "status": status,
-        "command": fields.get("COMMAND") or run.get("command") or "-",
-        "runId": fields.get("RUN_ID") or run.get("runId") or log_dir.name,
-        "patchId": fields.get("PATCH_ID") or run.get("patchId") or "-",
-        "artifactId": fields.get("ARTIFACT_ID") or run.get("artifactId") or "-",
-        "phase": live_phase or fields.get("PHASE") or run.get("phase") or "-",
+        "command": fields.get("COMMAND") or run.get("command") or ("accept" if accepted else "-"),
+        "runId": fields.get("RUN_ID") or run.get("runId") or accepted.get("runId") or log_dir.name,
+        "patchId": patch_id,
+        "artifactId": fields.get("ARTIFACT_ID") or run.get("artifactId") or accepted.get("artifactId") or "-",
+        "phase": live_phase or fields.get("PHASE") or run.get("phase") or ("COMPLETE" if accepted else "-"),
         "failedStep": fields.get("FAILED_STEP") or run.get("failedStep") or "-",
         "pid": fields.get("PID") or run.get("pid") or "-",
-        "commitStatus": fields.get("GIT_COMMIT_STATUS") or run.get("commitStatus") or "-",
-        "commitHash": fields.get("GIT_COMMIT_HASH") or run.get("commitHash") or "-",
-        "pushStatus": fields.get("GIT_PUSH_STATUS") or run.get("pushStatus") or "-",
+        "commitStatus": fields.get("GIT_COMMIT_STATUS") or run.get("commitStatus") or accepted.get("commitStatus") or "-",
+        "commitHash": fields.get("GIT_COMMIT_HASH") or run.get("commitHash") or accepted.get("commitHash") or "-",
+        "pushStatus": fields.get("GIT_PUSH_STATUS") or run.get("pushStatus") or accepted.get("pushStatus") or "-",
         "rootCause": fields.get("ROOT_CAUSE") or "-",
         "summary": str(log_dir / "SUMMARY.txt"),
         "logDir": str(log_dir),
-        "updatedAt": run.get("updatedAt") or fields.get("UPDATED_AT") or "-",
+        "updatedAt": (
+            run.get("updatedAt")
+            or fields.get("UPDATED_AT")
+            or accepted.get("updatedAt")
+            or accepted.get("acceptedAt")
+            or "-"
+        ),
     }
+    archive_data = archived_patch_data(patch_id) if patch_id != "-" else None
+    if accepted and archive_data and archive_data.get("status") == "applied":
+        snapshot["status"] = "APPLIED"
     return snapshot
 
 
@@ -3453,29 +3494,10 @@ def status_snapshot(ref):
 
     canonical_dir = accept_log_base() / patch_id
     canonical_fields = read_summary_fields(canonical_dir / "SUMMARY.txt")
+    accepted_path = canonical_dir / "accepted.json"
     archive_data = archived_patch_data(patch_id)
-    if canonical_fields.get("STATUS") in ("SUCCESS", "ALREADY_APPLIED"):
-        run_dir_value = canonical_fields.get("LOG_DIR")
-        if run_dir_value and Path(run_dir_value).is_dir():
-            snapshot = snapshot_from_log_dir(Path(run_dir_value))
-        else:
-            snapshot = {
-                "status": canonical_fields.get("STATUS"),
-                "command": canonical_fields.get("COMMAND", "accept"),
-                "runId": canonical_fields.get("RUN_ID", patch_id),
-                "patchId": patch_id,
-                "artifactId": canonical_fields.get("ARTIFACT_ID", "-"),
-                "phase": canonical_fields.get("PHASE", "COMPLETE"),
-                "failedStep": canonical_fields.get("FAILED_STEP", "-"),
-                "pid": canonical_fields.get("PID", "-"),
-                "commitStatus": canonical_fields.get("GIT_COMMIT_STATUS", "-"),
-                "commitHash": canonical_fields.get("GIT_COMMIT_HASH", "-"),
-                "pushStatus": canonical_fields.get("GIT_PUSH_STATUS", "-"),
-                "rootCause": canonical_fields.get("ROOT_CAUSE", "-"),
-                "summary": str(canonical_dir / "SUMMARY.txt"),
-                "logDir": str(canonical_dir),
-                "updatedAt": canonical_fields.get("UPDATED_AT", "-"),
-            }
+    if accepted_path.is_file() or canonical_fields.get("STATUS") in ("SUCCESS", "ALREADY_APPLIED"):
+        snapshot = snapshot_from_log_dir(canonical_dir)
         snapshot["status"] = "APPLIED" if archive_data and archive_data.get("status") == "applied" else snapshot["status"]
         if snapshot.get("commitStatus") == "COMMITTED" and not git_commit_exists(snapshot.get("commitHash")):
             snapshot["status"] = "INCONSISTENT"
@@ -3777,18 +3799,22 @@ def doctor_command(args):
             })
 
     incomplete = []
+    historical_without_canonical = []
     for patch_dir in archive_dirs():
         data = archived_patch_data(patch_dir.name)
         if not data or data.get("status") != "applied":
             continue
         fields = canonical_accept_fields(patch_dir.name)
         if fields.get("STATUS") not in ("SUCCESS", "ALREADY_APPLIED"):
-            incomplete.append(patch_dir.name)
-            findings.append({
-                "severity": "error",
-                "code": "APPLIED_WITHOUT_CANONICAL_ACCEPTANCE",
-                "patchId": patch_dir.name,
-            })
+            if is_historical_pre_run_api_patch(patch_dir.name):
+                historical_without_canonical.append(patch_dir.name)
+            else:
+                incomplete.append(patch_dir.name)
+                findings.append({
+                    "severity": "error",
+                    "code": "APPLIED_WITHOUT_CANONICAL_ACCEPTANCE",
+                    "patchId": patch_dir.name,
+                })
         elif fields.get("GIT_COMMIT_STATUS") == "COMMITTED" and not git_commit_exists(fields.get("GIT_COMMIT_HASH")):
             findings.append({
                 "severity": "error",
@@ -3796,6 +3822,16 @@ def doctor_command(args):
                 "patchId": patch_dir.name,
                 "commit": fields.get("GIT_COMMIT_HASH"),
             })
+
+    if historical_without_canonical:
+        findings.append({
+            "severity": "warning",
+            "code": "HISTORICAL_APPLIED_WITHOUT_CANONICAL_ACCEPTANCE",
+            "count": len(historical_without_canonical),
+            "firstPatchId": historical_without_canonical[0],
+            "lastPatchId": historical_without_canonical[-1],
+            "cutoverPatchNumber": PATCH_RUN_API_CUTOVER_NUMBER,
+        })
 
     report = {
         "schemaVersion": "springmaster.patch-doctor.v1",
@@ -3808,6 +3844,7 @@ def doctor_command(args):
         "activeRuns": active_runs,
         "staleRuns": stale_runs,
         "incompleteAppliedPatches": incomplete,
+        "historicalAppliedWithoutCanonicalAcceptance": historical_without_canonical,
         "findings": findings,
     }
     if options["format"] == "json":
@@ -3819,9 +3856,16 @@ def doctor_command(args):
         print(f"  Dirty-Paths:   {len(dirty)}")
         print(f"  Active-Runs:   {len(active_runs)}")
         print(f"  Stale-Runs:    {len(stale_runs)}")
+        print(f"  Historical-Applied-Without-Canonical: {len(historical_without_canonical)}")
         print(f"  Findings:      {len(findings)}")
         for finding in findings[:30]:
-            print(f"  - {finding['severity'].upper()} {finding['code']} {finding.get('patchId') or finding.get('runId') or finding.get('path') or ''}")
+            subject = (
+                finding.get("patchId")
+                or finding.get("runId")
+                or finding.get("path")
+                or (f"count={finding.get('count')}" if finding.get("count") is not None else "")
+            )
+            print(f"  - {finding['severity'].upper()} {finding['code']} {subject}")
     if report["status"] != "PASS":
         raise SystemExit(1)
 
