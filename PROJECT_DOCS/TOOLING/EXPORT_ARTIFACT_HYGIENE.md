@@ -61,3 +61,15 @@ When a final runner supplies prior-gate evidence, the exporter embeds a separate
 Operational `patches/logs/validation/**` trees are excluded from source profiles. They are mutable during and after export and therefore cannot be part of an immutable raw-byte snapshot. Stable gate facts belong in the embedded closure evidence; the external validation directory remains operational diagnostics.
 
 `bin/export-integrity-check.py` and its positive/tampered fixtures are mandatory Tooling checks.
+
+## Aktueller Exportbestand, Checksumme und Archivierung
+
+Ein gepackter Export darf nicht parallel als ungepacktes Verzeichnis oder als externe Text-/Metadatei bestehen bleiben. Nach erfolgreicher Erzeugung und interner Prüfung verbleiben unter `exports/text/` nur das aktuelle ZIP und dessen portable `.zip.sha256`-Datei. Die Profil-Metadaten und eine gegebenenfalls vorhandene `export.index.json` sind Mitglieder des ZIP.
+
+Vorherige projektbezogene Exportartefakte werden als zusammengehöriges Set nach `exports/text/Archiv/` verschoben. Fremde Dateien bleiben unberührt. Der neue Export wird erst veröffentlicht, nachdem ZIP-Struktur und Checksumme erfolgreich geprüft wurden; ein Fehler darf den bisherigen aktuellen Export nicht verdrängen.
+
+Der aktuelle Export wird über `./bin/export.sh --current` ermittelt. Dateisortierung, Explorer-Reihenfolge und Zeitstempelvergleich sind keine zulässigen Auswahlmechanismen.
+
+## Git-Bezug
+
+Eine reguläre Exportbaseline wird nur aus einem sauberen Git-Working-Tree erzeugt. Git-HEAD, Branch und Dirty-Status werden in den Metadaten festgehalten und vor der Veröffentlichung erneut verglichen. `--allow-dirty` ist ausschließlich eine explizite forensische Ausnahme und erzeugt keine kanonische Folgepatch-Baseline.

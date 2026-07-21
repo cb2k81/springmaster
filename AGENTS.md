@@ -296,7 +296,9 @@ Für Tooling-Qualifikation mit bewusstem Export:
 ./bin/tooling-selfcheck.sh --export
 ```
 
-Quellhashes stammen aus dem Raw-Byte-`fileManifest` der Metadatei, niemals aus der gerenderten Textdarstellung.
+Quellhashes stammen aus dem Raw-Byte-`fileManifest` der Metadatei, niemals aus der gerenderten Textdarstellung. Reguläre Exporte verlangen einen sauberen Git-Working-Tree. Ein Dirty-Export ist nur mit `--allow-dirty` als ausdrücklich nicht kanonische Forensik zulässig.
+
+Bei `--zip` verbleiben unter `exports/text/` nur das aktuelle ZIP und `<zip>.sha256`; Text, Metadaten und Split-Index liegen im ZIP. Vorherige projektbezogene Exportsets werden nach `exports/text/Archiv/` verschoben. Der aktuelle Export wird ausschließlich mit `./bin/export.sh --current` ermittelt, nicht über Explorer- oder `ls`-Sortierung.
 
 ## Patch-, Git- und Export-Governance
 
@@ -331,6 +333,7 @@ Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die da
 - Kein Push ohne ausdrückliche Freigabe; `--push` ist immer separat und bewusst.
 - Keine fremden Änderungen zurücksetzen, überschreiben oder in denselben Commit ziehen.
 - Lokale Runtime-, Validation-, Accept-, Build-, Export- und Generated-Artefakte nicht committen.
+- Der kanonische Patchabschluss bleibt Git-first: Acceptance regelmäßig mit `--no-export --commit`, den Handoff-Export danach explizit aus dem akzeptierten Live-Commit erzeugen. Keine Exportverzeichnisse aus temporären Worktrees manuell in den Live-Checkout kopieren.
 
 Insbesondere nicht versionieren:
 

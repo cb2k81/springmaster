@@ -157,7 +157,7 @@ Der reguläre Abschluss eines Patch-Kommandostacks erzeugt aktuell nur einen Ful
 
 ```bash
 ./bin/export.sh full --zip
-ls -1t exports/text/*_export_full_*.zip | head -n 1
+./bin/export.sh --current
 ```
 
 Full-Parts-Baseline-Exporte bleiben möglich, werden aber nicht mehr pauschal erzeugt. Sie sind für gezielte Reviews oder explizite Baseline-Übergaben vorgesehen.

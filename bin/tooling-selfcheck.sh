@@ -115,6 +115,9 @@ else
   log_info "Skipping Springmaster-only Platform-Update source contracts"
 fi
 
+log_info "Checking export lifecycle, checksum and archive contract"
+"${PROJECT_ROOT}/bin/export-lifecycle-it.sh" >/dev/null
+
 if is_true "${RUN_EXPORT}"; then
   log_info "Checking one full export and its integrity manifest"
   EXPORT_REL="$("${PROJECT_ROOT}/bin/export.sh" full --zip)"

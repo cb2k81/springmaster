@@ -8,6 +8,7 @@ RUN_DIR="${WORK_ROOT}/$(date +%Y%m%d_%H%M%S)_$$"
 SOURCE_ROOT="${RUN_DIR}/source"
 VALID_ZIP="${RUN_DIR}/valid-export.zip"
 INVALID_ZIP="${RUN_DIR}/invalid-export.zip"
+INVALID_CHECKSUM_ZIP="${RUN_DIR}/invalid-checksum-export.zip"
 RUNTIME_PATH_ZIP="${RUN_DIR}/runtime-path-export.zip"
 INVALID_EVIDENCE_ZIP="${RUN_DIR}/invalid-evidence-export.zip"
 DELETED_EVIDENCE_ZIP="${RUN_DIR}/deleted-evidence-export.zip"
@@ -35,9 +36,10 @@ mkdir -p "${SOURCE_ROOT}/patches/logs/validation"
 printf 'fixture\n' > "${SOURCE_ROOT}/a.txt"
 printf 'mutable\n' > "${SOURCE_ROOT}/patches/logs/validation/run.log"
 
-python3 - "${SOURCE_ROOT}" "${VALID_ZIP}" "${INVALID_ZIP}" "${RUNTIME_PATH_ZIP}" "${INVALID_EVIDENCE_ZIP}" "${DELETED_EVIDENCE_ZIP}" <<'PY'
+python3 - "${SOURCE_ROOT}" "${VALID_ZIP}" "${INVALID_ZIP}" "${INVALID_CHECKSUM_ZIP}" "${RUNTIME_PATH_ZIP}" "${INVALID_EVIDENCE_ZIP}" "${DELETED_EVIDENCE_ZIP}" <<'PY'
 import hashlib
 import json
+import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -45,9 +47,10 @@ from pathlib import Path
 source_root = Path(sys.argv[1])
 valid_zip = Path(sys.argv[2])
 invalid_zip = Path(sys.argv[3])
-runtime_path_zip = Path(sys.argv[4])
-invalid_evidence_zip = Path(sys.argv[5])
-deleted_evidence_zip = Path(sys.argv[6])
+invalid_checksum_zip = Path(sys.argv[4])
+runtime_path_zip = Path(sys.argv[5])
+invalid_evidence_zip = Path(sys.argv[6])
+deleted_evidence_zip = Path(sys.argv[7])
 data = (source_root / "a.txt").read_bytes()
 entry = {"path": "a.txt", "sizeBytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 entries = [entry]
@@ -82,6 +85,14 @@ meta = {
     "closureEvidenceFile": "closure-evidence.json",
 }
 
+def write_checksum(path):
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    Path(str(path) + ".sha256").write_text(
+        f"{digest}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+
 def write(path, meta_payload, evidence_payload=evidence):
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("fixture_export_full/fixture_export_full.txt", "fixture export\n")
@@ -93,8 +104,14 @@ def write(path, meta_payload, evidence_payload=evidence):
             "fixture_export_full/closure-evidence.json",
             json.dumps(evidence_payload, indent=2) + "\n",
         )
+    write_checksum(path)
 
 write(valid_zip, meta)
+shutil.copy2(valid_zip, invalid_checksum_zip)
+Path(str(invalid_checksum_zip) + ".sha256").write_text(
+    f"{'0' * 64}  {invalid_checksum_zip.name}\n",
+    encoding="utf-8",
+)
 invalid = json.loads(json.dumps(meta))
 invalid["fileManifest"][0]["sha256"] = "0" * 64
 write(invalid_zip, invalid)
@@ -151,6 +168,14 @@ PY
 python3 "${SCRIPT_DIR}/export-integrity-check.py" \
   "${VALID_ZIP}" --source-root "${SOURCE_ROOT}" --require-evidence \
   > "${RUN_DIR}/valid.log" 2>&1
+
+if python3 "${SCRIPT_DIR}/export-integrity-check.py" \
+  "${INVALID_CHECKSUM_ZIP}" \
+  > "${RUN_DIR}/invalid-checksum.log" 2>&1; then
+  echo "ERROR: invalid checksum fixture unexpectedly passed" >&2
+  exit 1
+fi
+grep -q 'checksum mismatch' "${RUN_DIR}/invalid-checksum.log"
 
 if python3 "${SCRIPT_DIR}/export-integrity-check.py" \
   "${INVALID_ZIP}" --source-root "${SOURCE_ROOT}" --require-evidence \

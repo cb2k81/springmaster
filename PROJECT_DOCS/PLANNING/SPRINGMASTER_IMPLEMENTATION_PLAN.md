@@ -259,7 +259,7 @@ cd /opt/cocondo/springmaster
 ./bin/patch.sh show latest
 ./bin/export.sh full --zip
 ./bin/export.sh --full-parts baseline --zip
-ls -1t exports/text/*.zip | head -n 2
+./bin/export.sh --current
 ```
 
 Für Documentation-only-Patches werden `mvn test` und `./bin/build.sh` grundsätzlich nicht ausgeführt.
@@ -272,7 +272,7 @@ cd /opt/cocondo/springmaster
 mvn test
 ./bin/export.sh full --zip
 ./bin/export.sh --full-parts baseline --zip
-ls -1t exports/text/*.zip | head -n 2
+./bin/export.sh --current
 ```
 
 ### Tooling-Patches
@@ -285,7 +285,7 @@ python3 -m py_compile ./bin/patch.py
 ./bin/tooling-selfcheck.sh
 ./bin/export.sh full --zip
 ./bin/export.sh --full-parts baseline --zip
-ls -1t exports/text/*.zip | head -n 2
+./bin/export.sh --current
 ```
 
 Bei Tooling-Patches wird `mvn test` nur ergänzt, wenn der Patch Build-Konfiguration, Projektstruktur, Java-Code oder Template-Erzeugung mit Java-Projektwirkung betrifft.
@@ -387,7 +387,7 @@ Pflichtvalidierung für `000015`:
 mvn test
 ./bin/export.sh full --zip
 ./bin/export.sh --full-parts baseline --zip
-ls -1t exports/text/*.zip | head -n 2
+./bin/export.sh --current
 ```
 
 ## 10. Demo-Anschluss als Qualitätsgrenze

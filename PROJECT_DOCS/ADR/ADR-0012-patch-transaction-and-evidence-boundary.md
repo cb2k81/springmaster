@@ -48,3 +48,9 @@ Patch `000164_springmaster_patch_run_api_git_transaction_hardening` introduces a
 Acceptance start is idempotent for the same artifact: already applied and already running states return the existing durable or active state without creating another process. Git remains the durable truth. The patch log, qualified child commit and live transfer must contain exactly the same path set, and the qualified commit must descend directly from the captured live baseline.
 
 Whitespace checks are patch-scoped and performed once at the applied, staged and qualified-commit boundaries. The engine does not reformat or repeatedly scan unrelated repository files. A pre-finalization transfer failure is compensated to the captured baseline; a post-finalization reporting or push failure remains a warning on a locally successful acceptance.
+
+## Accepted operational refinement: export artifact lifecycle
+
+A canonical ZIP export is published as one current artifact set consisting only of the ZIP and a portable SHA-256 sidecar. Text payload, profile metadata and split indexes are members of the ZIP; temporary unpacked staging data is removed after verification. Before publication, the previous project export set is moved to `exports/text/Archiv/`, so the current export is unambiguous without filename sorting. Publication is ordered as generate, verify, archive previous, publish current, with rollback of archive moves on publication failure.
+
+Regular baseline exports require a clean Git working tree. The exporter records the source commit and rechecks Git state before publication. A dirty export requires the explicit `--allow-dirty` escape hatch and is not canonical patch-baseline evidence. Patch acceptance remains Git-first and normally uses `--no-export`; a handoff export is generated explicitly from the accepted live commit.

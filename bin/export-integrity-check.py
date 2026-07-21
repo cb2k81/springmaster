@@ -32,6 +32,32 @@ def canonical_manifest_digest(entries: list[dict]) -> str:
     return sha256_bytes(encoded)
 
 
+def validate_checksum_sidecar(export_zip: Path, allow_missing: bool) -> tuple[Path | None, str]:
+    checksum_file = Path(str(export_zip) + ".sha256")
+    if not checksum_file.is_file():
+        if allow_missing:
+            return None, sha256_file(export_zip)
+        fail(f"checksum sidecar not found: {checksum_file}")
+    try:
+        raw = checksum_file.read_text(encoding="utf-8")
+    except Exception as exc:
+        fail(f"cannot read checksum sidecar {checksum_file}: {exc}")
+    match = re.fullmatch(r"([0-9a-f]{64})  ([^/\\\r\n]+)\n?", raw)
+    if not match:
+        fail(f"invalid checksum sidecar format: {checksum_file}")
+    expected, filename = match.groups()
+    if filename != export_zip.name:
+        fail(
+            f"checksum sidecar filename mismatch: expected {export_zip.name!r}, found {filename!r}"
+        )
+    actual = sha256_file(export_zip)
+    if actual != expected:
+        fail(
+            f"checksum mismatch for {export_zip}: expected {expected}, actual {actual}"
+        )
+    return checksum_file, actual
+
+
 def read_json(archive: zipfile.ZipFile, member: str) -> dict:
     try:
         value = json.loads(archive.read(member).decode("utf-8"))
@@ -179,12 +205,21 @@ def main() -> None:
     parser.add_argument("export_zip", type=Path)
     parser.add_argument("--source-root", type=Path)
     parser.add_argument("--require-evidence", action="store_true")
+    parser.add_argument(
+        "--allow-missing-checksum",
+        action="store_true",
+        help="allow verification of legacy ZIP exports that predate the checksum sidecar contract",
+    )
     args = parser.parse_args()
 
     export_zip = args.export_zip.expanduser().resolve()
     if not export_zip.is_file():
         fail(f"export ZIP not found: {export_zip}")
     source_root = args.source_root.expanduser().resolve() if args.source_root else None
+    checksum_file, zip_sha256 = validate_checksum_sidecar(
+        export_zip,
+        args.allow_missing_checksum,
+    )
 
     try:
         with zipfile.ZipFile(export_zip, "r") as archive:
@@ -216,6 +251,8 @@ def main() -> None:
 
     print("EXPORT_INTEGRITY=PASS")
     print(f"EXPORT_ZIP={export_zip}")
+    print(f"EXPORT_SHA256={zip_sha256}")
+    print(f"CHECKSUM_FILE={checksum_file or '-'}")
     print(f"META_FILES={len(meta_members)}")
     print(f"MANIFEST_ENTRIES={total_files}")
     print(f"CLOSURE_EVIDENCE_FILES={len(evidence_members)}")
