@@ -1,0 +1,24 @@
+{
+  "coreDistribution": {
+    "current": "source-copy-controlled-pilot",
+    "status": "decision-only",
+    "target": "versioned-maven-artifact-with-optional-bom"
+  },
+  "currentRuntime": {
+    "domainEntityVersionInitializer": "0L",
+    "mode": "legacy-eager-zero-in-memory"
+  },
+  "implementationBoundary": {
+    "ownerCapability": "catalogitem-persistent-candidate-slice",
+    "status": "deferred-atomic-candidate-slice"
+  },
+  "schemaVersion": "springmaster.core-persistence-newness-contract.v1",
+  "status": "decided",
+  "targetRuntime": {
+    "firstPersistedVersion": 0,
+    "firstUpdatedVersion": 1,
+    "mode": "assigned-id-nullable-version",
+    "springDataPersistableCoupling": false,
+    "transientVersion": null
+  }
+}

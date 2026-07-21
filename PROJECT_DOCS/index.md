@@ -24,6 +24,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/ADR/ADR-0010-observability-and-error-trace-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md`
 - `PROJECT_DOCS/ADR/ADR-0012-patch-transaction-and-evidence-boundary.md`
+- `PROJECT_DOCS/ADR/ADR-0013-core-distribution-strategy.md` — accepted Core distribution direction
 - `PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md`
 - `PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md`
 - `PROJECT_DOCS/ADR/ADR_TEMPLATE.md`
@@ -37,6 +38,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/CONCEPT/SPRINGMASTER_VERSION_POLICY.md`
 ## CORE
 
+- `PROJECT_DOCS/CORE/CORE_PERSISTENCE_NEWNESS_CONTRACT.md` — staged assigned-ID newness decision and atomic implementation boundary
 - `PROJECT_DOCS/CORE/CORE_APP_SCAN_ALIGNMENT.md`
 - `PROJECT_DOCS/CORE/CORE_BASIC_TYPES_FOUNDATION.md`
 - `PROJECT_DOCS/CORE/CORE_DOMAIN_ENTITY_SERVICE_SUPPORT.md`

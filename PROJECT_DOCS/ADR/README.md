@@ -29,6 +29,7 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0011-command-precheck-and-capability-boundary.md` | Accepted | optional command precheck endpoints and backend/frontend capability boundary |
 
 | `ADR-0012-patch-transaction-and-evidence-boundary.md` | Accepted | Patch transaction, evidence, retention and export boundary |
+| `ADR-0013-core-distribution-strategy.md` | Accepted | Versioned Maven artifact/BOM direction; source-copy remains controlled-pilot |
 
 ## Planned ADR backlog
 

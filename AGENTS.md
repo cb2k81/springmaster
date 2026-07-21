@@ -384,6 +384,10 @@ A failed `patch.sh accept` is not an accepted repository state. Before another p
 
 Never treat copied payload as accepted state. Effective accepts validate in a detached Git worktree and transfer only a qualified commit. A failed accept must leave the live repository and live patch registry unchanged.
 
+### Core persistence transition
+
+Assigned opaque IDs and optimistic-locking newness are an accepted Core decision, but the runtime transition must remain atomic. Until the persistent candidate slice is accepted, `DomainEntity.persistenceVersion = 0L` remains the compatibility baseline for the in-memory CatalogItem runtime. Do not switch the Core field to nullable in a standalone patch; introduce nullable-before-insert semantics only together with the persistent repository adapter, Liquibase schema and version lifecycle tests.
+
 ### Scope least privilege
 
 Do not widen `root` for an entire roadmap. Use the narrow built-in scope whenever possible; project templates may not inherit Springmaster-specific package paths. Every scope expansion requires a separate bounded patch and a removal decision.
