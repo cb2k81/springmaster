@@ -9,9 +9,8 @@ Das Patchsystem verarbeitet manifestbasierte Patch-ZIPs und protokolliert jede A
 Die verbindliche Runtime-Schnittstelle ist in `PROJECT_DOCS/TOOLING/PATCH_RUN_API.md` definiert. Patchstarts, Statusabfragen und Diagnosen werden nicht mehr durch manuelle Prozesssuche oder Auswahl der zeitlich neuesten Summary gesteuert.
 
 ```bash
-./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
-./bin/patch.sh watch <run-id>
-./bin/patch.sh result <run-id>
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit --watch
+./bin/patch.sh result --patch <patch-id> --format env
 ./bin/patch.sh diagnose <run-id>
 ./bin/patch.sh doctor
 ```
@@ -25,12 +24,12 @@ Die Git-Transaktion vergleicht Patch-Log, qualifizierten Worktree-Commit und Liv
 ```bash
 ./bin/patch.sh apply --dry-run <patch.zip>
 ./bin/patch.sh apply <patch.zip>
-./bin/patch.sh accept <patch.zip> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
-./bin/patch.sh verify <patch-id|patch-number|latest> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
-./bin/patch.sh status <run-id|patch-id|patch-number|latest> [--format human|env|json]
-./bin/patch.sh watch <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-./bin/patch.sh wait <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-./bin/patch.sh result <run-id|patch-id|patch-number|latest> [--format human|env|json]
+./bin/patch.sh accept <patch.zip> [--background] [--format human|env|json] [--watch] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
+./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--format human|env|json] [--watch] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
+./bin/patch.sh status [<run-or-patch-ref>|--patch <patch-id>] [--format human|env|json]
+./bin/patch.sh watch [<run-or-patch-ref>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh wait [<run-or-patch-ref>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh result [<run-or-patch-ref>|--patch <patch-id>] [--format human|env|json]
 ./bin/patch.sh diagnose <run-id|patch-id|patch-number|latest> [--output <file>]
 ./bin/patch.sh doctor
 ./bin/patch.sh list
@@ -333,7 +332,7 @@ Mutierende Kommandos sind projektweit exklusiv:
 
 Der lokale Write-Lock liegt standardmäßig unter `patches/runtime/locks/project-write.lock`. Er schützt insbesondere Patchnummern, Arbeitsbaum, Tests, Exporte, Rollbacks und Git-Abschluss vor parallelen KI-Chat-Läufen im selben Projektverzeichnis. Runtime-Locks sind Laufzeitartefakte und dürfen weder versioniert noch in Full-Exporte übernommen werden.
 
-`accept` und `verify` können mit `--background` gestartet werden. Die vollständige Ausgabe landet in Logdateien, während die Konsole nur Status, PID, Summary, Logpfad und Folgekommando ausgibt.
+`accept` und `verify` können mit `--background` gestartet werden. `--format env|json` liefert die Run-ID maschinenlesbar, `--watch` verbindet Start und kompakte Beobachtung. Die vollständige Ausgabe bleibt in projektlokalen Logdateien; externe Startlogs, Run-ID-Dateien und Summary-Pointer sind nicht erforderlich und dürfen insbesondere nicht nach `~/Downloads` geschrieben werden.
 
 Zielprojekte konfigurieren abweichende Runtime-Kommandos in ihrer lokalen `.env`, z. B. `PATCH_FULL_TEST_COMMAND`, `PATCH_EXPORT_COMMAND` und `PATCH_TOOLING_SELFCHECK_COMMAND`. Projektspezifische Scopes bleiben ebenfalls lokal über `PATCH_LOCAL_SCOPES` und `PATCH_SCOPE_<NAME>_PATHS` definiert.
 
@@ -410,4 +409,4 @@ Effective `accept` runs in a detached Git worktree. The live repository receives
 
 Seit Patch `000164_springmaster_patch_run_api_git_transaction_hardening` ist kanonische Acceptance-Evidence Bestandteil des verbindlichen Patchabschlusses. Der Doctor bewertet ältere angewendete Patcharchive ohne `accepted.json` als aggregierte historische Warnung. Für Patchnummern ab `000164` ist derselbe Zustand `APPLIED_WITHOUT_CANONICAL_ACCEPTANCE` ein Fehler.
 
-Statusabfragen verwenden Run-ID oder Patch-ID. Temporäre, zeitgestempelte Summary-Pfade sind keine stabilen Schnittstellen und dürfen insbesondere bei Selbstupdates nicht als dauerhafte Pointer verwendet werden. Die Statusauflösung liest die kanonische `accepted.json` und liefert Run-ID, Artifact-ID, Commit und Aktualisierungszeit auch dann, wenn der ursprüngliche Attempt-Pfad bereits entfernt oder kompaktiert wurde.
+Statusabfragen verwenden eine nicht leere Run-ID oder Patch-ID; `--patch <patch-id>` ist die explizite patchbezogene Form. Leere Referenzen werden abgelehnt und fallen nie auf das aktuelle Verzeichnis zurück. Jeder Run besitzt eine sanitierte `invocation.json` ohne absoluten Downloadpfad. Temporäre, zeitgestempelte Summary-Pfade sind keine stabilen Schnittstellen und dürfen insbesondere bei Selbstupdates nicht als dauerhafte Pointer verwendet werden. Die Statusauflösung liest die kanonische `accepted.json` und liefert Run-ID, Artifact-ID, Commit und Aktualisierungszeit auch dann, wenn der ursprüngliche Attempt-Pfad bereits entfernt oder kompaktiert wurde.

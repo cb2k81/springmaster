@@ -26,21 +26,25 @@ PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md
 
 ## Aktueller Standard seit 000164
 
-Für einen dauerhaften lokalen Abschluss wird Acceptance als Hintergrund-Run mit expliziter Run-ID gestartet:
+Für einen dauerhaften lokalen Abschluss wird Acceptance als Hintergrund-Run gestartet und direkt kompakt beobachtet:
 
 ```bash
 ./bin/patch.sh accept <patch.zip> \
   --background \
   --wait-for-lock \
   --no-export \
-  --commit
+  --commit \
+  --watch
 ```
 
-Die Startausgabe enthält die Run-ID. Der Run wird danach ohne Logstream beobachtet:
+Der Child-Prozess ist vom Terminal entkoppelt. `--watch` beobachtet nur den Run; ein Abbruch des Beobachters beendet den Acceptance-Prozess nicht. Startlogs, Run-ID-Dateien und Summary-Pointer außerhalb des Projekts entfallen.
+
+Für Automation liefert der Start direkt `env` oder `json`:
 
 ```bash
-./bin/patch.sh watch <run-id>
-./bin/patch.sh result <run-id>
+START_ENV="$(./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit --format env)"
+RUN_ID="$(printf '%s\n' "${START_ENV}" | sed -n 's/^RUN_ID=//p')"
+./bin/patch.sh result "${RUN_ID}" --format env
 ```
 
 `--wait-for-lock` wartet ausschließlich auf den Repository-Write-Lock. `patch.sh wait <run-id>` wartet auf das Ende des Runs. Das historische `--wait` bleibt nur als Alias für die Lock-Wartezeit erhalten.
@@ -146,11 +150,14 @@ Der Full-ZIP-Export ist standardmäßig aktiv. Full-Parts-Baseline-Exporte werde
 
 ## Logs
 
-Die Logs liegen unter:
+Run-Logs und Start-Evidence liegen ausschließlich projektlokal unter:
 
 ```text
-patches/logs/accept/<patch-id>/
+patches/logs/accept/<run-id>/
+patches/logs/validation/<run-id>/
 ```
+
+Die kanonische erfolgreiche Acceptance liegt zusätzlich unter `patches/logs/accept/<patch-id>/`. `invocation.json` dokumentiert die sanitierte Invocation ohne absoluten Downloadpfad. `~/Downloads` enthält nur eingehende Patch-ZIPs und andere bewusst übergebene Artefakte.
 
 Typische Dateien:
 
@@ -250,10 +257,10 @@ Empfohlene Standards:
 
 ```bash
 # lokaler, validierter Patchabschluss mit Git-Commit
-./bin/patch.sh accept <patch.zip> --background --wait --commit
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --commit --watch
 
 # nur wenn der geprüfte Stand unmittelbar veröffentlicht werden soll
-./bin/patch.sh accept <patch.zip> --background --wait --commit --push
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --commit --watch --push
 ```
 
 ## Export-Hygiene seit 000024

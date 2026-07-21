@@ -20,6 +20,8 @@ Patch-ZIPs und andere vom Benutzer heruntergeladene Übergabeartefakte werden au
 /home/cb/Downloads
 ```
 
+`Downloads` ist ausschließlich Ein- und Ausgang für bewusst übergebene Artefakte. Patch-Runtime, Startausgabe, Run-IDs, Summaries, PIDs und Diagnose-Logs werden nicht dorthin geschrieben. Sie liegen projektlokal unter `patches/runtime/**`, `patches/logs/accept/**`, `patches/logs/validation/**` oder bei expliziter Diagnose unter `build/**`. Manuelle Pointer- oder Startlogdateien außerhalb des Repositories sind nicht Teil des kanonischen Workflows.
+
 Kein vorbereiteter mutierender Befehl darf sich auf das aktuelle Terminalverzeichnis verlassen. Jeder ausführbare Block setzt das Arbeitsverzeichnis explizit. Ein Bundle- oder Patch-Runner muss vor einer Mutation den sauberen Git-Status, den erwarteten Downloadpfad und die Patchdatei prüfen.
 
 ## Auftrag des Projekts
@@ -320,14 +322,27 @@ Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die da
 - Für einen ausdrücklich verlangten lokalen Patchabschluss ohne Release-/Handoff-Export den idempotenten Run-Flow verwenden:
 
 ```bash
-./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
-./bin/patch.sh watch <run-id>
-./bin/patch.sh result <run-id>
+./bin/patch.sh accept <patch.zip> \
+  --background \
+  --wait-for-lock \
+  --no-export \
+  --commit \
+  --watch
+```
+
+Für Automation wird die maschinenlesbare Startausgabe direkt in einer Shell-Variablen ausgewertet; es werden keine Startlogs oder Run-ID-Dateien angelegt:
+
+```bash
+START_ENV="$(./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit --format env)"
+RUN_ID="$(printf '%s\n' "${START_ENV}" | sed -n 's/^RUN_ID=//p')"
+./bin/patch.sh result "${RUN_ID}" --format env
 ```
 
 - `--wait-for-lock` wartet nur auf den Write-Lock; auf das Run-Ende wartet `patch.sh wait <run-id>`.
 - Vor jedem Retry `patch.sh status <patch-id>` und bei Widersprüchen `patch.sh doctor` ausführen. `APPLIED` oder ein aktiver Run verbieten einen Neustart. Historische, vor Einführung der Run API angewendete Patches ohne kanonische Acceptance sind Doctor-Warnungen; für neue Patches bleibt derselbe Zustand ein Fehler.
 - Acceptance- und Verify-Evidence getrennt halten. Ein späterer fehlgeschlagener Verify-/Retry-Run darf eine erfolgreiche kanonische Acceptance nicht überschreiben.
+- `status`, `watch`, `wait`, `result` und `diagnose` erhalten eine nicht leere Run- oder Patch-Referenz; für patchbezogene Automation ist `--patch <patch-id>` zulässig. Leere Referenzen dürfen nie auf das aktuelle Verzeichnis oder den Repositorynamen zurückfallen.
+- Jeder Run dokumentiert seine sanitierte Invocation projektlokal in `invocation.json`; gespeichert werden Artefaktname, SHA-256 und Optionen, nicht der absolute Downloadpfad.
 
 - Niemals pauschal `git add .` verwenden. Keine fremden oder bereits vorgestagten Änderungen übernehmen.
 - Kein Push ohne ausdrückliche Freigabe; `--push` ist immer separat und bewusst.

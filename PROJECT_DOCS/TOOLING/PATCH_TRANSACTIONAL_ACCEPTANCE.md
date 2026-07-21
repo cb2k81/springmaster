@@ -106,3 +106,8 @@ Intent-to-add is used only in the isolated child so new files are visible to `gi
 ## Resolved diagnostic debt
 
 The parent summary no longer collapses every child validation failure to `worktree-validation`. It carries the exact child failure step, phase, root-cause candidate and relevant log path. `patch.sh diagnose` produces bounded evidence, while `status`, `watch`, `wait` and `result` remove the need for ad-hoc terminal polling.
+## Project-local start handoff since 000167
+
+The detached background child is started without any external pointer or log file. Human callers use `accept ... --watch`; automation captures `--format env` or `--format json` directly and extracts the run ID in memory. `Downloads` remains an ingress for immutable patch ZIPs and is never a runtime state directory.
+
+The parent writes `invocation.json` before spawning the child. The record is atomic, contains only the patch filename and SHA-256 plus requested options, and excludes the absolute source path. Canonical acceptance publication preserves this file. Parent-only options (`--format`, `--watch`, `--watch-interval`, `--watch-timeout`) are removed from the child invocation so no recursive observer is created. Empty run references are rejected before path resolution.

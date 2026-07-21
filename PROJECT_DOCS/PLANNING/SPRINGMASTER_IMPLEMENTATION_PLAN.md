@@ -1208,3 +1208,18 @@ Der nächste operative Schritt ist kein automatisch benannter Patch, sondern die
 Entgegennahme und forensische Prüfung einer aktuellen ZBM-Full-Baseline. Erst
 aus diesem Befund dürfen Renderer-, Patch-Assembler- oder Pilot-Delivery-Arbeiten
 abgeleitet werden.
+## Stand nach Patch 000167
+
+Patch `000167_springmaster_patch_run_api_project_local_start_handoff` schließt die letzte Bedienlücke der Patch-Run-API vor der weiteren Softwareentwicklung.
+
+Erreicht:
+
+- interaktiver Standardstart mit `accept ... --watch`;
+- maschinenlesbarer Background-Start über `--format env|json` ohne Startlog- oder Run-ID-Datei;
+- projektlokale, sanitierte `invocation.json`;
+- strikte Ablehnung leerer Observer-Referenzen;
+- explizite `--patch <patch-id>`-Auflösung;
+- keine Runtime-Dateien im Download-Übergabeordner;
+- unveränderte Git-Transaktions-, Pfadparitäts- und patchbegrenzte Whitespace-Gates.
+
+Damit ist die Tooling-P0-Härtung geschlossen. Der nächste Software-Schritt bleibt `SM-P3-02` mit produktionsnaher Persistenzqualifikation.

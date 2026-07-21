@@ -17,11 +17,13 @@ Git remains the durable repository truth. Runtime run records are operational ev
 ## Public commands
 
 ```bash
-./bin/patch.sh status <run-id|patch-id|patch-number|latest> [--format human|env|json]
-./bin/patch.sh watch <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-./bin/patch.sh wait <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-./bin/patch.sh result <run-id|patch-id|patch-number|latest> [--format human|env|json]
-./bin/patch.sh diagnose <run-id|patch-id|patch-number|latest> [--output <file>]
+./bin/patch.sh accept <patch.zip> --background [--format human|env|json] [--watch]
+./bin/patch.sh verify <patch-ref> --background [--format human|env|json] [--watch]
+./bin/patch.sh status [<run-or-patch-ref>|--patch <patch-id>] [--format human|env|json]
+./bin/patch.sh watch [<run-or-patch-ref>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh wait [<run-or-patch-ref>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh result [<run-or-patch-ref>|--patch <patch-id>] [--format human|env|json]
+./bin/patch.sh diagnose [<run-or-patch-ref>|--patch <patch-id>] [--output <file>]
 ./bin/patch.sh doctor
 ```
 
@@ -42,19 +44,40 @@ cd /opt/cocondo/springmaster || exit 1
   --background \
   --wait-for-lock \
   --no-export \
-  --commit
+  --commit \
+  --watch
 ```
 
-The start command prints a `RUN_ID`. Observe that exact run:
+`--watch` starts the detached acceptance child and immediately attaches the compact observer. Closing the observer or terminal does not terminate the child. No external start log, PID file, run-ID file or summary pointer is required.
+
+For scripts, capture the start response in memory:
 
 ```bash
-./bin/patch.sh watch <run-id>
-./bin/patch.sh result <run-id>
+START_ENV="$(./bin/patch.sh accept /home/cb/Downloads/<patch>.zip \
+  --background --wait-for-lock --no-export --commit --format env)"
+RUN_ID="$(printf '%s\n' "${START_ENV}" | sed -n 's/^RUN_ID=//p')"
+./bin/patch.sh result "${RUN_ID}" --format env
 ```
 
 A terminal or SSH session may close after the background start. The run continues independently. Do not start another acceptance merely because the original terminal is gone.
 
 Raw paths to timestamped `SUMMARY.txt` files are not stable API handles. A successful self-update or evidence publication may compact temporary attempt evidence into the canonical acceptance directory. Observe by run ID or patch ID; `status`, `watch`, `wait` and `result` resolve durable `accepted.json` evidence even when the temporary attempt directory no longer exists.
+
+
+## Start output and invocation evidence
+
+Background `accept` and `verify` support `--format human`, `--format env` and `--format json`. The machine-readable variants return `STATUS=STARTED`, run ID, patch/artifact identity, PID and project-local log locations. They are intended for command substitution or process APIs, not for redirecting into `~/Downloads`. `--watch` uses compact human output and therefore cannot be combined with `env` or `json`.
+
+Every created run writes:
+
+```text
+patches/logs/accept/<run-id>/invocation.json
+patches/logs/validation/<run-id>/invocation.json
+```
+
+The invocation record stores the patch filename, raw ZIP SHA-256, requested profile/tests and commit/export/lock options. It deliberately omits the absolute incoming artifact path. Successful acceptance copies the record into the canonical acceptance directory so self-update compaction does not remove the start evidence.
+
+`status`, `watch`, `wait`, `result` and `diagnose` reject an empty reference with exit code `2`. `--patch <patch-id>` is the explicit patch-oriented form and never falls back to the current directory or repository name.
 
 ## Lock waiting versus run waiting
 
@@ -175,7 +198,9 @@ New untracked files are exposed to the first check with intent-to-add inside the
 - Do not monitor with `tail -F` or print complete Maven logs in the terminal.
 - Do not search for the newest summary as a substitute for `status`.
 - Do not infer liveness from a PID alone; the run resolver also checks run metadata and process state.
-- Do not restart before `status <patch-id>` and `doctor` have ruled out `APPLIED` and `RUNNING`.
+- Do not restart before `status --patch <patch-id>` and `doctor` have ruled out `APPLIED` and `RUNNING`.
+- Do not write start output, run IDs, summaries or PIDs into `~/Downloads`; that directory contains only explicit transfer artifacts.
+- Do not pass empty references to observer commands.
 - During a patch-engine self-update, switch from any bootstrap pointer to `status <patch-id>` as soon as the new commit is visible; the bootstrap attempt directory may be compacted.
 - Use `diagnose` for bounded failure evidence.
 
@@ -201,6 +226,11 @@ The normal tooling selfcheck includes `bin/patch-run-api-it.sh`. It covers:
 - verify/acceptance evidence separation;
 - exact child failure propagation;
 - patch-scoped whitespace rejection without live mutation;
-- doctor and result behavior.
+- doctor and result behavior;
+- machine-readable start output without external helper files;
+- integrated `accept --watch`;
+- sanitized and canonically preserved `invocation.json`;
+- strict empty-reference rejection and `--patch` resolution;
+- no runtime files created beside incoming ZIPs in `Downloads`.
 
 `bin/patch-transactional-accept-it.sh` additionally proves failed/successful worktree transactions, bounded test log names, path parity and Git transfer behavior.

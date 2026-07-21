@@ -23,13 +23,13 @@ USAGE = """Verwendung:
   ./bin/patch.sh apply [--dry-run] [--wait] <patch.zip>
   ./bin/patch.sh live-baseline <patch.zip>
   ./bin/patch.sh artifact-preflight <patch.zip> [--output <dir>] [--no-export] [--keep-test-copy]
-  ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
-  ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait-for-lock] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
-  ./bin/patch.sh status <run-id|patch-id|patch-number|latest> [--format human|env|json]
-  ./bin/patch.sh watch <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-  ./bin/patch.sh wait <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
-  ./bin/patch.sh result <run-id|patch-id|patch-number|latest> [--format human|env|json]
-  ./bin/patch.sh diagnose <run-id|patch-id|patch-number|latest> [--output <file>]
+  ./bin/patch.sh accept <patch.zip> [--background] [--wait-for-lock] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push] [--format human|env|json] [--watch] [--watch-interval <seconds>] [--watch-timeout <seconds>]
+  ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait-for-lock] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--format human|env|json] [--watch] [--watch-interval <seconds>] [--watch-timeout <seconds>]
+  ./bin/patch.sh status [<run-id|patch-id|patch-number|latest>|--patch <patch-id>] [--format human|env|json]
+  ./bin/patch.sh watch [<run-id|patch-id|patch-number|latest>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+  ./bin/patch.sh wait [<run-id|patch-id|patch-number|latest>|--patch <patch-id>] [--interval <seconds>] [--timeout <seconds>]
+  ./bin/patch.sh result [<run-id|patch-id|patch-number|latest>|--patch <patch-id>] [--format human|env|json]
+  ./bin/patch.sh diagnose [<run-id|patch-id|patch-number|latest>|--patch <patch-id>] [--output <file>]
   ./bin/patch.sh doctor [--format human|json]
   ./bin/patch.sh rollback [--dry-run] [--wait-for-lock] <patch-id|patch-number|latest>
   ./bin/patch.sh list
@@ -51,6 +51,9 @@ Pflichtregeln:
   - Mutierende Läufe verwenden einen projektlokalen Write-Lock.
   - Für lange Läufe ist --background --wait-for-lock der empfohlene Startmodus.
   - status, watch und wait beobachten Runs kompakt ohne Log-Streaming.
+  - --format env|json liefert beim Background-Start eine maschinenlesbare Run-ID ohne Hilfsdatei.
+  - --watch verbindet den Background-Start mit der kompakten Run-Beobachtung.
+  - Runtime-Evidence bleibt projektlokal; Downloads ist ausschließlich ein Artefakt-Eingang.
   - Ein bereits angewendetes oder bereits laufendes Artefakt wird idempotent erkannt.
 """
 
@@ -1396,6 +1399,10 @@ def parse_accept_verify_args(args, subject_name):
     lock_timeout = None
     git_commit = False
     git_push = False
+    output_format = "human"
+    watch_after_start = False
+    watch_interval = 5
+    watch_timeout = None
     rest = list(args)
     i = 0
     while i < len(rest):
@@ -1444,6 +1451,30 @@ def parse_accept_verify_args(args, subject_name):
         elif arg in ("--wait", "--wait-for-lock"):
             wait = True
             i += 1
+        elif arg == "--format":
+            if i + 1 >= len(rest):
+                fail("--format erwartet human, env oder json.", 2)
+            output_format = rest[i + 1]
+            if output_format not in ("human", "env", "json"):
+                fail(f"Nicht unterstuetztes Startformat: {output_format}", 2)
+            i += 2
+        elif arg == "--watch":
+            watch_after_start = True
+            i += 1
+        elif arg == "--watch-interval":
+            if i + 1 >= len(rest):
+                fail("--watch-interval erwartet Sekunden.", 2)
+            watch_interval = safe_int(rest[i + 1])
+            if watch_interval is None or watch_interval < 1:
+                fail("--watch-interval muss mindestens eine Sekunde betragen.", 2)
+            i += 2
+        elif arg == "--watch-timeout":
+            if i + 1 >= len(rest):
+                fail("--watch-timeout erwartet Sekunden.", 2)
+            watch_timeout = safe_int(rest[i + 1])
+            if watch_timeout is None or watch_timeout < 0:
+                fail("--watch-timeout darf nicht negativ sein.", 2)
+            i += 2
         elif arg == "--lock-timeout":
             if i + 1 >= len(rest):
                 fail("--lock-timeout erwartet eine Sekundenangabe.")
@@ -1463,6 +1494,10 @@ def parse_accept_verify_args(args, subject_name):
             i += 1
     if subject is None:
         fail(f"{COMMAND} erwartet genau ein {subject_name}.")
+    if not background and (output_format != "human" or watch_after_start):
+        fail("--format und --watch sind nur zusammen mit --background zulaessig.", 2)
+    if watch_after_start and output_format != "human":
+        fail("--watch verwendet kompakte Human-Ausgabe; --format env|json ohne --watch verwenden.", 2)
     return {
         "subject": subject,
         "tests": tests,
@@ -1475,6 +1510,10 @@ def parse_accept_verify_args(args, subject_name):
         "lockTimeout": lock_timeout,
         "gitCommit": git_commit,
         "gitPush": git_push,
+        "outputFormat": output_format,
+        "watchAfterStart": watch_after_start,
+        "watchInterval": watch_interval,
+        "watchTimeout": watch_timeout,
     }
 
 def needs_full_test_for_targets(target_paths):
@@ -1663,26 +1702,99 @@ def find_active_run(patch_id, artifact_id=None):
             return data
     return None
 
-def print_already_applied_state(state):
-    print("Patch-Accept:")
-    print("  Status:       ALREADY_APPLIED")
+def start_state_env_lines(state):
+    keys = (
+        ("STATUS", "status"),
+        ("COMMAND", "command"),
+        ("RUN_ID", "runId"),
+        ("PATCH_ID", "patchId"),
+        ("ARTIFACT_ID", "artifactId"),
+        ("PID", "pid"),
+        ("PHASE", "phase"),
+        ("GIT_COMMIT_STATUS", "commitStatus"),
+        ("GIT_COMMIT_HASH", "commitHash"),
+        ("SUMMARY", "summary"),
+        ("LOG_DIR", "logDir"),
+        ("WATCH_COMMAND", "watchCommand"),
+        ("WAIT_COMMAND", "waitCommand"),
+    )
+    return [f"{name}={state.get(key, '-')}" for name, key in keys]
+
+
+def print_start_state(state, output_format="human", label="Patch-Accept"):
+    if output_format == "json":
+        print(json.dumps(state, indent=2, ensure_ascii=False, sort_keys=True))
+        sys.stdout.flush()
+        return
+    if output_format == "env":
+        print("\n".join(start_state_env_lines(state)))
+        sys.stdout.flush()
+        return
+
+    print(f"{label}:")
+    print(f"  Status:       {state.get('status', '-')}")
+    if state.get("runId") not in (None, "-"):
+        print(f"  Run-ID:       {state.get('runId')}")
     print(f"  Patch-ID:     {state.get('patchId', '-')}")
-    print(f"  Artifact-ID:  {state.get('artifactId', '-')}")
-    print(f"  Git-Status:   {state.get('commitStatus', '-')}")
-    print(f"  Git-Commit:   {state.get('commitHash', '-')}")
-    print(f"  Summary:      {state.get('summary', '-')}")
+    if state.get("artifactId") not in (None, "-"):
+        print(f"  Artifact-ID:  {state.get('artifactId')}")
+    if state.get("pid") not in (None, "-"):
+        print(f"  PID:          {state.get('pid')}")
+    if state.get("phase") not in (None, "-"):
+        print(f"  Phase:        {state.get('phase')}")
+    if state.get("commitStatus") not in (None, "-"):
+        print(f"  Git-Status:   {state.get('commitStatus')}")
+    if state.get("commitHash") not in (None, "-"):
+        print(f"  Git-Commit:   {state.get('commitHash')}")
+    if state.get("summary") not in (None, "-"):
+        print(f"  Summary:      {state.get('summary')}")
+    if state.get("watchCommand") not in (None, "-"):
+        print(f"  Watch:        {state.get('watchCommand')}")
+    if state.get("waitCommand") not in (None, "-"):
+        print(f"  Wait:         {state.get('waitCommand')}")
+    sys.stdout.flush()
 
 
-def print_already_running_state(state):
-    print("Patch-Accept:")
-    print("  Status:       ALREADY_RUNNING")
-    print(f"  Run-ID:       {state.get('runId', '-')}")
-    print(f"  Patch-ID:     {state.get('patchId', '-')}")
-    print(f"  PID:          {state.get('pid', '-')}")
-    print(f"  Phase:        {state.get('phase', '-')}")
-    print(f"  Summary:      {state.get('summary', '-')}")
-    print(f"  Watch:        ./bin/patch.sh watch {state.get('runId', state.get('patchId', '-'))}")
+def print_already_applied_state(state, output_format="human"):
+    start_state = {
+        "status": "ALREADY_APPLIED",
+        "command": "accept",
+        "runId": state.get("runId", "-"),
+        "patchId": state.get("patchId", "-"),
+        "artifactId": state.get("artifactId", "-"),
+        "pid": "-",
+        "phase": "COMPLETE",
+        "commitStatus": state.get("commitStatus", "-"),
+        "commitHash": state.get("commitHash", "-"),
+        "summary": state.get("summary", "-"),
+        "logDir": str(Path(state.get("summary", "-")).parent) if state.get("summary") not in (None, "-") else "-",
+        "watchCommand": "-",
+        "waitCommand": "-",
+    }
+    print_start_state(start_state, output_format, label="Patch-Accept")
+    return start_state
 
+
+def print_already_running_state(state, output_format="human", command_name="accept"):
+    run_id = state.get("runId", state.get("patchId", "-"))
+    start_state = {
+        "status": "ALREADY_RUNNING",
+        "command": command_name,
+        "runId": run_id,
+        "patchId": state.get("patchId", "-"),
+        "artifactId": state.get("artifactId", "-"),
+        "pid": state.get("pid", "-"),
+        "phase": state.get("phase", "-"),
+        "commitStatus": state.get("commitStatus", "-"),
+        "commitHash": state.get("commitHash", "-"),
+        "summary": state.get("summary", "-"),
+        "logDir": state.get("logDir", "-"),
+        "watchCommand": f"./bin/patch.sh watch {run_id}",
+        "waitCommand": f"./bin/patch.sh wait {run_id}",
+    }
+    label = "Patch-Verify" if command_name == "verify" else "Patch-Accept"
+    print_start_state(start_state, output_format, label=label)
+    return start_state
 
 def latest_full_export():
     export_dir = PROJECT_ROOT / "exports" / "text"
@@ -1718,6 +1830,41 @@ def run_pointer_dir():
 def make_run_id(command_name, patch_id):
     stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%dT%H%M%S")
     return f"{stamp}-{sanitize_name(command_name)}-{sanitize_name(patch_id)}-{uuid.uuid4().hex[:8]}"
+
+
+def write_invocation_record(log_dir, command_name, subject, patch_identity, options):
+    log_dir = Path(log_dir).resolve()
+    path = log_dir / "invocation.json"
+    if path.is_file():
+        return path
+    patch_identity = patch_identity or {}
+    subject_name = Path(str(subject)).name
+    data = {
+        "schemaVersion": "springmaster.patch-invocation.v1",
+        "runId": log_dir.name,
+        "command": command_name,
+        "subjectType": "patch-zip" if command_name == "accept" else "patch-ref",
+        "subjectName": subject_name,
+        "patchFileName": subject_name if command_name == "accept" else None,
+        "patchId": patch_identity.get("patchId"),
+        "artifactId": patch_identity.get("artifactId"),
+        "patchSha256": patch_identity.get("patchSha256"),
+        "profileRequested": options.get("profile"),
+        "testsRequested": list(options.get("tests") or []),
+        "fullTestRequested": options.get("fullTest"),
+        "exportRequested": bool(options.get("export")),
+        "toolingSelfcheckRequested": bool(options.get("toolingSelfcheck")),
+        "commitRequested": bool(options.get("gitCommit")),
+        "pushRequested": bool(options.get("gitPush")),
+        "backgroundRequested": bool(options.get("background")),
+        "waitForLockRequested": bool(options.get("wait")),
+        "lockTimeoutSeconds": options.get("lockTimeout"),
+        "startFormat": options.get("outputFormat", "human"),
+        "watchAfterStart": bool(options.get("watchAfterStart")),
+        "requestedAt": now_iso(),
+    }
+    write_json(path, {key: value for key, value in data.items() if value is not None})
+    return path
 
 
 def run_record_path(log_dir):
@@ -2283,8 +2430,24 @@ def make_accept_log_dir(subject, command_name=None):
     return log_dir, False
 
 
-def args_without_background(args):
-    return [arg for arg in args if arg != "--background"]
+def args_for_background_child(args):
+    parent_only_flags = {"--background", "--watch"}
+    parent_only_values = {"--format", "--watch-interval", "--watch-timeout"}
+    result = []
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg in parent_only_flags:
+            i += 1
+            continue
+        if arg in parent_only_values:
+            if i + 1 >= len(args):
+                fail(f"{arg} erwartet einen Wert.", 2)
+            i += 2
+            continue
+        result.append(arg)
+        i += 1
+    return result
 
 
 def write_running_summary(log_dir, command_name, patch_identity, run_log, pid=None, phase="STARTING"):
@@ -2309,8 +2472,9 @@ def write_running_summary(log_dir, command_name, patch_identity, run_log, pid=No
     atomic_write_text(Path(log_dir) / "STATUS.txt", "RUNNING\n")
 
 
-def start_background_command(command_name, args, subject, patch_identity=None):
+def start_background_command(command_name, args, subject, patch_identity=None, options=None):
     patch_identity = patch_identity or {}
+    options = options or {}
     patch_id = patch_identity.get("patchId") or sanitize_name(subject)
     run_id = make_run_id(command_name, patch_id)
     os.environ["PATCH_RUN_ID"] = run_id
@@ -2332,16 +2496,21 @@ def start_background_command(command_name, args, subject, patch_identity=None):
         logDir=str(log_dir),
         summary=str(log_dir / "SUMMARY.txt"),
     )
+    write_invocation_record(log_dir, command_name, subject, patch_identity, options)
 
     env = dict(os.environ)
     env["PATCH_BACKGROUND_CHILD"] = "1"
     env["PATCH_ACCEPT_LOG_DIR"] = str(log_dir)
     env["PATCH_RUN_ID"] = run_id
-    child_args = args_without_background(args)
+    child_args = args_for_background_child(args)
     cmd = [sys.executable, str(Path(__file__).resolve()), str(PROJECT_ROOT), command_name] + child_args
+    logged_cmd = list(cmd)
+    raw_subject = str(options.get("subject") or "")
+    if raw_subject:
+        logged_cmd = [Path(part).name if part == raw_subject else part for part in logged_cmd]
     with run_log.open("a", encoding="utf-8") as out:
         out.write(f"== Background {command_name} ==\n")
-        out.write(f"$ {command_to_text(cmd)}\n\n")
+        out.write(f"$ {command_to_text(logged_cmd)}\n\n")
         out.flush()
         proc = subprocess.Popen(
             cmd,
@@ -2361,15 +2530,24 @@ def start_background_command(command_name, args, subject, patch_identity=None):
     else:
         write_run_record(log_dir, pid=proc.pid, processGroupId=proc.pid)
 
+    state = {
+        "status": "STARTED",
+        "command": command_name,
+        "runId": run_id,
+        "patchId": patch_identity.get("patchId", "-"),
+        "artifactId": patch_identity.get("artifactId", "-"),
+        "pid": proc.pid,
+        "phase": "STARTED",
+        "commitStatus": "PENDING" if options.get("gitCommit") else "SKIPPED",
+        "commitHash": "-",
+        "summary": str(log_dir / "SUMMARY.txt"),
+        "logDir": str(log_dir),
+        "watchCommand": f"./bin/patch.sh watch {run_id}",
+        "waitCommand": f"./bin/patch.sh wait {run_id}",
+    }
     label = "Patch-Accept" if command_name == "accept" else "Patch-Verify"
-    print(f"{label}:")
-    print("  Status:       RUNNING")
-    print(f"  Run-ID:       {run_id}")
-    print(f"  Patch-ID:     {patch_identity.get('patchId', '-')}")
-    print(f"  PID:          {proc.pid}")
-    print(f"  Summary:      {log_dir / 'SUMMARY.txt'}")
-    print(f"  Watch:        ./bin/patch.sh watch {run_id}")
-    print(f"  Wait:         ./bin/patch.sh wait {run_id}")
+    print_start_state(state, options.get("outputFormat", "human"), label=label)
+    return state
 
 
 def run_validation_steps(log_dir, options):
@@ -2507,7 +2685,7 @@ def publish_canonical_acceptance(run_log_dir, patch_id, child_accept_dir=None, i
     try:
         if include_run_logs:
             copy_tree_if_present(run_log_dir, temp_dir)
-        for name in ("SUMMARY.txt", "summary.log", "STATUS.txt"):
+        for name in ("SUMMARY.txt", "summary.log", "STATUS.txt", "invocation.json"):
             source = run_log_dir / name
             if source.is_file():
                 shutil.copy2(source, temp_dir / name)
@@ -2557,7 +2735,7 @@ def refresh_canonical_acceptance(run_log_dir, patch_id):
     fields = read_summary_fields(run_log_dir / "SUMMARY.txt")
     if accepted.get("runId") != fields.get("RUN_ID", run_log_dir.name):
         return
-    for name in ("SUMMARY.txt", "summary.log", "STATUS.txt"):
+    for name in ("SUMMARY.txt", "summary.log", "STATUS.txt", "invocation.json"):
         source = run_log_dir / name
         if source.is_file():
             atomic_write_text(canonical_dir / name, source.read_text(encoding="utf-8"))
@@ -2624,6 +2802,7 @@ def transactional_accept_command(args, options, zip_path, patch_info):
         logDir=str(log_dir),
         summary=str(log_dir / "SUMMARY.txt"),
     )
+    write_invocation_record(log_dir, "accept", zip_path.name, patch_info, options)
     ensure_git_clean_before_commit(log_dir)
 
     transaction_parent = Path(tempfile.mkdtemp(prefix=f"springmaster-accept-{patch_id}-"))
@@ -2985,17 +3164,39 @@ def accept_command(args):
                     "PATCH_APPLIED_GIT_COMMIT_MISSING: archive and acceptance evidence exist, "
                     "but the recorded Git commit is not available. Run patch doctor before retrying."
                 )
-            print_already_applied_state(applied_state)
+            print_already_applied_state(applied_state, options.get("outputFormat", "human"))
             return
 
         if os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
             active_run = find_active_run(patch_identity["patchId"], patch_identity.get("artifactId"))
             if active_run is not None:
-                print_already_running_state(active_run)
+                state = print_already_running_state(
+                    active_run,
+                    options.get("outputFormat", "human"),
+                    command_name="accept",
+                )
+                if options.get("watchAfterStart"):
+                    observe_run_ref(
+                        state["runId"],
+                        interval=options.get("watchInterval", 5),
+                        timeout=options.get("watchTimeout"),
+                    )
                 return
 
     if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
-        start_background_command("accept", args, zip_path.name, patch_identity=patch_identity)
+        state = start_background_command(
+            "accept",
+            args,
+            zip_path.name,
+            patch_identity=patch_identity,
+            options=options,
+        )
+        if options.get("watchAfterStart"):
+            observe_run_ref(
+                state["runId"],
+                interval=options.get("watchInterval", 5),
+                timeout=options.get("watchTimeout"),
+            )
         return
 
     patch_info = inspect_patch_zip(zip_path)
@@ -3022,6 +3223,7 @@ def accept_command(args):
         logDir=str(log_dir),
         summary=str(log_dir / "SUMMARY.txt"),
     )
+    write_invocation_record(log_dir, "accept", zip_path.name, patch_info, options)
 
     if options.get("gitCommit"):
         ensure_git_clean_before_commit(log_dir)
@@ -3291,15 +3493,33 @@ def verify_command(args):
     if os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
         active_run = find_active_run(patch_id, artifact_id)
         if active_run is not None:
-            print("Patch-Verify:")
-            print("  Status:       ALREADY_RUNNING")
-            print(f"  Run-ID:       {active_run.get('runId', '-')}")
-            print(f"  Patch-ID:     {patch_id}")
-            print(f"  Watch:        ./bin/patch.sh watch {active_run.get('runId', patch_id)}")
+            state = print_already_running_state(
+                active_run,
+                options.get("outputFormat", "human"),
+                command_name="verify",
+            )
+            if options.get("watchAfterStart"):
+                observe_run_ref(
+                    state["runId"],
+                    interval=options.get("watchInterval", 5),
+                    timeout=options.get("watchTimeout"),
+                )
             return
 
     if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
-        start_background_command("verify", args, patch_id, patch_identity=patch_identity)
+        state = start_background_command(
+            "verify",
+            args,
+            patch_id,
+            patch_identity=patch_identity,
+            options=options,
+        )
+        if options.get("watchAfterStart"):
+            observe_run_ref(
+                state["runId"],
+                interval=options.get("watchInterval", 5),
+                timeout=options.get("watchTimeout"),
+            )
         return
 
     if os.environ.get("PATCH_BACKGROUND_CHILD") == "1":
@@ -3323,6 +3543,7 @@ def verify_command(args):
         logDir=str(log_dir),
         summary=str(log_dir / "SUMMARY.txt"),
     )
+    write_invocation_record(log_dir, "verify", options["subject"], patch_identity, options)
     atomic_write_text(
         log_dir / "verify.log",
         f"VERIFY_STARTED={now_iso()}\nPATCH_ID={patch_id}\n",
@@ -3548,7 +3769,14 @@ def parse_run_observer_args(args, require_ref=True, allow_output=False):
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg == "--format":
+        if arg == "--patch":
+            if i + 1 >= len(args):
+                fail("--patch expects a patch id.", 2)
+            if ref is not None:
+                fail("Expected exactly one run or patch reference.", 2)
+            ref = args[i + 1]
+            i += 2
+        elif arg == "--format":
             if i + 1 >= len(args):
                 fail("--format expects human, env or json.")
             output_format = args[i + 1]
@@ -3581,8 +3809,10 @@ def parse_run_observer_args(args, require_ref=True, allow_output=False):
                 fail(f"Expected exactly one run or patch reference, got {arg!r}.")
             ref = arg
             i += 1
-    if require_ref and ref is None:
-        fail("A run-id or patch reference is required.")
+    if ref is not None:
+        ref = str(ref).strip()
+    if require_ref and not ref:
+        fail("Run-ID oder Patch-Referenz darf nicht leer sein.", 2)
     return {
         "ref": ref,
         "format": output_format,
@@ -3651,12 +3881,14 @@ def run_terminal_exit_code(status):
     return 2
 
 
-def observe_run(args, quiet=False):
-    options = parse_run_observer_args(args)
+def observe_run_ref(ref, interval=5, timeout=None, quiet=False):
+    ref = str(ref).strip() if ref is not None else ""
+    if not ref:
+        fail("Run-ID oder Patch-Referenz darf nicht leer sein.", 2)
     started = time.monotonic()
     last_key = None
     while True:
-        snapshot = status_snapshot(options["ref"])
+        snapshot = status_snapshot(ref)
         key = (
             snapshot.get("status"),
             snapshot.get("phase"),
@@ -3671,10 +3903,20 @@ def observe_run(args, quiet=False):
             if quiet:
                 print_snapshot(snapshot, "human")
             raise SystemExit(run_terminal_exit_code(snapshot.get("status")))
-        if options["timeout"] is not None and time.monotonic() - started >= options["timeout"]:
-            print(f"status=TIMEOUT ref={options['ref']} timeout={options['timeout']}", file=sys.stderr)
+        if timeout is not None and time.monotonic() - started >= timeout:
+            print(f"status=TIMEOUT ref={ref} timeout={timeout}", file=sys.stderr)
             raise SystemExit(4)
-        time.sleep(options["interval"])
+        time.sleep(interval)
+
+
+def observe_run(args, quiet=False):
+    options = parse_run_observer_args(args)
+    observe_run_ref(
+        options["ref"],
+        interval=options["interval"],
+        timeout=options["timeout"],
+        quiet=quiet,
+    )
 
 
 def watch_command(args):
