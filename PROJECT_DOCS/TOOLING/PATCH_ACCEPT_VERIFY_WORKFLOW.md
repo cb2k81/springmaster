@@ -134,11 +134,13 @@ dry-run.log
 apply.log
 show.log
 tooling.log
-test-<selector>.log
+test-<bounded-selector>[-<sha256-prefix>].log
 full-test.log
 export.log
 summary.log
 ```
+
+Testselektor-Logs verwenden einen deterministischen, ASCII-sicheren Basename von höchstens 120 Bytes. Kurze eindeutige Selektoren behalten den lesbaren Namen. Lange oder nach der Normalisierung kollidierende Selektoren erhalten einen gekürzten Namen mit einem SHA-256-Präfix. Der vollständige Selektor bleibt im Logkopf und im protokollierten Kommando erhalten.
 
 ## Erfolgsfall
 

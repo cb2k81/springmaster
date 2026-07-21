@@ -68,6 +68,34 @@ def sanitize_name(value):
     value = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("._-")
     return value or "patch"
 
+
+VALIDATION_LOG_NAME_MAX_BYTES = 120
+
+
+def validation_test_log_name(test_selector, used_names):
+    """Return a deterministic, bounded and collision-safe test log basename."""
+    selector = str(test_selector)
+    sanitized = sanitize_name(selector)
+    plain_name = f"test-{sanitized}.log"
+    plain_name_bytes = len(plain_name.encode("utf-8"))
+    if plain_name_bytes <= VALIDATION_LOG_NAME_MAX_BYTES and plain_name not in used_names:
+        return plain_name
+
+    digest = hashlib.sha256(selector.encode("utf-8")).hexdigest()[:12]
+    duplicate_index = 1
+    while True:
+        duplicate_suffix = "" if duplicate_index == 1 else f"-{duplicate_index}"
+        suffix = f"-{digest}{duplicate_suffix}.log"
+        prefix = "test-"
+        stem_bytes = VALIDATION_LOG_NAME_MAX_BYTES - len((prefix + suffix).encode("utf-8"))
+        if stem_bytes < 1:
+            fail("VALIDATION_LOG_NAME_LIMIT_INVALID: configured basename limit is too small.")
+        stem = sanitized.encode("ascii")[:stem_bytes].decode("ascii").rstrip("._-") or "selection"
+        candidate = f"{prefix}{stem}{suffix}"
+        if candidate not in used_names:
+            return candidate
+        duplicate_index += 1
+
 def validate_relpath(path):
     if not isinstance(path, str) or not path.strip():
         fail(f"Ungültiger leerer Pfad: {path!r}")
@@ -1906,11 +1934,14 @@ def run_validation_steps(log_dir, options):
         if rc != 0:
             return "tooling", None
 
+    used_test_log_names = set()
     for test_selector in options["tests"]:
+        test_log_name = validation_test_log_name(test_selector, used_test_log_names)
+        used_test_log_names.add(test_log_name)
         rc = run_process_step(
             f"Configured test {test_selector}",
             configured_test_selector_command(test_selector),
-            log_dir / f"test-{sanitize_name(test_selector)}.log",
+            log_dir / test_log_name,
             shell=True,
             env=validation_env,
         )
