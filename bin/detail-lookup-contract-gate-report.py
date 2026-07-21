@@ -23,6 +23,7 @@ DEFAULT_OUT = "reports/api/detail-lookup-contract-gate-report.json"
 
 CATALOG_CONTROLLER = Path("src/main/java/de/cocondo/platform/demo/catalog/api/CatalogItemController.java")
 CATALOG_SERVICE = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemService.java")
+CATALOG_REPOSITORY = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemRepository.java")
 CATALOG_CONTROLLER_TEST = Path("src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java")
 CATALOG_OPENAPI_DETAIL_TEST = Path("src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemOpenApiDetailLookupContractTest.java")
 ENDPOINT_STANDARD_DOC = Path("PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_STANDARD.md")
@@ -114,6 +115,7 @@ def required_file_findings(root: Path) -> list[Finding]:
     for path in [
         CATALOG_CONTROLLER,
         CATALOG_SERVICE,
+        CATALOG_REPOSITORY,
         CATALOG_CONTROLLER_TEST,
         CATALOG_OPENAPI_DETAIL_TEST,
         ENDPOINT_STANDARD_DOC,
@@ -145,6 +147,7 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
 
     controller = read_text(root, CATALOG_CONTROLLER)
     service = read_text(root, CATALOG_SERVICE)
+    repository = read_text(root, CATALOG_REPOSITORY)
     controller_test = read_text(root, CATALOG_CONTROLLER_TEST)
     openapi_test = read_text(root, CATALOG_OPENAPI_DETAIL_TEST)
     base = request_mapping_base(controller)
@@ -231,15 +234,21 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
             "API_ENDPOINT_CONTRACT_STANDARD.md",
             {"file": str(CATALOG_SERVICE), "symbol": "findById"},
         ))
-    if "Optional<CatalogItemDTO> findBySku(String sku)" not in service or "itemsBySku" not in service:
+    repository_lookup = "Optional<CatalogItem> findBySkuIgnoreCase(String sku)" in repository
+    service_uses_repository_lookup = "repository.findBySkuIgnoreCase" in service
+    if (
+            "Optional<CatalogItemDTO> findBySku(String sku)" not in service
+            or not repository_lookup
+            or not service_uses_repository_lookup
+    ):
         findings.append(Finding(
             "DTL-SERVICE-002",
             "error",
             "CatalogItem",
             "service findBySku",
-            "Service alternate-key lookup must expose Optional<CatalogItemDTO> findBySku(String sku) backed by the unique sku index.",
+            "Service alternate-key lookup must expose Optional<CatalogItemDTO> findBySku(String sku) backed by the case-insensitive repository lookup.",
             "API_ENDPOINT_CONTRACT_STANDARD.md",
-            {"file": str(CATALOG_SERVICE), "symbol": "findBySku"},
+            {"file": str(CATALOG_REPOSITORY), "symbol": "findBySkuIgnoreCase"},
         ))
 
     test_markers = {
@@ -307,7 +316,8 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
         "serviceEvidence": {
             "findById": "present" if "Optional<CatalogItemDTO> findById(String id)" in service else "missing",
             "findBySku": "present" if "Optional<CatalogItemDTO> findBySku(String sku)" in service else "missing",
-            "alternateKeyUniquenessIndex": "itemsBySku" if "itemsBySku" in service else "missing",
+            "alternateKeyUniquenessIndex": "repository.findBySkuIgnoreCase"
+            if repository_lookup and service_uses_repository_lookup else "missing",
         },
         "globalErrorContract": "present" if "ResourceNotFoundException" in controller else "missing",
         "mockMvcEvidence": "present",

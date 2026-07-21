@@ -204,13 +204,13 @@
     "catalog:item:delete"
   ],
   "deferredCanonicalEvidence": [
-    "durable-persistence",
-    "liquibase-migration",
     "implemented-management-security",
     "openapi-operation-evidence",
     "strict-gate-promotion",
     "target-project-comparison",
-    "target-project-delivery"
+    "target-project-delivery",
+    "optimistic-lock-conflict-qualification",
+    "mariadb-integration"
   ],
   "dtoBoundaryPatch": "000075_springmaster_catalog_demo_candidate_slice_dto_validation_cleanup",
   "dtoBoundaryState": "public-request-availability-decoupled-from-persistence-range",
@@ -259,5 +259,21 @@
         "name"
       ]
     }
-  ]
+  ],
+  "persistenceRuntime": "transactional-jpa-candidate",
+  "persistencePatch": "000163_springmaster_catalogitem_persistent_candidate_runtime",
+  "repositoryAdapter": "CatalogItemRepository plus CatalogItemJpaQueryRepository",
+  "liquibaseMigration": "db.changelog-0001-catalog-item.xml",
+  "newnessLifecycle": {
+    "transientVersion": null,
+    "firstPersistedVersion": 0,
+    "firstUpdatedVersion": 1
+  },
+  "queryBoundaryValidation": "page-size-sortBy-sortDir-and-offset-overflow-rejected-before-jpa",
+  "testDatabaseIsolation": {
+    "mode": "unique-h2-database-per-spring-application-context",
+    "jdbcNameSource": "spring-random-uuid",
+    "compatibilityMode": "MariaDB",
+    "liquibaseRegressionTest": "TestDatabaseIsolationContractTest"
+  }
 }

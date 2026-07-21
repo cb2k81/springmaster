@@ -58,7 +58,7 @@ Covered scenarios:
 
 ## Remaining canonical blockers
 
-CatalogItem remains blocked from canonical promotion by durable persistence, Liquibase evidence, implemented management security, OpenAPI evidence, strict gate promotion and target-project comparison/delivery.
+CatalogItem remains blocked from canonical promotion by implemented management security, stale-version conflict qualification, production-like MariaDB evidence, strict gate promotion and target-project comparison/delivery.
 
 
 
@@ -71,6 +71,6 @@ The count endpoint still accepts only `sku` and `name`; paging and sorting remai
 
 ## Persistent count-query efficiency reference since 000105
 
-CatalogItem is still an in-memory candidate slice. Its count endpoint proves the HTTP behavior, `CountResponseDTO` usage and typed query-operation integration, but it is not a JPA performance proof.
+CatalogItem is now a transactional JPA candidate slice. Its count endpoint delegates to a dedicated Criteria count query with the same filter predicates as paged list and `/all`.
 
 Persistent CatalogItem work and generated applications must follow `PROJECT_DOCS/STANDARDS/API/JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md`: count must be computed through a repository/query-level count operation with the same filter, security and data-scope predicates, without loading the full result set just to call `.size()`.

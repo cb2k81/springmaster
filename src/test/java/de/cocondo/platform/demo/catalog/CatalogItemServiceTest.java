@@ -3,6 +3,7 @@ package de.cocondo.platform.demo.catalog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import de.cocondo.platform.app.SpringmasterApplication;
 import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
@@ -10,11 +11,27 @@ import de.cocondo.system.exception.ResourceNotFoundException;
 import de.cocondo.system.query.ResultSetQueryOperations;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
+@SpringBootTest(classes = SpringmasterApplication.class)
 class CatalogItemServiceTest {
 
-    private final CatalogItemService service = new CatalogItemService();
+    @Autowired
+    private CatalogItemService service;
+
+    @Autowired
+    private CatalogItemRepository repository;
+
+    @BeforeEach
+    void clearRepository() {
+        repository.deleteAll();
+        repository.flush();
+    }
 
     @Test
     void createsListsAndFindsCatalogItemsByIdAndSku() {
@@ -22,7 +39,7 @@ class CatalogItemServiceTest {
 
         assertThat(created.getId()).isNotBlank();
         assertThat(created.getSku()).isEqualTo("SKU-1");
-        assertThat(service.size()).isEqualTo(1);
+        assertThat(service.count(null, null).getTotalElements()).isEqualTo(1);
         assertThat(service.listPaged(0, 20, "sku", "ASC").getItems()).hasSize(1);
         assertThat(service.findById(created.getId()))
                 .hasValueSatisfying(found -> assertThat(found.getSku()).isEqualTo("SKU-1"));
@@ -151,7 +168,7 @@ class CatalogItemServiceTest {
 
         assertThat(service.findById(created.getId())).isEmpty();
         assertThat(service.findBySku("SKU-1")).isEmpty();
-        assertThat(service.size()).isZero();
+        assertThat(service.count(null, null).getTotalElements()).isZero();
     }
 
     @Test

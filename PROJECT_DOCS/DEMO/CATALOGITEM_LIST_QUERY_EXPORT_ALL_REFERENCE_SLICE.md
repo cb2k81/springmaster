@@ -62,7 +62,7 @@ Empty result sets are successful query results:
 
 ## Core sort-support adoption
 
-`CatalogItemService` uses `PagedQuerySupport.stableComparator(...)` for the in-memory candidate query pipeline. The fachliche service still owns its allowed public sort fields and the field-specific comparators, but Core owns the reusable mechanics:
+`CatalogItemQuerySupport` and `CatalogItemJpaQueryRepository` use Core `PagedQuerySupport` for validation and resolve allow-listed sort fields before executing the persistent Criteria query. The fachliche slice owns its public sort fields while Core owns the reusable mechanics:
 
 - default `sortBy` resolution;
 - `sortDir` parsing;
@@ -91,7 +91,7 @@ Covered scenarios:
 
 ## Remaining canonical blockers
 
-This patch only closes the list-query/export-all reference-slice gap. CatalogItem remains blocked from canonical promotion by the already documented open items, especially durable persistence, Liquibase evidence, implemented management security, OpenAPI evidence, strict gate promotion and target-project comparison/delivery.
+The list-query/export-all gap and persistent runtime are now implemented. CatalogItem remains blocked from canonical promotion by management security, stale-version conflict qualification, production-like MariaDB evidence, strict gate promotion and target-project comparison/delivery.
 
 
 

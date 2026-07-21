@@ -8,24 +8,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-class CatalogItemJpaQueryReferenceTest {
+class CatalogItemJpaQueryRepositoryTest {
 
     private final Path sourcePath = Path.of(
-            "src/main/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryReference.java");
+            "src/main/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryRepository.java");
 
     @Test
-    void countReferenceUsesDedicatedCriteriaCountQueryAndSharedPredicates() throws IOException {
+    void countQueryUsesDedicatedCriteriaCountAndSharedPredicates() throws IOException {
         String source = Files.readString(sourcePath, StandardCharsets.UTF_8);
         String countRows = methodBody(source, "private long countRows(");
 
         assertThat(countRows)
-                .contains("CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);")
+                .contains("CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);")
                 .contains("Root<CatalogItem> root = countQuery.from(CatalogItem.class);")
-                .contains("countQuery.select(cb.count(root));")
-                .contains("applyPredicates(countQuery, root, cb, sku, name);")
+                .contains("countQuery.select(criteriaBuilder.count(root));")
+                .contains("applyPredicates(countQuery, root, criteriaBuilder, sku, name);")
                 .contains("entityManager.createQuery(countQuery).getSingleResult()")
-                .doesNotContain("listAll(")
-                .doesNotContain("listPaged(")
+                .doesNotContain("findAll(")
+                .doesNotContain("findPage(")
                 .doesNotContain("getResultList()")
                 .doesNotContain(".size()")
                 .doesNotContain("setFirstResult")
@@ -38,11 +38,11 @@ class CatalogItemJpaQueryReferenceTest {
         String source = Files.readString(sourcePath, StandardCharsets.UTF_8);
 
         assertThat(source)
-                .contains("applyPredicates(dataQuery, root, cb, sku, name);")
-                .contains("applyPredicates(countQuery, root, cb, sku, name);")
+                .contains("applyPredicates(dataQuery, root, criteriaBuilder, sku, name);")
+                .contains("applyPredicates(countQuery, root, criteriaBuilder, sku, name);")
                 .contains("private List<Predicate> filterPredicates(")
-                .contains("cb.upper(root.get(ATTRIBUTE_SKU))")
-                .contains("cb.lower(root.get(ATTRIBUTE_NAME))");
+                .contains("criteriaBuilder.upper(root.get(CatalogItemQuerySupport.ATTRIBUTE_SKU))")
+                .contains("criteriaBuilder.lower(root.get(CatalogItemQuerySupport.ATTRIBUTE_NAME))");
     }
 
     @Test
@@ -52,9 +52,9 @@ class CatalogItemJpaQueryReferenceTest {
         String countRows = methodBody(source, "private long countRows(");
 
         assertThat(createDataQuery)
-                .contains("dataQuery.orderBy(stableOrders(root, cb, sortBy, sortDir));");
+                .contains("dataQuery.orderBy(stableOrders(root, criteriaBuilder, sortBy, sortDir));");
         assertThat(source)
-                .contains(".setFirstResult(query.page() * query.size())")
+                .contains(".setFirstResult(CatalogItemQuerySupport.validatedOffset(query.page(), query.size()))")
                 .contains(".setMaxResults(query.size())");
         assertThat(countRows)
                 .doesNotContain("stableOrders")
@@ -69,14 +69,14 @@ class CatalogItemJpaQueryReferenceTest {
         assertThat(brace).as("method opening brace must exist: %s", signature).isGreaterThanOrEqualTo(0);
 
         int depth = 0;
-        for (int i = brace; i < source.length(); i++) {
-            char current = source.charAt(i);
+        for (int index = brace; index < source.length(); index++) {
+            char current = source.charAt(index);
             if (current == '{') {
                 depth++;
             } else if (current == '}') {
                 depth--;
                 if (depth == 0) {
-                    return source.substring(brace, i + 1);
+                    return source.substring(brace, index + 1);
                 }
             }
         }

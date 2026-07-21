@@ -54,7 +54,7 @@
       "serviceEvidence": {
         "findById": "present",
         "findBySku": "present",
-        "alternateKeyUniquenessIndex": "itemsBySku"
+        "alternateKeyUniquenessIndex": "repository.findBySkuIgnoreCase"
       },
       "globalErrorContract": "present",
       "mockMvcEvidence": "present",

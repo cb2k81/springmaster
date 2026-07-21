@@ -122,9 +122,9 @@ The CatalogItem candidate slice should be the first positive evidence target for
 | `/all` | present with `sortBy`, `sortDir`, `sku`, `name` and no paging semantics |
 | `/count` | present with `sku`, `name` and no paging/sorting semantics |
 | typed query operations | `CatalogItemService` implements `ResultSetQueryOperations` |
-| JPA efficiency | not applicable; CatalogItem remains in-memory candidate evidence |
+| JPA efficiency | dedicated Criteria count query in the persistent JPA Candidate runtime |
 
-The report must not classify the in-memory CatalogItem count as a JPA efficiency violation. It may emit an informational note that durable persistence proof remains open.
+The report must classify the CatalogItem runtime as a transactional JPA Candidate and verify the dedicated Criteria count query without entity-list materialization. MariaDB-specific and concurrent-conflict qualification remain separate promotion gates.
 
 ## Promotion path
 
@@ -166,7 +166,7 @@ The MVP is intentionally source-based and deterministic. It currently evaluates 
 - `CountResponseDTO` response evidence;
 - sort allowlist and stable tie-breaker evidence;
 - `ResultSetQueryOperations` service adoption;
-- JPA count-efficiency status as `not-applicable-in-memory` for CatalogItem.
+- JPA count-efficiency status as `dedicated-criteria-count` for the persistent CatalogItem candidate.
 
 The expected CatalogItem MVP result is `summary.findings = 0`. That does not promote CatalogItem to canonical persistence status. It only proves that the current candidate reference slice satisfies the query-contract shape covered by the MVP.
 
@@ -182,7 +182,7 @@ src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json
 
 The fixture freezes the expected report-only output for a deterministic timestamp (`2026-07-13T00:00:00Z`). The regression test compares the generated JSON byte-for-byte against this fixture before checking selected semantic markers. This turns the CatalogItem report from smoke evidence into stable Golden Evidence without changing the report-only runtime mode.
 
-The fixture is intentionally scoped to CatalogItem and to source-based query-contract evidence. It does not prove OpenAPI conformance, durable JPA persistence or security/data-scope parity. Those remain separate promotion patches.
+The fixture is intentionally scoped to CatalogItem and to source-based query-contract evidence. It records the persistent JPA count-query structure, but does not by itself prove OpenAPI conformance, management-security enforcement or production-like database qualification.
 
 ## OpenAPI query-contract evidence since 000109
 

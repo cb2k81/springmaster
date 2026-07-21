@@ -36,7 +36,7 @@ class CatalogItemMapperTest {
         assertThat(dto.getSku()).isEqualTo("SKU-1");
         assertThat(dto.getValidFrom()).isEqualTo(validFrom);
         assertThat(dto.getValidTo()).isEqualTo(validTo);
-        assertThat(dto.getPersistenceVersion()).isZero();
+        assertThat(dto.getPersistenceVersion()).isNull();
         assertThat(listItem.getId()).isEqualTo(entity.getId());
         assertThat(listItem.getSku()).isEqualTo("SKU-1");
         assertThat(listItem.getName()).isEqualTo("Demo Item");

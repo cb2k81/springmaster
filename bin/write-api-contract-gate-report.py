@@ -271,7 +271,12 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
             "CORE_GLOBAL_API_ERROR_CONTRACT.md",
             {"file": str(CATALOG_SERVICE), "symbol": "EntityAlreadyExistsException"},
         ))
-    if "ResourceNotFoundException" not in service or service.count("catalog.item.not-found") < 2:
+    shared_not_found = (
+            "private CatalogItem requireById(String id)" in service
+            and service.count("CatalogItem item = requireById(id);") >= 2
+            and "catalog.item.not-found" in service
+    )
+    if "ResourceNotFoundException" not in service or not shared_not_found:
         findings.append(Finding(
             "WRT-NOTFOUND-001",
             "error",

@@ -27,6 +27,8 @@ CATALOG_SERVICE = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogIt
 CATALOG_PAGED_QUERY = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemPagedQuery.java")
 CATALOG_ALL_QUERY = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemAllQuery.java")
 CATALOG_COUNT_QUERY = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemCountQuery.java")
+CATALOG_QUERY_SUPPORT = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemQuerySupport.java")
+CATALOG_QUERY_REPOSITORY = Path("src/main/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryRepository.java")
 CATALOG_COUNT_DOC = Path("PROJECT_DOCS/DEMO/CATALOGITEM_COUNT_REFERENCE_SLICE.md")
 QUERY_GATE_DOC = Path("PROJECT_DOCS/STANDARDS/API/QUERY_CONTRACT_GATE_REPORT.md")
 COUNT_CONTRACT_DOC = Path("PROJECT_DOCS/STANDARDS/API/API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md")
@@ -119,7 +121,7 @@ def full_operation(base: str, suffix: str) -> str:
 
 def required_file_findings(root: Path) -> list[Finding]:
     findings: list[Finding] = []
-    for path in [CATALOG_CONTROLLER, CATALOG_SERVICE, CATALOG_PAGED_QUERY, CATALOG_ALL_QUERY, CATALOG_COUNT_QUERY, QUERY_GATE_DOC, COUNT_CONTRACT_DOC, JPA_COUNT_DOC]:
+    for path in [CATALOG_CONTROLLER, CATALOG_SERVICE, CATALOG_PAGED_QUERY, CATALOG_ALL_QUERY, CATALOG_COUNT_QUERY, CATALOG_QUERY_SUPPORT, CATALOG_QUERY_REPOSITORY, QUERY_GATE_DOC, COUNT_CONTRACT_DOC, JPA_COUNT_DOC]:
         if not (root / path).is_file():
             findings.append(Finding(
                 id="QRY-GATE-001",
@@ -144,6 +146,8 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
 
     controller = read_text(root, CATALOG_CONTROLLER)
     service = read_text(root, CATALOG_SERVICE)
+    query_support = read_text(root, CATALOG_QUERY_SUPPORT)
+    query_repository = read_text(root, CATALOG_QUERY_REPOSITORY)
     base = request_mapping_base(controller)
 
     list_block = method_block(controller, "GetMapping", "list")
@@ -196,31 +200,46 @@ def classify_catalog(root: Path) -> tuple[dict[str, object], list[Finding]]:
             {"list": ",".join(sorted(list_filters)), "all": ",".join(sorted(all_filters)), "count": ",".join(sorted(count_filters))},
         ))
 
-    if "SORT_COMPARATORS" not in service or '"sku"' not in service or '"name"' not in service:
-        findings.append(Finding("QRY-SORT-001", "warning", "CatalogItem", "service sort", "Sort allowlist evidence is missing.", "LIST_FILTER_QUERY_STANDARD.md", {"file": str(CATALOG_SERVICE), "symbol": "SORT_COMPARATORS"}))
-    if "TIE_BREAKER_COMPARATOR" not in service or "stableComparator" not in service:
-        findings.append(Finding("QRY-SORT-002", "info", "CatalogItem", "service sort", "Stable tie-breaker evidence is missing.", "LIST_FILTER_QUERY_STANDARD.md", {"file": str(CATALOG_SERVICE), "symbol": "stableComparator"}))
+    sort_allowlist_present = (
+        "ALLOWED_SORT_FIELDS = Set.of(ATTRIBUTE_SKU, ATTRIBUTE_NAME)" in query_support
+        and "resolveSortBy" in query_support
+    )
+    stable_tie_breaker_present = (
+        "orders.add(criteriaBuilder.asc(root.get(CatalogItemQuerySupport.ATTRIBUTE_ID)))" in query_repository
+    )
+    if not sort_allowlist_present:
+        findings.append(Finding("QRY-SORT-001", "warning", "CatalogItem", "repository sort", "Sort allowlist evidence is missing.", "LIST_FILTER_QUERY_STANDARD.md", {"file": str(CATALOG_QUERY_SUPPORT), "symbol": "ALLOWED_SORT_FIELDS"}))
+    if not stable_tie_breaker_present:
+        findings.append(Finding("QRY-SORT-002", "info", "CatalogItem", "repository sort", "Stable tie-breaker evidence is missing.", "LIST_FILTER_QUERY_STANDARD.md", {"file": str(CATALOG_QUERY_REPOSITORY), "symbol": "stableOrders"}))
     if "implements ResultSetQueryOperations" not in service:
         findings.append(Finding("QRY-OPS-001", "info", "CatalogItem", "service contract", "Service does not implement ResultSetQueryOperations.", "CORE_QUERY_OPERATIONS_INTERFACE_CONTRACT.md", {"file": str(CATALOG_SERVICE), "symbol": "CatalogItemService"}))
     count_method = method_body_like(service, "count", "CatalogItemCountQuery")
-    if re.search(r"listAll\s*\([^)]*\)\.size\s*\(|findAll\s*\([^)]*\)\.size\s*\(|\.map\s*\(\s*mapper::", count_method):
-        findings.append(Finding("QRY-COUNT-004", "warning", "CatalogItem", "service count", "Count implementation appears to materialize data or DTOs before counting.", "JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md", {"file": str(CATALOG_SERVICE), "symbol": "count"}))
+    repository_count_method = method_body_like(query_repository, "countRows", "String")
+    dedicated_jpa_count_present = (
+        "CriteriaQuery<Long> countQuery" in repository_count_method
+        and "criteriaBuilder.count(root)" in repository_count_method
+        and "getSingleResult()" in repository_count_method
+        and "getResultList()" not in repository_count_method
+        and "orderBy" not in repository_count_method
+    )
+    if re.search(r"listAll\s*\([^)]*\)\.size\s*\(|findAll\s*\([^)]*\)\.size\s*\(|\.map\s*\(\s*mapper::", count_method) or not dedicated_jpa_count_present:
+        findings.append(Finding("QRY-COUNT-004", "warning", "CatalogItem", "repository count", "Count implementation must use a dedicated Criteria count query without materializing rows or DTOs.", "JPA_COUNT_QUERY_EFFICIENCY_REFERENCE.md", {"file": str(CATALOG_QUERY_REPOSITORY), "symbol": "countRows"}))
 
     status = "pass" if not findings else "review"
     resource = {
         "resource": "CatalogItem",
         "status": status,
         "sourceType": "springmaster-candidate-reference-slice",
-        "persistence": "in-memory",
-        "jpaEfficiency": "not-applicable-in-memory",
+        "persistence": "transactional-jpa-candidate",
+        "jpaEfficiency": "dedicated-criteria-count",
         "operations": [
             {"kind": "paged-list", "operation": list_operation, "parameters": sorted(list_params), "requiredParametersPresent": sorted(LIST_REQUIRED <= list_params and LIST_REQUIRED or [])},
             {"kind": "complete-result-set", "operation": all_operation, "parameters": sorted(all_params), "forbiddenPagingParametersPresent": forbidden_all},
             {"kind": "count", "operation": count_operation, "parameters": sorted(count_params), "forbiddenPagingSortParametersPresent": forbidden_count, "response": "CountResponseDTO" if "CountResponseDTO" in count_block else "unknown"},
         ],
         "filterFamily": sorted(CATALOG_FILTERS),
-        "sortAllowlist": ["name", "sku"] if "SORT_COMPARATORS" in service else [],
-        "stableTieBreakerEvidence": "present" if "TIE_BREAKER_COMPARATOR" in service and "stableComparator" in service else "missing",
+        "sortAllowlist": ["name", "sku"] if sort_allowlist_present else [],
+        "stableTieBreakerEvidence": "present" if stable_tie_breaker_present else "missing",
         "queryOperationsInterface": "present" if "implements ResultSetQueryOperations" in service else "missing",
     }
     return resource, findings

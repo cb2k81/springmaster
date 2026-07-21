@@ -1,76 +1,48 @@
-# CatalogItem Persistent JPA Count Reference Slice
+# CatalogItem persistent JPA query slice
 
-Patch: `000113_springmaster_persistent_jpa_count_reference_slice`
+## Historical origin
 
-## Ziel
+Patch `000113_springmaster_persistent_jpa_count_reference_slice` introduced
+`CatalogItemJpaQueryReference` as a non-runtime reference for the dedicated JPA
+count-query pattern. At that time the CatalogItem runtime intentionally remained
+in-memory.
 
-Dieser Patch ergänzt den CatalogItem Candidate Slice um eine persistente JPA-Referenz für Query-Operationen. Die aktuelle Runtime bleibt bewusst weiterhin in-memory. Die neue Referenzklasse zeigt aber deterministisch, wie generierte oder spätere persistente Slices `list`, `/all` und `/count` gegen eine JPA-Persistenzschicht implementieren müssen.
+## Current status since 000159
 
-## Referenzklasse
-
-```text
-src/main/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryReference.java
-```
-
-Die Klasse ist nicht als Spring Bean registriert und ersetzt den bestehenden `CatalogItemService` nicht. Sie dient als kompakte, kompilierbare Referenz für die spätere Repository-/Persistence-Schicht.
-
-## Abgedeckte Operationen
-
-| Operation | Methode | Persistenzsemantik |
-|---|---|---|
-| paged list | `listPaged(EntityManager, CatalogItemPagedQuery)` | Datenquery mit Filter, Sortierung, stabilem Tie-Breaker, `setFirstResult`, `setMaxResults` und separater Count Query für `totalElements` |
-| complete result set | `listAll(EntityManager, CatalogItemAllQuery)` | Datenquery mit Filter, Sortierung und stabilem Tie-Breaker ohne Paging |
-| count-only | `count(EntityManager, CatalogItemCountQuery)` | dedizierte `CriteriaQuery<Long>` mit `cb.count(root)` und gleicher Filterfamilie |
-
-## Verbindliche Count-Regeln
-
-Die Count-Implementierung muss:
-
-* eine eigene `CriteriaQuery<Long>` verwenden;
-* `cb.count(root)` verwenden;
-* dieselbe Predicate-Familie wie paged list und `/all` verwenden;
-* keine DTOs mappen;
-* keine Entity-Liste materialisieren;
-* kein `listAll(...).size()` verwenden;
-* kein `getResultList().size()` verwenden;
-* keine Sortierung ausführen;
-* kein `setFirstResult` und kein `setMaxResults` setzen.
-
-## Predicate-Parität
-
-Die JPA-Referenz nutzt eine gemeinsame Predicate-Familie:
+Patch `000163_springmaster_catalogitem_persistent_candidate_runtime` replaces the
+reference-only class with the registered runtime component:
 
 ```text
-filterPredicates(root, cb, sku, name)
+src/main/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryRepository.java
 ```
 
-Diese Predicate-Familie wird von Datenqueries und Count Query verwendet. Damit wird die fachliche Parität zwischen paged list, `/all` und `/count` sichtbar.
+`CatalogItemService` now delegates paged list, `/all` and `/count` to this JPA
+query repository. The persistent Candidate uses Liquibase-managed tables and the
+same predicate family for all three operations.
 
-## Sortierung und Tie-Breaker
+The runtime contract is:
 
-Die Datenqueries verwenden dieselbe Sort-Allowlist wie der bestehende In-Memory-Service:
+- paged list executes a data query plus a separate count query for
+  `totalElements`;
+- `/all` uses the same filters and stable sorting without paging;
+- `/count` uses a dedicated `CriteriaQuery<Long>` with `cb.count(root)`;
+- count applies no sorting, paging, DTO mapping or entity-list materialization;
+- public sorting is allowlisted and receives `id` as deterministic tie-breaker;
+- `page`, `size`, `sortBy` and `sortDir` are validated before JPA constructs a
+  pageable or criteria query.
+
+The implementation is covered by:
 
 ```text
-sku
-name
+src/test/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryRepositoryTest.java
+src/test/java/de/cocondo/platform/demo/catalog/CatalogItemPersistenceContractTest.java
+src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java
 ```
 
-Die stabile Sortierung ergänzt immer `id` als technischen Tie-Breaker. Count Queries enthalten keine Sortierung.
+## Canonicalization boundary
 
-## Tests
-
-```text
-src/test/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryReferenceTest.java
-```
-
-Die Tests prüfen die Referenzstruktur source-basiert:
-
-* dedizierte Criteria Count Query;
-* gemeinsame Predicate-Familie;
-* keine Materialisierung für Count;
-* keine Paging-/Sort-Semantik in Count;
-* Paging-/Sort-Semantik nur in Datenqueries.
-
-## Abgrenzung
-
-Dieser Patch macht den CatalogItem Slice noch nicht canonical. Es fehlt weiterhin Security-/Data-Scope-Parität und eine explizite Canonical-Promotion. Die bestehende Anwendung bleibt in-memory, damit keine implizite Datenbankpflicht für das Springmaster Demo-Runtime-Verhalten entsteht.
+The slice remains `candidate-reference-slice`. Durable H2-backed runtime evidence
+is present, but Canonicalization still requires the separately planned
+MariaDB/constraint and optimistic-lock qualification, implemented management
+security and the explicit ADR-0007 promotion decision. The historical
+reference-only state must no longer be reported as the current runtime.

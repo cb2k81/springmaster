@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="0001-catalog-item-persistent-candidate" author="springmaster">
+        <createTable tableName="demo_catalog_item">
+            <column name="id" type="varchar(36)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_demo_catalog_item"/>
+            </column>
+            <column name="persistence_version" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sku" type="varchar(128)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_demo_catalog_item_sku"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1000)"/>
+            <column name="valid_from" type="datetime"/>
+            <column name="valid_to" type="datetime"/>
+            <column name="created_by" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="last_modified_by" type="varchar(255)"/>
+            <column name="last_modified_at" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="catalog_item_tags">
+            <column name="catalog_item_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tags" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="catalog_item_tags"
+                baseColumnNames="catalog_item_id"
+                constraintName="fk_catalog_item_tags_item"
+                referencedTableName="demo_catalog_item"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addUniqueConstraint
+                tableName="catalog_item_tags"
+                columnNames="catalog_item_id,tags"
+                constraintName="uk_catalog_item_tags_item_tag"/>
+
+        <createIndex tableName="demo_catalog_item" indexName="idx_demo_catalog_item_name">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

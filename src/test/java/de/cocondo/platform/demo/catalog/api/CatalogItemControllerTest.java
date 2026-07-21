@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cocondo.platform.app.SpringmasterApplication;
 import de.cocondo.platform.demo.catalog.CatalogItemCreateDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemDTO;
+import de.cocondo.platform.demo.catalog.CatalogItemRepository;
 import de.cocondo.platform.demo.catalog.CatalogItemService;
 import de.cocondo.platform.demo.catalog.CatalogItemUpdateDTO;
 import de.cocondo.platform.demo.catalog.CatalogItemAvailabilityDTO;
@@ -28,11 +29,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+@ActiveProfiles("test")
 @SpringBootTest(classes = SpringmasterApplication.class)
 @AutoConfigureMockMvc
 class CatalogItemControllerTest {
@@ -46,9 +49,13 @@ class CatalogItemControllerTest {
     @Autowired
     private CatalogItemService service;
 
+    @Autowired
+    private CatalogItemRepository repository;
+
     @BeforeEach
     void resetService() {
-        service.clear();
+        repository.deleteAll();
+        repository.flush();
     }
 
     @Test
@@ -220,7 +227,8 @@ class CatalogItemControllerTest {
                 .andExpect(jsonPath("$.sku").value("SKU-1"))
                 .andExpect(jsonPath("$.name").value("Updated Item"))
                 .andExpect(jsonPath("$.description").value("Updated Description"))
-                .andExpect(jsonPath("$.tags", hasSize(1)));
+                .andExpect(jsonPath("$.tags", hasSize(1)))
+                .andExpect(jsonPath("$.persistenceVersion").value(1));
     }
 
 
@@ -338,6 +346,13 @@ class CatalogItemControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
                 .andExpect(jsonPath("$.message", containsString("sortDir")));
+
+        mockMvc.perform(get("/api/demo/catalog/items")
+                        .param("page", String.valueOf(Integer.MAX_VALUE))
+                        .param("size", "200"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorType").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message", containsString("page")));
     }
 
     @Test

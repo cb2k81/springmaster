@@ -52,7 +52,9 @@ class SpringmasterQueryContractReportTest {
                 .contains("\"resource\": \"CatalogItem\"")
                 .contains("GET /api/demo/catalog/items/count")
                 .contains("\"response\": \"CountResponseDTO\"")
-                .contains("\"queryOperationsInterface\": \"present\"");
+                .contains("\"queryOperationsInterface\": \"present\"")
+                .contains("\"persistence\": \"transactional-jpa-candidate\"")
+                .contains("\"jpaEfficiency\": \"dedicated-criteria-count\"");
     }
 
     private ProcessResult runCommand(String... command) throws IOException, InterruptedException {

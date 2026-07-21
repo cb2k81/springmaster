@@ -13,9 +13,10 @@ Demo-Code dient dazu, Core- und Tooling-Fähigkeiten im Masterprojekt realistisc
 
 ## Aktueller Stand
 
-* `000017_springmaster_demo_catalog_basic_domain` führt die erste minimale Demo-Domäne `catalog` ein.
+* `000017_springmaster_demo_catalog_basic_domain` führte die erste minimale Demo-Domäne `catalog` ein.
 * Die Demo nutzt vorhandene Core-Bausteine wie `DomainEntity`, `Range`, `Validator`, `ValidationException`, `DTO` und `EntityAlreadyExistsException`.
-* Es gibt noch keine Spring-Data-JPA-Repositories, keine reale Datenbankpflicht und keine Liquibase-Demo-Tabellen.
+* Seit `000163_springmaster_catalogitem_persistent_candidate_runtime` arbeitet der CatalogItem-Candidate über Spring Data JPA und Liquibase.
+* Der Slice bleibt bis zur MariaDB-/Konfliktqualifikation, Management-Security und ausdrücklichen ADR-0007-Promotion ein `candidate-reference-slice`.
 
 ## Validierungsfix
 
@@ -93,22 +94,23 @@ Patch `000102_springmaster_catalogitem_query_operations_interface_adoption` adap
 
 Patch `000103_springmaster_query_operations_contract_closure_review` records that the CatalogItem candidate slice now demonstrates the complete Query Operations pattern: paged list, complete result set `/all`, count-only `/count`, Core DTO/interface usage and Demo-owned query records.
 
-The slice remains `candidate-reference-slice`, not canonical, until persistence, security, OpenAPI, gate and target-comparison blockers are resolved.
+The slice remains `candidate-reference-slice`, not canonical, until the remaining MariaDB/constraint, optimistic-locking, management-security, gate-promotion and target-comparison blockers are resolved.
 
 
 
-## Persistent JPA count reference since 000113
+## Persistent JPA query runtime since 000159
 
-Patch `000113_springmaster_persistent_jpa_count_reference_slice` adds `CatalogItemJpaQueryReference` as a compact persistent JPA reference for list, `/all` and `/count` query operations.
+Patch `000113_springmaster_persistent_jpa_count_reference_slice` originally added a non-runtime JPA reference. Patch `000163_springmaster_catalogitem_persistent_candidate_runtime` replaces it with the registered `CatalogItemJpaQueryRepository` and makes the CatalogItem Candidate persist through Spring Data JPA and Liquibase.
 
-The existing CatalogItem runtime remains in-memory. The reference class is not registered as a Spring Bean and does not introduce a database requirement for the demo application. It demonstrates the durable count-query pattern required for generated or later persistent slices:
+The runtime demonstrates the durable query pattern required for generated or later persistent slices:
 
 * paged list uses a data query plus a separate count query for `totalElements`;
 * `/all` uses the same filter family and stable sorting without paging;
 * `/count` uses a dedicated `CriteriaQuery<Long>` with `cb.count(root)`;
-* count uses the same predicates as list and `/all`, but no sorting, paging, DTO mapping or entity-list materialization.
+* count uses the same predicates as list and `/all`, but no sorting, paging, DTO mapping or entity-list materialization;
+* invalid paging and sorting input is rejected before pageable or criteria-query construction.
 
-The slice remains candidate-level until security/data-scope parity and explicit canonical-promotion evidence are added.
+The slice remains candidate-level until MariaDB/constraint and optimistic-lock qualification, implemented management security and explicit canonical-promotion evidence are added.
 
 ## CatalogItem security/data-scope query parity since 000114
 

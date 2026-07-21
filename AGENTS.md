@@ -50,7 +50,7 @@ Wichtige aktuelle Zustände:
 
 - `CatalogItem` ist ein `candidate-reference-slice`, kein `canonical-reference-slice`.
 - Catalog-demo ist `not-canonical` und verwendet derzeit `documented-deferred-security`.
-- Die produktive CatalogItem-Demo arbeitet weiterhin in-memory. `CatalogItemJpaQueryReference` ist Referenzcode, kein registrierter Runtime-Bean und kein Nachweis einer vollständigen persistenten Anwendung.
+- Die CatalogItem-Demo arbeitet als transaktionaler JPA-Candidate mit Liquibase-Schema. Sie ist weiterhin nicht kanonisch; Management-Security, MariaDB-Qualifikation und Optimistic-Locking-Konfliktverträge bleiben offen.
 - Zielprojektvergleich und Zielprojektauslieferung sind für eine automatische Catalog-demo-Übernahme nicht freigegeben.
 - Gate-Ausführung ist grundsätzlich report-only, solange eine Regel nicht nach ADR-0006 ausdrücklich als strict-ready promoviert wurde.
 - ADR-0008 bis ADR-0010 sind akzeptiert. Konfiguration, DB-Migration/DBTool und die lokale HTTP-Korrelationsbaseline sind durch maschinenlesbare Verträge und Tests abgesichert. Verteiltes Tracing, externe Metrik-/Log-Backends und Produktionsmigrationen bleiben ausdrücklich deferred.
@@ -386,7 +386,7 @@ Never treat copied payload as accepted state. Effective accepts validate in a de
 
 ### Core persistence transition
 
-Assigned opaque IDs and optimistic-locking newness are an accepted Core decision, but the runtime transition must remain atomic. Until the persistent candidate slice is accepted, `DomainEntity.persistenceVersion = 0L` remains the compatibility baseline for the in-memory CatalogItem runtime. Do not switch the Core field to nullable in a standalone patch; introduce nullable-before-insert semantics only together with the persistent repository adapter, Liquibase schema and version lifecycle tests.
+Assigned opaque IDs and optimistic-locking newness are an implemented Core decision. `DomainEntity.persistenceVersion` is null before persistence, 0 after the first successful insert and 1 after the first successful update. Preserve this lifecycle together with the persistent repository adapter, Liquibase schema and version lifecycle tests; do not reintroduce eager-zero initialization or Spring Data `Persistable` coupling without a separate accepted decision.
 
 ### Scope least privilege
 

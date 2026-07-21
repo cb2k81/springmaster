@@ -20,8 +20,8 @@
       "resource": "CatalogItem",
       "status": "pass",
       "sourceType": "springmaster-candidate-reference-slice",
-      "persistence": "in-memory",
-      "jpaEfficiency": "not-applicable-in-memory",
+      "persistence": "transactional-jpa-candidate",
+      "jpaEfficiency": "dedicated-criteria-count",
       "operations": [
         {
           "kind": "paged-list",

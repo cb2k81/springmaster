@@ -2,6 +2,14 @@ spring:
   config:
     activate:
       on-profile: build
+  datasource:
+    url: jdbc:mariadb://${APP_DB_HOST:localhost}:${APP_DB_PORT:3306}/${APP_STAGE_DB_NAME:springmaster_build}
+    username: ${APP_STAGE_DB_USER:springmaster}
+    password: ${APP_STAGE_DB_PASS:springmaster}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
 
 logging:
   level:

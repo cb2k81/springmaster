@@ -406,7 +406,7 @@ Gate impact:
 - query-contract diagnostics now have a named report target and rule catalog;
 - the first implementation should emit JSON findings before any Maven-failing strict gate is introduced;
 - CatalogItem should be the positive reference fixture for paged list, `/all`, `/count` and `ResultSetQueryOperations`;
-- in-memory CatalogItem count must not be reported as a JPA count-efficiency violation;
+- the persistent CatalogItem dedicated Criteria count must be recognized as positive JPA count-efficiency evidence;
 - strict enforcement remains deferred until the report schema is stable and promoted under ADR-0006.
 
 ## Query contract report implementation since 000107

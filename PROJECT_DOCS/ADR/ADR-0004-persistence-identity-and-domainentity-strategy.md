@@ -289,4 +289,4 @@ Future ADRs may narrow related areas:
 
 The target newness model for assigned opaque IDs is accepted: a transient entity keeps a nullable `Long` optimistic-locking version, the first successful insert produces version `0`, and later updates increase the version monotonically. Spring Data `Persistable` is not introduced into the fachfrei Core.
 
-This patch records the decision only. The existing in-memory CatalogItem runtime and its `0L` compatibility initializer remain unchanged until one atomic persistent-candidate patch can change the Core field, repository runtime, Liquibase schema and all affected tests together. A half-transition is an invalid baseline.
+The decision was implemented atomically by `000163_springmaster_catalogitem_persistent_candidate_runtime`: the Core field is nullable before persistence, CatalogItem uses a transactional JPA repository runtime, Liquibase owns the schema, and lifecycle tests prove `null -> 0 -> 1`. A half-transition remains an invalid baseline.

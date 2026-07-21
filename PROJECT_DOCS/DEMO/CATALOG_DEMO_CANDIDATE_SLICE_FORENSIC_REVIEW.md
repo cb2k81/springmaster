@@ -135,7 +135,7 @@ The candidate uses `persistenceVersion` in response DTO evidence and avoids nume
 
 ### Deferred canonical evidence
 
-The implementation remains in-memory. It demonstrates boundary semantics, not durable persistence.
+This statement described the reviewed baseline at patch `000073`. The current runtime is persistent JPA candidate evidence since `000159`; the forensic findings remain historical context.
 
 Canonical readiness still requires:
 

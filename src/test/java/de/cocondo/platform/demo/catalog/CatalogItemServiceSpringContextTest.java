@@ -7,16 +7,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @SpringBootTest(classes = SpringmasterApplication.class)
 class CatalogItemServiceSpringContextTest {
 
     @Autowired
     private CatalogItemService service;
 
+    @Autowired
+    private CatalogItemRepository repository;
+
     @BeforeEach
     void resetService() {
-        service.clear();
+        repository.deleteAll();
+        repository.flush();
     }
 
     @Test

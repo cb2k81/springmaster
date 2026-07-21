@@ -102,9 +102,9 @@ A stronger permission for count is allowed only when documented explicitly. A we
 
 ## Relationship to CatalogItem
 
-The current CatalogItem candidate slice remains in-memory. Its `CatalogItemService.count(...)` proves the HTTP contract, DTO shape and typed query-operation pattern, but it is not a durable persistence performance proof.
+The current CatalogItem candidate slice is JPA-backed. `CatalogItemJpaQueryRepository.countRows(...)` is the executable reference: it uses a dedicated `CriteriaQuery<Long>`, shares filter predicates with data queries, and avoids row or DTO materialization.
 
-This reference document defines the required implementation pattern for later persistent CatalogItem work and generated backend applications.
+This reference document therefore applies both to the current candidate runtime and to later generated backend applications.
 
 ## Gate candidates
 

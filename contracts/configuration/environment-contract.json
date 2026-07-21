@@ -99,7 +99,8 @@
       "default": "localhost",
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -112,7 +113,8 @@
       "maximum": 65535,
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -123,7 +125,8 @@
       "default": "springmaster",
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -134,7 +137,8 @@
       "default": "springmaster",
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -146,7 +150,8 @@
       "productionDefaultAllowed": false,
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -157,7 +162,8 @@
       "default": "springmaster_build",
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -168,7 +174,8 @@
       "default": "springmaster",
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {
@@ -180,7 +187,8 @@
       "productionDefaultAllowed": false,
       "consumers": [
         "shell",
-        "dbtool"
+        "dbtool",
+        "spring-runtime"
       ]
     },
     {

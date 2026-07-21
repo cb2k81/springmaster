@@ -4,17 +4,12 @@ import de.cocondo.system.dto.CountResponseDTO;
 import de.cocondo.system.dto.PagedResponseDTO;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
 import de.cocondo.system.exception.ResourceNotFoundException;
-import de.cocondo.system.list.PagedQuerySupport;
 import de.cocondo.system.query.ResultSetQueryOperations;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CatalogItemService implements ResultSetQueryOperations<
@@ -25,65 +20,66 @@ public class CatalogItemService implements ResultSetQueryOperations<
 
     public static final int DEFAULT_PAGE_SIZE = 20;
 
-    private static final String DEFAULT_SORT_BY = "sku";
-    private static final Comparator<CatalogItem> TIE_BREAKER_COMPARATOR =
-            Comparator.comparing(CatalogItem::getId);
-    private static final Map<String, Comparator<CatalogItem>> SORT_COMPARATORS = Map.of(
-            "sku", Comparator.comparing(CatalogItem::getSku, String.CASE_INSENSITIVE_ORDER),
-            "name", Comparator.comparing(CatalogItem::getName, String.CASE_INSENSITIVE_ORDER)
-    );
-
+    private final CatalogItemRepository repository;
+    private final CatalogItemJpaQueryRepository queryRepository;
     private final CatalogItemValidator validator = new CatalogItemValidator();
     private final CatalogItemMapper mapper = new CatalogItemMapper();
-    private final PagedQuerySupport pagedQuerySupport = new PagedQuerySupport();
-    private final Map<String, CatalogItem> itemsById = new LinkedHashMap<>();
-    private final Map<String, CatalogItem> itemsBySku = new LinkedHashMap<>();
 
-    public synchronized CatalogItemDTO create(CatalogItemCreateDTO request) {
-        validator.validate(request);
-        String key = skuKey(request.getSku());
-        if (itemsBySku.containsKey(key)) {
-            throw new EntityAlreadyExistsException(
-                    "Catalog item already exists: SKU=" + request.getSku().trim(),
-                    "catalog.item.conflict");
-        }
-        CatalogItem item = mapper.toEntity(request);
-        itemsById.put(item.getId(), item);
-        itemsBySku.put(key, item);
-        return mapper.toDto(item);
+    public CatalogItemService(
+            CatalogItemRepository repository,
+            CatalogItemJpaQueryRepository queryRepository
+    ) {
+        this.repository = repository;
+        this.queryRepository = queryRepository;
     }
 
-    public synchronized CatalogItemDTO update(String id, CatalogItemUpdateDTO request) {
-        CatalogItem item = findEntityById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Catalog item not found: id=" + id,
-                        "catalog.item.not-found"));
+    @Transactional
+    public CatalogItemDTO create(CatalogItemCreateDTO request) {
+        validator.validate(request);
+        String normalizedSku = request.getSku().trim();
+        if (repository.existsBySkuIgnoreCase(normalizedSku)) {
+            throw duplicateSku(normalizedSku);
+        }
+
+        CatalogItem item = mapper.toEntity(request);
+        CatalogItem persisted = repository.saveAndFlush(item);
+        return mapper.toDto(persisted);
+    }
+
+    @Transactional
+    public CatalogItemDTO update(String id, CatalogItemUpdateDTO request) {
+        CatalogItem item = requireById(id);
         validator.validate(request);
         mapper.updateEntity(item, request);
-        return mapper.toDto(item);
+        CatalogItem persisted = repository.saveAndFlush(item);
+        return mapper.toDto(persisted);
     }
 
-    public synchronized void delete(String id) {
-        CatalogItem item = findEntityById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Catalog item not found: id=" + id,
-                        "catalog.item.not-found"));
-        itemsById.remove(item.getId());
-        itemsBySku.remove(skuKey(item.getSku()));
+    @Transactional
+    public void delete(String id) {
+        CatalogItem item = requireById(id);
+        repository.delete(item);
+        repository.flush();
     }
 
-    public synchronized Optional<CatalogItemDTO> findById(String id) {
-        return findEntityById(id).map(mapper::toDto);
+    @Transactional(readOnly = true)
+    public Optional<CatalogItemDTO> findById(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        return repository.findById(id).map(mapper::toDto);
     }
 
-    public synchronized Optional<CatalogItemDTO> findBySku(String sku) {
+    @Transactional(readOnly = true)
+    public Optional<CatalogItemDTO> findBySku(String sku) {
         if (sku == null || sku.isBlank()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(itemsBySku.get(skuKey(sku))).map(mapper::toDto);
+        return repository.findBySkuIgnoreCase(sku.trim()).map(mapper::toDto);
     }
 
-    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(
+    @Transactional(readOnly = true)
+    public PagedResponseDTO<CatalogItemListItemDTO> listPaged(
             int page,
             int size,
             String sortBy,
@@ -92,7 +88,8 @@ public class CatalogItemService implements ResultSetQueryOperations<
         return listPaged(page, size, sortBy, sortDir, null, null);
     }
 
-    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(
+    @Transactional(readOnly = true)
+    public PagedResponseDTO<CatalogItemListItemDTO> listPaged(
             int page,
             int size,
             String sortBy,
@@ -104,27 +101,22 @@ public class CatalogItemService implements ResultSetQueryOperations<
     }
 
     @Override
-    public synchronized PagedResponseDTO<CatalogItemListItemDTO> listPaged(CatalogItemPagedQuery query) {
-        Objects.requireNonNull(query, "query must not be null");
-        pagedQuerySupport.validatePaging(query.page(), query.size());
-
-        List<CatalogItem> matching = matchingSortedItems(query.sortBy(), query.sortDir(), query.sku(), query.name());
-        int fromIndex = Math.min(query.page() * query.size(), matching.size());
-        int toIndex = Math.min(fromIndex + query.size(), matching.size());
-        List<CatalogItemListItemDTO> items = matching.subList(fromIndex, toIndex).stream()
-                .map(mapper::toListItemDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public PagedResponseDTO<CatalogItemListItemDTO> listPaged(CatalogItemPagedQuery query) {
+        CatalogItemQuerySupport.validate(query);
+        Page<CatalogItem> result = queryRepository.findPage(query);
 
         PagedResponseDTO<CatalogItemListItemDTO> response = new PagedResponseDTO<>();
-        response.setItems(items);
-        response.setPage(query.page());
-        response.setSize(query.size());
-        response.setTotalElements(matching.size());
-        response.setTotalPages(totalPages(matching.size(), query.size()));
+        response.setItems(result.getContent().stream().map(mapper::toListItemDto).toList());
+        response.setPage(result.getNumber());
+        response.setSize(result.getSize());
+        response.setTotalElements(result.getTotalElements());
+        response.setTotalPages(result.getTotalPages());
         return response;
     }
 
-    public synchronized List<CatalogItemListItemDTO> listAll(
+    @Transactional(readOnly = true)
+    public List<CatalogItemListItemDTO> listAll(
             String sortBy,
             String sortDir,
             String sku,
@@ -134,83 +126,44 @@ public class CatalogItemService implements ResultSetQueryOperations<
     }
 
     @Override
-    public synchronized List<CatalogItemListItemDTO> listAll(CatalogItemAllQuery query) {
-        Objects.requireNonNull(query, "query must not be null");
-        return matchingSortedItems(query.sortBy(), query.sortDir(), query.sku(), query.name()).stream()
+    @Transactional(readOnly = true)
+    public List<CatalogItemListItemDTO> listAll(CatalogItemAllQuery query) {
+        CatalogItemQuerySupport.validate(query);
+        return queryRepository.findAll(query).stream()
                 .map(mapper::toListItemDto)
                 .toList();
     }
 
-    public synchronized CountResponseDTO count(String sku, String name) {
+    @Transactional(readOnly = true)
+    public CountResponseDTO count(String sku, String name) {
         return count(new CatalogItemCountQuery(sku, name));
     }
 
     @Override
-    public synchronized CountResponseDTO count(CatalogItemCountQuery query) {
-        Objects.requireNonNull(query, "query must not be null");
-        return CountResponseDTO.of(matchingItems(query.sku(), query.name()).size());
+    @Transactional(readOnly = true)
+    public CountResponseDTO count(CatalogItemCountQuery query) {
+        CatalogItemQuerySupport.validate(query);
+        return CountResponseDTO.of(queryRepository.count(query));
     }
 
-    public synchronized void clear() {
-        itemsById.clear();
-        itemsBySku.clear();
-    }
-
-    public synchronized int size() {
-        return itemsById.size();
-    }
-
-    private Optional<CatalogItem> findEntityById(String id) {
+    private CatalogItem requireById(String id) {
         if (id == null || id.isBlank()) {
-            return Optional.empty();
+            throw notFound(id);
         }
-        return Optional.ofNullable(itemsById.get(id));
+        return repository.findById(id).orElseThrow(() -> notFound(id));
     }
 
-    private String skuKey(String sku) {
-        return sku.trim().toUpperCase(Locale.ROOT);
-    }
-
-    private List<CatalogItem> matchingSortedItems(String sortBy, String sortDir, String sku, String name) {
-        Comparator<CatalogItem> comparator = pagedQuerySupport.stableComparator(
-                sortBy,
-                sortDir,
-                SORT_COMPARATORS,
-                DEFAULT_SORT_BY,
-                TIE_BREAKER_COMPARATOR
+    private ResourceNotFoundException notFound(String id) {
+        return new ResourceNotFoundException(
+                "Catalog item not found: id=" + id,
+                "catalog.item.not-found"
         );
-
-        return matchingItems(sku, name).stream()
-                .sorted(comparator)
-                .toList();
     }
 
-    private List<CatalogItem> matchingItems(String sku, String name) {
-        return new ArrayList<>(itemsById.values()).stream()
-                .filter(item -> matchesSku(item, sku))
-                .filter(item -> matchesName(item, name))
-                .toList();
-    }
-
-    private boolean matchesSku(CatalogItem item, String sku) {
-        if (sku == null || sku.isBlank()) {
-            return true;
-        }
-        return item.getSku() != null && item.getSku().equalsIgnoreCase(sku.trim());
-    }
-
-    private boolean matchesName(CatalogItem item, String name) {
-        if (name == null || name.isBlank()) {
-            return true;
-        }
-        return item.getName() != null
-                && item.getName().toLowerCase(Locale.ROOT).contains(name.trim().toLowerCase(Locale.ROOT));
-    }
-
-    private int totalPages(int totalElements, int pageSize) {
-        if (totalElements == 0) {
-            return 0;
-        }
-        return (int) Math.ceil((double) totalElements / pageSize);
+    private EntityAlreadyExistsException duplicateSku(String sku) {
+        return new EntityAlreadyExistsException(
+                "Catalog item already exists: SKU=" + sku,
+                "catalog.item.conflict"
+        );
     }
 }

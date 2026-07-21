@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: prod
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
 
 logging:
   level:

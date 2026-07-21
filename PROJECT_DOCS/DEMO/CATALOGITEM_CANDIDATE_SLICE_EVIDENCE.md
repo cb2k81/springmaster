@@ -91,7 +91,7 @@ List and `/all` use the same in-memory query pipeline for filters and sorting. S
 | Create location | `Location: /api/demo/catalog/items/{id}` |
 | SKU mutability | immutable after create in this slice |
 
-The implementation remains in-memory. It demonstrates public identity and boundary semantics, not durable database persistence.
+The current implementation is a transactional JPA candidate. It demonstrates durable persistence and public identity semantics but remains non-canonical until security and the remaining qualification gates are closed.
 
 ## Validation evidence
 
@@ -285,3 +285,19 @@ Current evidence:
 - `CatalogItemServiceTest` covers the interface-backed service contract directly.
 
 The slice remains `candidate-reference-slice`, not canonical. Remaining canonical blockers are unchanged unless closed by a later patch.
+
+## Persistent candidate runtime
+
+Patch `000163_springmaster_catalogitem_persistent_candidate_runtime` replaces the in-memory maps with a transactional JPA runtime.
+
+Current evidence:
+
+- Spring Data CRUD repository plus a dedicated Criteria-based query repository;
+- Liquibase-owned `demo_catalog_item` and tag tables;
+- isolated H2 database names per Spring test ApplicationContext, with a two-context Liquibase regression test;
+- shared predicates for paged, `/all` and `/count` operations;
+- boundary validation of page, size, sort field, sort direction and offset overflow before JPA invocation;
+- assigned opaque IDs with `persistenceVersion` lifecycle `null -> 0 -> 1`;
+- create, reload, update, delete, query and OpenAPI regression coverage.
+
+The slice remains `candidate-reference-slice`. Management security, stale-version conflict qualification, production-like MariaDB tests, strict-gate promotion and canonicalization remain deferred.

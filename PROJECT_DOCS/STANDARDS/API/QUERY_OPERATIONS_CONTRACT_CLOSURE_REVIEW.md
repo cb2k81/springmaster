@@ -107,8 +107,8 @@ The closure does not make CatalogItem canonical. The following topics remain del
 
 | Topic | Reason |
 |---|---|
-| Durable persistence/JPA implementation | CatalogItem still uses the in-memory candidate service; JPA count efficiency guidance is documented separately since `000105` |
-| Liquibase evidence | no durable CatalogItem table/migration proof yet |
+| Durable persistence/JPA implementation | implemented by the transactional CatalogItem candidate runtime |
+| Liquibase evidence | implemented for the CatalogItem and tag tables |
 | Implemented management security | security classification exists, enforcement is deferred |
 | OpenAPI operation/schema evidence | strict OpenAPI contract evidence is not complete yet |
 | Report-only/strict gate implementation | gate concepts exist, but strict promotion remains later work |
@@ -138,7 +138,7 @@ Future generated applications should use this pattern as the implementation targ
 
 ## Follow-up after 000105
 
-Patch `000105_springmaster_jpa_count_query_efficiency_reference` closes the documentation gap for efficient persistent count-query implementation. It does not change the candidate runtime status of CatalogItem, because CatalogItem is still an in-memory reference slice.
+Patch `000105_springmaster_jpa_count_query_efficiency_reference` defined the efficient persistent count-query pattern. Patch `000163_springmaster_catalogitem_persistent_candidate_runtime` now implements that pattern in the candidate runtime.
 
 The closed candidate-level contract therefore consists of:
 
