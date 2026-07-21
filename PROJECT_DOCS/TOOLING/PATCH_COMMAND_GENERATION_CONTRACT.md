@@ -12,16 +12,23 @@ Lies und befolge PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md.
 
 ## Verbindlicher Standard
 
-Für neue Patches ist der Standardabschluss:
+Für neue Patches ist der Standardabschluss ein idempotenter Hintergrund-Run mit expliziter Lock-Semantik:
 
 ```bash
-./bin/patch.sh accept <patch.zip> --commit
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
+```
+
+Die Startausgabe enthält eine Run-ID. Generierte Folgekommandos verwenden ausschließlich die Patch Run API:
+
+```bash
+./bin/patch.sh watch <run-id>
+./bin/patch.sh result <run-id>
 ```
 
 Wenn der Patch unmittelbar veröffentlicht werden soll und der Benutzer das ausdrücklich freigibt:
 
 ```bash
-./bin/patch.sh accept <patch.zip> --commit --push
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit --push
 ```
 
 `--push` impliziert `--commit`. Ein Push darf niemals implizit durch normale Patch-Kommandos erfolgen.
@@ -71,7 +78,7 @@ Staging erfolgt ausschließlich durch das Patchsystem aus der Patch-Dateiliste. 
 ```bash
 cd /opt/cocondo/<projekt>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile docs --commit
+./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile docs --background --wait-for-lock --no-export --commit
 ```
 
 Kein Maven-Test, kein Build.
@@ -81,7 +88,7 @@ Kein Maven-Test, kein Build.
 ```bash
 cd /opt/cocondo/<projekt>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile tooling --commit
+./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile tooling --background --wait-for-lock --no-export --commit
 ```
 
 Das Patchsystem führt Shell-/Python-Syntaxprüfung, Tooling-Selfcheck und Full-ZIP-Export aus. Ein Maven-Test wird nur ergänzt, wenn Java-Code, Tests, Build-Konfiguration oder Java-wirksame Templates betroffen sind.
@@ -91,7 +98,7 @@ Das Patchsystem führt Shell-/Python-Syntaxprüfung, Tooling-Selfcheck und Full-
 ```bash
 cd /opt/cocondo/<projekt>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile code --commit
+./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile code --background --wait-for-lock --no-export --commit
 ```
 
 `mvn -q test` ist Pflicht. Im Profil `auto` wird der vollständige Maven-Test automatisch aktiviert, sobald Java-Code, Tests oder Build-Konfiguration betroffen sind.
@@ -108,18 +115,15 @@ Für Revalidierung mit Commit ist kein erneutes Apply zulässig. Ein Commit erfo
 
 Lange inline Shell-Blöcke sollen nicht generiert werden. Für umfangreiche Prüfungen wird ein kleines versioniertes Runner-Skript verwendet, das nur einen kurzen Startbefehl benötigt und Statusdateien schreibt.
 
-Der bevorzugte Start ist trotzdem kurz:
+Der bevorzugte Start bleibt kurz und terminalunabhängig:
 
 ```bash
-./bin/patch.sh accept <patch.zip> --background --wait --commit
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
 ```
 
-Wenn ein Runner nötig ist, muss er:
+Generierte Kommandos dürfen weder die neueste Summary mit `find` auswählen noch Prozesszustände mit `pgrep` oder Logstreams mit `tail -F` verfolgen. Sie übernehmen die ausgegebene Run-ID und verwenden `watch`, `wait`, `result` oder `diagnose`. `--wait-for-lock` wartet nur auf den Write-Lock; auf das Run-Ende wartet `patch.sh wait <run-id>`.
 
-1. keine Projektdateien vor `accept --commit` erzeugen, die den Git-Preflight verschmutzen,
-2. `accept` mit passendem Profil aufrufen,
-3. Status und Summary aus `patches/logs/accept/<patch-id>/` ausgeben,
-4. den erzeugten Full-ZIP-Export nennen.
+Vor einem Retry muss `patch.sh status <patch-id>` ausgeführt werden. `APPLIED`, `ALREADY_APPLIED`, `RUNNING` und `ALREADY_RUNNING` verhindern einen zweiten Start.
 
 ## Logs und Git-Hygiene
 

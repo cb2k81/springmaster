@@ -74,3 +74,35 @@ Configured test selectors are external input and must not become unbounded files
 This correction closes the unbounded validation-log basename defect without changing product code or target-delivery behavior. No new runtime dependency, artifact format or mutable repository state is introduced. The tooling component has patch-level semantic impact; the version policy applies its increment in the release-closing patch rather than in this intermediate change.
 
 The outer transactional summary still reports a child failure as `worktree-validation`; detailed child diagnostics remain under `child-accept/`. Improving first-root-cause propagation is a separate, non-blocking diagnostic enhancement and is not hidden by this change.
+
+## Run identity and canonical evidence since 000164
+
+Every acceptance attempt receives an immutable run ID and a temporary `run.json`. A successful attempt is published separately as canonical evidence under `patches/logs/accept/<patch-id>/accepted.json`. Timestamped failed or redundant attempts remain diagnostic history but cannot downgrade a committed accepted patch.
+
+Revalidation is separate: `verify` writes under `patches/logs/validation/<run-id>/` and never overwrites canonical acceptance evidence.
+
+## Exact Git path parity
+
+The transaction compares three path sets:
+
+1. effective paths from the child patch archive `patch-log.json`;
+2. changed paths in the qualified child commit;
+3. changed paths after transfer to the live repository.
+
+All three sets must be exactly equal. The child commit must have the captured live baseline as direct parent. Only patch paths are staged; broad staging such as `git add .` remains prohibited.
+
+Archive and child acceptance evidence are staged before live cherry-pick. A failure before transaction finalization resets the live repository to the captured baseline and removes partially transferred evidence. After qualified commit, archive and canonical evidence are durable, later reporting or push failures are recorded as post-accept warnings and do not invalidate local acceptance. Push status remains independent and requires explicit `--push`.
+
+## Patch-scoped whitespace validation
+
+Whitespace validation is intentionally efficient and path-scoped:
+
+- applied patch paths: `git diff --check -- <paths>`;
+- staged patch paths: `git diff --cached --check -- <paths>`;
+- qualified commit: `git show --check`.
+
+Intent-to-add is used only in the isolated child so new files are visible to `git diff --check`. The engine does not reformat files, normalize line endings or scan unrelated repository content. Whitespace failure is propagated to the parent as the exact child step and leaves the live repository unchanged.
+
+## Resolved diagnostic debt
+
+The parent summary no longer collapses every child validation failure to `worktree-validation`. It carries the exact child failure step, phase, root-cause candidate and relevant log path. `patch.sh diagnose` produces bounded evidence, while `status`, `watch`, `wait` and `result` remove the need for ad-hoc terminal polling.

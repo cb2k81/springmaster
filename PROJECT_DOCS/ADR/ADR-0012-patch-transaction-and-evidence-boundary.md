@@ -41,3 +41,10 @@ An effective patch acceptance is executed in a detached Git worktree. Validation
 ## Accepted operational refinement: private transaction environment
 
 Patch-engine control variables are private implementation state. A transaction child may use them to prevent recursive wrapping of its own `accept`, but tooling checks, Maven tests, configured tests, and exports must run with those variables removed. Nested fixtures therefore exercise the public transaction contract rather than inheriting an outer engine bypass.
+## Accepted operational refinement: run API, idempotency and Git parity
+
+Patch `000164_springmaster_patch_run_api_git_transaction_hardening` introduces a canonical local Run API. Every attempt has an immutable run ID and atomic temporary run record. Successful acceptance evidence is published separately from timestamped attempts; verification evidence is stored separately and cannot overwrite acceptance.
+
+Acceptance start is idempotent for the same artifact: already applied and already running states return the existing durable or active state without creating another process. Git remains the durable truth. The patch log, qualified child commit and live transfer must contain exactly the same path set, and the qualified commit must descend directly from the captured live baseline.
+
+Whitespace checks are patch-scoped and performed once at the applied, staged and qualified-commit boundaries. The engine does not reformat or repeatedly scan unrelated repository files. A pre-finalization transfer failure is compensated to the captured baseline; a post-finalization reporting or push failure remains a warning on a locally successful acceptance.

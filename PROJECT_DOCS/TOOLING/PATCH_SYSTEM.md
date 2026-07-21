@@ -4,6 +4,22 @@
 
 Das Patchsystem verarbeitet manifestbasierte Patch-ZIPs und protokolliert jede Anwendung unter `patches/archives/**`.
 
+## Kanonische Run- und Git-Steuerung seit 000164
+
+Die verbindliche Runtime-Schnittstelle ist in `PROJECT_DOCS/TOOLING/PATCH_RUN_API.md` definiert. Patchstarts, Statusabfragen und Diagnosen werden nicht mehr durch manuelle Prozesssuche oder Auswahl der zeitlich neuesten Summary gesteuert.
+
+```bash
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
+./bin/patch.sh watch <run-id>
+./bin/patch.sh result <run-id>
+./bin/patch.sh diagnose <run-id>
+./bin/patch.sh doctor
+```
+
+`accept` ist idempotent: ein bereits angewendetes Artefakt liefert `ALREADY_APPLIED`, ein aktiver identischer Run `ALREADY_RUNNING`. Ein späterer fehlgeschlagener redundanter Versuch kann einen kanonisch akzeptierten Git-Commit nicht auf `FAILED` zurückstufen. `verify` besitzt eigene Validation-Evidence und überschreibt keine Acceptance-Evidence.
+
+Die Git-Transaktion vergleicht Patch-Log, qualifizierten Worktree-Commit und Live-Transferpfade exakt. Whitespace wird nur für betroffene Patchpfade geprüft; es gibt keine implizite Formatierung oder wiederholte Full-Repository-Scans.
+
 ## Kommandos
 
 ```bash
@@ -11,6 +27,12 @@ Das Patchsystem verarbeitet manifestbasierte Patch-ZIPs und protokolliert jede A
 ./bin/patch.sh apply <patch.zip>
 ./bin/patch.sh accept <patch.zip> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
 ./bin/patch.sh verify <patch-id|patch-number|latest> [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
+./bin/patch.sh status <run-id|patch-id|patch-number|latest> [--format human|env|json]
+./bin/patch.sh watch <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh wait <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
+./bin/patch.sh result <run-id|patch-id|patch-number|latest> [--format human|env|json]
+./bin/patch.sh diagnose <run-id|patch-id|patch-number|latest> [--output <file>]
+./bin/patch.sh doctor
 ./bin/patch.sh list
 ./bin/patch.sh show latest
 ./bin/patch.sh rollback --dry-run latest

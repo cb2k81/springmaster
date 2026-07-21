@@ -142,9 +142,10 @@ log_info "Checking DBTool env/status"
 "${PROJECT_ROOT}/bin/dbtool.sh" env >/dev/null
 "${PROJECT_ROOT}/bin/dbtool.sh" status >/dev/null
 
-log_info "Tooling selfcheck completed successfully."
-
 "${SCRIPT_DIR}/patch-scope-least-privilege-it.sh" >/dev/null
+log_info "Checking patch run API, idempotency and background lifecycle"
+"${SCRIPT_DIR}/patch-run-api-it.sh" >/dev/null
 "${SCRIPT_DIR}/patch-transactional-accept-it.sh" >/dev/null
 "${SCRIPT_DIR}/core-persistence-newness-contract-it.sh" >/dev/null
 "${SCRIPT_DIR}/patch-state-audit.sh" --check
+log_info "Tooling selfcheck completed successfully."

@@ -24,6 +24,31 @@ PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md
 
 `accept` führt Dry-run, Apply, Tooling-Prüfung, automatisch passende Tests, einen zentralen Full-ZIP-Export und Summary-Erzeugung aus. Mit `--commit` wird danach nur die Patch-Dateiliste gestaged und committed; `git add .` bleibt verboten.
 
+## Aktueller Standard seit 000164
+
+Für einen dauerhaften lokalen Abschluss wird Acceptance als Hintergrund-Run mit expliziter Run-ID gestartet:
+
+```bash
+./bin/patch.sh accept <patch.zip> \
+  --background \
+  --wait-for-lock \
+  --no-export \
+  --commit
+```
+
+Die Startausgabe enthält die Run-ID. Der Run wird danach ohne Logstream beobachtet:
+
+```bash
+./bin/patch.sh watch <run-id>
+./bin/patch.sh result <run-id>
+```
+
+`--wait-for-lock` wartet ausschließlich auf den Repository-Write-Lock. `patch.sh wait <run-id>` wartet auf das Ende des Runs. Das historische `--wait` bleibt nur als Alias für die Lock-Wartezeit erhalten.
+
+Vor einem Retry ist immer `patch.sh status <patch-id>` auszuführen. `APPLIED` und `ALREADY_APPLIED` verbieten einen Neustart; `RUNNING` und `ALREADY_RUNNING` verweisen auf den bestehenden Run. Große Logs werden nicht im Terminal ausgegeben; `patch.sh diagnose <run-id>` erzeugt einen begrenzten Bericht.
+
+`verify` schreibt seine Run-Evidence unter `patches/logs/validation/**` und verändert die kanonische Acceptance-Evidence nicht. Die dauerhafte Acceptance liegt getrennt unter `patches/logs/accept/<patch-id>/accepted.json`.
+
 ## Accept
 
 Standard:

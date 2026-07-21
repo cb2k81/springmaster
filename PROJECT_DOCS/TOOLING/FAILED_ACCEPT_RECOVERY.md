@@ -3,43 +3,69 @@ documentType: guide
 status: active
 scope: patch-recovery
 owner: springmaster-maintainers
-validFrom: 2026-07-20
+validFrom: 2026-07-21
 supersedes: none
 ---
 # Failed Accept Recovery
 
-## Invariant
+## First determine the canonical state
 
-A patch is not accepted merely because its payload was copied into the repository. Acceptance requires successful validation and, when `--commit` is requested, a durable Git commit.
-
-The following state is invalid unless an immutable historical closure reconciliation is registered:
-
-```text
-patch archive status = applied
-accept summary        = FAILED
-Git commit             = absent
-```
-
-Before another patch is accepted, the failed patch must be rolled back. The archive and failed acceptance evidence remain preserved; history is not rewritten.
-
-A narrowly scoped exception exists for historical patches that were later closed by an independently qualified successor commit. Such a case must be declared in `contracts/governance/patch-state-reconciliations.json`, bind the observed archive and acceptance states, and reference immutable repository evidence. The registry does not convert the historical FAILED summary into SUCCESS; it records why the applied payload is nevertheless part of the committed baseline.
-
-## Recovery sequence
+A timestamped failed run is not proof that the patch is unaccepted. Before rollback or retry:
 
 ```bash
 cd /opt/cocondo/springmaster || exit 1
+./bin/patch.sh status <patch-id>
+./bin/patch.sh doctor
+```
+
+Interpretation:
+
+- `APPLIED` or `ALREADY_APPLIED`: do not retry or roll back merely because a later redundant run failed;
+- `RUNNING` or `ALREADY_RUNNING`: observe the existing run with `watch` or `wait`;
+- `FAILED` with no live mutation: diagnose; no rollback is required;
+- archive applied, acceptance failed and Git commit absent: inconsistent live state; controlled rollback or reconciliation is required;
+- `STALE`: run `doctor`, inspect the bounded diagnostic and reconcile before a new start.
+
+Use:
+
+```bash
+./bin/patch.sh diagnose <run-id|patch-id>
+```
+
+Do not select the newest summary manually and do not infer acceptance from PID state alone.
+
+## Transactional failure invariant
+
+A failed isolated acceptance must leave:
+
+- live `HEAD` unchanged;
+- live Working Tree and index unchanged;
+- no live applied archive;
+- no canonical successful acceptance evidence.
+
+Such a run is diagnostic history and can be retried with the same immutable artifact only when the baseline and artifact are unchanged. If patch content changes, create a new patch ID and artifact ID.
+
+## Invalid legacy or partial state
+
+The following state is invalid unless immutable historical closure reconciliation is registered:
+
+```text
+patch archive status = applied
+canonical acceptance  = absent or FAILED
+Git commit             = absent
+```
+
+Recovery:
+
+```bash
 ./bin/patch.sh rollback <failed-patch-id>
 ./bin/patch-state-audit.sh --check --require-clean
 ```
 
-A rollback is complete only when:
+Rollback is complete only when the archive reports `rolled_back`, `ROLLBACK_DONE` exists, failed evidence remains preserved, Git is clean and no later patch depends on the failed live state.
 
-- `ROLLBACK_DONE` exists in the archive;
-- `patch-log.json` reports `rolled_back`;
-- the failed acceptance summary remains available;
-- the Git Working Tree is clean;
-- no later patch depends on the failed live state.
+A historical patch later closed by an independently qualified successor commit must be declared in `contracts/governance/patch-state-reconciliations.json`. The registry records why the payload belongs to the committed baseline; it does not rewrite the historical failed run.
 
-## Machine-readable audit
+## Post-finalization warning
 
-`bin/patch-state-audit.sh` compares archive status, rollback markers, acceptance summaries and explicit historical reconciliation evidence. `--require-clean` additionally rejects a dirty Git Working Tree. Tooling selfchecks use the archive invariants without requiring a clean tree because an accepted patch is validated before its commit.
+When the qualified Git commit, applied archive and canonical acceptance evidence are already durable, a later reporting or push problem is a post-accept warning. Local acceptance remains successful. Resolve push or reporting separately; do not reset a valid local commit automatically.

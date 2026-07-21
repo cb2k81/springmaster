@@ -2,6 +2,15 @@
 
 ## Zweck
 
+## Patch-scoped whitespace and efficiency contract since 000164
+
+Whitespace is a fail-closed correctness check, not a repository-wide formatting task. Acceptance checks only effective patch paths after apply, only staged patch paths before commit and the qualified commit once with `git show --check`. New files are exposed with intent-to-add inside the isolated worktree. Unrelated files are neither scanned repeatedly nor reformatted.
+
+This keeps the gate deterministic and efficient while still rejecting trailing whitespace, conflict markers and malformed patches before live transfer. A whitespace failure is reported as an exact child step and does not mutate the live repository.
+
+Run observation and diagnostics use `status`, `watch`, `wait`, `result` and `diagnose` from `PATCH_RUN_API.md`; full logs are not streamed into interactive terminals.
+
+
 Diese Richtlinie definiert die Verifikation nach Patch-Typen. Sie verhindert unnötige Build- und Testläufe bei reinen Dokumentationsänderungen und stellt gleichzeitig sicher, dass Code- und Tooling-Änderungen ausreichend geprüft werden.
 
 ## Grundsatz

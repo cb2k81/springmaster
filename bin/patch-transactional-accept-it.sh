@@ -112,7 +112,8 @@ test "$(git -C "${FIXTURE}" rev-parse HEAD)" = "${BASE_HEAD}"
 test -z "$(git -C "${FIXTURE}" status --porcelain=v1 --untracked-files=all)"
 grep -Fxq 'baseline' "${FIXTURE}/custom/value.txt"
 test ! -e "${FIXTURE}/patches/archives/000001_transaction_failure"
-grep -q 'Failed-Step:  worktree-validation' "${TMP_ROOT}/failure.log"
+grep -q 'Failed-Step:  full-test' "${TMP_ROOT}/failure.log"
+grep -q '^CHILD_FAILED_STEP=full-test$' "${FIXTURE}/patches/logs/accept/"*/SUMMARY.txt
 
 (
   cd "${FIXTURE}"

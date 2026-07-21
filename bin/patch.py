@@ -24,8 +24,14 @@ USAGE = """Verwendung:
   ./bin/patch.sh live-baseline <patch.zip>
   ./bin/patch.sh artifact-preflight <patch.zip> [--output <dir>] [--no-export] [--keep-test-copy]
   ./bin/patch.sh accept <patch.zip> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export] [--commit] [--push]
-  ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
-  ./bin/patch.sh rollback [--dry-run] [--wait] <patch-id|patch-number|latest>
+  ./bin/patch.sh verify <patch-id|patch-number|latest> [--background] [--wait-for-lock] [--lock-timeout <seconds>] [--profile auto|docs|tooling|code] [--test <MavenTest>] [--full-test|--no-full-test] [--export|--no-export]
+  ./bin/patch.sh status <run-id|patch-id|patch-number|latest> [--format human|env|json]
+  ./bin/patch.sh watch <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
+  ./bin/patch.sh wait <run-id|patch-id|patch-number|latest> [--interval <seconds>] [--timeout <seconds>]
+  ./bin/patch.sh result <run-id|patch-id|patch-number|latest> [--format human|env|json]
+  ./bin/patch.sh diagnose <run-id|patch-id|patch-number|latest> [--output <file>]
+  ./bin/patch.sh doctor [--format human|json]
+  ./bin/patch.sh rollback [--dry-run] [--wait-for-lock] <patch-id|patch-number|latest>
   ./bin/patch.sh list
   ./bin/patch.sh show <patch-id|patch-number|latest>
 
@@ -43,7 +49,9 @@ Pflichtregeln:
   - accept führt vor dem Dry-run einen Live-Baseline-Hash-Preflight aus.
   - artifact-preflight requires a clean Git baseline and validates the patch in an isolated test copy.
   - Mutierende Läufe verwenden einen projektlokalen Write-Lock.
-  - Für lange Läufe ist --background --wait der empfohlene Modus.
+  - Für lange Läufe ist --background --wait-for-lock der empfohlene Startmodus.
+  - status, watch und wait beobachten Runs kompakt ohne Log-Streaming.
+  - Ein bereits angewendetes oder bereits laufendes Artefakt wird idempotent erkannt.
 """
 
 if len(sys.argv) < 3:
@@ -61,6 +69,44 @@ def fail(message, code=1):
 
 def now_iso():
     return datetime.now(timezone.utc).astimezone().isoformat()
+
+
+def atomic_write_text(path, content):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp-{os.getpid()}-{time.time_ns()}")
+    try:
+        tmp.write_text(content, encoding="utf-8")
+        os.replace(tmp, path)
+    finally:
+        try:
+            tmp.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def read_summary_fields(path):
+    fields = {}
+    path = Path(path)
+    if not path.is_file():
+        return fields
+    try:
+        for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            if "=" not in raw_line:
+                continue
+            key, value = raw_line.split("=", 1)
+            if re.fullmatch(r"[A-Z][A-Z0-9_]*", key):
+                fields[key] = value
+    except OSError:
+        return {}
+    return fields
+
+
+def safe_int(value, default=None):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 def sanitize_name(value):
     value = Path(str(value)).name
@@ -143,8 +189,7 @@ def read_json(path):
         fail(f"Kann JSON nicht lesen: {path}: {exc}")
 
 def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    atomic_write_text(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 def archive_dirs():
     if not ARCHIVES_DIR.exists():
@@ -262,7 +307,11 @@ def parse_lock_timeout(args):
     return seconds
 
 def parse_wait_flag(args):
-    return "--wait" in args or parse_bool_env("PATCH_LOCK_WAIT", False)
+    return (
+        "--wait-for-lock" in args
+        or "--wait" in args
+        or parse_bool_env("PATCH_LOCK_WAIT", False)
+    )
 
 class PatchLockBusy(Exception):
     def __init__(self, lock_path, info):
@@ -378,20 +427,29 @@ class ProjectWriteLock:
         return False
 
 def write_busy_summary(log_dir, command_name, lock_path, lock_info, options=None):
+    log_dir = Path(log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
     owner = f"PID={lock_info.get('pid', '-')} HOST={lock_info.get('host', '-')} COMMAND={lock_info.get('command', '-')}"
+    run_data = load_run_record(log_dir)
     lines = [
         "STATUS=BUSY",
         f"COMMAND={command_name}",
+        f"RUN_ID={run_data.get('runId', log_dir.name)}",
+        f"PATCH_ID={run_data.get('patchId', '-')}",
+        "PHASE=WAITING_FOR_LOCK",
         f"LOCK={lock_path}",
         f"OWNER={owner}",
         f"OWNER_STARTED={lock_info.get('startedAt', '-')}",
         f"OWNER_SUBJECT={lock_info.get('subject', '-')}",
         f"LOG_DIR={log_dir}",
+        f"UPDATED_AT={now_iso()}",
     ]
-    for name in ("summary.log", "SUMMARY.txt"):
-        (log_dir / name).write_text("\n".join(lines) + "\n", encoding="utf-8")
-    (log_dir / "STATUS.txt").write_text("BUSY\n", encoding="utf-8")
+    content = "\n".join(lines) + "\n"
+    atomic_write_text(log_dir / "summary.log", content)
+    atomic_write_text(log_dir / "SUMMARY.txt", content)
+    atomic_write_text(log_dir / "STATUS.txt", "BUSY\n")
+    write_run_record(log_dir, status="BUSY", phase="WAITING_FOR_LOCK", command=command_name)
+
 
 def print_busy_result(command_name, log_dir, lock_path, lock_info):
     label = "Patch-Accept" if command_name == "accept" else "Patch-Verify" if command_name == "verify" else f"Patch-{command_name.capitalize()}"
@@ -403,7 +461,7 @@ def print_busy_result(command_name, log_dir, lock_path, lock_info):
     print(f"  Subject:      {lock_info.get('subject', '-')}")
     print(f"  Summary:      {log_dir / 'SUMMARY.txt'}")
     print(f"  Log:          {log_dir}")
-    print("  Aktion:       Erneut mit --wait ausführen oder aktiven Lauf prüfen.")
+    print("  Aktion:       Erneut mit --wait-for-lock ausführen oder aktiven Lauf prüfen.")
 
 def normalize_scope_env_name(scope):
     normalized = re.sub(r"[^A-Za-z0-9]+", "_", scope).strip("_").upper()
@@ -1372,7 +1430,7 @@ def parse_accept_verify_args(args, subject_name):
         elif arg == "--background":
             background = True
             i += 1
-        elif arg == "--wait":
+        elif arg in ("--wait", "--wait-for-lock"):
             wait = True
             i += 1
         elif arg == "--lock-timeout":
@@ -1447,6 +1505,24 @@ def target_paths_from_patch_dir(patch_dir):
             paths.append(path)
     return paths
 
+def inspect_patch_identity(zip_path):
+    tmp_dir = extract_archive(zip_path)
+    try:
+        manifest, scope, name, patch_id, operations = collect_patch(tmp_dir, zip_path=zip_path)
+        return {
+            "manifest": manifest,
+            "artifactId": manifest["artifactId"],
+            "scope": scope,
+            "name": name,
+            "patchId": patch_id,
+            "operations": operations,
+            "targetPaths": [op["target"] for op in operations],
+            "patchSha256": sha256_file(zip_path),
+        }
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
 def inspect_patch_zip(zip_path):
     tmp_dir = extract_archive(zip_path)
     try:
@@ -1462,6 +1538,7 @@ def inspect_patch_zip(zip_path):
             "targetPaths": [op["target"] for op in operations],
             "summary": summary,
             "entries": entries,
+            "patchSha256": sha256_file(zip_path),
         }
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -1489,6 +1566,113 @@ def find_applied_patch_by_name(name):
             effective = patch_dir
     return effective or fallback
 
+
+def git_commit_exists(commit_ref):
+    if not commit_ref:
+        return False
+    result = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit_ref}^{{commit}}"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
+def canonical_accept_fields(patch_id):
+    return read_summary_fields(accept_log_base() / patch_id / "SUMMARY.txt")
+
+
+def archived_patch_data(patch_id):
+    patch_dir = ARCHIVES_DIR / patch_id
+    log_path = patch_dir / "patch-log.json"
+    if not log_path.is_file() or (patch_dir / "ROLLBACK_DONE").exists():
+        return None
+    try:
+        return json.loads(log_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def applied_identity_state(patch_identity):
+    patch_id = patch_identity["patchId"]
+    artifact_id = patch_identity["artifactId"]
+    data = archived_patch_data(patch_id)
+    if data is None or data.get("status") != "applied":
+        return None
+    archived_id = data.get("artifactId")
+    if archived_id is None and isinstance(data.get("manifest"), dict):
+        archived_id = data["manifest"].get("artifactId")
+    if archived_id != artifact_id:
+        fail(
+            "PATCH_IDENTITY_CONFLICT: patchId is already archived with another artifactId.\n"
+            f"  patchId: {patch_id}\n"
+            f"  requestedArtifactId: {artifact_id}\n"
+            f"  archivedArtifactId:  {archived_id}"
+        )
+    fields = canonical_accept_fields(patch_id)
+    commit_status = fields.get("GIT_COMMIT_STATUS", "-")
+    commit_hash = fields.get("GIT_COMMIT_HASH", "-")
+    commit_ok = commit_status != "COMMITTED" or git_commit_exists(commit_hash)
+    return {
+        "status": "ALREADY_APPLIED",
+        "patchId": patch_id,
+        "artifactId": artifact_id,
+        "summary": str(accept_log_base() / patch_id / "SUMMARY.txt"),
+        "acceptStatus": fields.get("STATUS", "ARCHIVED"),
+        "commitStatus": commit_status,
+        "commitHash": commit_hash,
+        "commitVerified": commit_ok,
+    }
+
+
+def find_active_run(patch_id, artifact_id=None):
+    candidates = []
+    pointer_path = run_pointer_dir() / f"{sanitize_name(patch_id)}.json"
+    if pointer_path.is_file():
+        try:
+            pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+            log_dir = Path(pointer.get("logDir", ""))
+            if log_dir.is_dir():
+                candidates.append(load_run_record(log_dir))
+        except Exception:
+            pass
+    for base in (accept_log_base(), validation_log_base()):
+        for run_file in base.glob("*/run.json"):
+            data = load_run_record(run_file.parent)
+            if data.get("patchId") == patch_id:
+                candidates.append(data)
+    candidates = [
+        data for data in candidates
+        if data and (artifact_id is None or data.get("artifactId") in (None, artifact_id))
+    ]
+    candidates.sort(key=lambda data: data.get("updatedAt", ""), reverse=True)
+    for data in candidates:
+        if run_is_active(data):
+            return data
+    return None
+
+def print_already_applied_state(state):
+    print("Patch-Accept:")
+    print("  Status:       ALREADY_APPLIED")
+    print(f"  Patch-ID:     {state.get('patchId', '-')}")
+    print(f"  Artifact-ID:  {state.get('artifactId', '-')}")
+    print(f"  Git-Status:   {state.get('commitStatus', '-')}")
+    print(f"  Git-Commit:   {state.get('commitHash', '-')}")
+    print(f"  Summary:      {state.get('summary', '-')}")
+
+
+def print_already_running_state(state):
+    print("Patch-Accept:")
+    print("  Status:       ALREADY_RUNNING")
+    print(f"  Run-ID:       {state.get('runId', '-')}")
+    print(f"  Patch-ID:     {state.get('patchId', '-')}")
+    print(f"  PID:          {state.get('pid', '-')}")
+    print(f"  Phase:        {state.get('phase', '-')}")
+    print(f"  Summary:      {state.get('summary', '-')}")
+    print(f"  Watch:        ./bin/patch.sh watch {state.get('runId', state.get('patchId', '-'))}")
+
+
 def latest_full_export():
     export_dir = PROJECT_ROOT / "exports" / "text"
     if not export_dir.exists():
@@ -1500,6 +1684,103 @@ def accept_log_base():
     base = PROJECT_ROOT / "patches" / "logs" / "accept"
     base.mkdir(parents=True, exist_ok=True)
     return base
+
+
+def validation_log_base():
+    base = PROJECT_ROOT / "patches" / "logs" / "validation"
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
+def run_state_root():
+    root = project_relative_or_absolute_path(env_value("PATCH_RUN_STATE_ROOT"), "patches/runtime/patch-runs")
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def run_pointer_dir():
+    path = run_state_root() / "by-patch"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def make_run_id(command_name, patch_id):
+    stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%dT%H%M%S")
+    return f"{stamp}-{sanitize_name(command_name)}-{sanitize_name(patch_id)}-{uuid.uuid4().hex[:8]}"
+
+
+def run_record_path(log_dir):
+    return Path(log_dir) / "run.json"
+
+
+def current_git_head():
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def write_run_record(log_dir, **updates):
+    log_dir = Path(log_dir).resolve()
+    path = run_record_path(log_dir)
+    data = {}
+    if path.is_file():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            data = {}
+    now = now_iso()
+    data.setdefault("schemaVersion", "springmaster.patch-run.v1")
+    data.setdefault("runId", log_dir.name)
+    data.setdefault("startedAt", now)
+    data.setdefault("projectRoot", str(PROJECT_ROOT))
+    data.setdefault("host", socket.gethostname())
+    data.setdefault("pid", os.getpid())
+    data.setdefault("baselineHead", current_git_head())
+    data.update({key: value for key, value in updates.items() if value is not None})
+    data["updatedAt"] = now
+    write_json(path, data)
+
+    patch_id = data.get("patchId")
+    if patch_id and patch_id != "-":
+        pointer = {
+            "schemaVersion": "springmaster.patch-run-pointer.v1",
+            "patchId": patch_id,
+            "artifactId": data.get("artifactId"),
+            "runId": data.get("runId"),
+            "command": data.get("command"),
+            "status": data.get("status"),
+            "phase": data.get("phase"),
+            "pid": data.get("pid"),
+            "logDir": str(log_dir),
+            "summary": str(log_dir / "SUMMARY.txt"),
+            "updatedAt": now,
+        }
+        write_json(run_pointer_dir() / f"{sanitize_name(patch_id)}.json", pointer)
+    return data
+
+
+def load_run_record(log_dir):
+    path = run_record_path(log_dir)
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def run_is_active(data):
+    if data.get("status") != "RUNNING":
+        return False
+    if data.get("host") and data.get("host") != socket.gethostname():
+        return True
+    return pid_is_alive(data.get("pid"))
+
 
 def command_to_text(cmd, shell=False):
     return cmd if shell else " ".join(str(part) for part in cmd)
@@ -1580,6 +1861,31 @@ def run_tooling_verification(log_dir):
             if result.returncode != 0:
                 return result.returncode
     return 0
+
+def extract_first_failure_line(log_dir):
+    preferred = (
+        "<<< FAILURE!",
+        "<<< ERROR!",
+        "AssertionError",
+        "Caused by:",
+        "BUILD FAILURE",
+        "Failed to execute goal",
+        "[ERROR]",
+    )
+    log_files = sorted(Path(log_dir).rglob("*.log"), key=lambda path: path.stat().st_mtime if path.exists() else 0)
+    for marker in preferred:
+        for log_file in log_files:
+            if log_file.name == "summary.log":
+                continue
+            try:
+                for raw_line in log_file.read_text(encoding="utf-8", errors="replace").splitlines():
+                    line = raw_line.strip()
+                    if marker in line:
+                        return line[:500], str(log_file)
+            except OSError:
+                continue
+    return None, None
+
 
 def extract_error_summary(log_dir):
     lines = []
@@ -1735,6 +2041,36 @@ def git_status_paths(log_dir=None, ignore_accept_log=True):
         ignored_prefixes.append(log_prefix)
     return [path for path in paths if not any(path.startswith(prefix) for prefix in ignored_prefixes)]
 
+def validate_patch_scoped_whitespace(log_dir, paths, staged=False):
+    paths = sorted({validate_relpath(path) for path in paths if isinstance(path, str)})
+    if not paths or not is_git_worktree(log_dir=log_dir):
+        return 0
+
+    if not staged:
+        untracked = git_run(
+            ["ls-files", "--others", "--exclude-standard", "--", *paths],
+            log_dir=log_dir,
+        )
+        if untracked.returncode != 0:
+            return untracked.returncode
+        intent_paths = [line.strip() for line in untracked.stdout.splitlines() if line.strip()]
+        if intent_paths:
+            intent = git_run(["add", "-N", "--", *intent_paths], log_dir=log_dir)
+            if intent.returncode != 0:
+                return intent.returncode
+
+    cmd = ["git", "diff"]
+    if staged:
+        cmd.append("--cached")
+    cmd.extend(["--check", "--", *paths])
+    return run_process_step(
+        "Patch-scoped whitespace check",
+        cmd,
+        Path(log_dir) / ("whitespace-staged.log" if staged else "whitespace.log"),
+        env=validation_subprocess_env(),
+    )
+
+
 def ensure_git_clean_before_commit(log_dir):
     if not is_git_worktree(log_dir=log_dir):
         fail("GIT_NOT_AVAILABLE: --commit erfordert ein Git-Repository im Projektroot.")
@@ -1773,6 +2109,12 @@ def execute_git_commit(log_dir, patch_id, latest_export_path=None, push=False):
 
     allowed = set(paths)
     git_run(["add", "--"] + paths, log_dir=log_dir, check=True)
+    whitespace_rc = validate_patch_scoped_whitespace(log_dir, paths, staged=True)
+    if whitespace_rc != 0:
+        fail(
+            "GIT_WHITESPACE_ERROR: staged patch lines contain trailing whitespace or "
+            "space-before-tab errors. Details stehen in whitespace-staged.log."
+        )
     staged_result = git_run(["diff", "--cached", "--name-only"], log_dir=log_dir, check=True)
     staged = [path for path in staged_result.stdout.splitlines() if path.strip()]
     unexpected = [path for path in staged if path not in allowed]
@@ -1793,36 +2135,82 @@ def execute_git_commit(log_dir, patch_id, latest_export_path=None, push=False):
         push_status = "PUSHED"
     return {"status": "COMMITTED", "hash": head, "pushStatus": push_status, "message": commit_message}
 
-def write_accept_summary(log_dir, status, command_name, patch_id=None, failed_step=None, latest_export_path=None, options=None, git_commit_script=None, git_commit_result=None):
+def write_accept_summary(
+    log_dir,
+    status,
+    command_name,
+    patch_id=None,
+    failed_step=None,
+    latest_export_path=None,
+    options=None,
+    git_commit_script=None,
+    git_commit_result=None,
+    extra_fields=None,
+):
+    log_dir = Path(log_dir)
     summary_path = log_dir / "summary.log"
     error_summary = extract_error_summary(log_dir) if status not in ("SUCCESS", "ALREADY_APPLIED") else ""
     options = options or {}
+    extra_fields = extra_fields or {}
+    run_data = load_run_record(log_dir)
+    phase = extra_fields.get("PHASE") or ("COMPLETE" if status in ("SUCCESS", "ALREADY_APPLIED") else "FAILED")
+    resolved_patch_id = patch_id or run_data.get("patchId") or "-"
     lines = [
         f"STATUS={status}",
         f"COMMAND={command_name}",
-        f"PATCH_ID={patch_id or '-'}",
+        f"RUN_ID={run_data.get('runId', log_dir.name)}",
+        f"PATCH_ID={resolved_patch_id}",
+        f"ARTIFACT_ID={options.get('artifactId') or run_data.get('artifactId') or '-'}",
+        f"PATCH_SHA256={options.get('patchSha256') or run_data.get('patchSha256') or '-'}",
         f"FAILED_STEP={failed_step or '-'}",
+        f"PHASE={phase}",
         f"PROFILE={options.get('profile', '-')}",
         f"FULL_TEST={options.get('fullTest', '-')}",
         f"EXPORT={options.get('export', '-')}",
         f"BACKGROUND={options.get('background', '-')}",
-        f"WAIT={options.get('wait', '-')}",
+        f"WAIT_FOR_LOCK={options.get('wait', '-')}",
+        f"PID={run_data.get('pid', os.getpid())}",
+        f"BASELINE_HEAD={options.get('baselineHead') or run_data.get('baselineHead') or '-'}",
         f"LOG_DIR={log_dir}",
         f"LATEST_EXPORT={latest_export_path or '-'}",
         f"GIT_COMMIT_SCRIPT={git_commit_script or '-'}",
         f"GIT_COMMIT_STATUS={(git_commit_result or {}).get('status', '-')}",
         f"GIT_COMMIT_HASH={(git_commit_result or {}).get('hash', '-')}",
         f"GIT_PUSH_STATUS={(git_commit_result or {}).get('pushStatus', '-')}",
+        f"UPDATED_AT={now_iso()}",
     ]
+    for key, value in extra_fields.items():
+        if key == "PHASE":
+            continue
+        normalized_key = str(key).strip().upper()
+        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", normalized_key):
+            continue
+        normalized_value = str(value).replace("\r", " ").replace("\n", " ")
+        lines.append(f"{normalized_key}={normalized_value}")
     if error_summary:
         lines.append("")
         lines.append("ERROR_SUMMARY:")
         lines.append(error_summary)
     content = "\n".join(lines) + "\n"
-    summary_path.write_text(content, encoding="utf-8")
-    (log_dir / "SUMMARY.txt").write_text(content, encoding="utf-8")
-    (log_dir / "STATUS.txt").write_text(status + "\n", encoding="utf-8")
+    atomic_write_text(summary_path, content)
+    atomic_write_text(log_dir / "SUMMARY.txt", content)
+    atomic_write_text(log_dir / "STATUS.txt", status + "\n")
+    write_run_record(
+        log_dir,
+        command=command_name,
+        status=status,
+        phase=phase,
+        patchId=resolved_patch_id,
+        artifactId=options.get("artifactId") or run_data.get("artifactId"),
+        patchSha256=options.get("patchSha256") or run_data.get("patchSha256"),
+        failedStep=failed_step,
+        commitStatus=(git_commit_result or {}).get("status"),
+        commitHash=(git_commit_result or {}).get("hash"),
+        pushStatus=(git_commit_result or {}).get("pushStatus"),
+        summary=str(log_dir / "SUMMARY.txt"),
+    )
     return summary_path
+
 
 def print_accept_result(status, command_name, log_dir, patch_id=None, latest_export_path=None, failed_step=None, options=None, git_commit_script=None, git_commit_result=None):
     label = "Patch-Accept" if command_name == "accept" else "Patch-Verify"
@@ -1868,7 +2256,8 @@ def configured_full_test_command():
 def configured_export_command():
     return env_value("PATCH_EXPORT_COMMAND", "./bin/export.sh full --zip")
 
-def make_accept_log_dir(subject):
+def make_accept_log_dir(subject, command_name=None):
+    command_name = command_name or COMMAND
     configured_log_dir = os.environ.get("PATCH_ACCEPT_LOG_DIR")
     if configured_log_dir:
         log_dir = Path(configured_log_dir).expanduser()
@@ -1876,56 +2265,101 @@ def make_accept_log_dir(subject):
             log_dir = PROJECT_ROOT / log_dir
         log_dir.mkdir(parents=True, exist_ok=True)
         return log_dir.resolve(), True
-    run_id = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S") + "_" + sanitize_name(subject)
-    log_dir = accept_log_base() / run_id
+    run_id = os.environ.get("PATCH_RUN_ID") or make_run_id(command_name, subject)
+    base = validation_log_base() if command_name == "verify" else accept_log_base()
+    log_dir = base / run_id
     log_dir.mkdir(parents=True, exist_ok=False)
     return log_dir, False
+
 
 def args_without_background(args):
     return [arg for arg in args if arg != "--background"]
 
-def start_background_command(command_name, args, subject):
-    log_dir, _fixed = make_accept_log_dir(subject)
-    run_log = log_dir / "run.log"
-    summary_content = "\n".join([
+
+def write_running_summary(log_dir, command_name, patch_identity, run_log, pid=None, phase="STARTING"):
+    patch_identity = patch_identity or {}
+    fields = [
         "STATUS=RUNNING",
         f"COMMAND={command_name}",
-        f"PATCH_ID=-",
+        f"RUN_ID={Path(log_dir).name}",
+        f"PATCH_ID={patch_identity.get('patchId', '-')}",
+        f"ARTIFACT_ID={patch_identity.get('artifactId', '-')}",
+        f"PATCH_SHA256={patch_identity.get('patchSha256', '-')}",
+        f"PHASE={phase}",
+        f"PID={pid or '-'}",
+        f"BASELINE_HEAD={current_git_head() or '-'}",
         f"LOG_DIR={log_dir}",
         f"RUN_LOG={run_log}",
-    ]) + "\n"
-    (log_dir / "summary.log").write_text(summary_content, encoding="utf-8")
-    (log_dir / "SUMMARY.txt").write_text(summary_content, encoding="utf-8")
-    (log_dir / "STATUS.txt").write_text("RUNNING\n", encoding="utf-8")
+        f"UPDATED_AT={now_iso()}",
+    ]
+    content = "\n".join(fields) + "\n"
+    atomic_write_text(Path(log_dir) / "summary.log", content)
+    atomic_write_text(Path(log_dir) / "SUMMARY.txt", content)
+    atomic_write_text(Path(log_dir) / "STATUS.txt", "RUNNING\n")
+
+
+def start_background_command(command_name, args, subject, patch_identity=None):
+    patch_identity = patch_identity or {}
+    patch_id = patch_identity.get("patchId") or sanitize_name(subject)
+    run_id = make_run_id(command_name, patch_id)
+    os.environ["PATCH_RUN_ID"] = run_id
+    try:
+        log_dir, _fixed = make_accept_log_dir(patch_id, command_name=command_name)
+    finally:
+        os.environ.pop("PATCH_RUN_ID", None)
+    run_log = log_dir / "run.log"
+    write_running_summary(log_dir, command_name, patch_identity, run_log, phase="SPAWNING")
+    write_run_record(
+        log_dir,
+        runId=run_id,
+        command=command_name,
+        status="RUNNING",
+        phase="SPAWNING",
+        patchId=patch_identity.get("patchId", patch_id),
+        artifactId=patch_identity.get("artifactId"),
+        patchSha256=patch_identity.get("patchSha256"),
+        logDir=str(log_dir),
+        summary=str(log_dir / "SUMMARY.txt"),
+    )
 
     env = dict(os.environ)
     env["PATCH_BACKGROUND_CHILD"] = "1"
     env["PATCH_ACCEPT_LOG_DIR"] = str(log_dir)
+    env["PATCH_RUN_ID"] = run_id
     child_args = args_without_background(args)
     cmd = [sys.executable, str(Path(__file__).resolve()), str(PROJECT_ROOT), command_name] + child_args
-    out = run_log.open("a", encoding="utf-8")
-    out.write(f"== Background {command_name} ==\n")
-    out.write(f"$ {command_to_text(cmd)}\n\n")
-    out.flush()
-    proc = subprocess.Popen(
-        cmd,
-        cwd=PROJECT_ROOT,
-        stdin=subprocess.DEVNULL,
-        stdout=out,
-        stderr=subprocess.STDOUT,
-        text=True,
-        env=env,
-        start_new_session=True,
-    )
-    out.close()
+    with run_log.open("a", encoding="utf-8") as out:
+        out.write(f"== Background {command_name} ==\n")
+        out.write(f"$ {command_to_text(cmd)}\n\n")
+        out.flush()
+        proc = subprocess.Popen(
+            cmd,
+            cwd=PROJECT_ROOT,
+            stdin=subprocess.DEVNULL,
+            stdout=out,
+            stderr=subprocess.STDOUT,
+            text=True,
+            env=env,
+            start_new_session=True,
+        )
+
+    current_fields = read_summary_fields(log_dir / "SUMMARY.txt")
+    if current_fields.get("STATUS") == "RUNNING":
+        write_running_summary(log_dir, command_name, patch_identity, run_log, pid=proc.pid, phase="STARTED")
+        write_run_record(log_dir, status="RUNNING", phase="STARTED", pid=proc.pid, processGroupId=proc.pid)
+    else:
+        write_run_record(log_dir, pid=proc.pid, processGroupId=proc.pid)
 
     label = "Patch-Accept" if command_name == "accept" else "Patch-Verify"
     print(f"{label}:")
     print("  Status:       RUNNING")
+    print(f"  Run-ID:       {run_id}")
+    print(f"  Patch-ID:     {patch_identity.get('patchId', '-')}")
     print(f"  PID:          {proc.pid}")
     print(f"  Summary:      {log_dir / 'SUMMARY.txt'}")
-    print(f"  Log:          {run_log}")
-    print(f"  Follow:       tail --pid={proc.pid} -F {log_dir / 'SUMMARY.txt'}")
+    print(f"  Watch:        ./bin/patch.sh watch {run_id}")
+    print(f"  Wait:         ./bin/patch.sh wait {run_id}")
+
 
 def run_validation_steps(log_dir, options):
     validation_env = validation_subprocess_env()
@@ -1981,7 +2415,7 @@ def transaction_child_args(args):
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg in ("--background", "--wait", "--push"):
+        if arg in ("--background", "--wait", "--wait-for-lock", "--push"):
             i += 1
             continue
         if arg == "--lock-timeout":
@@ -2006,6 +2440,146 @@ def copy_tree_if_present(source, target):
         shutil.copy2(source, target)
 
 
+def candidate_paths_from_patch_log(log_path):
+    data = read_json(Path(log_path))
+    excluded_prefixes = ("exports/", "target/", "build/", "patches/runtime/")
+    result = []
+    for entry in data.get("entries", []):
+        if entry.get("status") not in ("new", "modified", "deleted"):
+            continue
+        path = entry.get("path")
+        if not isinstance(path, str):
+            continue
+        rel = validate_relpath(path)
+        if rel.startswith(excluded_prefixes):
+            continue
+        if rel not in result:
+            result.append(rel)
+    return sorted(result)
+
+
+def git_changed_paths_at(root, commit_ref):
+    output = git_output_at(
+        root,
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        commit_ref,
+    )
+    return sorted(line.strip() for line in output.splitlines() if line.strip())
+
+
+def preserve_existing_canonical_acceptance(canonical_dir, patch_id):
+    canonical_dir = Path(canonical_dir)
+    if not canonical_dir.exists():
+        return
+    history_dir = accept_log_base() / "history" / patch_id
+    history_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S_%f")
+    shutil.move(str(canonical_dir), str(history_dir / stamp))
+
+
+def publish_canonical_acceptance(run_log_dir, patch_id, child_accept_dir=None, include_run_logs=False):
+    run_log_dir = Path(run_log_dir).resolve()
+    canonical_dir = accept_log_base() / patch_id
+    existing = read_summary_fields(canonical_dir / "SUMMARY.txt")
+    if existing.get("STATUS") in ("SUCCESS", "ALREADY_APPLIED"):
+        fail(
+            "PATCH_ACCEPT_CANONICAL_CONFLICT: canonical successful acceptance evidence "
+            f"already exists for {patch_id}."
+        )
+    preserve_existing_canonical_acceptance(canonical_dir, patch_id)
+
+    temp_dir = accept_log_base() / f".publish-{patch_id}-{os.getpid()}-{time.time_ns()}"
+    temp_dir.mkdir(parents=True, exist_ok=False)
+    try:
+        if include_run_logs:
+            copy_tree_if_present(run_log_dir, temp_dir)
+        for name in ("SUMMARY.txt", "summary.log", "STATUS.txt"):
+            source = run_log_dir / name
+            if source.is_file():
+                shutil.copy2(source, temp_dir / name)
+        if child_accept_dir is not None:
+            copy_tree_if_present(child_accept_dir, temp_dir / "child-accept")
+        fields = read_summary_fields(run_log_dir / "SUMMARY.txt")
+        accepted = {
+            "schemaVersion": "springmaster.patch-acceptance.v1",
+            "patchId": patch_id,
+            "artifactId": fields.get("ARTIFACT_ID"),
+            "runId": fields.get("RUN_ID", run_log_dir.name),
+            "status": fields.get("STATUS"),
+            "commitStatus": fields.get("GIT_COMMIT_STATUS"),
+            "commitHash": fields.get("GIT_COMMIT_HASH"),
+            "pushStatus": fields.get("GIT_PUSH_STATUS"),
+            "runLogDir": str(run_log_dir),
+            "acceptedAt": now_iso(),
+        }
+        write_json(temp_dir / "accepted.json", accepted)
+        atomic_write_text(temp_dir / "RUN_LOG_DIR.txt", str(run_log_dir) + "\n")
+        os.replace(temp_dir, canonical_dir)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    return canonical_dir
+
+
+def remove_canonical_acceptance_for_run(patch_id, run_id):
+    canonical_dir = accept_log_base() / patch_id
+    accepted_path = canonical_dir / "accepted.json"
+    if not accepted_path.is_file():
+        return
+    try:
+        accepted = json.loads(accepted_path.read_text(encoding="utf-8"))
+    except Exception:
+        return
+    if accepted.get("runId") == run_id:
+        shutil.rmtree(canonical_dir, ignore_errors=True)
+
+
+def refresh_canonical_acceptance(run_log_dir, patch_id):
+    run_log_dir = Path(run_log_dir)
+    canonical_dir = accept_log_base() / patch_id
+    accepted_path = canonical_dir / "accepted.json"
+    if not canonical_dir.is_dir() or not accepted_path.is_file():
+        return
+    accepted = json.loads(accepted_path.read_text(encoding="utf-8"))
+    fields = read_summary_fields(run_log_dir / "SUMMARY.txt")
+    if accepted.get("runId") != fields.get("RUN_ID", run_log_dir.name):
+        return
+    for name in ("SUMMARY.txt", "summary.log", "STATUS.txt"):
+        source = run_log_dir / name
+        if source.is_file():
+            atomic_write_text(canonical_dir / name, source.read_text(encoding="utf-8"))
+    accepted.update({
+        "status": fields.get("STATUS"),
+        "commitStatus": fields.get("GIT_COMMIT_STATUS"),
+        "commitHash": fields.get("GIT_COMMIT_HASH"),
+        "pushStatus": fields.get("GIT_PUSH_STATUS"),
+        "updatedAt": now_iso(),
+    })
+    write_json(accepted_path, accepted)
+
+
+def find_child_accept_log_dir(worktree, patch_id):
+    base = Path(worktree) / "patches" / "logs" / "accept"
+    canonical = base / patch_id
+    if (canonical / "SUMMARY.txt").is_file():
+        return canonical
+    candidates = []
+    if base.is_dir():
+        for summary in base.glob("*/SUMMARY.txt"):
+            fields = read_summary_fields(summary)
+            if fields.get("PATCH_ID") == patch_id:
+                candidates.append(summary.parent)
+    if not candidates:
+        return canonical
+    candidates.sort(
+        key=lambda path: path.stat().st_mtime if path.exists() else 0,
+        reverse=True,
+    )
+    return candidates[0]
+
+
 def git_output_at(root, *args):
     result = subprocess.run(
         ["git", *args],
@@ -2021,17 +2595,39 @@ def git_output_at(root, *args):
 
 def transactional_accept_command(args, options, zip_path, patch_info):
     patch_id = patch_info["patchId"]
+    options = dict(options)
     baseline_head = git_output_at(PROJECT_ROOT, "rev-parse", "HEAD")
-    log_dir, fixed_log_dir = make_accept_log_dir(f"transaction-{patch_id}")
+    options["artifactId"] = patch_info.get("artifactId")
+    options["patchSha256"] = patch_info.get("patchSha256") or sha256_file(zip_path)
+    options["baselineHead"] = baseline_head
+    log_dir, _fixed_log_dir = make_accept_log_dir(patch_id, command_name="accept")
+    write_run_record(
+        log_dir,
+        command="accept",
+        status="RUNNING",
+        phase="WORKTREE_SETUP",
+        patchId=patch_id,
+        artifactId=options.get("artifactId"),
+        patchSha256=options.get("patchSha256"),
+        baselineHead=baseline_head,
+        logDir=str(log_dir),
+        summary=str(log_dir / "SUMMARY.txt"),
+    )
     ensure_git_clean_before_commit(log_dir)
 
     transaction_parent = Path(tempfile.mkdtemp(prefix=f"springmaster-accept-{patch_id}-"))
     worktree = transaction_parent / "worktree"
     child_log = log_dir / "worktree-child.log"
+    transfer_root = run_state_root() / "accept-transfer" / log_dir.name
     worktree_added = False
-    child_rc = 1
+    live_transfer_started = False
+    live_archive_created = False
+    canonical_published = False
+    transfer_finalized = False
 
     try:
+        update = {"status": "RUNNING", "phase": "WORKTREE_CREATE"}
+        write_run_record(log_dir, **update)
         add_result = subprocess.run(
             ["git", "worktree", "add", "--detach", str(worktree), baseline_head],
             cwd=PROJECT_ROOT,
@@ -2039,21 +2635,29 @@ def transactional_accept_command(args, options, zip_path, patch_info):
             stderr=subprocess.STDOUT,
             text=True,
         )
-        (log_dir / "worktree-add.log").write_text(add_result.stdout or "", encoding="utf-8")
+        atomic_write_text(log_dir / "worktree-add.log", add_result.stdout or "")
         if add_result.returncode != 0:
-            fail(f"PATCH_ACCEPT_WORKTREE_CREATE_FAILED: see {log_dir / 'worktree-add.log'}")
+            raise RuntimeError(f"PATCH_ACCEPT_WORKTREE_CREATE_FAILED: see {log_dir / 'worktree-add.log'}")
         worktree_added = True
 
         child_env = dict(os.environ)
         child_env["PATCH_ACCEPT_WORKTREE_CHILD"] = "1"
         child_env.pop("PATCH_ACCEPT_LOG_DIR", None)
+        child_env.pop("PATCH_RUN_ID", None)
+        child_engine = worktree / "bin" / "patch.py"
+        if not child_engine.is_file():
+            # Integration fixtures may invoke the engine from outside the fixture
+            # repository. Real Springmaster transactions use the baseline engine in
+            # the detached worktree; external fixtures retain their explicit engine.
+            child_engine = Path(__file__).resolve()
         child_command = [
             sys.executable,
-            str(worktree / "bin" / "patch.py"),
+            str(child_engine),
             str(worktree),
             "accept",
             *transaction_child_args(args),
         ]
+        write_run_record(log_dir, status="RUNNING", phase="WORKTREE_VALIDATION")
         with child_log.open("w", encoding="utf-8") as out:
             out.write(f"$ {command_to_text(child_command)}\n\n")
             out.flush()
@@ -2070,28 +2674,38 @@ def transactional_accept_command(args, options, zip_path, patch_info):
         current_head = git_output_at(PROJECT_ROOT, "rev-parse", "HEAD")
         current_dirty = git_status_paths(log_dir=log_dir, ignore_accept_log=True)
         if current_head != baseline_head or current_dirty:
-            fail(
+            raise RuntimeError(
                 "PATCH_ACCEPT_LIVE_STATE_CHANGED_DURING_VALIDATION: the live repository "
                 "must remain unchanged while the worktree is validated."
             )
 
-        child_accept = worktree / "patches" / "logs" / "accept" / patch_id
+        child_accept = find_child_accept_log_dir(worktree, patch_id)
         if child_rc != 0:
             copy_tree_if_present(child_accept, log_dir / "child-accept")
+            child_fields = read_summary_fields(child_accept / "SUMMARY.txt")
+            child_failed_step = child_fields.get("FAILED_STEP") or "worktree-validation"
+            root_cause, root_log = extract_first_failure_line(log_dir)
             write_accept_summary(
                 log_dir,
                 "FAILED",
                 "accept",
                 patch_id=patch_id,
-                failed_step="worktree-validation",
+                failed_step=child_failed_step,
                 options=options,
+                extra_fields={
+                    "FAILED_PHASE": "WORKTREE_VALIDATION",
+                    "CHILD_FAILED_STEP": child_failed_step,
+                    "CHILD_LOG_DIR": child_accept,
+                    "ROOT_CAUSE": root_cause or "-",
+                    "ROOT_CAUSE_LOG": root_log or "-",
+                },
             )
             print_accept_result(
                 "FAILED",
                 "accept",
                 log_dir,
                 patch_id=patch_id,
-                failed_step="worktree-validation",
+                failed_step=child_failed_step,
                 options=options,
             )
             raise SystemExit(child_rc)
@@ -2099,32 +2713,94 @@ def transactional_accept_command(args, options, zip_path, patch_info):
         child_head = git_output_at(worktree, "rev-parse", "HEAD")
         child_parent = git_output_at(worktree, "rev-parse", "HEAD^")
         if child_parent != baseline_head:
-            fail(
+            raise RuntimeError(
                 "PATCH_ACCEPT_WORKTREE_PARENT_MISMATCH: qualified commit does not descend "
                 "directly from the live baseline."
             )
 
+        child_archive = worktree / "patches" / "archives" / patch_id
+        child_patch_log = child_archive / "patch-log.json"
+        if not child_patch_log.is_file():
+            raise RuntimeError("PATCH_ACCEPT_CHILD_ARCHIVE_MISSING: qualified child archive is incomplete.")
+        expected_paths = candidate_paths_from_patch_log(child_patch_log)
+        child_changed_paths = git_changed_paths_at(worktree, child_head)
+        if child_changed_paths != expected_paths:
+            atomic_write_text(
+                log_dir / "path-parity.log",
+                "expected:\n  " + "\n  ".join(expected_paths)
+                + "\nactual:\n  " + "\n  ".join(child_changed_paths) + "\n",
+            )
+            raise RuntimeError(
+                "PATCH_ACCEPT_CHILD_PATH_PARITY_FAILED: qualified Git commit paths differ "
+                "from the patch archive. See path-parity.log."
+            )
+
+        child_check = subprocess.run(
+            ["git", "show", "--check", "--format=", child_head],
+            cwd=worktree,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        atomic_write_text(log_dir / "qualified-commit-check.log", child_check.stdout or "")
+        if child_check.returncode != 0:
+            raise RuntimeError(
+                "PATCH_ACCEPT_QUALIFIED_COMMIT_CHECK_FAILED: qualified commit contains "
+                "whitespace errors. See qualified-commit-check.log."
+            )
+
+        live_archive = ARCHIVES_DIR / patch_id
+        if live_archive.exists():
+            raise RuntimeError(f"PATCH_ACCEPT_ARCHIVE_CONFLICT_AFTER_VALIDATION: {live_archive}")
+        canonical_fields = canonical_accept_fields(patch_id)
+        if canonical_fields.get("STATUS") in ("SUCCESS", "ALREADY_APPLIED"):
+            raise RuntimeError(
+                "PATCH_ACCEPT_CANONICAL_CONFLICT_AFTER_VALIDATION: successful acceptance "
+                f"evidence already exists for {patch_id}."
+            )
+
+        shutil.rmtree(transfer_root, ignore_errors=True)
+        staged_archive = transfer_root / "archive"
+        staged_child_accept = transfer_root / "child-accept"
+        copy_tree_if_present(child_archive, staged_archive)
+        copy_tree_if_present(child_accept, staged_child_accept)
+        if not (staged_archive / "patch-log.json").is_file():
+            raise RuntimeError("PATCH_ACCEPT_TRANSFER_STAGE_FAILED: staged archive is incomplete.")
+
+        write_run_record(log_dir, status="RUNNING", phase="LIVE_TRANSFER")
         cherry_pick_args = ["cherry-pick", child_head]
         if not options.get("gitCommit"):
             cherry_pick_args = ["cherry-pick", "--no-commit", child_head]
         cherry = git_run(cherry_pick_args, log_dir=log_dir)
         if cherry.returncode != 0:
             git_run(["cherry-pick", "--abort"], log_dir=log_dir)
-            fail("PATCH_ACCEPT_CHERRY_PICK_FAILED: qualified commit could not be transferred to live.")
+            raise RuntimeError(
+                "PATCH_ACCEPT_CHERRY_PICK_FAILED: qualified commit could not be transferred to live."
+            )
+        live_transfer_started = True
 
-        live_archive = ARCHIVES_DIR / patch_id
-        if live_archive.exists():
-            fail(f"PATCH_ACCEPT_ARCHIVE_CONFLICT_AFTER_VALIDATION: {live_archive}")
-        copy_tree_if_present(worktree / "patches" / "archives" / patch_id, live_archive)
+        if options.get("gitCommit"):
+            live_changed_paths = git_changed_paths_at(PROJECT_ROOT, "HEAD")
+        else:
+            live_changed_paths = sorted(
+                line.strip()
+                for line in git_output_at(PROJECT_ROOT, "diff", "--name-only", baseline_head).splitlines()
+                if line.strip()
+            )
+        if live_changed_paths != expected_paths:
+            atomic_write_text(
+                log_dir / "live-path-parity.log",
+                "expected:\n  " + "\n  ".join(expected_paths)
+                + "\nactual:\n  " + "\n  ".join(live_changed_paths) + "\n",
+            )
+            raise RuntimeError(
+                "PATCH_ACCEPT_LIVE_PATH_PARITY_FAILED: transferred Git paths differ from "
+                "the qualified patch. See live-path-parity.log."
+            )
 
-        final_log_dir = accept_log_base() / patch_id
-        if final_log_dir.exists() and final_log_dir != log_dir:
-            shutil.rmtree(final_log_dir)
-        if final_log_dir != log_dir:
-            final_log_dir.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(log_dir), str(final_log_dir))
-            log_dir = final_log_dir
-        copy_tree_if_present(child_accept, log_dir / "child-accept")
+        live_archive.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(staged_archive, live_archive)
+        live_archive_created = True
         copy_tree_if_present(worktree / "exports", PROJECT_ROOT / "exports")
 
         latest_export = latest_full_export()
@@ -2135,12 +2811,6 @@ def transactional_accept_command(args, options, zip_path, patch_info):
             "pushStatus": "SKIPPED",
             "message": f"qualified in isolated worktree: {child_head[:12]}",
         }
-        if options.get("gitPush"):
-            push_result = git_run(["push"], log_dir=log_dir)
-            if push_result.returncode != 0:
-                fail("PATCH_ACCEPT_PUSH_FAILED: qualified live commit was not pushed.")
-            git_commit_result["pushStatus"] = "PUSHED"
-
         git_commit_script = generate_git_commit_script(log_dir, patch_id)
         write_accept_summary(
             log_dir,
@@ -2151,7 +2821,36 @@ def transactional_accept_command(args, options, zip_path, patch_info):
             options=options,
             git_commit_script=git_commit_script,
             git_commit_result=git_commit_result,
+            extra_fields={
+                "QUALIFIED_COMMIT": child_head,
+                "LIVE_TRANSFER_PATHS": len(expected_paths),
+            },
         )
+        publish_canonical_acceptance(log_dir, patch_id, child_accept_dir=staged_child_accept)
+        canonical_published = True
+        transfer_finalized = True
+        live_transfer_started = False
+
+        if options.get("gitPush"):
+            push_result = git_run(["push"], log_dir=log_dir)
+            git_commit_result["pushStatus"] = "PUSHED" if push_result.returncode == 0 else "FAILED"
+            write_accept_summary(
+                log_dir,
+                "SUCCESS",
+                "accept",
+                patch_id=patch_id,
+                latest_export_path=latest_export_path,
+                options=options,
+                git_commit_script=git_commit_script,
+                git_commit_result=git_commit_result,
+                extra_fields={
+                    "QUALIFIED_COMMIT": child_head,
+                    "LIVE_TRANSFER_PATHS": len(expected_paths),
+                    "PUSH_ERROR": "-" if push_result.returncode == 0 else "See git.log",
+                },
+            )
+            refresh_canonical_acceptance(log_dir, patch_id)
+
         print_accept_result(
             "SUCCESS",
             "accept",
@@ -2162,6 +2861,80 @@ def transactional_accept_command(args, options, zip_path, patch_info):
             git_commit_script=git_commit_script,
             git_commit_result=git_commit_result,
         )
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        if transfer_finalized:
+            # The qualified commit, archive and canonical acceptance evidence are already
+            # durable. A later reporting or push problem must not invalidate or roll back
+            # the local acceptance transaction. Preserve success and record the warning.
+            warning_log = log_dir / "post-accept-warning.log"
+            atomic_write_text(warning_log, f"{type(exc).__name__}: {exc}\n")
+            try:
+                fields = read_summary_fields(log_dir / "SUMMARY.txt")
+                git_commit_result = {
+                    "status": fields.get("GIT_COMMIT_STATUS", "COMMITTED"),
+                    "hash": fields.get("GIT_COMMIT_HASH") or None,
+                    "pushStatus": fields.get("GIT_PUSH_STATUS", "FAILED"),
+                    "message": fields.get("GIT_COMMIT_MESSAGE", "post-accept warning"),
+                }
+                write_accept_summary(
+                    log_dir,
+                    "SUCCESS",
+                    "accept",
+                    patch_id=patch_id,
+                    latest_export_path=fields.get("LATEST_EXPORT"),
+                    options=options,
+                    git_commit_script=fields.get("GIT_COMMIT_SCRIPT"),
+                    git_commit_result=git_commit_result,
+                    extra_fields={
+                        "QUALIFIED_COMMIT": fields.get("QUALIFIED_COMMIT", "-"),
+                        "LIVE_TRANSFER_PATHS": fields.get("LIVE_TRANSFER_PATHS", "-"),
+                        "POST_ACCEPT_WARNING": str(exc)[:500],
+                        "POST_ACCEPT_WARNING_LOG": warning_log,
+                    },
+                )
+                refresh_canonical_acceptance(log_dir, patch_id)
+            except BaseException as report_exc:
+                with warning_log.open("a", encoding="utf-8") as handle:
+                    handle.write(f"reporting: {type(report_exc).__name__}: {report_exc}\n")
+            print(
+                "PATCH_ACCEPT_POST_ACCEPT_WARNING: local acceptance remains successful; "
+                f"see {warning_log}",
+                file=sys.stderr,
+            )
+            return
+
+        if live_transfer_started:
+            git_run(["reset", "--hard", baseline_head], log_dir=log_dir)
+        if live_archive_created:
+            shutil.rmtree(ARCHIVES_DIR / patch_id, ignore_errors=True)
+        if canonical_published:
+            remove_canonical_acceptance_for_run(patch_id, log_dir.name)
+        root_cause, root_log = extract_first_failure_line(log_dir)
+        if read_summary_fields(log_dir / "SUMMARY.txt").get("STATUS") != "FAILED":
+            write_accept_summary(
+                log_dir,
+                "FAILED",
+                "accept",
+                patch_id=patch_id,
+                failed_step="transaction",
+                options=options,
+                extra_fields={
+                    "FAILED_PHASE": "TRANSACTION",
+                    "ROOT_CAUSE": str(exc)[:500],
+                    "ROOT_CAUSE_LOG": root_log or "-",
+                },
+            )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            failed_step="transaction",
+            options=options,
+        )
+        raise SystemExit(1)
     finally:
         if worktree_added:
             subprocess.run(
@@ -2177,6 +2950,7 @@ def transactional_accept_command(args, options, zip_path, patch_info):
             stderr=subprocess.DEVNULL,
         )
         shutil.rmtree(transaction_parent, ignore_errors=True)
+        shutil.rmtree(transfer_root, ignore_errors=True)
 
 
 def accept_command(args):
@@ -2185,19 +2959,58 @@ def accept_command(args):
     if not zip_path.exists() or not zip_path.is_file():
         fail(f"Patch-ZIP nicht gefunden: {zip_path}")
 
+    patch_identity = inspect_patch_identity(zip_path)
+    options["artifactId"] = patch_identity.get("artifactId")
+    options["patchSha256"] = patch_identity.get("patchSha256")
+    options["baselineHead"] = current_git_head()
+    if os.environ.get("PATCH_BACKGROUND_CHILD") == "1":
+        options["background"] = True
+
+    if os.environ.get("PATCH_ACCEPT_WORKTREE_CHILD") != "1":
+        applied_state = applied_identity_state(patch_identity)
+        if applied_state is not None:
+            if applied_state.get("commitStatus") == "COMMITTED" and not applied_state.get("commitVerified"):
+                fail(
+                    "PATCH_APPLIED_GIT_COMMIT_MISSING: archive and acceptance evidence exist, "
+                    "but the recorded Git commit is not available. Run patch doctor before retrying."
+                )
+            print_already_applied_state(applied_state)
+            return
+
+        if os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
+            active_run = find_active_run(patch_identity["patchId"], patch_identity.get("artifactId"))
+            if active_run is not None:
+                print_already_running_state(active_run)
+                return
+
     if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
-        start_background_command("accept", args, zip_path.name)
+        start_background_command("accept", args, zip_path.name, patch_identity=patch_identity)
         return
 
     patch_info = inspect_patch_zip(zip_path)
     target_paths = patch_info["targetPaths"]
     options = resolve_validation_profile(options, target_paths)
+    options["artifactId"] = patch_info.get("artifactId")
+    options["patchSha256"] = patch_info.get("patchSha256")
+    options["baselineHead"] = current_git_head()
 
     if os.environ.get("PATCH_ACCEPT_WORKTREE_CHILD") != "1" and summary_has_effect(patch_info["summary"]):
         transactional_accept_command(args, options, zip_path, patch_info)
         return
 
-    log_dir, fixed_log_dir = make_accept_log_dir(zip_path.name)
+    log_dir, fixed_log_dir = make_accept_log_dir(patch_info["patchId"], command_name="accept")
+    write_run_record(
+        log_dir,
+        command="accept",
+        status="RUNNING",
+        phase="LIVE_BASELINE",
+        patchId=patch_info["patchId"],
+        artifactId=patch_info.get("artifactId"),
+        patchSha256=patch_info.get("patchSha256"),
+        baselineHead=options.get("baselineHead"),
+        logDir=str(log_dir),
+        summary=str(log_dir / "SUMMARY.txt"),
+    )
 
     if options.get("gitCommit"):
         ensure_git_clean_before_commit(log_dir)
@@ -2209,114 +3022,810 @@ def accept_command(args):
         log_dir / "live-baseline.log",
     )
     if live_baseline_rc != 0:
-        write_accept_summary(log_dir, "FAILED", "accept", failed_step="live-baseline", options=options)
-        print_accept_result("FAILED", "accept", log_dir, failed_step="live-baseline", options=options)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_info["patchId"],
+            failed_step="live-baseline",
+            options=options,
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_info["patchId"],
+            failed_step="live-baseline",
+            options=options,
+        )
         sys.exit(live_baseline_rc)
 
+    write_run_record(log_dir, status="RUNNING", phase="DRY_RUN")
     dry_run_rc = run_process_step(
         "Patch dry-run",
         [sys.executable, str(script_path), str(PROJECT_ROOT), "apply", "--dry-run", str(zip_path)],
         log_dir / "dry-run.log",
     )
     if dry_run_rc != 0:
-        write_accept_summary(log_dir, "FAILED", "accept", failed_step="dry-run", options=options)
-        print_accept_result("FAILED", "accept", log_dir, failed_step="dry-run", options=options)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_info["patchId"],
+            failed_step="dry-run",
+            options=options,
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_info["patchId"],
+            failed_step="dry-run",
+            options=options,
+        )
         sys.exit(dry_run_rc)
 
     if not summary_has_effect(patch_info["summary"]):
         existing_patch_dir = find_applied_patch_by_name(patch_info["name"])
         if existing_patch_dir is None:
-            write_accept_summary(log_dir, "FAILED", "accept", failed_step="no-effective-change", options=options)
-            print_accept_result("FAILED", "accept", log_dir, failed_step="no-effective-change", options=options)
+            write_accept_summary(
+                log_dir,
+                "FAILED",
+                "accept",
+                patch_id=patch_info["patchId"],
+                failed_step="no-effective-change",
+                options=options,
+            )
+            print_accept_result(
+                "FAILED",
+                "accept",
+                log_dir,
+                patch_id=patch_info["patchId"],
+                failed_step="no-effective-change",
+                options=options,
+            )
             sys.exit(3)
 
         patch_id = existing_patch_dir.name
-        reaccept_stamp = datetime.now(timezone.utc).astimezone().strftime("reaccept-%Y%m%d_%H%M%S")
-        final_log_dir = accept_log_base() / patch_id / reaccept_stamp
-        if not fixed_log_dir:
-            final_log_dir.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(log_dir), str(final_log_dir))
-            log_dir = final_log_dir
-
+        write_run_record(log_dir, patchId=patch_id, status="RUNNING", phase="REVALIDATION")
         failed_step, latest_export_path = run_validation_steps(log_dir, options)
         if failed_step:
-            write_accept_summary(log_dir, "FAILED", "accept", patch_id=patch_id, failed_step=failed_step, options=options)
-            print_accept_result("FAILED", "accept", log_dir, patch_id=patch_id, failed_step=failed_step, options=options)
+            write_accept_summary(
+                log_dir,
+                "FAILED",
+                "accept",
+                patch_id=patch_id,
+                failed_step=failed_step,
+                options=options,
+            )
+            print_accept_result(
+                "FAILED",
+                "accept",
+                log_dir,
+                patch_id=patch_id,
+                failed_step=failed_step,
+                options=options,
+            )
             sys.exit(1)
 
-        git_commit_script = generate_git_commit_script(log_dir, patch_id)
-        git_commit_result = None
-        if options.get("gitCommit"):
-            git_commit_result = execute_git_commit(log_dir, patch_id, latest_export_path=latest_export_path, push=options.get("gitPush", False))
-        write_accept_summary(log_dir, "ALREADY_APPLIED", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
-        print_accept_result("ALREADY_APPLIED", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
+        write_accept_summary(
+            log_dir,
+            "ALREADY_APPLIED",
+            "accept",
+            patch_id=patch_id,
+            latest_export_path=latest_export_path,
+            options=options,
+        )
+        print_accept_result(
+            "ALREADY_APPLIED",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            latest_export_path=latest_export_path,
+            options=options,
+        )
         return
 
+    write_run_record(log_dir, status="RUNNING", phase="APPLY")
     apply_rc = run_process_step(
         "Patch apply",
         [sys.executable, str(script_path), str(PROJECT_ROOT), "apply", str(zip_path)],
         log_dir / "apply.log",
     )
     if apply_rc != 0:
-        write_accept_summary(log_dir, "FAILED", "accept", failed_step="apply", options=options)
-        print_accept_result("FAILED", "accept", log_dir, failed_step="apply", options=options)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_info["patchId"],
+            failed_step="apply",
+            options=options,
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_info["patchId"],
+            failed_step="apply",
+            options=options,
+        )
         sys.exit(apply_rc)
 
-    applied_patch_dir = archive_dirs()[-1]
-    patch_id = applied_patch_dir.name
-    final_log_dir = accept_log_base() / patch_id
-    if not fixed_log_dir and final_log_dir != log_dir:
-        if final_log_dir.exists():
-            shutil.rmtree(final_log_dir)
-        shutil.move(str(log_dir), str(final_log_dir))
-        log_dir = final_log_dir
-
+    patch_id = patch_info["patchId"]
+    write_run_record(log_dir, patchId=patch_id, status="RUNNING", phase="SHOW")
     show_rc = run_process_step(
-        "Patch show latest",
-        [sys.executable, str(script_path), str(PROJECT_ROOT), "show", "latest"],
+        "Patch show",
+        [sys.executable, str(script_path), str(PROJECT_ROOT), "show", patch_id],
         log_dir / "show.log",
     )
     if show_rc != 0:
-        write_accept_summary(log_dir, "FAILED", "accept", patch_id=patch_id, failed_step="show", options=options)
-        print_accept_result("FAILED", "accept", log_dir, patch_id=patch_id, failed_step="show", options=options)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_id,
+            failed_step="show",
+            options=options,
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            failed_step="show",
+            options=options,
+        )
         sys.exit(show_rc)
 
-    failed_step, latest_export_path = run_validation_steps(log_dir, options)
-    if failed_step:
-        write_accept_summary(log_dir, "FAILED", "accept", patch_id=patch_id, failed_step=failed_step, options=options)
-        print_accept_result("FAILED", "accept", log_dir, patch_id=patch_id, failed_step=failed_step, options=options)
+    patch_paths = commit_candidate_paths_from_patch(patch_id)
+    write_run_record(log_dir, status="RUNNING", phase="WHITESPACE")
+    whitespace_rc = validate_patch_scoped_whitespace(log_dir, patch_paths, staged=False)
+    if whitespace_rc != 0:
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_id,
+            failed_step="whitespace",
+            options=options,
+            extra_fields={"WHITESPACE_SCOPE": ",".join(patch_paths)},
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            failed_step="whitespace",
+            options=options,
+        )
         sys.exit(1)
 
+    write_run_record(log_dir, status="RUNNING", phase="VALIDATION")
+    failed_step, latest_export_path = run_validation_steps(log_dir, options)
+    if failed_step:
+        root_cause, root_log = extract_first_failure_line(log_dir)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "accept",
+            patch_id=patch_id,
+            failed_step=failed_step,
+            options=options,
+            extra_fields={
+                "ROOT_CAUSE": root_cause or "-",
+                "ROOT_CAUSE_LOG": root_log or "-",
+            },
+        )
+        print_accept_result(
+            "FAILED",
+            "accept",
+            log_dir,
+            patch_id=patch_id,
+            failed_step=failed_step,
+            options=options,
+        )
+        sys.exit(1)
+
+    write_run_record(log_dir, status="RUNNING", phase="GIT_COMMIT")
     git_commit_script = generate_git_commit_script(log_dir, patch_id)
     git_commit_result = None
     if options.get("gitCommit"):
-        git_commit_result = execute_git_commit(log_dir, patch_id, latest_export_path=latest_export_path, push=options.get("gitPush", False))
-    write_accept_summary(log_dir, "SUCCESS", "accept", patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
-    print_accept_result("SUCCESS", "accept", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options, git_commit_script=git_commit_script, git_commit_result=git_commit_result)
+        git_commit_result = execute_git_commit(
+            log_dir,
+            patch_id,
+            latest_export_path=latest_export_path,
+            push=options.get("gitPush", False),
+        )
+    write_accept_summary(
+        log_dir,
+        "SUCCESS",
+        "accept",
+        patch_id=patch_id,
+        latest_export_path=latest_export_path,
+        options=options,
+        git_commit_script=git_commit_script,
+        git_commit_result=git_commit_result,
+    )
+    publish_canonical_acceptance(
+        log_dir,
+        patch_id,
+        include_run_logs=os.environ.get("PATCH_ACCEPT_WORKTREE_CHILD") == "1",
+    )
+    print_accept_result(
+        "SUCCESS",
+        "accept",
+        log_dir,
+        patch_id=patch_id,
+        latest_export_path=latest_export_path,
+        options=options,
+        git_commit_script=git_commit_script,
+        git_commit_result=git_commit_result,
+    )
+
+
 def verify_command(args):
     options = parse_accept_verify_args(args, "Patch-Referenz")
-    if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
-        start_background_command("verify", args, str(options["subject"]))
-        return
     patch_dir = resolve_patch_ref(options["subject"])
     patch_id = patch_dir.name
+    patch_data = read_json(patch_dir / "patch-log.json")
+    artifact_id = patch_data.get("artifactId")
+    if artifact_id is None and isinstance(patch_data.get("manifest"), dict):
+        artifact_id = patch_data["manifest"].get("artifactId")
+    patch_identity = {
+        "patchId": patch_id,
+        "artifactId": artifact_id,
+        "patchSha256": patch_data.get("sourcePatchSha256"),
+    }
+
+    if os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
+        active_run = find_active_run(patch_id, artifact_id)
+        if active_run is not None:
+            print("Patch-Verify:")
+            print("  Status:       ALREADY_RUNNING")
+            print(f"  Run-ID:       {active_run.get('runId', '-')}")
+            print(f"  Patch-ID:     {patch_id}")
+            print(f"  Watch:        ./bin/patch.sh watch {active_run.get('runId', patch_id)}")
+            return
+
+    if options.get("background") and os.environ.get("PATCH_BACKGROUND_CHILD") != "1":
+        start_background_command("verify", args, patch_id, patch_identity=patch_identity)
+        return
+
+    if os.environ.get("PATCH_BACKGROUND_CHILD") == "1":
+        options["background"] = True
     target_paths = target_paths_from_patch_dir(patch_dir)
     options = resolve_validation_profile(options, target_paths)
+    options["artifactId"] = artifact_id
+    options["patchSha256"] = patch_identity.get("patchSha256")
+    options["baselineHead"] = current_git_head()
 
-    log_dir = accept_log_base() / patch_id
-    log_dir.mkdir(parents=True, exist_ok=True)
-    verify_stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S")
-    verify_marker = log_dir / f"verify-{verify_stamp}.log"
-    verify_marker.write_text(f"VERIFY_STARTED={now_iso()}\nPATCH_ID={patch_id}\n", encoding="utf-8")
+    log_dir, _fixed = make_accept_log_dir(patch_id, command_name="verify")
+    write_run_record(
+        log_dir,
+        command="verify",
+        status="RUNNING",
+        phase="VALIDATION",
+        patchId=patch_id,
+        artifactId=artifact_id,
+        patchSha256=patch_identity.get("patchSha256"),
+        baselineHead=options.get("baselineHead"),
+        logDir=str(log_dir),
+        summary=str(log_dir / "SUMMARY.txt"),
+    )
+    atomic_write_text(
+        log_dir / "verify.log",
+        f"VERIFY_STARTED={now_iso()}\nPATCH_ID={patch_id}\n",
+    )
 
     failed_step, latest_export_path = run_validation_steps(log_dir, options)
     if failed_step:
-        write_accept_summary(log_dir, "FAILED", "verify", patch_id=patch_id, failed_step=failed_step, options=options)
-        print_accept_result("FAILED", "verify", log_dir, patch_id=patch_id, failed_step=failed_step, options=options)
+        root_cause, root_log = extract_first_failure_line(log_dir)
+        write_accept_summary(
+            log_dir,
+            "FAILED",
+            "verify",
+            patch_id=patch_id,
+            failed_step=failed_step,
+            options=options,
+            extra_fields={
+                "ROOT_CAUSE": root_cause or "-",
+                "ROOT_CAUSE_LOG": root_log or "-",
+                "CANONICAL_ACCEPTANCE_UNCHANGED": "true",
+            },
+        )
+        print_accept_result(
+            "FAILED",
+            "verify",
+            log_dir,
+            patch_id=patch_id,
+            failed_step=failed_step,
+            options=options,
+        )
         sys.exit(1)
 
-    write_accept_summary(log_dir, "SUCCESS", "verify", patch_id=patch_id, latest_export_path=latest_export_path, options=options)
-    print_accept_result("SUCCESS", "verify", log_dir, patch_id=patch_id, latest_export_path=latest_export_path, options=options)
+    write_accept_summary(
+        log_dir,
+        "SUCCESS",
+        "verify",
+        patch_id=patch_id,
+        latest_export_path=latest_export_path,
+        options=options,
+        extra_fields={"CANONICAL_ACCEPTANCE_UNCHANGED": "true"},
+    )
+    print_accept_result(
+        "SUCCESS",
+        "verify",
+        log_dir,
+        patch_id=patch_id,
+        latest_export_path=latest_export_path,
+        options=options,
+    )
+
+
+TERMINAL_RUN_STATUSES = {
+    "SUCCESS",
+    "FAILED",
+    "ALREADY_APPLIED",
+    "APPLIED",
+    "BUSY",
+    "STALE",
+    "ABORTED",
+    "INCONSISTENT",
+    "INCOMPLETE_TRANSFER",
+}
+
+
+def run_log_candidates():
+    candidates = []
+    for base in (accept_log_base(), validation_log_base()):
+        for run_file in base.glob("*/run.json"):
+            candidates.append(run_file.parent)
+    return candidates
+
+
+def resolve_patch_id_for_status(ref):
+    if ref == "latest" or re.fullmatch(r"\d+", ref) or (ARCHIVES_DIR / ref).is_dir():
+        try:
+            return resolve_patch_ref(ref).name
+        except SystemExit:
+            return None
+    if re.fullmatch(PATCH_ID_PATTERN, ref):
+        return ref
+    return None
+
+
+def find_run_log_dir(ref):
+    path = Path(ref).expanduser()
+    if path.is_file():
+        return path.parent if path.name in ("SUMMARY.txt", "summary.log", "run.json") else None
+    if path.is_dir():
+        return path
+    for base in (accept_log_base(), validation_log_base()):
+        direct = base / ref
+        if direct.is_dir() and (direct / "run.json").is_file():
+            return direct
+    matches = [
+        log_dir for log_dir in run_log_candidates()
+        if log_dir.name == ref or load_run_record(log_dir).get("runId") == ref
+    ]
+    if not matches:
+        return None
+    matches.sort(key=lambda item: load_run_record(item).get("updatedAt", ""), reverse=True)
+    return matches[0]
+
+
+def snapshot_from_log_dir(log_dir):
+    log_dir = Path(log_dir).resolve()
+    run = load_run_record(log_dir)
+    fields = read_summary_fields(log_dir / "SUMMARY.txt")
+    status = fields.get("STATUS") or run.get("status") or "UNKNOWN"
+    if status == "RUNNING" and run and not run_is_active(run):
+        status = "STALE"
+    live_phase = run.get("phase") if status == "RUNNING" else None
+    snapshot = {
+        "status": status,
+        "command": fields.get("COMMAND") or run.get("command") or "-",
+        "runId": fields.get("RUN_ID") or run.get("runId") or log_dir.name,
+        "patchId": fields.get("PATCH_ID") or run.get("patchId") or "-",
+        "artifactId": fields.get("ARTIFACT_ID") or run.get("artifactId") or "-",
+        "phase": live_phase or fields.get("PHASE") or run.get("phase") or "-",
+        "failedStep": fields.get("FAILED_STEP") or run.get("failedStep") or "-",
+        "pid": fields.get("PID") or run.get("pid") or "-",
+        "commitStatus": fields.get("GIT_COMMIT_STATUS") or run.get("commitStatus") or "-",
+        "commitHash": fields.get("GIT_COMMIT_HASH") or run.get("commitHash") or "-",
+        "pushStatus": fields.get("GIT_PUSH_STATUS") or run.get("pushStatus") or "-",
+        "rootCause": fields.get("ROOT_CAUSE") or "-",
+        "summary": str(log_dir / "SUMMARY.txt"),
+        "logDir": str(log_dir),
+        "updatedAt": run.get("updatedAt") or fields.get("UPDATED_AT") or "-",
+    }
+    return snapshot
+
+
+def status_snapshot(ref):
+    run_log_dir = find_run_log_dir(ref)
+    if run_log_dir is not None:
+        return snapshot_from_log_dir(run_log_dir)
+
+    patch_id = resolve_patch_id_for_status(ref)
+    if patch_id is None:
+        fail(f"PATCH_RUN_NOT_FOUND: no run or patch matches {ref!r}.", 4)
+
+    canonical_dir = accept_log_base() / patch_id
+    canonical_fields = read_summary_fields(canonical_dir / "SUMMARY.txt")
+    archive_data = archived_patch_data(patch_id)
+    if canonical_fields.get("STATUS") in ("SUCCESS", "ALREADY_APPLIED"):
+        run_dir_value = canonical_fields.get("LOG_DIR")
+        if run_dir_value and Path(run_dir_value).is_dir():
+            snapshot = snapshot_from_log_dir(Path(run_dir_value))
+        else:
+            snapshot = {
+                "status": canonical_fields.get("STATUS"),
+                "command": canonical_fields.get("COMMAND", "accept"),
+                "runId": canonical_fields.get("RUN_ID", patch_id),
+                "patchId": patch_id,
+                "artifactId": canonical_fields.get("ARTIFACT_ID", "-"),
+                "phase": canonical_fields.get("PHASE", "COMPLETE"),
+                "failedStep": canonical_fields.get("FAILED_STEP", "-"),
+                "pid": canonical_fields.get("PID", "-"),
+                "commitStatus": canonical_fields.get("GIT_COMMIT_STATUS", "-"),
+                "commitHash": canonical_fields.get("GIT_COMMIT_HASH", "-"),
+                "pushStatus": canonical_fields.get("GIT_PUSH_STATUS", "-"),
+                "rootCause": canonical_fields.get("ROOT_CAUSE", "-"),
+                "summary": str(canonical_dir / "SUMMARY.txt"),
+                "logDir": str(canonical_dir),
+                "updatedAt": canonical_fields.get("UPDATED_AT", "-"),
+            }
+        snapshot["status"] = "APPLIED" if archive_data and archive_data.get("status") == "applied" else snapshot["status"]
+        if snapshot.get("commitStatus") == "COMMITTED" and not git_commit_exists(snapshot.get("commitHash")):
+            snapshot["status"] = "INCONSISTENT"
+            snapshot["rootCause"] = "Recorded Git commit is not available"
+        return snapshot
+
+    active = find_active_run(patch_id)
+    if active is not None:
+        return snapshot_from_log_dir(Path(active["logDir"]))
+
+    candidates = []
+    for base in (accept_log_base(), validation_log_base()):
+        for run_file in base.glob("*/run.json"):
+            run = load_run_record(run_file.parent)
+            if run.get("patchId") == patch_id:
+                candidates.append(run_file.parent)
+    if candidates:
+        candidates.sort(key=lambda item: load_run_record(item).get("updatedAt", ""), reverse=True)
+        return snapshot_from_log_dir(candidates[0])
+
+    if archive_data and archive_data.get("status") == "applied":
+        return {
+            "status": "INCOMPLETE_TRANSFER",
+            "command": "accept",
+            "runId": "-",
+            "patchId": patch_id,
+            "artifactId": archive_data.get("artifactId", "-"),
+            "phase": "EVIDENCE",
+            "failedStep": "canonical-acceptance-missing",
+            "pid": "-",
+            "commitStatus": "-",
+            "commitHash": "-",
+            "pushStatus": "-",
+            "rootCause": "Applied archive exists without canonical successful acceptance evidence",
+            "summary": str(canonical_dir / "SUMMARY.txt"),
+            "logDir": str(canonical_dir),
+            "updatedAt": "-",
+        }
+    fail(f"PATCH_RUN_NOT_FOUND: no status evidence exists for {patch_id}.", 4)
+
+
+def parse_run_observer_args(args, require_ref=True, allow_output=False):
+    ref = None
+    output_format = "human"
+    interval = 5
+    timeout = None
+    output = None
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--format":
+            if i + 1 >= len(args):
+                fail("--format expects human, env or json.")
+            output_format = args[i + 1]
+            if output_format not in ("human", "env", "json"):
+                fail(f"Unsupported format: {output_format}")
+            i += 2
+        elif arg == "--interval":
+            if i + 1 >= len(args):
+                fail("--interval expects seconds.")
+            interval = safe_int(args[i + 1])
+            if interval is None or interval < 1:
+                fail("--interval must be at least one second.")
+            i += 2
+        elif arg == "--timeout":
+            if i + 1 >= len(args):
+                fail("--timeout expects seconds.")
+            timeout = safe_int(args[i + 1])
+            if timeout is None or timeout < 0:
+                fail("--timeout must be non-negative.")
+            i += 2
+        elif arg == "--output" and allow_output:
+            if i + 1 >= len(args):
+                fail("--output expects a file path.")
+            output = args[i + 1]
+            i += 2
+        elif arg.startswith("--"):
+            fail(f"Unknown run observer option: {arg}")
+        else:
+            if ref is not None:
+                fail(f"Expected exactly one run or patch reference, got {arg!r}.")
+            ref = arg
+            i += 1
+    if require_ref and ref is None:
+        fail("A run-id or patch reference is required.")
+    return {
+        "ref": ref,
+        "format": output_format,
+        "interval": interval,
+        "timeout": timeout,
+        "output": output,
+    }
+
+
+def snapshot_env_lines(snapshot):
+    keys = (
+        ("STATUS", "status"),
+        ("COMMAND", "command"),
+        ("RUN_ID", "runId"),
+        ("PATCH_ID", "patchId"),
+        ("ARTIFACT_ID", "artifactId"),
+        ("PHASE", "phase"),
+        ("FAILED_STEP", "failedStep"),
+        ("PID", "pid"),
+        ("GIT_COMMIT_STATUS", "commitStatus"),
+        ("GIT_COMMIT_HASH", "commitHash"),
+        ("GIT_PUSH_STATUS", "pushStatus"),
+        ("ROOT_CAUSE", "rootCause"),
+        ("SUMMARY", "summary"),
+        ("LOG_DIR", "logDir"),
+        ("UPDATED_AT", "updatedAt"),
+    )
+    return [f"{name}={snapshot.get(key, '-')}" for name, key in keys]
+
+
+def print_snapshot(snapshot, output_format="human", detailed=False):
+    if output_format == "json":
+        print(json.dumps(snapshot, indent=2, ensure_ascii=False, sort_keys=True))
+        return
+    if output_format == "env":
+        print("\n".join(snapshot_env_lines(snapshot)))
+        return
+    if detailed:
+        print("Patch-Run-Result:")
+        for line in snapshot_env_lines(snapshot):
+            name, value = line.split("=", 1)
+            print(f"  {name:<19} {value}")
+        return
+    print(
+        f"status={snapshot.get('status', '-')} "
+        f"patch={snapshot.get('patchId', '-')} "
+        f"run={snapshot.get('runId', '-')} "
+        f"phase={snapshot.get('phase', '-')} "
+        f"step={snapshot.get('failedStep', '-')} "
+        f"commit={snapshot.get('commitHash', '-')}"
+    )
+
+
+def status_command(args):
+    options = parse_run_observer_args(args)
+    print_snapshot(status_snapshot(options["ref"]), options["format"])
+
+
+def run_terminal_exit_code(status):
+    if status in ("SUCCESS", "ALREADY_APPLIED", "APPLIED"):
+        return 0
+    if status == "RUNNING":
+        return 3
+    if status in TERMINAL_RUN_STATUSES:
+        return 1
+    return 2
+
+
+def observe_run(args, quiet=False):
+    options = parse_run_observer_args(args)
+    started = time.monotonic()
+    last_key = None
+    while True:
+        snapshot = status_snapshot(options["ref"])
+        key = (
+            snapshot.get("status"),
+            snapshot.get("phase"),
+            snapshot.get("failedStep"),
+            snapshot.get("commitHash"),
+        )
+        if not quiet and key != last_key:
+            print_snapshot(snapshot, "human")
+            sys.stdout.flush()
+            last_key = key
+        if snapshot.get("status") != "RUNNING":
+            if quiet:
+                print_snapshot(snapshot, "human")
+            raise SystemExit(run_terminal_exit_code(snapshot.get("status")))
+        if options["timeout"] is not None and time.monotonic() - started >= options["timeout"]:
+            print(f"status=TIMEOUT ref={options['ref']} timeout={options['timeout']}", file=sys.stderr)
+            raise SystemExit(4)
+        time.sleep(options["interval"])
+
+
+def watch_command(args):
+    observe_run(args, quiet=False)
+
+
+def wait_command(args):
+    observe_run(args, quiet=True)
+
+
+def result_command(args):
+    options = parse_run_observer_args(args)
+    snapshot = status_snapshot(options["ref"])
+    print_snapshot(snapshot, options["format"], detailed=True)
+    raise SystemExit(run_terminal_exit_code(snapshot.get("status")))
+
+
+def diagnose_command(args):
+    options = parse_run_observer_args(args, allow_output=True)
+    snapshot = status_snapshot(options["ref"])
+    output = options.get("output")
+    if output:
+        output_path = Path(output).expanduser()
+        if not output_path.is_absolute():
+            output_path = PROJECT_ROOT / output_path
+    else:
+        diagnostics = PROJECT_ROOT / "build" / "patch-diagnostics"
+        diagnostics.mkdir(parents=True, exist_ok=True)
+        output_path = diagnostics / f"{sanitize_name(snapshot.get('runId') or snapshot.get('patchId'))}.txt"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    log_dir = Path(snapshot.get("logDir", ""))
+    selected = []
+    if log_dir.is_dir():
+        logs = sorted(
+            log_dir.rglob("*.log"),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        )
+        selected = logs[:12]
+    lines = [
+        "SPRINGMASTER PATCH RUN DIAGNOSIS",
+        "=" * 72,
+        "",
+        "STATUS",
+        "-" * 72,
+        *snapshot_env_lines(snapshot),
+        "",
+        "GIT",
+        "-" * 72,
+        f"HEAD={current_git_head() or '-'}",
+    ]
+    if is_git_worktree():
+        dirty = git_status_paths(ignore_accept_log=True)
+        lines.append(f"DIRTY_PATHS={len(dirty)}")
+        lines.extend(f"  {path}" for path in dirty[:100])
+    lines.extend(["", "ERROR CANDIDATES", "-" * 72])
+    marker_re = re.compile(
+        r"(<<< FAILURE!|<<< ERROR!|AssertionError|Caused by:|BUILD FAILURE|"
+        r"Failed to execute goal|\[ERROR\]|Traceback|Exception:)"
+    )
+    found = 0
+    for log_file in selected:
+        try:
+            for number, raw_line in enumerate(
+                log_file.read_text(encoding="utf-8", errors="replace").splitlines(),
+                start=1,
+            ):
+                if marker_re.search(raw_line):
+                    lines.append(f"{log_file}:{number}:{raw_line[:1000]}")
+                    found += 1
+                    if found >= 120:
+                        break
+        except OSError:
+            continue
+        if found >= 120:
+            break
+    if found == 0:
+        lines.append("No standard error markers found.")
+    lines.extend(["", "LATEST LOG TAILS", "-" * 72])
+    for log_file in selected[:4]:
+        lines.append("")
+        lines.append(f"## {log_file}")
+        try:
+            tail = log_file.read_text(encoding="utf-8", errors="replace").splitlines()[-80:]
+            lines.extend(line[:2000] for line in tail)
+        except OSError as exc:
+            lines.append(f"Cannot read log: {exc}")
+    atomic_write_text(output_path, "\n".join(lines) + "\n")
+    print(f"DIAGNOSIS={output_path}")
+    print(f"BYTES={output_path.stat().st_size}")
+
+
+def doctor_command(args):
+    options = parse_run_observer_args(args, require_ref=False)
+    findings = []
+    git_available = is_git_worktree()
+    dirty = git_status_paths(ignore_accept_log=True) if git_available else []
+    lock_path = project_write_lock_path()
+    lock_info = read_lock_info(lock_path) if lock_path.exists() else None
+    if lock_info and lock_is_stale(lock_info):
+        findings.append({"severity": "warning", "code": "STALE_WRITE_LOCK", "path": str(lock_path)})
+    elif lock_info:
+        findings.append({"severity": "info", "code": "ACTIVE_WRITE_LOCK", "owner": lock_info})
+
+    active_runs = []
+    stale_runs = []
+    for log_dir in run_log_candidates():
+        data = load_run_record(log_dir)
+        if data.get("status") != "RUNNING":
+            continue
+        if run_is_active(data):
+            active_runs.append(data)
+        else:
+            stale_runs.append(data)
+            findings.append({
+                "severity": "warning",
+                "code": "STALE_RUN",
+                "runId": data.get("runId"),
+                "patchId": data.get("patchId"),
+                "logDir": str(log_dir),
+            })
+
+    incomplete = []
+    for patch_dir in archive_dirs():
+        data = archived_patch_data(patch_dir.name)
+        if not data or data.get("status") != "applied":
+            continue
+        fields = canonical_accept_fields(patch_dir.name)
+        if fields.get("STATUS") not in ("SUCCESS", "ALREADY_APPLIED"):
+            incomplete.append(patch_dir.name)
+            findings.append({
+                "severity": "error",
+                "code": "APPLIED_WITHOUT_CANONICAL_ACCEPTANCE",
+                "patchId": patch_dir.name,
+            })
+        elif fields.get("GIT_COMMIT_STATUS") == "COMMITTED" and not git_commit_exists(fields.get("GIT_COMMIT_HASH")):
+            findings.append({
+                "severity": "error",
+                "code": "ACCEPTANCE_COMMIT_MISSING",
+                "patchId": patch_dir.name,
+                "commit": fields.get("GIT_COMMIT_HASH"),
+            })
+
+    report = {
+        "schemaVersion": "springmaster.patch-doctor.v1",
+        "status": "PASS" if not any(item["severity"] == "error" for item in findings) else "FAIL",
+        "projectRoot": str(PROJECT_ROOT),
+        "gitAvailable": git_available,
+        "gitHead": current_git_head(),
+        "gitDirtyPaths": dirty,
+        "writeLock": lock_info,
+        "activeRuns": active_runs,
+        "staleRuns": stale_runs,
+        "incompleteAppliedPatches": incomplete,
+        "findings": findings,
+    }
+    if options["format"] == "json":
+        print(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        print("Patch-Doctor:")
+        print(f"  Status:        {report['status']}")
+        print(f"  Git-HEAD:      {report['gitHead'] or '-'}")
+        print(f"  Dirty-Paths:   {len(dirty)}")
+        print(f"  Active-Runs:   {len(active_runs)}")
+        print(f"  Stale-Runs:    {len(stale_runs)}")
+        print(f"  Findings:      {len(findings)}")
+        for finding in findings[:30]:
+            print(f"  - {finding['severity'].upper()} {finding['code']} {finding.get('patchId') or finding.get('runId') or finding.get('path') or ''}")
+    if report["status"] != "PASS":
+        raise SystemExit(1)
+
+
 def first_positional_arg(args):
     value_options = {"--test", "--profile", "--lock-timeout"}
     i = 0
@@ -2356,6 +3865,18 @@ def dispatch_command():
         accept_command(ARGS)
     elif COMMAND == "verify":
         verify_command(ARGS)
+    elif COMMAND == "status":
+        status_command(ARGS)
+    elif COMMAND == "watch":
+        watch_command(ARGS)
+    elif COMMAND == "wait":
+        wait_command(ARGS)
+    elif COMMAND == "result":
+        result_command(ARGS)
+    elif COMMAND == "diagnose":
+        diagnose_command(ARGS)
+    elif COMMAND == "doctor":
+        doctor_command(ARGS)
     elif COMMAND == "list":
         list_command()
     elif COMMAND == "show":
@@ -2373,12 +3894,29 @@ def main():
     wait = parse_wait_flag(ARGS)
     timeout_seconds = parse_lock_timeout(ARGS)
     subject = first_positional_arg(ARGS)
+    configured_log_dir = os.environ.get("PATCH_ACCEPT_LOG_DIR")
+    if configured_log_dir and COMMAND in ("accept", "verify"):
+        lock_log_dir = Path(configured_log_dir).expanduser()
+        if not lock_log_dir.is_absolute():
+            lock_log_dir = PROJECT_ROOT / lock_log_dir
+        write_run_record(
+            lock_log_dir,
+            status="RUNNING",
+            phase="WAITING_FOR_LOCK" if wait else "LOCK_ACQUIRE",
+        )
     try:
         with ProjectWriteLock(COMMAND, subject=subject, wait=wait, timeout_seconds=timeout_seconds):
             dispatch_command()
     except PatchLockBusy as exc:
-        stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S")
-        log_dir = accept_log_base() / f"busy-{stamp}_{COMMAND}"
+        configured_log_dir = os.environ.get("PATCH_ACCEPT_LOG_DIR")
+        if configured_log_dir:
+            log_dir = Path(configured_log_dir).expanduser()
+            if not log_dir.is_absolute():
+                log_dir = PROJECT_ROOT / log_dir
+        else:
+            stamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S")
+            base = validation_log_base() if COMMAND == "verify" else accept_log_base()
+            log_dir = base / f"busy-{stamp}_{COMMAND}"
         write_busy_summary(log_dir, COMMAND, exc.lock_path, exc.info)
         print_busy_result(COMMAND, log_dir, exc.lock_path, exc.info)
         sys.exit(2)

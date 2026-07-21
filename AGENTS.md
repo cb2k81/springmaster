@@ -216,6 +216,8 @@ Nach ADR-0005:
 - Python-Tools verwenden `argparse`, klare Exit-Codes, UTF-8, deterministische JSON-Ausgabe und soweit möglich nur die Standardbibliothek.
 - Tool-Ausführungsfehler strikt von report-only Findings unterscheiden.
 - Bei Änderungen an Patch-, Export- oder Platform-Update-Tooling positive und negative Integration Fixtures ergänzen. Rollback-, Hash-, Pfad- und Berechtigungsklassen nicht nur im Happy Path testen.
+- Patch-Runs ausschließlich über `patch.sh status|watch|wait|result|diagnose|doctor` beobachten; keine manuelle Auswahl der neuesten Summary und kein Logstreaming in interaktiven Terminals.
+- Whitespace-Prüfungen für Patchänderungen pfadbegrenzt ausführen. Keine impliziten Formatierungswellen oder wiederholten Full-Repository-Scans einführen.
 
 ## Verifikation nach Änderungstyp
 
@@ -313,11 +315,17 @@ Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die da
 ./bin/patch.sh artifact-preflight <patch.zip> --no-export
 ```
 
-- Für einen ausdrücklich verlangten lokalen Patchabschluss ohne Release-/Handoff-Export bevorzugt den validierten Flow verwenden:
+- Für einen ausdrücklich verlangten lokalen Patchabschluss ohne Release-/Handoff-Export den idempotenten Run-Flow verwenden:
 
 ```bash
-./bin/patch.sh accept <patch.zip> --no-export --commit
+./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit
+./bin/patch.sh watch <run-id>
+./bin/patch.sh result <run-id>
 ```
+
+- `--wait-for-lock` wartet nur auf den Write-Lock; auf das Run-Ende wartet `patch.sh wait <run-id>`.
+- Vor jedem Retry `patch.sh status <patch-id>` und bei Widersprüchen `patch.sh doctor` ausführen. `APPLIED` oder ein aktiver Run verbieten einen Neustart.
+- Acceptance- und Verify-Evidence getrennt halten. Ein späterer fehlgeschlagener Verify-/Retry-Run darf eine erfolgreiche kanonische Acceptance nicht überschreiben.
 
 - Niemals pauschal `git add .` verwenden. Keine fremden oder bereits vorgestagten Änderungen übernehmen.
 - Kein Push ohne ausdrückliche Freigabe; `--push` ist immer separat und bewusst.

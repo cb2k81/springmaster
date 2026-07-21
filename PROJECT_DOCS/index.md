@@ -158,6 +158,7 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md`
 - `PROJECT_DOCS/TOOLING/PATCH_MANIFEST_V2.md`
 - `PROJECT_DOCS/TOOLING/PATCH_PROJECT_LOCAL_SCOPES.md`
+- `PROJECT_DOCS/TOOLING/PATCH_RUN_API.md` — canonical idempotent run, status, Git transaction and terminal-safe observation contract
 - `PROJECT_DOCS/TOOLING/FAILED_ACCEPT_RECOVERY.md` — recovery invariant for failed patch acceptance
 - `contracts/governance/patch-state-reconciliations.json` — explicit immutable closure evidence for historical failed accepts retained in committed baselines
 - `PROJECT_DOCS/TOOLING/PATCH_SCOPE_LEAST_PRIVILEGE.md` — least-privilege rules for Springmaster and generated project scopes
