@@ -37,3 +37,7 @@ Patch `000140_springmaster_patch_artifact_identity_v2` implements Decision 2 wit
 ## Accepted operational refinement: isolated acceptance
 
 An effective patch acceptance is executed in a detached Git worktree. Validation failure does not mutate the live repository or create a live applied archive. Only a qualified patch commit whose parent is the live baseline may be transferred into the live branch. This refinement closes the previously observed `applied`-but-failed state gap without changing patch artifact identity.
+
+## Accepted operational refinement: private transaction environment
+
+Patch-engine control variables are private implementation state. A transaction child may use them to prevent recursive wrapping of its own `accept`, but tooling checks, Maven tests, configured tests, and exports must run with those variables removed. Nested fixtures therefore exercise the public transaction contract rather than inheriting an outer engine bypass.

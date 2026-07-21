@@ -1476,7 +1476,14 @@ def accept_log_base():
 def command_to_text(cmd, shell=False):
     return cmd if shell else " ".join(str(part) for part in cmd)
 
-def run_process_step(step_name, cmd, log_file, shell=False):
+def validation_subprocess_env():
+    env = dict(os.environ)
+    for key in ("PATCH_ACCEPT_WORKTREE_CHILD", "PATCH_ACCEPT_LOG_DIR", "PATCH_BACKGROUND_CHILD"):
+        env.pop(key, None)
+    return env
+
+
+def run_process_step(step_name, cmd, log_file, shell=False, env=None):
     log_file.parent.mkdir(parents=True, exist_ok=True)
     with log_file.open("w", encoding="utf-8") as out:
         out.write(f"== {step_name} ==\n")
@@ -1489,6 +1496,7 @@ def run_process_step(step_name, cmd, log_file, shell=False):
             stdout=out,
             stderr=subprocess.STDOUT,
             text=True,
+            env=env,
         )
     return result.returncode
 
@@ -1539,6 +1547,7 @@ def run_tooling_verification(log_dir):
                 stdout=out,
                 stderr=subprocess.STDOUT,
                 text=True,
+                env=validation_subprocess_env(),
             )
             if result.returncode != 0:
                 return result.returncode
@@ -1891,6 +1900,7 @@ def start_background_command(command_name, args, subject):
     print(f"  Follow:       tail --pid={proc.pid} -F {log_dir / 'SUMMARY.txt'}")
 
 def run_validation_steps(log_dir, options):
+    validation_env = validation_subprocess_env()
     if options["toolingSelfcheck"]:
         rc = run_tooling_verification(log_dir)
         if rc != 0:
@@ -1902,6 +1912,7 @@ def run_validation_steps(log_dir, options):
             configured_test_selector_command(test_selector),
             log_dir / f"test-{sanitize_name(test_selector)}.log",
             shell=True,
+            env=validation_env,
         )
         if rc != 0:
             return f"test:{test_selector}", None
@@ -1912,6 +1923,7 @@ def run_validation_steps(log_dir, options):
             configured_full_test_command(),
             log_dir / "full-test.log",
             shell=True,
+            env=validation_env,
         )
         if rc != 0:
             return "full-test", None
@@ -1923,6 +1935,7 @@ def run_validation_steps(log_dir, options):
             configured_export_command(),
             log_dir / "export.log",
             shell=True,
+            env=validation_env,
         )
         if rc != 0:
             return "export", None

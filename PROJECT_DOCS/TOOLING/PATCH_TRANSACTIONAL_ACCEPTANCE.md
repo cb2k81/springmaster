@@ -41,3 +41,17 @@ When any worktree step fails:
 - failed child logs remain available under the parent acceptance log.
 
 `bin/patch-transactional-accept-it.sh` proves both a failing and a successful transaction against an isolated fixture repository.
+
+## Validation environment isolation
+
+The control variables used by the parent/child transaction protocol are private to the patch engine. They are removed before tooling checks, configured tests, full tests, or exports are started:
+
+```text
+PATCH_ACCEPT_WORKTREE_CHILD
+PATCH_ACCEPT_LOG_DIR
+PATCH_BACKGROUND_CHILD
+```
+
+This prevents nested patch fixtures and application tests from accidentally bypassing the public transactional boundary merely because they execute inside an outer validation worktree. The transaction child itself retains its marker; only its validation subprocesses receive the sanitized environment.
+
+`bin/patch-transactional-accept-it.sh` verifies this boundary from both a normal shell and an inherited transaction-child environment.
