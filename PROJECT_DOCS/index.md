@@ -1,14 +1,28 @@
 ---
-documentType: governance
+documentId: DOC-IDX-0001
+title: Project Documentation Index
+documentType: documentation-index
 status: active
+authority: informative
 scope: repository
+scopeLevel: project
+scopePaths:
+  - springmaster/documentation
+appliesTo:
+  - springmaster
 owner: springmaster-maintainers
-validFrom: 2026-07-20
-supersedes: none
+createdAt: 2026-07-20
+validFrom: 2026-07-22
+lastReviewedAt: 2026-07-22
+reviewBy: 2026-10-22
+supersedes: []
+supersededBy: null
+temporary: false
+sprintId: null
 ---
 # Project Documentation Index
 
-This index covers every active Markdown document under `PROJECT_DOCS/`. Patch changelogs and generated runtime reports are intentionally outside this index.
+This index covers every non-archived Markdown document under `PROJECT_DOCS/`. During the Documentation Transition, legacy entries remain path-based; V2 documents are validated against their front matter. Patch changelogs and generated runtime reports are intentionally outside this index.
 
 ## ADR
 
@@ -186,3 +200,18 @@ This index covers every active Markdown document under `PROJECT_DOCS/`. Patch ch
 - `PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_TOOLING.md`
 - `PROJECT_DOCS/TOOLING/TOOLING_BASELINE.md`
 - `PROJECT_DOCS/TOOLING/TOOLING_CUTOVER_DELIVERY_GUARD.md`
+
+## _TEMPLATES
+
+- `PROJECT_DOCS/_TEMPLATES/ADR_TEMPLATE.md` — active V2 bootstrap template
+- `PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md` — active generic V2 bootstrap template
+- `PROJECT_DOCS/_TEMPLATES/GOVERNANCE_TEMPLATE.md` — active Governance template
+- `PROJECT_DOCS/_TEMPLATES/REPORT_TEMPLATE.md` — active Report template
+- `PROJECT_DOCS/_TEMPLATES/STANDARD_TEMPLATE.md` — active Standard template
+
+## Lifecycle
+
+| Datum | Vorher | Nachher | Grund |
+|---|---|---|---|
+| 2026-07-20 | - | active | Bootstrap-Index eingeführt |
+| 2026-07-22 | active | active | Auf V2-Metadaten und Bootstrap-Templates erweitert |

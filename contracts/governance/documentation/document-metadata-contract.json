@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "springmaster.documentation-metadata-contract.v2",
+  "requiredFields": [
+    "documentId",
+    "title",
+    "documentType",
+    "status",
+    "authority",
+    "scopeLevel",
+    "scopePaths",
+    "appliesTo",
+    "owner",
+    "createdAt",
+    "validFrom",
+    "lastReviewedAt",
+    "reviewBy",
+    "supersedes",
+    "supersededBy",
+    "temporary",
+    "sprintId"
+  ],
+  "compatibilityFields": [
+    "scope"
+  ],
+  "dateFields": [
+    "createdAt",
+    "validFrom",
+    "lastReviewedAt",
+    "reviewBy"
+  ],
+  "documentIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$",
+  "ownerPattern": "^[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?$",
+  "forbiddenFilenamePatterns": [
+    "(?i)(^|[-_.])(final-final|copy|new|tmp[0-9]*|rev[0-9]+)([-_.]|$)",
+    "(?i)\\.(bak|old|copy)$"
+  ],
+  "transitionBaseline": {
+    "path": "PROJECT_DOCS/TOOLING/documentation-transition-baseline.json",
+    "pathSetSha256": "fabcea003f15b675ab5e54368b558c104875606e5615929c8983dc674a637cbb",
+    "allowExtension": false
+  },
+  "indexPath": "PROJECT_DOCS/index.md",
+  "contracts": {
+    "documentTypes": "contracts/governance/documentation/document-types.json",
+    "scopeRegistry": "contracts/governance/documentation/scope-registry.json"
+  },
+  "rules": [
+    {
+      "ruleId": "DOC-META-001",
+      "title": "V2 front matter required for new or migrated documents"
+    },
+    {
+      "ruleId": "DOC-TYPE-001",
+      "title": "Document type and status must be registered"
+    },
+    {
+      "ruleId": "DOC-ID-001",
+      "title": "Document IDs must be unique and valid"
+    },
+    {
+      "ruleId": "DOC-SCOPE-001",
+      "title": "Scope and applies-to values must be registered"
+    },
+    {
+      "ruleId": "DOC-REVIEW-001",
+      "title": "Required review dates must be present and current"
+    },
+    {
+      "ruleId": "DOC-SUPERSESSION-001",
+      "title": "Supersession references must be valid and reciprocal"
+    },
+    {
+      "ruleId": "DOC-INDEX-001",
+      "title": "Documentation index must cover the current Markdown inventory"
+    },
+    {
+      "ruleId": "DOC-TECH-001",
+      "title": "New technical artifacts are forbidden under PROJECT_DOCS"
+    },
+    {
+      "ruleId": "DOC-BASELINE-001",
+      "title": "Documentation transition baseline is immutable except by accepted contract change"
+    },
+    {
+      "ruleId": "DOC-TEMPLATE-001",
+      "title": "Registered document types must resolve to an existing template"
+    },
+    {
+      "ruleId": "DOC-NAME-001",
+      "title": "Durable document filenames must not encode manual revisions"
+    }
+  ]
+}

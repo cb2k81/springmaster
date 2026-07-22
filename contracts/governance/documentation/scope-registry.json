@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "springmaster.documentation-scope-registry.v1",
+  "scopeLevels": [
+    "ecosystem",
+    "platform",
+    "project",
+    "subsystem",
+    "component",
+    "layer",
+    "capability",
+    "interface",
+    "data",
+    "operation"
+  ],
+  "appliesToValues": [
+    "springmaster",
+    "project-new",
+    "generated-projects",
+    "managed-projects"
+  ],
+  "scopes": [
+    {
+      "id": "springmaster/documentation",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Documentation governance, lifecycle and discoverability for Springmaster and propagated projects",
+      "physicalPaths": [
+        "PROJECT_DOCS/**",
+        "contracts/governance/documentation/**"
+      ]
+    },
+    {
+      "id": "springmaster/documentation/templates",
+      "level": "ecosystem",
+      "kind": "logical",
+      "parent": "springmaster/documentation",
+      "description": "Human-maintained documentation templates",
+      "physicalPaths": [
+        "PROJECT_DOCS/_TEMPLATES/**"
+      ]
+    },
+    {
+      "id": "springmaster/tooling/documentation-gate",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/documentation",
+      "description": "Documentation gate implementation and fixtures",
+      "physicalPaths": [
+        "bin/documentation-gate*",
+        "src/test/resources/tooling/documentation-gate-v2/**"
+      ]
+    },
+    {
+      "id": "springmaster/governance",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Cross-cutting Springmaster governance documents",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/**"
+      ]
+    },
+    {
+      "id": "springmaster/standards",
+      "level": "platform",
+      "kind": "logical",
+      "description": "Reusable technical standards",
+      "physicalPaths": [
+        "PROJECT_DOCS/STANDARDS/**"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "springmaster.documentation-gate-fixtures.v2",
+  "cases": [
+    {"id": "valid-governance-and-standard", "expectedStatus": "PASS", "expectedExit": 0},
+    {"id": "unknown-document-type", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "DOCUMENT_TYPE_UNKNOWN"},
+    {"id": "missing-required-field", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "DOCUMENT_METADATA_MISSING"},
+    {"id": "invalid-status", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "DOCUMENT_STATUS_INVALID"},
+    {"id": "duplicate-document-id", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "DOCUMENT_ID_DUPLICATE"},
+    {"id": "invalid-supersession", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "SUPERSESSION_TARGET_UNKNOWN"},
+    {"id": "new-technical-artifact", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "NEW_TECHNICAL_ARTIFACT_UNDER_PROJECT_DOCS"},
+    {"id": "valid-legacy-baseline", "expectedStatus": "PASS", "expectedExit": 0, "expectedTransitionCode": "LEGACY_DOCUMENT_METADATA_PENDING"},
+    {"id": "invalid-baseline-extension", "expectedStatus": "FAIL", "expectedExit": 1, "expectedCode": "TRANSITION_BASELINE_LOCK_MISMATCH"},
+    {"id": "tool-error-missing-contract", "expectedStatus": "TOOL_ERROR", "expectedExit": 2, "expectedToolErrorCode": "CONTRACT_MISSING"}
+  ]
+}

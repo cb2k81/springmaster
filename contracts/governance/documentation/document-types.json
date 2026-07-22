@@ -1,0 +1,320 @@
+{
+  "schemaVersion": "springmaster.documentation-types.v2",
+  "authorities": [
+    "normative",
+    "directive",
+    "informative",
+    "evidence"
+  ],
+  "validFromRequiredStatuses": [
+    "active",
+    "accepted",
+    "final",
+    "completed",
+    "resolved",
+    "archived"
+  ],
+  "types": [
+    {
+      "id": "governance",
+      "allowedAuthorities": [
+        "normative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GOVERNANCE_TEMPLATE.md"
+    },
+    {
+      "id": "goal",
+      "allowedAuthorities": [
+        "directive"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "strategy",
+      "allowedAuthorities": [
+        "directive"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "requirements",
+      "allowedAuthorities": [
+        "normative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "architecture-concept",
+      "allowedAuthorities": [
+        "directive",
+        "normative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "adr",
+      "allowedAuthorities": [
+        "normative"
+      ],
+      "allowedStatuses": [
+        "proposed",
+        "accepted",
+        "rejected",
+        "deferred",
+        "superseded",
+        "deprecated"
+      ],
+      "reviewRequiredStatuses": [
+        "deferred"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/ADR_TEMPLATE.md"
+    },
+    {
+      "id": "standard",
+      "allowedAuthorities": [
+        "normative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/STANDARD_TEMPLATE.md"
+    },
+    {
+      "id": "guide",
+      "allowedAuthorities": [
+        "informative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "plan",
+      "allowedAuthorities": [
+        "directive"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "completed",
+        "cancelled",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "checklist",
+      "allowedAuthorities": [
+        "directive",
+        "informative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "deprecated",
+        "superseded",
+        "retired",
+        "withdrawn"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "report",
+      "allowedAuthorities": [
+        "evidence"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "final",
+        "corrected",
+        "historical"
+      ],
+      "reviewRequiredStatuses": [],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/REPORT_TEMPLATE.md"
+    },
+    {
+      "id": "technical-debt",
+      "allowedAuthorities": [
+        "evidence"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "resolved",
+        "superseded",
+        "retired"
+      ],
+      "reviewRequiredStatuses": [],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "register",
+      "allowedAuthorities": [
+        "evidence"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "retired"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "sprint-brief",
+      "allowedAuthorities": [
+        "directive"
+      ],
+      "allowedStatuses": [
+        "planned",
+        "active",
+        "blocked",
+        "completed",
+        "cancelled",
+        "archived"
+      ],
+      "reviewRequiredStatuses": [],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "sprint-status",
+      "allowedAuthorities": [
+        "evidence"
+      ],
+      "allowedStatuses": [
+        "planned",
+        "active",
+        "blocked",
+        "completed",
+        "cancelled",
+        "archived"
+      ],
+      "reviewRequiredStatuses": [],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    },
+    {
+      "id": "sprint-completion-report",
+      "allowedAuthorities": [
+        "evidence"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "final",
+        "corrected",
+        "historical"
+      ],
+      "reviewRequiredStatuses": [],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/REPORT_TEMPLATE.md"
+    },
+    {
+      "id": "documentation-index",
+      "allowedAuthorities": [
+        "informative"
+      ],
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "retired"
+      ],
+      "reviewRequiredStatuses": [
+        "active"
+      ],
+      "templatePath": "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+    }
+  ]
+}
