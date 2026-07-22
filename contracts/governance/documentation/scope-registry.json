@@ -67,6 +67,56 @@
       "physicalPaths": [
         "PROJECT_DOCS/STANDARDS/**"
       ]
+    },
+    {
+      "id": "springmaster/project-structure",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Repository structure, canonical ownership, extension points and directory migration governance",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "contracts/governance/project-structure/**"
+      ]
+    },
+    {
+      "id": "springmaster/engineering",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Technical change lifecycle, classification, readiness, profile selection and completion governance",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "contracts/governance/engineering/**"
+      ]
+    },
+    {
+      "id": "springmaster/quality-gates",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Quality rule, gate, enforcement, baseline, waiver and suppression governance",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "contracts/governance/quality/**"
+      ]
+    },
+    {
+      "id": "springmaster/testing",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "Test strategy, test levels, evidence, coverage governance and test completion",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "contracts/governance/testing/**"
+      ]
+    },
+    {
+      "id": "springmaster/dependencies",
+      "level": "ecosystem",
+      "kind": "logical",
+      "description": "External dependency request, approval, version, security and removal governance",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md",
+        "contracts/governance/dependencies/**"
+      ]
     }
   ]
 }

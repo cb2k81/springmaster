@@ -96,10 +96,14 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 - `PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md`
 ## GOVERNANCE
 
-- `PROJECT_DOCS/GOVERNANCE/SPRINT_P2_MANAGED_TARGET_LIFECYCLE.md`
-
-- `PROJECT_DOCS/GOVERNANCE/SPRINT_RELEASE_GOVERNANCE.md`
+- `PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md` — draft V2 governance for external dependency lifecycle and approval
+- `PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md` — draft V2 governance for technical change lifecycle and completion
+- `PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md` — draft V2 governance for repository structure and canonical ownership
+- `PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md` — draft V2 governance for rule, gate, baseline and waiver semantics
 - `PROJECT_DOCS/GOVERNANCE/SPRINT_P1_RUNTIME_CONTRACT_FOUNDATION.md`
+- `PROJECT_DOCS/GOVERNANCE/SPRINT_P2_MANAGED_TARGET_LIFECYCLE.md`
+- `PROJECT_DOCS/GOVERNANCE/SPRINT_RELEASE_GOVERNANCE.md`
+- `PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md` — draft V2 governance for test strategy, evidence and completion
 ## OPERATIONAL
 
 - `PROJECT_DOCS/OPERATIONAL/SPRINT1_ZBM_SPRINGMASTER_CONFORMANT_IMPLEMENTATION_PLAN.md`
@@ -215,3 +219,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 |---|---|---|---|
 | 2026-07-20 | - | active | Bootstrap-Index eingeführt |
 | 2026-07-22 | active | active | Auf V2-Metadaten und Bootstrap-Templates erweitert |
+| 2026-07-22 | active | active | Fünf validierte Kern-Governance-Drafts indexiert |
