@@ -414,7 +414,9 @@ contracts/governance/engineering/engineering-completion-contract.json
 
 Der Project Directory Contract bestimmt die endgültigen Pfade. Die Contracts konkretisieren Klassen, Risikokriterien, deterministische Profilzuordnung, Evidence-Felder und die vierzehn Completion-Kriterien, dürfen aber keine neue normative Prozessregel einführen.
 
-Die Contract-Familie ist seit `SPRINGMASTER-SPRINT-001`, Slice S-01, als report-only Foundation materialisiert. `bin/engineering-contracts.py` validiert die Verträge sowie Classification-, Evidence- und Completion-Records. Der Validator ist noch kein Engineering-Qualification-Gate und erteilt weder Strict-Promotion noch Releasefreigabe. Seine positiven, negativen und Tool-Error-Szenarien liegen unter `src/test/resources/tooling/engineering-contracts-v1/`.
+Die Contract-Familie ist seit `SPRINGMASTER-SPRINT-001`, Slice S-01, als report-only Foundation materialisiert. `bin/engineering-contracts.py` validiert die Verträge sowie Classification-, Evidence- und Completion-Records.
+
+Slice S-04 materialisiert zusätzlich `contracts/governance/engineering/engineering-qualification-gate-contract.json` und `bin/engineering-qualification-gate.py`. Das Gate prüft deterministische Profilselektion, Record-Identitäten, registrierte read-only Qualification-Checks sowie Evidence-/Completion-Konsistenz. Es führt keine registrierten Gates aus, mutiert keine Quelle, promotet keine Regel zu strict und erteilt weder Sprint- noch Releasefreigabe. Release-Profile werden erkannt, bleiben bis Release Qualification V2 jedoch nicht qualifizierbar. Positive, negative und Tool-Error-Szenarien liegen unter `src/test/resources/tooling/engineering-qualification-gate-v1/`.
 
 Die aktuelle `AGENTS.md` enthält bereits belastbare Regeln zu Baseline, Klassifikation, kleinstem vollständigen Schnitt, risikobasierter Verifikation und Definition of Done. Diese Governance konsolidiert sie kanonisch; die `AGENTS.md` bleibt anschließend ein kompakter Einstieg.
 
@@ -453,3 +455,4 @@ Sie ist inhaltlich vollständig, wenn:
 |---|---|---|---|
 | 2026-07-22 | – | draft | Konsolidierter Volltextentwurf auf Basis des verifizierten Springmaster-Bestands |
 | 2026-07-23 | draft | draft | S-01 materialisiert Classification-, Profile-, Evidence- und Completion-Contracts als report-only Foundation. |
+| 2026-07-23 | draft | draft | S-04 materialisiert das report-only Engineering-Qualification-Gate und seine Registry-/Fixture-Brücke. |

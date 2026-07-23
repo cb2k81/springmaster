@@ -94,6 +94,14 @@ Vorläufige Erwartung ist ein kompatibler `minor`-Impact für Tooling. Eine tats
 
 Noch nicht bewertbar. Nicht erreichte Teilziele, kontrollierte Deferrals, Folgesprints und Aktivierungsbedingungen werden bei Closure explizit benannt.
 
+## Slice S-04 – Engineering Qualification Gate
+
+- Status: `qualified` auf Patchartefaktebene; Sprint-Closure weiterhin offen.
+- Ergebnis: report-only Engineering-Qualification-Gate mit Orchestrierungscontract, deterministischer Profil-/Check-Auswertung und strukturiertem V1-Report.
+- Evidence: positive, negative, Registry-, Completion- und Tool-Error-Fixtures sowie Regression gegen Engineering-, Quality-, Test-, Documentation-, Directory- und Sprint-Verträge.
+- Grenzen: keine Ausführung registrierter Gates, keine Strict-Promotion, keine Releasefreigabe und keine Project-New- oder Managed-Project-Materialisierung.
+- Nächster Schritt: S-05 Impact-, Aktivierungs- und Closure-Bewertung.
+
 ## Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
@@ -102,3 +110,4 @@ Noch nicht bewertbar. Nicht erreichte Teilziele, kontrollierte Deferrals, Folges
 | 2026-07-23 | draft | draft | M-001/S-01 als qualifizierter Contract-Foundation-Slice aufgenommen; Sprint-Closure bleibt offen. |
 | 2026-07-23 | draft | draft | M-002/S-02 als qualifizierter Rule-Catalog- und Gate-Registry-Slice aufgenommen; Sprint-Closure bleibt offen. |
 | 2026-07-23 | draft | draft | M-003/S-03 als qualifizierter Test-Suite-, Fixture- und Inventory-Slice aufgenommen; Sprint-Closure bleibt offen. |
+| 2026-07-23 | draft | draft | M-004/S-04 als qualifiziertes report-only Engineering-Qualification-Gate aufgenommen; Sprint-Closure bleibt offen. |

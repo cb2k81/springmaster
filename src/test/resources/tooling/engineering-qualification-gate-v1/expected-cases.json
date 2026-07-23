@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "springmaster.engineering-qualification-gate-it-cases.v1",
+  "cases": [
+    {"id": "contracts-valid", "operation": "contracts", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "qualification-valid", "operation": "qualification", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "qualification-with-findings-valid", "operation": "qualification", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "audit-valid", "operation": "qualification", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "profile-selection-mismatch", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "classification-record-mismatch", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "missing-required-check", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "required-check-blocked", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "required-check-tool-error", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "unknown-check-id", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "duplicate-check-execution", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "passed-check-without-report", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "completion-status-mismatch", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "qualified-open-blocker", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "completion-pending-criterion", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "release-profile-unsupported", "operation": "qualification", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "contracts-missing-gate-descriptor", "operation": "contracts", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "contracts-nonreciprocal-rule", "operation": "contracts", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "tool-error-missing-contract-root", "operation": "contracts", "expectedExit": 2, "expectedStatus": "TOOL_ERROR"},
+    {"id": "tool-error-malformed-input", "operation": "qualification", "expectedExit": 2, "expectedStatus": "TOOL_ERROR"}
+  ]
+}

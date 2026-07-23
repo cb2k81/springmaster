@@ -514,7 +514,9 @@ Der report-only Stand umfasst:
 - den read-only Validator `bin/quality-registry.py`,
 - positive, negative und Tool-Error-Fixtures unter `src/test/resources/tooling/quality-registry-v1/`.
 
-Registriert sind die qualifizierten Regeln der Documentation-, Project-Directory- und Sprint-Gates sowie die in S-01 implementierten Engineering-Profil- und Completion-Regeln. Engineering-Regeln verweisen bis Slice S-04 ausschließlich auf das geplante `engineering-qualification-gate-v1`; sie werden durch diesen Slice nicht zu einem produktiven Gate promoviert.
+Registriert sind die qualifizierten Regeln der Documentation-, Project-Directory-, Sprint- und Test-Contract-Gates sowie die in S-01 implementierten Engineering-Profil- und Completion-Regeln.
+
+Slice `S-04` materialisiert `engineering-qualification-gate-v1` als read-only, report-only Gate. Die bestehenden Engineering-Regeln erhalten damit eine produktive Gatezuordnung; vier zusätzliche `ENG-QUAL`-Regeln prüfen Record-Identität, erforderliche registrierte Checks, Completion-/Tool-Error-Konsistenz und Registry-Wiring. Das Gate wertet Evidence aus, führt registrierte Gates aber nicht selbst aus.
 
 Der Catalog enthält Titel und normative Quellenreferenzen, aber keinen duplizierten Regeltext. Die Gate Registry bleibt auf `report-only`, read-only und Reportdateien als einzige Side Effects begrenzt. Keine Regel und kein Gate wird durch diesen Umsetzungsstand `strict`.
 
@@ -542,3 +544,4 @@ Diese Governance ist vollständig, wenn:
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-22 | – | draft | Konsolidierter Erstentwurf auf Basis von ADR-0006 und aktuellem Gate-Harness |
+| 2026-07-23 | draft | draft | S-04 registriert das qualifizierte report-only Engineering-Qualification-Gate ohne Strict-Promotion. |

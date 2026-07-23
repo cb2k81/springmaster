@@ -89,7 +89,9 @@
         "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
         "contracts/governance/engineering/**",
         "bin/engineering-contracts*",
-        "src/test/resources/tooling/engineering-contracts-v1/**"
+        "src/test/resources/tooling/engineering-contracts-v1/**",
+        "bin/engineering-qualification-gate*",
+        "src/test/resources/tooling/engineering-qualification-gate-v1/**"
       ]
     },
     {
@@ -255,6 +257,18 @@
       "physicalPaths": [
         "bin/test-contracts*",
         "src/test/resources/tooling/test-contracts-v1/**"
+      ]
+    },
+    {
+      "id": "springmaster/tooling/engineering-qualification-gate",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/engineering",
+      "description": "Report-only Engineering Qualification Gate, orchestration contract and fixtures",
+      "physicalPaths": [
+        "contracts/governance/engineering/engineering-qualification-gate-contract.json",
+        "bin/engineering-qualification-gate*",
+        "src/test/resources/tooling/engineering-qualification-gate-v1/**"
       ]
     }
   ]

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "springmaster.engineering-qualification-gate-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+  "gateId": "engineering-qualification-gate-v1",
+  "reportSchema": "springmaster.engineering-qualification-gate-report.v1",
+  "acceptedExecutionStatuses": [
+    "passed",
+    "passed-with-findings",
+    "not-applicable"
+  ],
+  "blockingExecutionStatuses": [
+    "blocked",
+    "tool-error",
+    "not-executed"
+  ],
+  "profilePolicies": [
+    {
+      "profileId": "fast",
+      "supported": true,
+      "completionRequired": false,
+      "requiredCheckIds": []
+    },
+    {
+      "profileId": "qualification",
+      "supported": true,
+      "completionRequired": true,
+      "requiredCheckIds": [
+        "quality-registry-v1",
+        "test-contracts-v1",
+        "documentation-gate-v2",
+        "project-directory-gate-v1",
+        "sprint-gate-v1"
+      ]
+    },
+    {
+      "profileId": "audit",
+      "supported": true,
+      "completionRequired": true,
+      "requiredCheckIds": [
+        "quality-registry-v1",
+        "test-contracts-v1",
+        "documentation-gate-v2",
+        "project-directory-gate-v1",
+        "sprint-gate-v1"
+      ]
+    },
+    {
+      "profileId": "release",
+      "supported": false,
+      "completionRequired": true,
+      "requiredCheckIds": []
+    }
+  ],
+  "requiredGateRuleIds": [
+    "ENG-PROFILE-SEL-001",
+    "ENG-PROFILE-SEL-002",
+    "ENG-PROFILE-SEL-003",
+    "ENG-PROFILE-SEL-004",
+    "ENG-COMP-001",
+    "ENG-COMP-002",
+    "ENG-COMP-003",
+    "ENG-COMP-004",
+    "ENG-COMP-005",
+    "ENG-COMP-006",
+    "ENG-COMP-007",
+    "ENG-COMP-008",
+    "ENG-COMP-009",
+    "ENG-COMP-010",
+    "ENG-COMP-011",
+    "ENG-COMP-012",
+    "ENG-COMP-013",
+    "ENG-COMP-014",
+    "ENG-QUAL-001",
+    "ENG-QUAL-002",
+    "ENG-QUAL-003",
+    "ENG-QUAL-004"
+  ],
+  "inputContracts": [
+    "contracts/governance/engineering/change-classification-contract.json",
+    "contracts/governance/engineering/engineering-profile-contract.json",
+    "contracts/governance/engineering/engineering-evidence-contract.json",
+    "contracts/governance/engineering/engineering-completion-contract.json",
+    "contracts/governance/engineering/engineering-qualification-gate-contract.json",
+    "contracts/governance/quality/quality-rule-catalog.json",
+    "contracts/governance/quality/gate-registry.json",
+    "contracts/governance/testing/test-suite-contract.json"
+  ],
+  "recordIdentityRules": {
+    "classificationChangeIdMustEqualEvidenceChangeRef": true,
+    "evidenceClassificationMustEqualInputClassification": true,
+    "completionChangeRefMustEqualEvidenceChangeRef": true,
+    "completionEvidenceRefMustEqualEvidenceId": true
+  },
+  "qualifiedStatuses": [
+    "qualified",
+    "qualified-with-findings"
+  ],
+  "releaseBoundary": "Release profile selection is recognized but cannot be qualified by this gate until Release Qualification V2 is implemented."
+}

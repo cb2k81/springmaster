@@ -1,11 +1,11 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.0.0",
+  "baselineVersion": "1.1.0",
   "status": "sealed-report-only",
-  "generatedAt": "2026-07-23T10:42:00.717115Z",
-  "sourceGitHead": "3790e4b8b64b2aafdf1f43a251cc6fef5943684a",
-  "sourceExportSha256": "1eb916d1ee0e36741db6b1dd5ae13358d224c367722c674b6aa141bd725da91c",
-  "sourceFileManifestSha256": "c5f2c6011c424e1cb349fd3b2a28c1f3a926a7a5ebc66fbce53b88ec068c7ca4",
+  "generatedAt": "2026-07-23T11:11:07.843888Z",
+  "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
+  "sourceExportSha256": "c3e385a2c8c6070e9521d5e51f5e5f4f843921bb70ba4b1a47c77696280ff301",
+  "sourceFileManifestSha256": "d65e0df404bc41c9008d0124d792715a8f2a58f57cd9b011193b35deaebec242",
   "inventoryRules": {
     "javaPatterns": [
       "src/test/java/**/*.java"
@@ -547,6 +547,13 @@
       "mutationClass": "read-only"
     },
     {
+      "path": "bin/engineering-qualification-gate-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
       "path": "bin/export-integrity-it.sh",
       "suiteId": "tooling-patch-export-fixtures",
       "testLevel": "integration",
@@ -757,6 +764,17 @@
       "normalization": "none"
     },
     {
+      "path": "src/test/resources/tooling/engineering-qualification-gate-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/engineering-qualification-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
       "path": "src/test/resources/tooling/generated-slice-ir.business-partner.golden.json",
       "fixtureType": "golden-json",
       "owner": "springmaster-maintainers",
@@ -869,8 +887,8 @@
   ],
   "summary": {
     "javaTestClassCount": 49,
-    "toolingEntrypointCount": 30,
-    "sourceFixtureCount": 13,
+    "toolingEntrypointCount": 31,
+    "sourceFixtureCount": 14,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
     "coveragePolicyStatus": "unresolved"

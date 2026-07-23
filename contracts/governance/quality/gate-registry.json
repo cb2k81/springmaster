@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.gate-registry.v1",
-  "registryVersion": "1.1.0",
+  "registryVersion": "1.2.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "gates": [
@@ -227,6 +227,67 @@
       "reportSchema": "springmaster.test-contracts-report.v1",
       "fixtureEntrypoint": "bin/test-contracts-it.sh",
       "selfcheckEntrypoint": "bin/test-contracts-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ]
+    },
+    {
+      "gateId": "engineering-qualification-gate-v1",
+      "name": "Engineering Qualification Gate V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Evaluate deterministic engineering profile selection, registered qualification evidence and completion consistency",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "contracts",
+        "qualification"
+      ],
+      "entrypoint": "bin/engineering-qualification-gate.sh",
+      "inputContracts": [
+        "contracts/governance/engineering/change-classification-contract.json",
+        "contracts/governance/engineering/engineering-profile-contract.json",
+        "contracts/governance/engineering/engineering-evidence-contract.json",
+        "contracts/governance/engineering/engineering-completion-contract.json",
+        "contracts/governance/engineering/engineering-qualification-gate-contract.json",
+        "contracts/governance/quality/quality-rule-catalog.json",
+        "contracts/governance/quality/gate-registry.json",
+        "contracts/governance/testing/test-suite-contract.json"
+      ],
+      "ruleIds": [
+        "ENG-COMP-001",
+        "ENG-COMP-002",
+        "ENG-COMP-003",
+        "ENG-COMP-004",
+        "ENG-COMP-005",
+        "ENG-COMP-006",
+        "ENG-COMP-007",
+        "ENG-COMP-008",
+        "ENG-COMP-009",
+        "ENG-COMP-010",
+        "ENG-COMP-011",
+        "ENG-COMP-012",
+        "ENG-COMP-013",
+        "ENG-COMP-014",
+        "ENG-PROFILE-SEL-001",
+        "ENG-PROFILE-SEL-002",
+        "ENG-PROFILE-SEL-003",
+        "ENG-PROFILE-SEL-004",
+        "ENG-QUAL-001",
+        "ENG-QUAL-002",
+        "ENG-QUAL-003",
+        "ENG-QUAL-004"
+      ],
+      "reportSchema": "springmaster.engineering-qualification-gate-report.v1",
+      "fixtureEntrypoint": "bin/engineering-qualification-gate-it.sh",
+      "selfcheckEntrypoint": "bin/engineering-qualification-gate-it.sh",
       "readOnly": true,
       "sideEffects": [
         "report-files-only"
