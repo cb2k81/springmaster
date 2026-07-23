@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "springmaster.sprint-gate-fixtures.v1",
+  "cases": [
+    {"id": "no-sprints", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "valid-active-sprint", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "valid-archived-sprint", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "invalid-sprint-id", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_ID_INVALID"},
+    {"id": "missing-required-document", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_REQUIRED_DOCUMENT_MISSING"},
+    {"id": "document-id-mismatch", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_DOCUMENT_ID_INVALID"},
+    {"id": "required-heading-missing", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_REQUIRED_HEADING_MISSING"},
+    {"id": "solution-content-in-brief", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SOLUTION_CONTENT_IN_SPRINT_BRIEF"},
+    {"id": "dor-incomplete", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_DOR_INCOMPLETE"},
+    {"id": "milestone-status-invalid", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_MILESTONE_STATUS_INVALID"},
+    {"id": "duplicate-status-source", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_STATUS_SOURCE_COUNT_INVALID"},
+    {"id": "phase-invalid", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_PHASE_INVALID"},
+    {"id": "status-milestone-mismatch", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_STATUS_MILESTONES_MISMATCH"},
+    {"id": "accepted-drift-without-amendment", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_ACCEPTED_DRIFT_WITHOUT_AMENDMENT"},
+    {"id": "incomplete-amendment", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_AMENDMENT_INCOMPLETE"},
+    {"id": "stale-target-drift", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_DRIFT_REVIEW_STALE"},
+    {"id": "work-metadata-invalid", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_WORK_METADATA_INVALID"},
+    {"id": "closed-without-disposition", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_TEMPORARY_DISPOSITION_INVALID"},
+    {"id": "archive-temporary-content", "expectedExit": 1, "expectedStatus": "FINDINGS", "expectedCode": "SPRINT_ARCHIVE_TEMPORARY_CONTENT_PRESENT"},
+    {"id": "contract-change-expands-all", "mode": "changed", "changedPath": "contracts/governance/sprint/sprint-contract.json", "expectedExit": 0, "expectedStatus": "PASS", "expectedExpandedToAll": true},
+    {"id": "tool-error-missing-contract", "expectedExit": 2, "expectedStatus": "TOOL_ERROR", "expectedToolErrorCode": "CONTRACT_MISSING"}
+  ]
+}

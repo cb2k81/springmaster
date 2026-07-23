@@ -580,8 +580,29 @@ Sie ist vollständig, wenn:
 14. Contract und Gate eindeutig ableitbar sind,
 15. menschliche und automatisierte Ausführung dieselbe Bedeutung ableiten.
 
+### 19.1 Technischer Umsetzungsstand
+
+Die report-only Erstimplementierung umfasst:
+
+- `contracts/governance/sprint/sprint-contract.json`,
+- `contracts/governance/sprint/sprint-drift-contract.json`,
+- vier spezialisierte Templates für Sprint Brief, Solution Plan, Status und Completion Report,
+- `bin/sprint-gate.py` und den Shell-Einstieg,
+- positive, negative und Tool-Error-Fixtures,
+- vollständige Prüfung aktiver und archivierter Sprints sowie Changed-to-All-Erweiterung bei Contractänderungen.
+
+Der aktuelle Springmaster-Bestand enthält noch keinen Sprint unter `PROJECT_DOCS/SPRINTS/`; der Baseline-Scan ist daher ohne Transition-Ausnahme grün. Neue Sprintinstanzen müssen den Contract sofort vollständig erfüllen.
+
+Vor einer Aktivierung oder Strict-Promotion bleiben offen:
+
+- kontrollierte Materialisierung in Project-New,
+- ein erster realer Springmaster-Pilotsprint im Zielpfad,
+- Abgleich mit Managed-Project-Adoption und Release Closure,
+- Promotionentscheidung nach Quality Gate Governance.
+
 ## 20. Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-23 | – | draft | Konsolidierter Volltextentwurf mit getrenntem Problem- und Lösungsraum |
+| 2026-07-23 | draft | draft | Report-only Sprint und Drift Contracts, Templates, Gate und Fixtures technisch abgeleitet; Aktivierung bleibt offen |

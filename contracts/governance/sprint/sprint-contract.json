@@ -1,0 +1,290 @@
+{
+  "schemaVersion": "springmaster.sprint-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "governanceDocument": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+  "roots": {
+    "active": "PROJECT_DOCS/SPRINTS/ACTIVE",
+    "archive": "PROJECT_DOCS/SPRINTS/ARCHIVE"
+  },
+  "sprintIdPattern": "^[A-Z][A-Z0-9-]*-SPRINT-[0-9]{3}$",
+  "documentIdSuffixes": {
+    "SPRINT_BRIEF.md": "-BRIEF",
+    "SOLUTION_PLAN.md": "-PLAN",
+    "STATUS.md": "-STATUS",
+    "COMPLETION_REPORT.md": "-COMPLETION"
+  },
+  "activeDocuments": [
+    {
+      "file": "SPRINT_BRIEF.md",
+      "documentType": "sprint-brief",
+      "authority": "directive",
+      "temporary": false,
+      "allowedStatuses": [
+        "planned",
+        "active",
+        "blocked",
+        "completed",
+        "cancelled"
+      ],
+      "template": "PROJECT_DOCS/_TEMPLATES/SPRINT_BRIEF_TEMPLATE.md",
+      "requiredMetadata": [
+        "sprintStart",
+        "targetCompletion"
+      ]
+    },
+    {
+      "file": "SOLUTION_PLAN.md",
+      "documentType": "plan",
+      "authority": "directive",
+      "temporary": true,
+      "allowedStatuses": [
+        "draft",
+        "review",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "template": "PROJECT_DOCS/_TEMPLATES/SPRINT_SOLUTION_PLAN_TEMPLATE.md",
+      "requiredMetadata": []
+    },
+    {
+      "file": "STATUS.md",
+      "documentType": "sprint-status",
+      "authority": "evidence",
+      "temporary": true,
+      "allowedStatuses": [
+        "planned",
+        "active",
+        "blocked",
+        "completed",
+        "cancelled"
+      ],
+      "template": "PROJECT_DOCS/_TEMPLATES/SPRINT_STATUS_TEMPLATE.md",
+      "requiredMetadata": [
+        "sprintPhase",
+        "overallStatus",
+        "lastDriftResult",
+        "lastDriftAt",
+        "expectedVersionImpact"
+      ]
+    },
+    {
+      "file": "COMPLETION_REPORT.md",
+      "documentType": "sprint-completion-report",
+      "authority": "evidence",
+      "temporary": false,
+      "allowedStatuses": [
+        "draft",
+        "final",
+        "corrected"
+      ],
+      "template": "PROJECT_DOCS/_TEMPLATES/SPRINT_COMPLETION_REPORT_TEMPLATE.md",
+      "requiredMetadata": [
+        "qualificationStatus",
+        "closureStatus"
+      ]
+    }
+  ],
+  "archiveDocuments": [
+    {
+      "file": "SPRINT_BRIEF.md",
+      "documentType": "sprint-brief",
+      "authority": "directive",
+      "temporary": false,
+      "allowedStatuses": [
+        "archived"
+      ]
+    },
+    {
+      "file": "COMPLETION_REPORT.md",
+      "documentType": "sprint-completion-report",
+      "authority": "evidence",
+      "temporary": false,
+      "allowedStatuses": [
+        "final",
+        "corrected",
+        "historical"
+      ]
+    }
+  ],
+  "optionalArchiveFiles": [
+    "EVIDENCE_INDEX.md"
+  ],
+  "forbiddenArchiveEntries": [
+    "SOLUTION_PLAN.md",
+    "STATUS.md",
+    "WORK"
+  ],
+  "phases": [
+    "intake-and-alignment",
+    "problem-framing",
+    "solution-framing",
+    "slice-planning",
+    "execution",
+    "qualification",
+    "closure-and-promotion"
+  ],
+  "overallStatuses": [
+    "planned",
+    "active",
+    "blocked",
+    "completed",
+    "cancelled"
+  ],
+  "milestoneStatuses": [
+    "planned",
+    "in-progress",
+    "blocked",
+    "completed",
+    "deferred",
+    "cancelled"
+  ],
+  "qualificationStatuses": [
+    "pending",
+    "qualified",
+    "qualified-with-deferrals",
+    "blocked",
+    "cancelled"
+  ],
+  "closureStatuses": [
+    "open",
+    "completed",
+    "cancelled"
+  ],
+  "versionImpacts": [
+    "none",
+    "patch",
+    "minor",
+    "major"
+  ],
+  "requiredHeadings": {
+    "SPRINT_BRIEF.md": [
+      "Sprintziel",
+      "Strategischer Bezug",
+      "Ausgangslage und Baseline",
+      "Problemstellung und Stakeholder",
+      "Anforderungen",
+      "Qualitätsanforderungen",
+      "In Scope",
+      "Out of Scope",
+      "Constraints und Abhängigkeiten",
+      "Risiken",
+      "Definition of Ready",
+      "Definition of Done",
+      "Messbare Teilziele",
+      "SemVer-Auswirkung",
+      "Stop- und Abbruchkriterien",
+      "Amendments",
+      "Lifecycle"
+    ],
+    "SOLUTION_PLAN.md": [
+      "Lösungsoptionen und Auswahl",
+      "Architektur- und Contract-Auswirkungen",
+      "Slices und Reihenfolge",
+      "Teststrategie und Zwischenverifikationen",
+      "Messkriterien",
+      "Migration und Rollback",
+      "Tool- und Gate-Einsatz",
+      "Dokumentations- und Registerauswirkungen",
+      "Versionswirkung",
+      "Patch- oder Commitsequenz",
+      "Unsicherheiten und Entscheidungszeitpunkte",
+      "Lifecycle"
+    ],
+    "STATUS.md": [
+      "Aktueller Stand",
+      "Teilziele",
+      "Blocker und Erkenntnisse",
+      "Drift-Bewertung",
+      "Risiken und technische Schulden",
+      "Versionswirkung",
+      "Nächster kontrollierter Schritt",
+      "Lifecycle"
+    ],
+    "COMPLETION_REPORT.md": [
+      "Ergebnisübersicht",
+      "Anforderungen und Teilziele",
+      "Definition of Done und Qualification",
+      "Akzeptierte Änderungen",
+      "Dauerhafte Promotionen",
+      "Offene Findings, Risiken und Schulden",
+      "Temporäre Dokumente",
+      "SemVer- und Releasebewertung",
+      "Nicht erreichte Ziele und Folgebedarf",
+      "Lifecycle"
+    ]
+  },
+  "forbiddenBriefHeadingPatterns": [
+    "^Lösungsoptionen",
+    "^Slices und Reihenfolge$",
+    "^Tool- und Gate-Einsatz$",
+    "^Patch- oder Commitsequenz$",
+    "^Implementierungsplan$"
+  ],
+  "milestoneTable": {
+    "heading": "Messbare Teilziele",
+    "requiredColumns": [
+      "ID",
+      "Ergebnis",
+      "Anforderungen",
+      "Acceptance",
+      "Evidence",
+      "Owner",
+      "Status"
+    ],
+    "idPattern": "^M-[0-9]{3}$"
+  },
+  "workDocuments": {
+    "root": "WORK",
+    "allowedDirectories": [
+      "ANALYSES",
+      "CHECKLISTS",
+      "SOLUTION_NOTES"
+    ],
+    "requiredTemporary": true,
+    "requiredMetadata": [
+      "sprintId",
+      "reviewBy"
+    ]
+  },
+  "indexPath": "PROJECT_DOCS/index.md",
+  "rules": [
+    {
+      "ruleId": "SPR-CONTRACT-001",
+      "title": "Sprint identity and canonical paths"
+    },
+    {
+      "ruleId": "SPR-DOC-001",
+      "title": "Required sprint documents and metadata"
+    },
+    {
+      "ruleId": "SPR-SEPARATION-001",
+      "title": "Problem and solution space separation"
+    },
+    {
+      "ruleId": "SPR-DOR-001",
+      "title": "Definition of Ready completeness"
+    },
+    {
+      "ruleId": "SPR-DOD-001",
+      "title": "Definition of Done completeness"
+    },
+    {
+      "ruleId": "SPR-MILESTONE-001",
+      "title": "Measurable milestone contract"
+    },
+    {
+      "ruleId": "SPR-STATUS-001",
+      "title": "Single current status and valid lifecycle values"
+    },
+    {
+      "ruleId": "SPR-CLOSURE-001",
+      "title": "Qualification, temporary document disposition and archive closure"
+    },
+    {
+      "ruleId": "SPR-INDEX-001",
+      "title": "Sprint documents are discoverable in the documentation index"
+    }
+  ]
+}

@@ -219,6 +219,10 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 - `PROJECT_DOCS/_TEMPLATES/GOVERNANCE_TEMPLATE.md` — active Governance template
 - `PROJECT_DOCS/_TEMPLATES/REPORT_TEMPLATE.md` — active Report template
 - `PROJECT_DOCS/_TEMPLATES/STANDARD_TEMPLATE.md` — active Standard template
+- `PROJECT_DOCS/_TEMPLATES/SPRINT_BRIEF_TEMPLATE.md` — active Sprint Brief template for the problem and assignment space
+- `PROJECT_DOCS/_TEMPLATES/SPRINT_SOLUTION_PLAN_TEMPLATE.md` — active Sprint Solution Plan template for the solution and execution space
+- `PROJECT_DOCS/_TEMPLATES/SPRINT_STATUS_TEMPLATE.md` — active template for the single current sprint status source
+- `PROJECT_DOCS/_TEMPLATES/SPRINT_COMPLETION_REPORT_TEMPLATE.md` — active Sprint Completion Report template
 
 ## Lifecycle
 
@@ -229,3 +233,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 | 2026-07-22 | active | active | Fünf validierte Kern-Governance-Drafts indexiert |
 | 2026-07-22 | active | active | Drei validierte Engineering-Standards als Drafts indexiert |
 | 2026-07-23 | active | active | Vier verbleibende Governance- und Standard-Drafts für Gesamtaudit 02 integriert |
+| 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |

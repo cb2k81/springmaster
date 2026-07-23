@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "springmaster.sprint-drift-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "events": [
+    "before-new-slice",
+    "after-accepted-change",
+    "new-requirement",
+    "architecture-change",
+    "dependency-change",
+    "security-or-data-change",
+    "blocker-or-stop-condition",
+    "target-completion-crossed",
+    "before-qualification",
+    "before-closure"
+  ],
+  "categories": [
+    "goal",
+    "scope",
+    "requirement",
+    "architecture",
+    "solution",
+    "quality",
+    "test",
+    "version",
+    "dependency",
+    "documentation",
+    "directory",
+    "project-profile"
+  ],
+  "results": ["none", "accepted", "deferred", "split", "stop-and-replan"],
+  "amendmentRequiredCategories": [
+    "goal",
+    "scope",
+    "requirement",
+    "quality",
+    "version",
+    "project-profile"
+  ],
+  "amendmentHeadingPattern": "^AMEND-[0-9]{3}$",
+  "amendmentRequiredFields": [
+    "Datum",
+    "Anlass",
+    "Alte Aussage",
+    "Neue Aussage",
+    "Auswirkungen",
+    "Entscheidung",
+    "Freigaben"
+  ],
+  "rules": [
+    {"ruleId": "SPR-DRIFT-001", "title": "Drift result must use the controlled vocabulary"},
+    {"ruleId": "SPR-DRIFT-002", "title": "Crossed target completion requires a current drift review"},
+    {"ruleId": "SPR-AMEND-001", "title": "Accepted material drift requires a complete amendment"}
+  ]
+}

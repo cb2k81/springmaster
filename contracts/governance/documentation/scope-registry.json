@@ -197,6 +197,27 @@
         "bin/**",
         "platform/update/tools/**"
       ]
+    },
+    {
+      "id": "springmaster/governance/sprint-contracts",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/sprints",
+      "description": "Machine-readable Sprint and Drift Contracts",
+      "physicalPaths": [
+        "contracts/governance/sprint/**"
+      ]
+    },
+    {
+      "id": "springmaster/tooling/sprint-gate",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/sprints",
+      "description": "Report-only Sprint Gate implementation and fixtures",
+      "physicalPaths": [
+        "bin/sprint-gate*",
+        "src/test/resources/tooling/sprint-gate-v1/**"
+      ]
     }
   ]
 }

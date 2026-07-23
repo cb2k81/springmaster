@@ -92,6 +92,13 @@ run_optional_contract_check \
   "${PROJECT_ROOT}/bin/project-directory-gate-it.sh"
 
 run_optional_contract_check \
+  "sprint contract" \
+  "${PROJECT_ROOT}/bin/sprint-gate.sh" \
+  bash -c '"$1" --mode all --check >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/sprint-gate.sh" \
+  "${PROJECT_ROOT}/bin/sprint-gate-it.sh"
+
+run_optional_contract_check \
   "configuration contract" \
   "${PROJECT_ROOT}/bin/config-contract.sh" \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
