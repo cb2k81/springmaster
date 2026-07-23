@@ -424,6 +424,12 @@ Bestehende Prüfkommandos bleiben bis zur Einführung der Profile gültige Besta
 
 Die Aktivierung dieser Governance promotet keine bestehende Regel und kein Gate automatisch zu strict.
 
+### 14.1 Pilotabschluss und report-only Aktivierungsgrenze
+
+`SPRINGMASTER-SPRINT-001` hat die Contract-, Registry-, Test- und Qualification-Kette technisch abgeschlossen. Für Springmaster ist sie als report-only Engineering-Evidence betriebsreif. Sie führt registrierte Gates nicht selbst aus und ersetzt keine Release Qualification.
+
+Die Pilot-Closure empfiehlt keine Strict-Promotion. Eine spätere Promotion erfolgt regelweise nach Quality Gate Governance und benötigt Bestands-, Fixture-, Fresh-Project- oder Target-Evidence für den jeweiligen Scope. Project-New übernimmt den Engineering-Harness nicht vorsorglich; gemanagte Projekte erhalten ihn erst über einen versionierten Adoption- und Compatibility-Pfad. Der dauerhafte Entscheidungsnachweis steht in `PROJECT_DOCS/TOOLING/ENGINEERING_QUALIFICATION_ACTIVATION_RECOMMENDATION.md`.
+
 ## 15. Kanonische Ausgaben und Abnahmekriterien
 
 Diese Governance kontrolliert ausschließlich:
@@ -456,3 +462,4 @@ Sie ist inhaltlich vollständig, wenn:
 | 2026-07-22 | – | draft | Konsolidierter Volltextentwurf auf Basis des verifizierten Springmaster-Bestands |
 | 2026-07-23 | draft | draft | S-01 materialisiert Classification-, Profile-, Evidence- und Completion-Contracts als report-only Foundation. |
 | 2026-07-23 | draft | draft | S-04 materialisiert das report-only Engineering-Qualification-Gate und seine Registry-/Fixture-Brücke. |
+| 2026-07-23 | draft | draft | Pilotsprint qualifiziert geschlossen; report-only Nutzung empfohlen, Strict- und Propagationsentscheidungen deferiert. |

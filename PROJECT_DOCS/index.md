@@ -22,7 +22,7 @@ sprintId: null
 ---
 # Project Documentation Index
 
-This index covers every non-archived Markdown document under `PROJECT_DOCS/`. During the Documentation Transition, legacy entries remain path-based; V2 documents are validated against their front matter. Patch changelogs and generated runtime reports are intentionally outside this index.
+This index covers every non-archived Markdown document under `PROJECT_DOCS/` and the archived Sprint Brief/Completion documents required by the Sprint Contract. During the Documentation Transition, legacy entries remain path-based; V2 documents are validated against their front matter. Patch changelogs and generated runtime reports are intentionally outside this index.
 
 ## ADR
 
@@ -163,10 +163,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — verbindlicher Problem- und Auftragsraum des Engineering Qualification Pilot
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-001/SOLUTION_PLAN.md` — aktiver Lösungs- und Ausführungsplan
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-001/STATUS.md` — einzige aktuelle Sprintstatusquelle
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — dauerhafter Qualification- und Closure-Rahmen
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
 
 ## TEMPLATES
 
@@ -211,6 +209,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 - `PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_TARGET_SCOPE_PREFLIGHT.md`
 - `PROJECT_DOCS/TOOLING/PROJECT_NAMESPACE_AND_LOCAL_CONFIGURATION_CONTRACT.md`
 - `PROJECT_DOCS/TOOLING/PROJECT_NEW.md`
+- `PROJECT_DOCS/TOOLING/ENGINEERING_QUALIFICATION_ACTIVATION_RECOMMENDATION.md` — finaler report-only Aktivierungs-, Impact-, Deferral- und SemVer-Nachweis
 - `PROJECT_DOCS/TOOLING/PROJECT_NEW_INSTANTIATION_ACCEPTANCE_REVIEW.md`
 - `PROJECT_DOCS/TOOLING/RELEASE_QUALIFICATION.md`
 - `PROJECT_DOCS/TOOLING/REPORT_ONLY_GATE_FINDINGS_BASELINE_REVIEW.md`
@@ -241,3 +240,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 | 2026-07-22 | active | active | Drei validierte Engineering-Standards als Drafts indexiert |
 | 2026-07-23 | active | active | Vier verbleibende Governance- und Standard-Drafts für Gesamtaudit 02 integriert |
 | 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |
+| 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |

@@ -363,6 +363,9 @@ def prepare(case_id: str) -> tuple[Path, list[str]]:
     changed_paths: list[str] = []
     if case_id == "no-sprints" or case_id == "contract-change-expands-all":
         return root, changed_paths
+    if case_id == "empty-active-directory":
+        (root / "PROJECT_DOCS/SPRINTS/ACTIVE" / SPRINT_ID).mkdir(parents=True)
+        return root, changed_paths
     if case_id in {"valid-archived-sprint", "archive-temporary-content"}:
         sprint = create_archive(root)
         if case_id == "archive-temporary-content":

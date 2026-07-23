@@ -430,11 +430,14 @@ def collect_sprints(root: Path, contract: dict[str, Any], mode: str, changed_pat
     }
     expand_paths.update(item.get("template") for item in contract.get("activeDocuments", []) if isinstance(item.get("template"), str))
     expanded = mode != "changed" or any(path in expand_paths for path in changed_paths)
+    def has_repository_content(path: Path) -> bool:
+        return path.is_dir() and any(item.is_file() or item.is_symlink() for item in path.rglob("*"))
+
     active: list[Path] = []
     archived: list[tuple[Path, Path]] = []
     if expanded:
         if active_root.is_dir():
-            active = sorted(path for path in active_root.iterdir() if path.is_dir())
+            active = sorted(path for path in active_root.iterdir() if has_repository_content(path))
         if archive_root.is_dir():
             for year_dir in sorted(path for path in archive_root.iterdir() if path.is_dir()):
                 archived.extend((year_dir, path) for path in sorted(item for item in year_dir.iterdir() if item.is_dir()))
@@ -454,7 +457,7 @@ def collect_sprints(root: Path, contract: dict[str, Any], mode: str, changed_pat
             year_dir = root / Path(*parts[:len(ar)+1])
             sprint_dir = root / Path(*parts[:len(ar)+2])
             archive_seen.add((year_dir, sprint_dir))
-    return sorted(active_seen), sorted(archive_seen, key=lambda pair: str(pair[1])), False
+    return sorted(path for path in active_seen if has_repository_content(path)), sorted(archive_seen, key=lambda pair: str(pair[1])), False
 
 
 def run(args: argparse.Namespace) -> tuple[dict[str, Any], int]:

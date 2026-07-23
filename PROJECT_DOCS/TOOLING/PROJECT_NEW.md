@@ -147,3 +147,16 @@ Die Instantiation Acceptance etabliert im erzeugten Projekt zunächst eine eigen
 ```
 
 besteht. Die Gates bleiben report-only, solange keine gesonderte Promotion nach Quality Gate Governance erfolgt.
+
+## Engineering-Qualification-Impact nach SPRINGMASTER-SPRINT-001
+
+Der Engineering Qualification Pilot erweitert Project-New bewusst nicht um den Springmaster-spezifischen Engineering-, Quality- und Test-Harness. Der Minimal-Harness aus Patch `000174` bleibt unverändert und weiterhin auf Documentation-, Directory- und Sprint-Gates begrenzt.
+
+Die Impactprüfung bestätigt:
+
+- alle zehn Project-New-relevanten Lieferdateien aus Patch `000174` sind bytegenau unverändert,
+- ein frisch erzeugtes Projekt besteht Documentation-, Directory- und Sprint-Gate ohne neue Findings,
+- Engineering-Profile, Rule Catalog und Test Inventory benötigen vor lokaler Materialisierung einen projektspezifischen Adoption- und Profilvertrag,
+- keine Template-Versionserhöhung ist durch diesen Pilotsprint erforderlich.
+
+Eine spätere Erweiterung benötigt einen eigenen Project-New-Patch mit reduzierter Rule-/Gate-Selektion, Fresh-Project-Acceptance und expliziter Template-SemVer-Entscheidung. Der dauerhafte Entscheidungsnachweis steht in `ENGINEERING_QUALIFICATION_ACTIVATION_RECOMMENDATION.md`.

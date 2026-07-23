@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-001-BRIEF
 title: Engineering Qualification Pilot – Sprint Brief
 documentType: sprint-brief
-status: active
+status: archived
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -13,7 +13,7 @@ owner: springmaster-maintainers
 createdAt: 2026-07-23
 validFrom: 2026-07-23
 lastReviewedAt: 2026-07-23
-reviewBy: 2026-08-07
+reviewBy: null
 supersedes: []
 supersededBy: null
 temporary: false
@@ -227,3 +227,4 @@ Keine.
 |---|---|---|---|
 | 2026-07-23 | – | planned | Sprintauftrag und Baseline formuliert. |
 | 2026-07-23 | planned | active | Problemraum, DoR, Teilziele und Solution Plan für den Pilot bestätigt. |
+| 2026-07-23 | active | archived | M-001 bis M-005 abgeschlossen; qualifizierte Closure mit kontrollierten Deferrals. |

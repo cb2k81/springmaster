@@ -520,6 +520,12 @@ Slice `S-04` materialisiert `engineering-qualification-gate-v1` als read-only, r
 
 Der Catalog enthält Titel und normative Quellenreferenzen, aber keinen duplizierten Regeltext. Die Gate Registry bleibt auf `report-only`, read-only und Reportdateien als einzige Side Effects begrenzt. Keine Regel und kein Gate wird durch diesen Umsetzungsstand `strict`.
 
+### 16.4 Pilotabschluss und Enforcement-Entscheidung
+
+Der Engineering Qualification Pilot schließt mit 72 eindeutig registrierten Quality Rules und sechs Gate-Deskriptoren. Alle im Pilot erzeugten oder zugeordneten Gates bleiben `report-only`. Die technische Integration und Fixture-Abdeckung ist qualifiziert; eine Strict-Promotion wurde weder beantragt noch erteilt.
+
+Strict-, Project-New- und Managed-Project-Aktivierung bleiben getrennte Folgeentscheidungen. Der Aktivierungs- und Impact-Nachweis ist `PROJECT_DOCS/TOOLING/ENGINEERING_QUALIFICATION_ACTIVATION_RECOMMENDATION.md`.
+
 ## 17. Abnahmekriterien
 
 Diese Governance ist vollständig, wenn:
@@ -545,3 +551,4 @@ Diese Governance ist vollständig, wenn:
 |---|---|---|---|
 | 2026-07-22 | – | draft | Konsolidierter Erstentwurf auf Basis von ADR-0006 und aktuellem Gate-Harness |
 | 2026-07-23 | draft | draft | S-04 registriert das qualifizierte report-only Engineering-Qualification-Gate ohne Strict-Promotion. |
+| 2026-07-23 | draft | draft | Pilotabschluss bestätigt 72 Rules und sechs report-only Gates; keine Strict-Promotion. |

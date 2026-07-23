@@ -558,6 +558,12 @@ Die Materialisierung erfüllt damit die Project-New-Anteile aus 5.3 und 5.5. Sie
 - autorisierte Target-Apply-Closure mit Managed-State-Aktualisierung,
 - weitere reale Target-Acceptance.
 
+### 19.1 Auswirkung des Engineering Qualification Pilot
+
+Der Pilot liefert keine automatische Propagation des Engineering-Harness. Die bestehenden Platform-Update-Profile enthalten die neuen Engineering-, Quality- und Testing-Contracts sowie deren Gate-Skripte nicht; dadurch entsteht keine stille Zielprojektänderung.
+
+Ein disposable Zielprojekt bestand Compatibility Check, Generierung und Target-Preflight im Profil `tooling-cutover` ohne Mutation. Für eine spätere Übernahme fehlen weiterhin versionierte Adoption-/Deviation-Contracts, ein read-only Managed-Project-Gate und profilbezogene Contract-/Rule-/Gate-Selektion. Reale Targets bleiben unverändert und benötigen weiterhin eine eigene Compatibility Review und Autorisierung. Der vollständige Befund steht in `PROJECT_DOCS/TOOLING/ENGINEERING_QUALIFICATION_ACTIVATION_RECOMMENDATION.md`.
+
 ## 20. Referenzen
 
 - Documentation Governance
@@ -580,3 +586,4 @@ Die Materialisierung erfüllt damit die Project-New-Anteile aus 5.3 und 5.5. Sie
 |---|---|---|---|
 | 2026-07-23 | – | draft | Volltext aus Governance-Anforderungen und bestehendem Managed-Project-/Platform-Update-Harness abgeleitet |
 | 2026-07-23 | draft | draft | Minimaler Project-New-Governance-Harness und Fresh-Project-Acceptance technisch materialisiert; Managed-Project-Pilot bleibt offen |
+| 2026-07-23 | draft | draft | Engineering-Harness-Impact bewertet; read-only Befund möglich, automatische Propagation bleibt deferiert. |

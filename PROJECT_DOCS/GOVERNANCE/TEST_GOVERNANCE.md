@@ -660,6 +660,12 @@ Folgende Lücken bleiben bis zur technischen Umsetzung sichtbar:
 
 Diese Lücken sind keine Begründung, vorhandene belastbare Tests abzuwerten oder eine Big-Bang-Umstellung zu verlangen.
 
+### 16.5 Pilotabschluss und Test-Deferrals
+
+Der Engineering Qualification Pilot materialisiert Suite-, Fixture- und versiegelten Inventory-Contract sowie deren report-only Validator. Die aktuelle Surefire-basierte Ausführung bleibt Bestandswahrheit. Es werden weder Failsafe-/Tag-Segmentierung noch Coverage-, Komplexitäts- oder Static-Analysis-Schwellen implizit eingeführt.
+
+Project-New übernimmt diese Springmaster-spezifische Testinventarisierung nicht ohne eigenen lokalen Profilvertrag. Managed Projects benötigen vor einer Übernahme profilbezogene Test- und Fixture-Selektion. Die Closure-Entscheidung ist im Aktivierungsreport dokumentiert.
+
 ## 17. Abnahmekriterien
 
 Diese Governance ist inhaltlich vollständig, wenn:
@@ -683,3 +689,4 @@ Diese Governance ist inhaltlich vollständig, wenn:
 |---|---|---|---|
 | 2026-07-22 | – | draft | Volltextentwurf auf Basis der bestehenden Springmaster-Testbaseline und des Governance-Gerüsts |
 | 2026-07-23 | draft | draft | Suite-, Fixture- und Inventory-Contracts sowie report-only Validator und 18 Fixtures materialisiert; Coverage, Failsafe und Quarantäne bleiben offen |
+| 2026-07-23 | draft | draft | Test-Contracts und Inventory qualifiziert; Tool- und Schwellenentscheidungen bleiben deferiert. |
