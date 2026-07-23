@@ -42,6 +42,7 @@
     },
     "root": {
       "include": [
+        "AGENTS.md",
         "README.md",
         "pom.xml",
         ".gitignore",
@@ -115,7 +116,12 @@
     "tooling": {
       "include": [
         "bin/**",
-        "PROJECT_DOCS/TOOLING/**"
+        "PROJECT_DOCS/TOOLING/**",
+        "contracts/governance/**",
+        "src/test/resources/tooling/**",
+        "PROJECT_DOCS/_TEMPLATES/**",
+        "PROJECT_DOCS/index.md",
+        "PROJECT_DOCS/GOVERNANCE/GOVERNANCE_ADOPTION.md"
       ],
       "exclude": []
     },
@@ -130,7 +136,8 @@
     "templates": {
       "include": [
         "PROJECT_DOCS/TEMPLATES/**",
-        "platform/templates/**"
+        "platform/templates/**",
+        "PROJECT_DOCS/_TEMPLATES/**"
       ],
       "exclude": []
     },

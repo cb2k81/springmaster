@@ -41,7 +41,10 @@ Das Zielprojekt enthält:
 * `bin/export-integrity-check.py` mit Integrationstest
 * `bin/dbtool.sh`
 * `bin/build.sh`
-* `bin/tooling-selfcheck.sh`
+* projektlokales `bin/tooling-selfcheck.sh`
+* report-only Documentation-, Directory- und Sprint-Gates samt Contracts und Fixtures
+* Governance-Adoption, leere Deviation-/Risikoausgangsstände und Managed State
+* Sprint- und Governance-Dokumentvorlagen
 * `platform/versions/platform.env`
 * Bootstrap-Nachweis unter `PROJECT_DOCS/BOOTSTRAP/`
 * registrierten Bootstrap-Eintrag unter `patches/archives/000001_project_new_bootstrap/`
@@ -50,7 +53,14 @@ Das Zielprojekt enthält:
 
 ```bash
 cd /tmp/springmaster-sample
+git init
+git add -A
+git commit -m 'bootstrap: project-new baseline'
 ./bin/patch.sh list
+./bin/documentation-gate.sh --check-all
+./bin/project-directory-gate.sh --profile generated-project --check-all
+./bin/sprint-gate.sh --check-all
+./bin/tooling-selfcheck.sh --no-export
 ./bin/export.sh full --zip
 ./bin/export.sh --full-parts baseline --zip
 ./bin/dbtool.sh status
@@ -107,3 +117,33 @@ Die maschinenlesbaren Schema-IDs der Tooling-Verträge bleiben bei der Projektto
 ## Patch Manifest V2 seit 000140
 
 Der registrierte Bootstrap-Eintrag eines neu erzeugten Projekts verwendet `springmaster.patch-manifest.v2`. `project-new` erzeugt pro Projekt eine neue globale UUID-basierte `artifactId`; die lokale Bootstrap-`patchId` bleibt `000001_project_new_bootstrap`. Manifest und Bootstrap-Log müssen dieselbe globale Identität tragen.
+
+## Lokaler Governance-Harness seit 000174
+
+Patch `000174_springmaster_project_new_governance_harness` materialisiert einen minimalen, lokal ausführbaren Governance-Harness in jedes frisch erzeugte Projekt. Project-New kopiert dabei nicht die vollständige Springmaster-Governance. Es liefert ausschließlich die für die eigenständige Projektbaseline erforderlichen Verträge, Gates, Fixtures, Templates und projektspezifischen Nachweise.
+
+Ein erzeugtes Projekt enthält insbesondere:
+
+- `AGENTS.md` als lokalen Einstieg für menschliche, automatisierte und KI-gestützte Arbeit,
+- einen V2-Dokumentationsindex,
+- `GOVERNANCE_ADOPTION.md` und einen maschinenlesbaren Adoption Record,
+- registrierte leere Deviation- und Risikoausgangsstände,
+- einen initialen Managed State,
+- Documentation-, Project-Directory- und Sprint-Contracts,
+- report-only Gates für Dokumentation, Verzeichnisstruktur und Sprints,
+- die zugehörigen 10, 17 und 21 Fixture-Szenarien,
+- allgemeine Governance- und Sprint-Templates,
+- einen projektlokalen Selfcheck, der ausschließlich mitgelieferte Werkzeuge aufruft.
+
+Die kanonischen Schema-IDs bleiben unverändert `springmaster.*`. Projektname und lokale Scope-Werte werden nur an den dafür vorgesehenen Stellen materialisiert. Der Directory Contract verwendet im Fresh Project das Profil `generated-project`; die Directory Transition Baseline startet leer.
+
+Die Instantiation Acceptance etabliert im erzeugten Projekt zunächst eine eigenständige lokale Git-Baseline. Anschließend prüft sie, dass das Fresh Project ohne manuelle Reparatur:
+
+```bash
+./bin/documentation-gate.sh --check-all
+./bin/project-directory-gate.sh --profile generated-project --check-all
+./bin/sprint-gate.sh --check-all
+./bin/tooling-selfcheck.sh --no-export
+```
+
+besteht. Die Gates bleiben report-only, solange keine gesonderte Promotion nach Quality Gate Governance erfolgt.

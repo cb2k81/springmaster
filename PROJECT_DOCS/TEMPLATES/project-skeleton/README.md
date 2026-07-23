@@ -5,7 +5,7 @@ Dieser Ordner enthält das initiale Projektskelett für neue Cocondo Java-Backen
 ## Status
 
 ```text
-STATUS=PROJECT_NEW_FOUNDATION
+STATUS=PROJECT_NEW_GOVERNANCE_HARNESS_FOUNDATION
 AUTOMATIC_GENERATION=IMPLEMENTED_CONSERVATIVE
 ```
 
@@ -20,7 +20,9 @@ Das Skeleton stellt die Dateien bereit, die ein neues Projekt unmittelbar projek
 * Export-Grundkonfiguration
 * DBTool-Grundkonfiguration
 * `.env.example`
-* minimale Dokumentationsstruktur
+* minimale V2-Dokumentationsstruktur mit Index
+* lokaler Governance-Adoption und maschinenlesbaren Ausgangsständen
+* report-only Documentation-, Directory- und Sprint-Harness
 * Versionierungs- und Bootstrap-Nachweis
 
 Das operative Tool ergänzt zusätzlich die aus dem Masterstand übernommenen Tooling-Dateien:
@@ -29,7 +31,8 @@ Das operative Tool ergänzt zusätzlich die aus dem Masterstand übernommenen To
 * Exporttool
 * DBTool
 * Buildtool
-* Tooling-Selfcheck
+* projektlokaler Tooling-Selfcheck
+* Governance-Gates, Contracts, Fixtures und freigegebene Templates
 
 ## Tokenmodell
 
@@ -94,3 +97,16 @@ PROJECT_DOCS/TOOLING/GENERATED_SERVICE_SLICE_READINESS_PLAN.md
 ```
 
 Dadurch bleibt ein neu erzeugtes Projekt sauber und minimal, während fachliche Slice-Erzeugung, Core-Verteilung und Evidence nicht implizit in die Projektanlage gemischt werden.
+
+## Governance-Harness seit 000174
+
+Das Skeleton bleibt fachfrei, erzeugt aber nun eine eigenständig prüfbare Governance-Baseline. Die vollständigen Springmaster-Governance-Dokumente und Standards werden nicht kopiert. Stattdessen werden lokal materialisiert:
+
+- ein projektspezifisches `AGENTS.md`,
+- Dokumentationsindex und Governance-Adoption,
+- Adoption-, Deviation-, Risiko- und Managed-State-Records,
+- Documentation-, Directory- und Sprint-Contracts,
+- report-only Gates und deren Fixtures,
+- allgemeine Dokument- und Sprint-Templates.
+
+Der Generator passt ausschließlich projektbezogene Werte an. Kanonische Schema-IDs und Fixture-Verträge bleiben unverändert. Ein frisches Projekt muss alle drei Governance-Gates sowie den lokalen Tooling-Selfcheck ohne manuelle Nacharbeit bestehen.

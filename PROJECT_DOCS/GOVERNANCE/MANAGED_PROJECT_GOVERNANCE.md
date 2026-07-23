@@ -535,7 +535,30 @@ Diese Governance ist vollständig umgesetzt, wenn:
 19. mehrere Targets einzeln qualifiziert werden,
 20. weitere reale Targets nur nach eigener Compatibility Review freigegeben werden.
 
-## 19. Referenzen
+
+## 19. Technischer Umsetzungsstand
+
+Die erste Project-New-Materialisierung des minimalen Governance-Harness umfasst:
+
+- projektlokales `AGENTS.md` und einen V2-Dokumentationsindex,
+- Governance Adoption und maschinenlesbaren Adoption Record,
+- registrierte leere Deviation- und Risikoausgangsstände,
+- initialen Managed State,
+- Documentation-, Directory- und Sprint-Contracts,
+- report-only Gates und vollständige Fixture-Sätze,
+- freigegebene Governance- und Sprint-Templates,
+- einen projektlokalen Tooling-Selfcheck,
+- Fresh-Project-Acceptance ohne manuelle Reparatur.
+
+Die Materialisierung erfüllt damit die Project-New-Anteile aus 5.3 und 5.5. Sie aktiviert keine Strict Gates und registriert das erzeugte Projekt nicht automatisch als Managed Project. Vor einer vollständigen Umsetzung dieser Governance bleiben insbesondere offen:
+
+- ein eigenständiger Managed-Project-Deviation-Contract für reale Zielprojekte,
+- read-only Managed-Project-Befund und Zielprojektpilot,
+- Compatibility Decisions und profilbezogene Updateplanung,
+- autorisierte Target-Apply-Closure mit Managed-State-Aktualisierung,
+- weitere reale Target-Acceptance.
+
+## 20. Referenzen
 
 - Documentation Governance
 - Project Directory Governance
@@ -551,8 +574,9 @@ Diese Governance ist vollständig umgesetzt, wenn:
 - Platform Update Profile Rules
 - Platform Compatibility Matrix
 
-## 20. Lifecycle
+## 21. Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-23 | – | draft | Volltext aus Governance-Anforderungen und bestehendem Managed-Project-/Platform-Update-Harness abgeleitet |
+| 2026-07-23 | draft | draft | Minimaler Project-New-Governance-Harness und Fresh-Project-Acceptance technisch materialisiert; Managed-Project-Pilot bleibt offen |

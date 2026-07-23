@@ -603,9 +603,10 @@ Die report-only Erstimplementierung umfasst:
 - `all`, `changed` und deterministische Reportausgabe,
 - getrennte Transition- und neue Findings sowie Tool Errors.
 
+Die Project-New-Materialisierung erzeugt zusätzlich ein reduziertes `generated-project`-Profil, eine leere Directory Transition Baseline und den lokalen Directory-Gate-Harness. Die Fresh-Project-Acceptance belegt, dass das erzeugte Projekt ohne manuelle Reparatur und ohne Transition Findings besteht.
+
 Vor einer Aktivierung oder Strict-Promotion bleiben offen:
 
-- kontrollierte Materialisierung in Project-New,
 - der Managed-Project-Deviation-Contract und read-only Zielprojektpilot,
 - getrennte Migrationspläne für gekoppelte Legacy-Pfade,
 - Abbau der Directory Transition Baseline,
@@ -617,3 +618,4 @@ Vor einer Aktivierung oder Strict-Promotion bleiben offen:
 |---|---|---|---|
 | 2026-07-22 | – | draft | Volltext auf Basis des verifizierten Springmaster-Bestands |
 | 2026-07-23 | draft | draft | Report-only Directory Contract, Transition Baseline, Gate und Fixtures technisch abgeleitet; Aktivierung bleibt offen |
+| 2026-07-23 | draft | draft | Project-New-Materialisierung und Fresh-Project-Acceptance für das Profil `generated-project` ergänzt |

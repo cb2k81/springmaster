@@ -27,6 +27,9 @@ Checks:
   * patch registry bootstrap in the generated project
   * export full ZIP and export-integrity verification in the generated project
   * patch artifact preflight tooling is complete in the generated project
+  * local documentation, directory and sprint governance harness
+  * adoption, deviation, risk and managed-state records
+  * generated-project tooling selfcheck
   * dbtool status in the generated project without opening a DB connection
   * optional mvn test in the generated project
 USAGE
@@ -60,6 +63,13 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+case "${WORK_ROOT}" in
+  /*) ;;
+  *) WORK_ROOT="${PROJECT_ROOT}/${WORK_ROOT}" ;;
+esac
+SAMPLE_DIR="${WORK_ROOT}/${SAMPLE_NAME}"
+LOG_DIR="${WORK_ROOT}/logs"
 
 require_file() {
   local path="$1"
@@ -119,14 +129,40 @@ require_marker "Projektanlage abgeschlossen." "${LOG_DIR}/02_project_new_create.
 
 cd "${SAMPLE_DIR}"
 
+echo "Project-New Acceptance: establish local Git baseline"
+git init -q
+git config user.email "project-new-acceptance@example.invalid"
+git config user.name "Project-New Acceptance"
+git add -A
+git commit -qm "project-new acceptance baseline"
+test "$(git rev-parse --show-toplevel)" = "${SAMPLE_DIR}"
+echo "[OK] Independent local Git baseline"
+
 require_file "pom.xml"
 require_file "README.md"
+require_file "AGENTS.md"
 require_file ".env.example"
 require_file ".gitignore"
 require_file "export.config.json"
 require_file "platform/versions/platform.env"
-require_file "PROJECT_DOCS/BOOTSTRAP/PROJECT_NEW_BOOTSTRAP.md"
+require_file "PROJECT_DOCS/index.md"
+require_file "PROJECT_DOCS/BOOTSTRAP/PROJECT_BOOTSTRAP.md"
+require_file "PROJECT_DOCS/GOVERNANCE/GOVERNANCE_ADOPTION.md"
 require_file "PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env"
+require_file "PROJECT_DOCS/TOOLING/documentation-transition-baseline.json"
+require_file "PROJECT_DOCS/_TEMPLATES/GENERAL_DOCUMENT_TEMPLATE.md"
+require_file "PROJECT_DOCS/_TEMPLATES/SPRINT_BRIEF_TEMPLATE.md"
+require_file "contracts/governance/documentation/document-metadata-contract.json"
+require_file "contracts/governance/documentation/document-types.json"
+require_file "contracts/governance/documentation/scope-registry.json"
+require_file "contracts/governance/project-structure/project-directory-contract.json"
+require_file "contracts/governance/project-structure/directory-transition-baseline.json"
+require_file "contracts/governance/sprint/sprint-contract.json"
+require_file "contracts/governance/sprint/sprint-drift-contract.json"
+require_file "contracts/governance/managed-project/adoption-record.json"
+require_file "contracts/governance/managed-project/deviations.json"
+require_file "contracts/governance/managed-project/risk-register.json"
+require_file "contracts/governance/managed-project/managed-state.json"
 require_file "contracts/configuration/environment-contract.json"
 require_file "contracts/database/migration-contract.json"
 require_file "patches/archives/000001_project_new_bootstrap/manifest.json"
@@ -150,6 +186,36 @@ assert manifest["id"] == manifest["patchId"] == "000001_project_new_bootstrap"
 assert patch_log["artifactId"] == manifest["artifactId"]
 assert str(uuid.UUID(manifest["artifactId"].removeprefix("urn:uuid:"))) in manifest["artifactId"]
 PY_BOOTSTRAP_IDENTITY
+python3 - <<'PY_GOVERNANCE_HARNESS'
+import json
+import re
+from pathlib import Path
+
+adoption = json.loads(Path("contracts/governance/managed-project/adoption-record.json").read_text(encoding="utf-8"))
+deviations = json.loads(Path("contracts/governance/managed-project/deviations.json").read_text(encoding="utf-8"))
+risks = json.loads(Path("contracts/governance/managed-project/risk-register.json").read_text(encoding="utf-8"))
+state = json.loads(Path("contracts/governance/managed-project/managed-state.json").read_text(encoding="utf-8"))
+doc_baseline = json.loads(Path("PROJECT_DOCS/TOOLING/documentation-transition-baseline.json").read_text(encoding="utf-8"))
+dir_baseline = json.loads(Path("contracts/governance/project-structure/directory-transition-baseline.json").read_text(encoding="utf-8"))
+
+assert adoption["schemaVersion"] == "springmaster.governance-adoption.v1"
+assert adoption["targetId"] == "sample-backend"
+assert adoption["projectProfile"] == "generated-project"
+assert re.fullmatch(r"[0-9a-f]{40}", adoption["source"]["springmasterGitHead"])
+assert len(adoption["materializedContracts"]) >= 6
+assert len(adoption["materializedGates"]) == 3
+assert deviations["schemaVersion"] == "springmaster.managed-project-deviations.v1"
+assert deviations["deviations"] == []
+assert risks["risks"] == []
+assert state["lifecycleState"] == "fresh-project"
+assert doc_baseline["paths"] == []
+assert set(doc_baseline["technicalArtifactPaths"]) == {
+    "PROJECT_DOCS/CONFIG/ENV_TEMPLATE.env",
+    "PROJECT_DOCS/TOOLING/documentation-transition-baseline.json",
+}
+assert dir_baseline["entryCount"] == 0
+assert dir_baseline["entries"] == []
+PY_GOVERNANCE_HARNESS
 require_file "src/main/java/de/cocondo/acceptance/sample/app/SampleBackendApplication.java"
 require_file "src/main/java/de/cocondo/acceptance/sample/app/api/PlatformInfoController.java"
 require_file "src/test/java/de/cocondo/acceptance/sample/app/SampleBackendApplicationTests.java"
@@ -166,6 +232,18 @@ require_file "bin/build.sh"
 require_file "bin/config-contract.py"
 require_file "bin/config-contract.sh"
 require_file "bin/tooling-selfcheck.sh"
+require_file "bin/documentation-gate.py"
+require_file "bin/documentation-gate.sh"
+require_file "bin/documentation-gate-it.sh"
+require_file "bin/project-directory-gate.py"
+require_file "bin/project-directory-gate.sh"
+require_file "bin/project-directory-gate-it.sh"
+require_file "bin/sprint-gate.py"
+require_file "bin/sprint-gate.sh"
+require_file "bin/sprint-gate-it.sh"
+require_file "src/test/resources/tooling/documentation-gate-v2/expected-cases.json"
+require_file "src/test/resources/tooling/project-directory-gate-v1/expected-cases.json"
+require_file "src/test/resources/tooling/sprint-gate-v1/expected-cases.json"
 require_file "bin/lib/core/env.sh"
 
 if [[ -f ".env" ]]; then
@@ -195,7 +273,12 @@ require_marker 'springmaster.export-closure-evidence.v1' "bin/export.sh"
 require_marker 'springmaster.export-closure-evidence.v1' "bin/export-integrity-check.py"
 require_marker 'springmaster.patch-artifact-preflight.v1' "bin/patch-artifact-preflight.py"
 require_marker 'springmaster.patch-export-evidence.v1' "bin/patch-artifact-preflight.py"
+require_marker 'springmaster.documentation-metadata-contract.v2' "contracts/governance/documentation/document-metadata-contract.json"
+require_marker 'springmaster.project-directory-contract.v1' "contracts/governance/project-structure/project-directory-contract.json"
+require_marker 'springmaster.sprint-contract.v1' "contracts/governance/sprint/sprint-contract.json"
+require_marker 'projects/sample-backend/governance-harness' "contracts/governance/documentation/scope-registry.json"
 reject_marker 'sample-backend.export-closure-evidence.v1' "bin/export.sh"
+reject_marker 'sample-backend.documentation-metadata-contract.v2' "contracts/governance/documentation/document-metadata-contract.json"
 
 chmod +x bin/*.sh
 
@@ -203,6 +286,22 @@ echo "Project-New Acceptance: patch registry"
 ./bin/patch.sh list > "${LOG_DIR}/03_generated_patch_list.log"
 require_marker "000001" "${LOG_DIR}/03_generated_patch_list.log"
 require_marker "project_new_bootstrap" "${LOG_DIR}/03_generated_patch_list.log"
+
+echo "Project-New Acceptance: governance harness"
+./bin/documentation-gate.sh --check > "${LOG_DIR}/03a_generated_documentation_gate.log" 2>&1
+require_marker "DOCUMENTATION_GATE=PASS" "${LOG_DIR}/03a_generated_documentation_gate.log"
+./bin/project-directory-gate.sh \
+  --profile generated-project \
+  --mode all \
+  --deviations contracts/governance/managed-project/deviations.json \
+  --check > "${LOG_DIR}/03b_generated_directory_gate.log" 2>&1
+require_marker "PROJECT_DIRECTORY_GATE=PASS" "${LOG_DIR}/03b_generated_directory_gate.log"
+require_marker "NEW_FINDINGS=0" "${LOG_DIR}/03b_generated_directory_gate.log"
+./bin/sprint-gate.sh --mode all --check > "${LOG_DIR}/03c_generated_sprint_gate.log" 2>&1
+require_marker '"status": "PASS"' "${LOG_DIR}/03c_generated_sprint_gate.log"
+
+./bin/tooling-selfcheck.sh --no-export > "${LOG_DIR}/03d_generated_tooling_selfcheck.log" 2>&1
+require_marker "Generated-project tooling selfcheck completed successfully." "${LOG_DIR}/03d_generated_tooling_selfcheck.log"
 
 echo "Project-New Acceptance: configuration contract"
 ./bin/config-contract.sh --check > "${LOG_DIR}/04_generated_config_contract.log" 2>&1
@@ -241,7 +340,7 @@ print(f"profile={meta.get('profile')}")
 print(f"fileCount={meta.get('fileCount')}")
 if meta.get('profile') != 'full':
     raise SystemExit('Unexpected export profile')
-if int(meta.get('fileCount') or 0) < 25:
+if int(meta.get('fileCount') or 0) < 70:
     raise SystemExit('Generated export contains too few files')
 if meta.get('projectKey') != 'sample-backend':
     raise SystemExit(f"Unexpected export projectKey: {meta.get('projectKey')}")
@@ -256,7 +355,7 @@ data = json.loads(path.read_text())
 data['projectKey'] = 'springmaster'
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
-./bin/export.sh full --zip > "${LOG_DIR}/09_generated_export_stale_config.log" 2>&1
+./bin/export.sh full --zip --allow-dirty > "${LOG_DIR}/09_generated_export_stale_config.log" 2>&1
 STALE_CONFIG_EXPORT="$(tail -n 1 "${LOG_DIR}/09_generated_export_stale_config.log")"
 case "${STALE_CONFIG_EXPORT}" in
   exports/text/sample-backend_export_full_*.zip) echo "[OK] export key remains sample-backend" ;;

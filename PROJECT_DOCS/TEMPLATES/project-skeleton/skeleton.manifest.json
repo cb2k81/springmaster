@@ -1,10 +1,10 @@
 {
   "templateId": "project-skeleton",
-  "templateVersion": "0.3.0",
-  "status": "project-new-foundation-with-core-scan-alignment",
+  "templateVersion": "0.3.1",
+  "status": "project-new-governance-harness-foundation",
   "automaticGenerationImplemented": true,
   "generator": "bin/project-new.sh",
-  "description": "Operational skeleton for deterministic creation of Cocondo Java backend projects with explicit scan alignment for de.cocondo.system core packages.",
+  "description": "Operational skeleton for deterministic Cocondo Java backend creation with local report-only documentation, directory and sprint governance harness.",
   "requiredTokens": [
     "__PROJECT_NAME__",
     "__ARTIFACT_ID__",
@@ -31,6 +31,12 @@
     "generated project can run ./bin/export.sh full --zip",
     "generated project can run ./bin/dbtool.sh status",
     "generated application scans project base package and de.cocondo.system",
-    "generated project passes mvn test with explicit scanBasePackages configuration"
+    "generated project passes mvn test with explicit scanBasePackages configuration",
+    "generated project contains AGENTS.md and PROJECT_DOCS/index.md",
+    "generated project contains governance adoption, deviation and risk records",
+    "generated project passes documentation-gate --check",
+    "generated project passes project-directory-gate for generated-project",
+    "generated project passes sprint-gate --check",
+    "generated project passes tooling-selfcheck --no-export"
   ]
 }

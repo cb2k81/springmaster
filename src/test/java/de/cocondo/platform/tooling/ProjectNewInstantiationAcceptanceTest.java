@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 class ProjectNewInstantiationAcceptanceTest {
 
-    private static final Duration PROCESS_TIMEOUT = Duration.ofSeconds(120);
+    private static final Duration PROCESS_TIMEOUT = Duration.ofSeconds(300);
     private final Path projectRoot = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
 
     @Test
@@ -29,6 +29,10 @@ class ProjectNewInstantiationAcceptanceTest {
 
         Path generated = projectRoot.resolve("target/project-new-acceptance/sample-backend");
         assertThat(generated.resolve("pom.xml")).isRegularFile();
+        assertThat(generated.resolve("AGENTS.md")).isRegularFile();
+        assertThat(generated.resolve("PROJECT_DOCS/index.md")).isRegularFile();
+        assertThat(generated.resolve("PROJECT_DOCS/BOOTSTRAP/PROJECT_BOOTSTRAP.md")).isRegularFile();
+        assertThat(generated.resolve("PROJECT_DOCS/GOVERNANCE/GOVERNANCE_ADOPTION.md")).isRegularFile();
         assertThat(generated.resolve("bin/patch.sh")).isRegularFile();
         assertThat(generated.resolve("bin/patch-artifact-preflight.py")).isRegularFile();
         assertThat(generated.resolve("bin/patch-artifact-preflight-it.sh")).isRegularFile();
@@ -36,6 +40,12 @@ class ProjectNewInstantiationAcceptanceTest {
         assertThat(generated.resolve("bin/export-integrity-check.py")).isRegularFile();
         assertThat(generated.resolve("bin/export-integrity-it.sh")).isRegularFile();
         assertThat(generated.resolve("bin/dbtool.sh")).isRegularFile();
+        assertThat(generated.resolve("bin/documentation-gate.sh")).isRegularFile();
+        assertThat(generated.resolve("bin/project-directory-gate.sh")).isRegularFile();
+        assertThat(generated.resolve("bin/sprint-gate.sh")).isRegularFile();
+        assertThat(generated.resolve("contracts/governance/managed-project/adoption-record.json")).isRegularFile();
+        assertThat(generated.resolve("contracts/governance/managed-project/deviations.json")).isRegularFile();
+        assertThat(generated.resolve("contracts/governance/managed-project/risk-register.json")).isRegularFile();
         assertThat(generated.resolve("platform/versions/platform.env")).isRegularFile();
         assertThat(generated.resolve(".env")).doesNotExist();
 
@@ -48,6 +58,15 @@ class ProjectNewInstantiationAcceptanceTest {
         assertThat(generatedPreflight)
                 .contains("springmaster.patch-artifact-preflight.v1")
                 .contains("springmaster.patch-export-evidence.v1");
+
+        String adoption = Files.readString(
+                generated.resolve("contracts/governance/managed-project/adoption-record.json"),
+                StandardCharsets.UTF_8
+        );
+        assertThat(adoption)
+                .contains("springmaster.governance-adoption.v1")
+                .contains("generated-project")
+                .contains("sample-backend");
 
         String envDefaults = Files.readString(generated.resolve("bin/lib/core/env.sh"), StandardCharsets.UTF_8);
         assertThat(envDefaults)

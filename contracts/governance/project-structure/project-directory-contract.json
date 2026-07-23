@@ -252,7 +252,9 @@
         "PROJECT_DOCS/TOOLING/**"
       ],
       "profiles": [
-        "springmaster-source"
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
       ],
       "pathClass": "legacy-accepted",
       "sourceKind": "source",
@@ -270,7 +272,9 @@
         "PROJECT_DOCS/_TEMPLATES/**"
       ],
       "profiles": [
-        "springmaster-source"
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
       ],
       "pathClass": "canonical-source",
       "sourceKind": "source",
