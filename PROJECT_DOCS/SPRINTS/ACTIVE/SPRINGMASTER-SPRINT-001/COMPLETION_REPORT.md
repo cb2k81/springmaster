@@ -37,7 +37,7 @@ Vorgesehenes Ergebnis ist eine report-only Engineering-Qualification-Kette aus p
 |---|---|---|---|
 | M-001 | `EQP-REQ-001`, `EQP-REQ-002` | completed | Vier report-only Contracts, deterministische Profilwahl, Validator und 18 Fixtures materialisiert. |
 | M-002 | `EQP-REQ-003` | completed | 58 Regeln, vier report-only Gate-Deskriptoren, Validator und 18 Fixtures materialisiert. |
-| M-003 | `EQP-REQ-004` | pending | Test-Suite- und Fixture-Verträge ausstehend. |
+| M-003 | `EQP-REQ-004` | completed | Suite-, Fixture- und versiegelter Inventory-Contract, Validator und 18 Fixtures materialisiert. |
 | M-004 | `EQP-REQ-005`, `EQP-REQ-006` | pending | report-only Gate und Integrationsnachweise ausstehend. |
 | M-005 | `EQP-REQ-007`, `EQP-REQ-008` | pending | Impact-, Aktivierungs-, SemVer- und Closure-Entscheidung ausstehend. |
 
@@ -57,9 +57,10 @@ Qualification ist `pending`. Bei Closure werden mindestens dokumentiert:
 
 - Patch `000175_springmaster_engineering_qualification_pilot_sprint` eröffnete den Sprint ohne Implementierungsänderung.
 - Patch `000176_springmaster_engineering_contract_foundation` liefert Slice S-01 beziehungsweise M-001: Change-Classification-, Engineering-Profile-, Engineering-Evidence- und Engineering-Completion-Contract, einen read-only Contract-Validator sowie 18 Contract-Fixtures.
-
-S-01 und S-02 enthalten noch kein Engineering-Qualification-Gate, keine Strict-Promotion und keine externe Dependency.
 - Patch `000177_springmaster_quality_rule_catalog_gate_registry` liefert Slice S-02 beziehungsweise M-002: Quality Rule Catalog, Gate Registry, einen read-only Registry-Validator und 18 Registry-Fixtures.
+- Patch `000178_springmaster_test_suite_fixture_contracts` liefert Slice S-03 beziehungsweise M-003: Suite-, Fixture- und versiegelte Test-Inventar-Contracts, einen read-only Validator und 18 Contract-Fixtures.
+
+S-01 bis S-03 enthalten noch kein Engineering-Qualification-Gate, keine Strict-Promotion und keine externe Dependency.
 
 ## Dauerhafte Promotionen
 
@@ -100,3 +101,4 @@ Noch nicht bewertbar. Nicht erreichte Teilziele, kontrollierte Deferrals, Folges
 | 2026-07-23 | – | draft | Dauerhafter Completion- und Qualification-Rahmen beim Sprintstart angelegt. |
 | 2026-07-23 | draft | draft | M-001/S-01 als qualifizierter Contract-Foundation-Slice aufgenommen; Sprint-Closure bleibt offen. |
 | 2026-07-23 | draft | draft | M-002/S-02 als qualifizierter Rule-Catalog- und Gate-Registry-Slice aufgenommen; Sprint-Closure bleibt offen. |
+| 2026-07-23 | draft | draft | M-003/S-03 als qualifizierter Test-Suite-, Fixture- und Inventory-Slice aufgenommen; Sprint-Closure bleibt offen. |

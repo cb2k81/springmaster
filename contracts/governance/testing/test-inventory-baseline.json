@@ -1,0 +1,884 @@
+{
+  "schemaVersion": "springmaster.test-inventory-baseline.v1",
+  "baselineVersion": "1.0.0",
+  "status": "sealed-report-only",
+  "generatedAt": "2026-07-23T10:42:00.717115Z",
+  "sourceGitHead": "3790e4b8b64b2aafdf1f43a251cc6fef5943684a",
+  "sourceExportSha256": "1eb916d1ee0e36741db6b1dd5ae13358d224c367722c674b6aa141bd725da91c",
+  "sourceFileManifestSha256": "c5f2c6011c424e1cb349fd3b2a28c1f3a926a7a5ebc66fbce53b88ec068c7ca4",
+  "inventoryRules": {
+    "javaPatterns": [
+      "src/test/java/**/*.java"
+    ],
+    "toolingPatterns": [
+      "bin/*-it.sh",
+      "bin/*selfcheck*.sh",
+      "bin/*acceptance*.sh",
+      "bin/*regression*.sh",
+      "platform/update/tests/*.sh"
+    ],
+    "fixturePatterns": [
+      "src/test/resources/tooling/**/*"
+    ],
+    "newUnregisteredArtifactsAreFindings": true,
+    "missingRegisteredArtifactsAreFindings": true
+  },
+  "javaTests": [
+    {
+      "path": "src/test/java/de/cocondo/platform/app/CorrelationIdWebContractTest.java",
+      "suiteId": "java-application-surefire",
+      "testLevel": "application",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/app/SpringmasterApplicationTests.java",
+      "suiteId": "java-application-surefire",
+      "testLevel": "application",
+      "annotations": [
+        "SpringBootTest"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/app/TestDatabaseIsolationContractTest.java",
+      "suiteId": "java-application-surefire",
+      "testLevel": "application",
+      "annotations": [],
+      "environment": [
+        "java-21",
+        "h2-test-database"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/app/version/PlatformVersionPropertiesTest.java",
+      "suiteId": "java-application-surefire",
+      "testLevel": "application",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemJpaQueryRepositoryTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "integration",
+      "annotations": [],
+      "environment": [
+        "java-21",
+        "h2-test-database"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemMapperTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemPersistenceContractTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "integration",
+      "annotations": [
+        "SpringBootTest"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context",
+        "h2-test-database"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemScopedQueryReferenceTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceSpringContextTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "integration",
+      "annotations": [
+        "SpringBootTest"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemServiceTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "unit",
+      "annotations": [
+        "SpringBootTest"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/CatalogItemValidatorTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemControllerTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemOpenApiDetailLookupContractTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemOpenApiQueryContractTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemOpenApiRequestValidationContractTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/catalog/api/CatalogItemOpenApiWriteContractTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "acceptance",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterDetailLookupContractReportTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterGatesReportProfileTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceIntermediateRepresentationTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSlicePatchBlueprintDryRunTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceSpecFixtureGateTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterPatchArtifactPreflightTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterQueryContractReportTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterRequestValidationOpenApiGateReportTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/SpringmasterWriteApiContractReportTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/core/id/IdGeneratorServiceTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/core/id/UuidIdGeneratorServiceTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/dto/CountResponseDTOTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/AuditingEntityListenerTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "component",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/CoreEntityMarkerTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/DomainEntityListenerTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "component",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/DomainEntityPersistenceMappingTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "component",
+      "annotations": [],
+      "environment": [
+        "java-21",
+        "h2-test-database"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/RangeEmbeddableTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/metadata/CoreMetadataDtoTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/service/DomainEntityServiceTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/service/TagServiceTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/entity/validation/CoreValidationTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/exception/CoreExceptionTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/http/ApiErrorIdGeneratorTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/http/ApiErrorResponseTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/http/GlobalApiExceptionHandlerTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/list/PagedQuerySupportTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/list/PagedResponseFactoryTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/mapper/DomainMetadataSupportMapperTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/observability/CorrelationIdFilterTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/query/ResultSetQueryOperationsTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    }
+  ],
+  "toolingTests": [
+    {
+      "path": "bin/config-contract-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/core-persistence-newness-contract-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/db-migration-contract-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/documentation-gate-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/engineering-contracts-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/export-integrity-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/export-lifecycle-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/observability-contract-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/patch-agents-scope-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-artifact-preflight-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-run-api-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-scope-least-privilege-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-state-audit-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-system-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/patch-transactional-accept-it.sh",
+      "suiteId": "tooling-patch-export-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/project-directory-gate-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/project-new-acceptance.sh",
+      "suiteId": "project-new-acceptance",
+      "testLevel": "acceptance",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/quality-registry-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/release-manifest-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/springmaster-gates-regression.sh",
+      "suiteId": "tooling-orchestration",
+      "testLevel": "qualification",
+      "runnerId": "bash",
+      "mutationClass": "orchestration"
+    },
+    {
+      "path": "bin/springmaster-gates-selfcheck.sh",
+      "suiteId": "tooling-orchestration",
+      "testLevel": "qualification",
+      "runnerId": "bash",
+      "mutationClass": "orchestration"
+    },
+    {
+      "path": "bin/sprint-gate-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/test-contracts-it.sh",
+      "suiteId": "tooling-governance-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "read-only"
+    },
+    {
+      "path": "bin/tooling-selfcheck.sh",
+      "suiteId": "tooling-orchestration",
+      "testLevel": "qualification",
+      "runnerId": "bash",
+      "mutationClass": "orchestration"
+    },
+    {
+      "path": "platform/update/tests/platform-update-compatibility-matrix-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "platform/update/tests/platform-update-core-delivery-contract-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "platform/update/tests/platform-update-delivery-contract-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "platform/update/tests/platform-update-managed-project-pilot-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "platform/update/tests/platform-update-managed-state-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "platform/update/tests/platform-update-profile-rules-it.sh",
+      "suiteId": "tooling-platform-update-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    }
+  ],
+  "sourceFixtures": [
+    {
+      "path": "src/test/resources/tooling/detail-lookup-contract-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterDetailLookupContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/documentation-gate-v2/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/documentation-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/engineering-contracts-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/engineering-contracts-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-ir.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceIntermediateRepresentationTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-patch-blueprint.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSlicePatchBlueprintDryRunTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-spec-fixture-gate.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceSpecFixtureGateTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/project-directory-gate-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/project-directory-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/quality-registry-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/quality-registry-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterQueryContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/request-validation-openapi-gate.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterRequestValidationOpenApiGateReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/sprint-gate-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/sprint-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/test-contracts-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/test-contracts-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/write-api-contract-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterWriteApiContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    }
+  ],
+  "summary": {
+    "javaTestClassCount": 49,
+    "toolingEntrypointCount": 30,
+    "sourceFixtureCount": 13,
+    "mavenRunner": "surefire",
+    "failsafeImplemented": false,
+    "coveragePolicyStatus": "unresolved"
+  },
+  "sealedLimitations": [
+    "No coverage measurement or threshold is implemented.",
+    "No Failsafe or tag-based technical suite split is implemented.",
+    "H2 evidence is not MariaDB-specific evidence.",
+    "Architecture tests are not yet a distinct executable suite."
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "springmaster.test-fixture-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+  "canonicalSourceRoots": [
+    "src/test/resources/tooling"
+  ],
+  "runtimeRoots": [
+    "build",
+    "target",
+    "tmp"
+  ],
+  "fixtureTypes": [
+    {
+      "id": "expected-case-catalog",
+      "purpose": "Positive, finding and tool-error cases for contract and gate validators",
+      "requiredExitClasses": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "golden-json",
+      "purpose": "Reviewed canonical JSON output used by regression tests",
+      "requiredExitClasses": []
+    }
+  ],
+  "requiredFields": [
+    "path",
+    "fixtureType",
+    "owner",
+    "consumers",
+    "authority",
+    "mutationPolicy"
+  ],
+  "allowedMutationPolicies": [
+    "reviewed-contract-change-only"
+  ],
+  "qualificationMayMutateSourceFixtures": false,
+  "fixtureEntries": [
+    {
+      "path": "src/test/resources/tooling/detail-lookup-contract-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterDetailLookupContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/documentation-gate-v2/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/documentation-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/engineering-contracts-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/engineering-contracts-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-ir.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceIntermediateRepresentationTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-patch-blueprint.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSlicePatchBlueprintDryRunTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/generated-slice-spec-fixture-gate.business-partner.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterGeneratedSliceSpecFixtureGateTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/project-directory-gate-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/project-directory-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/quality-registry-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/quality-registry-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/query-contract-gate-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterQueryContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/request-validation-openapi-gate.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterRequestValidationOpenApiGateReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
+      "path": "src/test/resources/tooling/sprint-gate-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/sprint-gate-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/test-contracts-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/test-contracts-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/write-api-contract-report.catalogitem.golden.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "src/test/java/de/cocondo/platform/tooling/SpringmasterWriteApiContractReportTest.java"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    }
+  ],
+  "orphanPolicy": "finding",
+  "duplicateAuthorityPolicy": "finding",
+  "goldenRules": {
+    "requiresConsumer": true,
+    "requiresCanonicalJson": true,
+    "normalQualificationMutationAllowed": false,
+    "contractChangeAndVisibleDiffRequired": true
+  }
+}

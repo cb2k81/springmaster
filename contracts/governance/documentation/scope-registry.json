@@ -122,7 +122,9 @@
       "description": "Test strategy, test levels, evidence, coverage governance and test completion",
       "physicalPaths": [
         "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "contracts/governance/testing/**"
+        "contracts/governance/testing/**",
+        "bin/test-contracts*",
+        "src/test/resources/tooling/test-contracts-v1/**"
       ]
     },
     {
@@ -232,6 +234,27 @@
       "physicalPaths": [
         "bin/sprint-gate*",
         "src/test/resources/tooling/sprint-gate-v1/**"
+      ]
+    },
+    {
+      "id": "springmaster/testing/contracts",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/testing",
+      "description": "Machine-readable suite, fixture and sealed test inventory contracts",
+      "physicalPaths": [
+        "contracts/governance/testing/**"
+      ]
+    },
+    {
+      "id": "springmaster/tooling/test-contracts",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/testing",
+      "description": "Report-only test contract validator and fixtures",
+      "physicalPaths": [
+        "bin/test-contracts*",
+        "src/test/resources/tooling/test-contracts-v1/**"
       ]
     }
   ]

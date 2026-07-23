@@ -1,0 +1,393 @@
+{
+  "schemaVersion": "springmaster.test-suite-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+  "profileSources": {
+    "engineeringProfiles": "contracts/governance/engineering/engineering-profile-contract.json",
+    "changeClasses": "contracts/governance/engineering/change-classification-contract.json"
+  },
+  "allowedEngineeringProfiles": [
+    "fast",
+    "qualification",
+    "audit",
+    "release"
+  ],
+  "allowedEnforcementModes": [
+    "report-only"
+  ],
+  "resultStatuses": [
+    "passed",
+    "failed",
+    "skipped",
+    "aborted",
+    "not-executed",
+    "tool-error"
+  ],
+  "runtimeClasses": [
+    "short",
+    "medium",
+    "long",
+    "environment-dependent"
+  ],
+  "runners": [
+    {
+      "id": "maven-surefire",
+      "kind": "maven",
+      "versionProperty": "maven.surefire.plugin.version",
+      "plugin": "org.apache.maven.plugins:maven-surefire-plugin",
+      "entrypoint": "mvn -q test",
+      "implemented": true
+    },
+    {
+      "id": "bash",
+      "kind": "shell",
+      "entrypoint": "bash <script>",
+      "implemented": true
+    }
+  ],
+  "mavenBaseline": {
+    "testRunner": "maven-surefire",
+    "surefireVersion": "3.2.5",
+    "failsafeImplemented": false,
+    "junitTagSegmentationImplemented": false,
+    "coverageTool": null,
+    "coverageThresholds": [],
+    "coverageDecision": "unresolved",
+    "notes": "No Failsafe or coverage execution is claimed by this contract."
+  },
+  "suites": [
+    {
+      "id": "java-core-surefire",
+      "name": "Core Java tests",
+      "runnerId": "maven-surefire",
+      "testLevels": [
+        "unit",
+        "component"
+      ],
+      "scopePaths": [
+        "src/test/java/de/cocondo/system/**"
+      ],
+      "engineeringProfiles": [
+        "fast",
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "short",
+      "parallelizable": "runner-default",
+      "enforcementMode": "report-only",
+      "reports": [
+        "surefire-xml"
+      ],
+      "changeClasses": [
+        "java-core",
+        "test",
+        "contract"
+      ]
+    },
+    {
+      "id": "java-application-surefire",
+      "name": "Application and configuration Java tests",
+      "runnerId": "maven-surefire",
+      "testLevels": [
+        "application",
+        "contract"
+      ],
+      "scopePaths": [
+        "src/test/java/de/cocondo/platform/app/**"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "medium",
+      "parallelizable": "runner-default",
+      "enforcementMode": "report-only",
+      "reports": [
+        "surefire-xml"
+      ],
+      "changeClasses": [
+        "java-application",
+        "test",
+        "contract",
+        "build"
+      ]
+    },
+    {
+      "id": "java-demo-surefire",
+      "name": "Demo, API and persistence Java tests",
+      "runnerId": "maven-surefire",
+      "testLevels": [
+        "unit",
+        "component",
+        "contract",
+        "integration"
+      ],
+      "scopePaths": [
+        "src/test/java/de/cocondo/platform/demo/**"
+      ],
+      "engineeringProfiles": [
+        "fast",
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "medium",
+      "parallelizable": "runner-default",
+      "enforcementMode": "report-only",
+      "reports": [
+        "surefire-xml"
+      ],
+      "changeClasses": [
+        "java-demo",
+        "api",
+        "persistence",
+        "security",
+        "test",
+        "contract"
+      ]
+    },
+    {
+      "id": "java-tooling-surefire",
+      "name": "Java tooling contract and acceptance tests",
+      "runnerId": "maven-surefire",
+      "testLevels": [
+        "contract",
+        "acceptance"
+      ],
+      "scopePaths": [
+        "src/test/java/de/cocondo/platform/tooling/**"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "medium",
+      "parallelizable": "runner-default",
+      "enforcementMode": "report-only",
+      "reports": [
+        "surefire-xml",
+        "json-report"
+      ],
+      "changeClasses": [
+        "tooling",
+        "template",
+        "test",
+        "contract"
+      ]
+    },
+    {
+      "id": "tooling-governance-contract-fixtures",
+      "name": "Governance contract and gate fixtures",
+      "runnerId": "bash",
+      "testLevels": [
+        "contract"
+      ],
+      "scopePaths": [
+        "bin/*-gate-it.sh",
+        "bin/engineering-contracts-it.sh",
+        "bin/quality-registry-it.sh",
+        "bin/test-contracts-it.sh"
+      ],
+      "engineeringProfiles": [
+        "fast",
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "short",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "json-report",
+        "text-summary"
+      ],
+      "changeClasses": [
+        "governance",
+        "standard",
+        "contract",
+        "quality-rule",
+        "test",
+        "tooling"
+      ]
+    },
+    {
+      "id": "tooling-patch-export-fixtures",
+      "name": "Patch and export transaction fixtures",
+      "runnerId": "bash",
+      "testLevels": [
+        "integration"
+      ],
+      "scopePaths": [
+        "bin/patch-*-it.sh",
+        "bin/export-*-it.sh"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "long",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "json-report",
+        "text-summary"
+      ],
+      "changeClasses": [
+        "tooling",
+        "contract",
+        "test",
+        "build"
+      ]
+    },
+    {
+      "id": "tooling-runtime-contract-fixtures",
+      "name": "Configuration, runtime, migration and release contract fixtures",
+      "runnerId": "bash",
+      "testLevels": [
+        "contract",
+        "integration"
+      ],
+      "scopePaths": [
+        "bin/config-contract-it.sh",
+        "bin/core-persistence-newness-contract-it.sh",
+        "bin/db-migration-contract-it.sh",
+        "bin/observability-contract-it.sh",
+        "bin/release-manifest-it.sh"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "medium",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "json-report",
+        "text-summary"
+      ],
+      "changeClasses": [
+        "tooling",
+        "contract",
+        "test",
+        "build",
+        "persistence"
+      ]
+    },
+    {
+      "id": "tooling-platform-update-fixtures",
+      "name": "Platform Update compatibility and delivery fixtures",
+      "runnerId": "bash",
+      "testLevels": [
+        "integration",
+        "acceptance"
+      ],
+      "scopePaths": [
+        "platform/update/tests/**"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "long",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "json-report",
+        "text-summary"
+      ],
+      "changeClasses": [
+        "platform-update",
+        "managed-project-delivery",
+        "test",
+        "tooling"
+      ]
+    },
+    {
+      "id": "project-new-acceptance",
+      "name": "Fresh generated project acceptance",
+      "runnerId": "bash",
+      "testLevels": [
+        "acceptance"
+      ],
+      "scopePaths": [
+        "bin/project-new-acceptance.sh"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "long",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "text-summary",
+        "export-artifact"
+      ],
+      "changeClasses": [
+        "template",
+        "test",
+        "tooling"
+      ]
+    },
+    {
+      "id": "tooling-orchestration",
+      "name": "Registered gate and full tooling orchestration",
+      "runnerId": "bash",
+      "testLevels": [
+        "qualification"
+      ],
+      "scopePaths": [
+        "bin/springmaster-gates-*.sh",
+        "bin/tooling-selfcheck.sh"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "long",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "text-summary",
+        "json-report"
+      ],
+      "changeClasses": [
+        "governance",
+        "contract",
+        "quality-rule",
+        "test",
+        "tooling",
+        "build"
+      ]
+    }
+  ],
+  "composition": [
+    {
+      "suiteId": "tooling-orchestration",
+      "composes": [
+        "tooling-governance-contract-fixtures",
+        "tooling-patch-export-fixtures",
+        "tooling-runtime-contract-fixtures",
+        "tooling-platform-update-fixtures",
+        "project-new-acceptance"
+      ]
+    }
+  ],
+  "unresolvedDecisions": [
+    "coverage-thresholds",
+    "coverage-tool",
+    "failsafe-separation",
+    "junit-tag-separation",
+    "architecture-test-tool",
+    "mariadb-real-database-strategy"
+  ]
+}

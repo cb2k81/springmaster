@@ -605,16 +605,17 @@ Read-only-Vergleiche dürfen Tests und Konfigurationen analysieren, aber keine Z
 
 ### 16.1 Maschinenlesbare Contracts
 
-Aus dieser Governance werden mindestens folgende Contracts abgeleitet:
+Der report-only Umsetzungsstand verwendet folgende kanonische Contract-Familie:
 
 ```text
-contracts/governance/test-suite-contract.json
-contracts/governance/test-category-contract.json
-contracts/governance/coverage-policy.json
-contracts/governance/test-quarantine-contract.json
+contracts/governance/testing/test-suite-contract.json
+contracts/governance/testing/test-fixture-contract.json
+contracts/governance/testing/test-inventory-baseline.json
 ```
 
-Die endgültige Zahl der Dateien richtet sich nach eigenständigem Lifecycle und technischer Prüfbarkeit. Ein unnötig fragmentierter Contract-Baum ist zu vermeiden.
+Der Suite Contract registriert Runner, logische Suites, Profile, Ergebniszustände und die unveränderte Surefire-Baseline. Der Fixture Contract besitzt Source-Fixtures, Consumer und Mutationsregeln. Die versiegelte Inventory Baseline klassifiziert den aktuellen Java-, Tooling- und Fixture-Bestand; neue oder fehlende Artefakte erscheinen report-only als Findings.
+
+Coverage Policy und Test Quarantine Contract bleiben eigenständige spätere Ableitungen. Der aktuelle Contract enthält deshalb weder ein Coverage-Tool noch Schwellen und behauptet keine Failsafe- oder Tag-basierte Suite-Trennung.
 
 ### 16.2 Testkatalog
 
@@ -681,3 +682,4 @@ Diese Governance ist inhaltlich vollständig, wenn:
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-22 | – | draft | Volltextentwurf auf Basis der bestehenden Springmaster-Testbaseline und des Governance-Gerüsts |
+| 2026-07-23 | draft | draft | Suite-, Fixture- und Inventory-Contracts sowie report-only Validator und 18 Fixtures materialisiert; Coverage, Failsafe und Quarantäne bleiben offen |

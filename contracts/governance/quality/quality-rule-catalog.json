@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.quality-rule-catalog.v1",
-  "catalogVersion": "1.0.0",
+  "catalogVersion": "1.1.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "allowedLayers": [
@@ -1830,6 +1830,306 @@
         "generated-projects",
         "managed-projects"
       ]
+    },
+    {
+      "ruleId": "TST-SUITE-001",
+      "title": "Every Java and tooling test artifact is registered exactly once",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "16.2 Testkatalog"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-SUITE-002",
+      "title": "Suite runner, profile, scope and entrypoint references are valid",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "16.2 Testkatalog"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-SUITE-003",
+      "title": "Surefire-only baseline is explicit and no Failsafe execution is invented",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "16.3 Migrationsarme Einführung"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-RESULT-001",
+      "title": "Suite result states distinguish pass, failure, skip, abort, non-execution and tool error",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "13.2 Ergebnisstatus"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-FIX-001",
+      "title": "Every source fixture has one canonical registered path and owner",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "9.2 Fixtures"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-fixture-contract.json"
+    },
+    {
+      "ruleId": "TST-FIX-002",
+      "title": "Expected-case catalogs cover pass, finding and tool-error paths",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "9.2 Fixtures"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-fixture-contract.json"
+    },
+    {
+      "ruleId": "TST-GOLDEN-001",
+      "title": "Golden fixtures have a consumer and reviewed mutation policy",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "9.3 Golden Fixtures"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-fixture-contract.json"
+    },
+    {
+      "ruleId": "TST-ENV-001",
+      "title": "Suite environment requirements and runtime class are explicit",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "10. Testumgebungen, Isolation und Determinismus"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-COVERAGE-001",
+      "title": "Coverage tool and thresholds remain unresolved until a separate policy is accepted",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "11. Coverage-Governance"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-suite-contract.json"
+    },
+    {
+      "ruleId": "TST-INVENTORY-001",
+      "title": "The current test inventory is sealed without path renames or a big-bang suite migration",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
+        "section": "16.3 Migrationsarme Einführung"
+      },
+      "scopePaths": [
+        "springmaster/testing"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "test-contracts-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "contracts/governance/testing/test-inventory-baseline.json"
     }
   ]
 }

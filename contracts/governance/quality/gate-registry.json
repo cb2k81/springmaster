@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.gate-registry.v1",
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "gates": [
@@ -187,6 +187,52 @@
         "project-new",
         "generated-projects",
         "managed-projects"
+      ]
+    },
+    {
+      "gateId": "test-contracts-v1",
+      "name": "Test Suite and Fixture Contract Validator V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Validate suite definitions, fixture ownership and sealed Java/tooling test inventory without executing tests",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "all",
+        "contracts",
+        "inventory",
+        "fixtures"
+      ],
+      "entrypoint": "bin/test-contracts.sh",
+      "inputContracts": [
+        "contracts/governance/testing/test-suite-contract.json",
+        "contracts/governance/testing/test-fixture-contract.json",
+        "contracts/governance/testing/test-inventory-baseline.json"
+      ],
+      "ruleIds": [
+        "TST-SUITE-001",
+        "TST-SUITE-002",
+        "TST-SUITE-003",
+        "TST-RESULT-001",
+        "TST-FIX-001",
+        "TST-FIX-002",
+        "TST-GOLDEN-001",
+        "TST-ENV-001",
+        "TST-COVERAGE-001",
+        "TST-INVENTORY-001"
+      ],
+      "reportSchema": "springmaster.test-contracts-report.v1",
+      "fixtureEntrypoint": "bin/test-contracts-it.sh",
+      "selfcheckEntrypoint": "bin/test-contracts-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster"
       ]
     }
   ]

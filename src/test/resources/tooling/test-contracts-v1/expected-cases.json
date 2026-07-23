@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "springmaster.test-contracts-it-cases.v1",
+  "cases": [
+    {
+      "id": "valid-all",
+      "operation": "all",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "valid-contracts",
+      "operation": "contracts",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "valid-inventory",
+      "operation": "inventory",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "valid-fixtures",
+      "operation": "fixtures",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "duplicate-suite",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "unknown-runner",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "unknown-profile",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "invalid-enforcement",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "failsafe-unimplemented",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "coverage-threshold-premature",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "duplicate-inventory-path",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "unregistered-java-test",
+      "operation": "inventory",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "missing-registered-test",
+      "operation": "inventory",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "unregistered-tooling-test",
+      "operation": "inventory",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "orphan-fixture",
+      "operation": "inventory",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "golden-missing-consumer",
+      "operation": "contracts",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS"
+    },
+    {
+      "id": "tool-error-missing-root",
+      "operation": "all",
+      "expectedExit": 2,
+      "expectedStatus": "TOOL_ERROR"
+    },
+    {
+      "id": "tool-error-malformed-contract",
+      "operation": "all",
+      "expectedExit": 2,
+      "expectedStatus": "TOOL_ERROR"
+    }
+  ]
+}

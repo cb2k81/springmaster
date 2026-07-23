@@ -133,7 +133,9 @@
         "contracts/governance/engineering/**",
         "src/test/resources/tooling/engineering-contracts-v1/**",
         "contracts/governance/quality/**",
-        "src/test/resources/tooling/quality-registry-v1/**"
+        "src/test/resources/tooling/quality-registry-v1/**",
+        "contracts/governance/testing/**",
+        "src/test/resources/tooling/test-contracts-v1/**"
       ],
       "exclude": []
     },

@@ -113,6 +113,13 @@ run_optional_contract_check \
   "${PROJECT_ROOT}/bin/quality-registry-it.sh"
 
 run_optional_contract_check \
+  "test suite and fixture contracts" \
+  "${PROJECT_ROOT}/bin/test-contracts.sh" \
+  bash -c '"$1" --check all >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/test-contracts.sh" \
+  "${PROJECT_ROOT}/bin/test-contracts-it.sh"
+
+run_optional_contract_check \
   "configuration contract" \
   "${PROJECT_ROOT}/bin/config-contract.sh" \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
