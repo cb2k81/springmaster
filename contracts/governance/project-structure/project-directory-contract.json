@@ -1,0 +1,607 @@
+{
+  "schemaVersion": "springmaster.project-directory-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "defaultProfile": "springmaster-source",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+  "transitionBaseline": {
+    "path": "contracts/governance/project-structure/directory-transition-baseline.json",
+    "schemaVersion": "springmaster.directory-transition-baseline.v1",
+    "entrySetSha256": "0a0af7625b31e4d87a4cc3dcc2904ac8e3381adff6ab9ea125a8c1df81ae8384"
+  },
+  "profiles": {
+    "springmaster-source": {
+      "kind": "repository",
+      "requireGitTracking": true,
+      "requiredRootFiles": [
+        ".env.example",
+        ".gitignore",
+        "AGENTS.md",
+        "README.md",
+        "export.config.json",
+        "pom.xml"
+      ],
+      "allowedRootFiles": [
+        ".env.example",
+        ".gitignore",
+        "AGENTS.md",
+        "README.md",
+        "export.config.json",
+        "pom.xml"
+      ],
+      "requiredRootDirectories": [
+        "PROJECT_DOCS",
+        "bin",
+        "contracts",
+        "docs",
+        "patches",
+        "platform",
+        "src"
+      ],
+      "allowedRootDirectories": [
+        "PROJECT_DOCS",
+        "bin",
+        "contracts",
+        "docs",
+        "patches",
+        "platform",
+        "src"
+      ],
+      "allowedGeneratedRootDirectories": [
+        "target",
+        "build",
+        "tmp",
+        "exports"
+      ]
+    },
+    "project-new-template-source": {
+      "kind": "embedded-source",
+      "embeddedPath": "PROJECT_DOCS/TEMPLATES/project-skeleton",
+      "selectable": false
+    },
+    "generated-project": {
+      "kind": "repository",
+      "requireGitTracking": false,
+      "requiredRootFiles": [
+        ".env.example",
+        ".gitignore",
+        "README.md",
+        "export.config.json",
+        "pom.xml"
+      ],
+      "allowedRootFiles": [
+        ".env.example",
+        ".gitignore",
+        "AGENTS.md",
+        "README.md",
+        "export.config.json",
+        "pom.xml"
+      ],
+      "requiredRootDirectories": [
+        "PROJECT_DOCS",
+        "bin",
+        "contracts",
+        "patches",
+        "platform",
+        "src"
+      ],
+      "allowedRootDirectories": [
+        "PROJECT_DOCS",
+        "bin",
+        "contracts",
+        "patches",
+        "platform",
+        "src"
+      ],
+      "allowedGeneratedRootDirectories": [
+        "target",
+        "build",
+        "tmp",
+        "exports"
+      ]
+    },
+    "managed-project": {
+      "kind": "repository",
+      "extends": "generated-project",
+      "requireGitTracking": true,
+      "deviationInput": {
+        "optional": true,
+        "schemaVersion": "springmaster.managed-project-deviations.v1"
+      }
+    }
+  },
+  "internalIgnoredRootNames": [
+    ".git"
+  ],
+  "globalHygiene": {
+    "forbiddenExactNames": [
+      ".DS_Store",
+      "Thumbs.db"
+    ],
+    "forbiddenSuffixes": [
+      "~",
+      ".bak",
+      ".old",
+      ".orig",
+      ".copy",
+      ".swp",
+      ".swo",
+      ".tmp"
+    ],
+    "forbiddenNamePatterns": [
+      "(?i).*final-final.*",
+      "(?i)^copy of .*$",
+      "(?i)^tmp[0-9]*(?:\\..*)?$"
+    ],
+    "caseCollisionPolicy": "forbid",
+    "symlinkPolicy": "forbid"
+  },
+  "areas": [
+    {
+      "id": "generated-root",
+      "patterns": [
+        "target/**",
+        "build/**",
+        "tmp/**",
+        "exports/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "temporary",
+      "sourceKind": "generated",
+      "commitPolicy": "forbidden",
+      "allowedSuffixes": [
+        "*"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-operational-legacy",
+      "patterns": [
+        "PROJECT_DOCS/OPERATIONAL/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "migration-candidate",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md"
+      ],
+      "newPathPolicy": "baseline-only"
+    },
+    {
+      "id": "project-docs-config",
+      "patterns": [
+        "PROJECT_DOCS/CONFIG/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "legacy-accepted",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".env"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-core",
+      "patterns": [
+        "PROJECT_DOCS/CORE/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "legacy-accepted",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md",
+        ".json"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-demo",
+      "patterns": [
+        "PROJECT_DOCS/DEMO/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "legacy-accepted",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md",
+        ".json"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-template-source",
+      "patterns": [
+        "PROJECT_DOCS/TEMPLATES/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md",
+        ".json",
+        ".tpl",
+        ".yaml",
+        ".env"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-tooling",
+      "patterns": [
+        "PROJECT_DOCS/TOOLING/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "legacy-accepted",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md",
+        ".json",
+        ".yaml"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs-templates",
+      "patterns": [
+        "PROJECT_DOCS/_TEMPLATES/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "project-docs",
+      "patterns": [
+        "PROJECT_DOCS/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "contracts",
+      "patterns": [
+        "contracts/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "extension-point",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".json"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "bin",
+      "patterns": [
+        "bin/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".sh",
+        ".py",
+        ".bash"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "legacy-docs",
+      "patterns": [
+        "docs/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "legacy-accepted",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md"
+      ],
+      "newPathPolicy": "baseline-only"
+    },
+    {
+      "id": "patch-runtime",
+      "patterns": [
+        "patches/runtime/**",
+        "patches/archives/**",
+        "patches/logs/accept/**",
+        "patches/logs/validation/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "runtime-observed",
+      "sourceKind": "generated",
+      "commitPolicy": "forbidden",
+      "allowedSuffixes": [
+        "*"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "patch-changelogs",
+      "patterns": [
+        "patches/logs/**/CHANGELOG-*.md"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "historical",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".md"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "patch-legacy-logs",
+      "patterns": [
+        "patches/logs/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "forbidden-new",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".log",
+        ".txt",
+        ".md"
+      ],
+      "newPathPolicy": "baseline-only"
+    },
+    {
+      "id": "generated-project-patches",
+      "patterns": [
+        "patches/**"
+      ],
+      "profiles": [
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "historical",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".json",
+        ".md",
+        ".log",
+        ".txt"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "java-main",
+      "patterns": [
+        "src/main/java/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".java"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "main-resources",
+      "patterns": [
+        "src/main/resources/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".xml",
+        ".yml",
+        ".yaml",
+        ".json",
+        ".properties"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "java-test",
+      "patterns": [
+        "src/test/java/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".java"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "test-resources",
+      "patterns": [
+        "src/test/resources/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "extension-point",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".json",
+        ".xml",
+        ".yml",
+        ".yaml",
+        ".md",
+        ".txt",
+        ".properties"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "platform-generated",
+      "patterns": [
+        "platform/update/generated/**",
+        "platform/update/manifests/**"
+      ],
+      "profiles": [
+        "springmaster-source"
+      ],
+      "pathClass": "runtime-observed",
+      "sourceKind": "generated",
+      "commitPolicy": "forbidden",
+      "allowedSuffixes": [
+        "*"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
+      "id": "platform",
+      "patterns": [
+        "platform/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".env",
+        ".json",
+        ".md",
+        ".py",
+        ".sh",
+        ".gitkeep",
+        ".tpl",
+        ".yaml",
+        ".yml"
+      ],
+      "newPathPolicy": "allow"
+    }
+  ],
+  "technicalDocumentation": {
+    "root": "PROJECT_DOCS",
+    "humanSuffixes": [
+      ".md"
+    ],
+    "allowedTechnicalAreaIds": [
+      "project-docs-config",
+      "project-docs-core",
+      "project-docs-demo",
+      "project-docs-template-source",
+      "project-docs-tooling"
+    ]
+  },
+  "duplicatePolicy": {
+    "enabledModes": [
+      "all",
+      "changed"
+    ],
+    "maxFileSizeBytes": 2097152,
+    "excludedPatterns": [
+      "patches/logs/**",
+      "target/**",
+      "build/**",
+      "tmp/**",
+      "exports/**",
+      "patches/runtime/**",
+      "patches/archives/**",
+      "platform/update/generated/**",
+      "platform/update/manifests/**"
+    ],
+    "allowedPairs": [
+      {
+        "left": "contracts/database/migration-contract.json",
+        "right": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/contracts/database/migration-contract.json.tpl",
+        "kind": "qualified-template-derivation"
+      },
+      {
+        "left": "src/main/resources/db/changelog/changes/db.changelog-0000-foundation.xml",
+        "right": "PROJECT_DOCS/TEMPLATES/project-skeleton/files/src/main/resources/db/changelog/changes/db.changelog-0000-foundation.xml.tpl",
+        "kind": "qualified-template-derivation"
+      }
+    ]
+  },
+  "managedProjectDeviationInput": {
+    "schemaVersion": "springmaster.managed-project-deviations.v1",
+    "expiryField": "expiresAt",
+    "pathField": "path",
+    "statusField": "status",
+    "activeStatuses": [
+      "approved",
+      "active"
+    ]
+  }
+}

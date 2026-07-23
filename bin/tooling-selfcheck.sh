@@ -49,7 +49,7 @@ done < <(find "${PROJECT_ROOT}/bin" -type f -name '*.sh' | sort)
 
 log_info "Checking Python syntax"
 while IFS= read -r script; do
-  python3 -m py_compile "${script}"
+  PYTHONPYCACHEPREFIX="${PROJECT_ROOT}/build/python-cache" python3 -m py_compile "${script}"
 done < <(find "${PROJECT_ROOT}/bin" -maxdepth 1 -type f -name '*.py' | sort)
 
 log_info "Checking patch registry"
@@ -83,6 +83,13 @@ run_optional_contract_check \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \
   "${PROJECT_ROOT}/bin/documentation-gate.sh" \
   "${PROJECT_ROOT}/bin/documentation-gate-it.sh"
+
+run_optional_contract_check \
+  "project directory contract" \
+  "${PROJECT_ROOT}/bin/project-directory-gate.sh" \
+  bash -c '"$1" --mode all >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/project-directory-gate.sh" \
+  "${PROJECT_ROOT}/bin/project-directory-gate-it.sh"
 
 run_optional_contract_check \
   "configuration contract" \

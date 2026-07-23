@@ -1,0 +1,558 @@
+{
+  "schemaVersion": "springmaster.directory-transition-baseline.v1",
+  "establishedFromGitHead": "402036fe7e74b975f5478449656f990b7285a9a5",
+  "establishedAt": "2026-07-23",
+  "entryCount": 61,
+  "entrySetSha256": "0a0af7625b31e4d87a4cc3dcc2904ac8e3381adff6ab9ea125a8c1df81ae8384",
+  "entries": [
+    {
+      "path": "docs/Arbeitsauftrag-Projektstart.md",
+      "findingCodes": [
+        "LEGACY_PATH_PRESENT"
+      ],
+      "classification": "legacy-accepted",
+      "owner": "springmaster-maintainers",
+      "reason": "Existing root-level legacy documentation; new durable project truth belongs under PROJECT_DOCS."
+    },
+    {
+      "path": "docs/Empfehlung-Patchsystem.md",
+      "findingCodes": [
+        "LEGACY_PATH_PRESENT"
+      ],
+      "classification": "legacy-accepted",
+      "owner": "springmaster-maintainers",
+      "reason": "Existing root-level legacy documentation; new durable project truth belongs under PROJECT_DOCS."
+    },
+    {
+      "path": "docs/Masterkonzept.md",
+      "findingCodes": [
+        "LEGACY_PATH_PRESENT"
+      ],
+      "classification": "legacy-accepted",
+      "owner": "springmaster-maintainers",
+      "reason": "Existing root-level legacy documentation; new durable project truth belongs under PROJECT_DOCS."
+    },
+    {
+      "path": "PROJECT_DOCS/OPERATIONAL/SPRINT1_ZBM_SPRINGMASTER_CONFORMANT_IMPLEMENTATION_PLAN.md",
+      "findingCodes": [
+        "LEGACY_PATH_PRESENT"
+      ],
+      "classification": "migration-candidate",
+      "owner": "springmaster-maintainers",
+      "reason": "Existing pre-governance operational sprint document; new sprints use PROJECT_DOCS/SPRINTS."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/00_environment.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/01_target_descriptor.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/02_validate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/03_show.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/04_generate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/05_generated_zip_sha256.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/06_preflight.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/07_apply_plan.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/08_target_apply.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/GENERATED_ZIP.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/PID.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/RUN.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/STATUS.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/SUMMARY.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_074132/stages.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/00_environment.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/01_target_descriptor.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/02_validate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/03_show.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/04_generate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/05_generated_zip_sha256.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/06_preflight.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/07_apply_plan.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/08_target_apply.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/GENERATED_ZIP.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/PID.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/RUN.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/STATUS.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/SUMMARY.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-apply-20260706_080505/stages.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/00_environment.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/01_target_descriptor.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/02_validate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/03_show.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/04_generate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/05_generated_zip_sha256.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/06_preflight.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/07_apply_plan.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/GENERATED_ZIP.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/PID.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/RUN.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/STATUS.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/SUMMARY.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zbm-tooling-plan-20260706_073033/stages.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/00_environment.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/01_target_descriptor.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/02_validate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/03_show.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/04_generate.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/05_generated_zip_sha256.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/06_preflight.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/GENERATED_ZIP.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/PID.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/RUN.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/STATUS.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/SUMMARY.txt",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    },
+    {
+      "path": "patches/logs/platform-update/target-update-zdm-tooling-plan-20260706_071327/stages.log",
+      "findingCodes": [
+        "FORBIDDEN_NEW_PATH"
+      ],
+      "classification": "historical",
+      "owner": "springmaster-tooling",
+      "reason": "Committed legacy execution evidence; new runtime logs belong in ignored accept/validation/runtime paths."
+    }
+  ]
+}

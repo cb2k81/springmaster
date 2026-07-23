@@ -592,20 +592,28 @@ Die Governance ist inhaltlich vollständig, wenn:
 14. changed-, all- und report-fähige Gates ableitbar sind,
 15. keine Zuständigkeit der Documentation, Quality Gate oder Managed Project Governance dupliziert wird.
 
-### 17.3 Technische Folgeschritte
+### 17.3 Technischer Umsetzungsstand
 
-Zur Umsetzung werden benötigt:
+Die report-only Erstimplementierung umfasst:
 
-- Live-Git-Preflight von Root- und Tracking-Baseline,
-- Project Directory Contract,
-- Directory Transition Baseline,
-- Directory-Gate-Validator,
-- positive und negative Fixtures,
-- report-only Bestandsaudit,
-- getrennte Migrationspläne für gekoppelte Legacy-Pfade.
+- `contracts/governance/project-structure/project-directory-contract.json`,
+- `contracts/governance/project-structure/directory-transition-baseline.json`,
+- `bin/project-directory-gate.py` und den Shell-Einstieg,
+- positive und negative Integrationsfixtures,
+- `all`, `changed` und deterministische Reportausgabe,
+- getrennte Transition- und neue Findings sowie Tool Errors.
+
+Vor einer Aktivierung oder Strict-Promotion bleiben offen:
+
+- kontrollierte Materialisierung in Project-New,
+- der Managed-Project-Deviation-Contract und read-only Zielprojektpilot,
+- getrennte Migrationspläne für gekoppelte Legacy-Pfade,
+- Abbau der Directory Transition Baseline,
+- Promotionentscheidung nach Quality Gate Governance.
 
 ## 18. Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-22 | – | draft | Volltext auf Basis des verifizierten Springmaster-Bestands |
+| 2026-07-23 | draft | draft | Report-only Directory Contract, Transition Baseline, Gate und Fixtures technisch abgeleitet; Aktivierung bleibt offen |

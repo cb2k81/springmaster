@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "springmaster.project-directory-gate-fixtures.v1",
+  "cases": [
+    {
+      "id": "valid-generated-project",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "unexpected-root",
+      "mode": "changed",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "ROOT_PATH_UNREGISTERED"
+    },
+    {
+      "id": "required-root-deleted",
+      "mode": "changed",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "REQUIRED_ROOT_FILE_MISSING"
+    },
+    {
+      "id": "wrong-file-type",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "FILE_TYPE_NOT_ALLOWED"
+    },
+    {
+      "id": "technical-file-under-docs",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "TECHNICAL_FILE_UNDER_DOCUMENTATION"
+    },
+    {
+      "id": "temporary-source-file",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "PATH_HYGIENE_VIOLATION"
+    },
+    {
+      "id": "backup-artifact",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "PATH_HYGIENE_VIOLATION"
+    },
+    {
+      "id": "case-collision",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "CASE_COLLISION"
+    },
+    {
+      "id": "broken-symlink",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "SYMLINK_FORBIDDEN",
+      "expectedDetail": {
+        "broken": true
+      }
+    },
+    {
+      "id": "external-symlink",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "SYMLINK_FORBIDDEN",
+      "expectedDetail": {
+        "external": true
+      }
+    },
+    {
+      "id": "unapproved-duplicate",
+      "mode": "changed",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "UNDECLARED_BYTE_DUPLICATE"
+    },
+    {
+      "id": "approved-derivation",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "baseline-existing-vs-new",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "LEGACY_PATH_PRESENT",
+      "expectedTransitionCode": "LEGACY_PATH_PRESENT"
+    },
+    {
+      "id": "expired-deviation",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "DEVIATION_EXPIRED"
+    },
+    {
+      "id": "contract-change-expands-all",
+      "mode": "changed",
+      "expectedExit": 0,
+      "expectedStatus": "PASS",
+      "expectedExpandedToAll": true
+    },
+    {
+      "id": "invalid-baseline-extension",
+      "expectedExit": 2,
+      "expectedStatus": "TOOL_ERROR",
+      "expectedToolErrorCode": "BASELINE_DIGEST_MISMATCH"
+    },
+    {
+      "id": "tool-error-missing-contract",
+      "expectedExit": 2,
+      "expectedStatus": "TOOL_ERROR",
+      "expectedToolErrorCode": "CONTRACT_MISSING"
+    }
+  ]
+}

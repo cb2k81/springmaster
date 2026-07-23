@@ -75,7 +75,9 @@
       "description": "Repository structure, canonical ownership, extension points and directory migration governance",
       "physicalPaths": [
         "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
-        "contracts/governance/project-structure/**"
+        "contracts/governance/project-structure/**",
+        "bin/project-directory-gate*",
+        "src/test/resources/tooling/project-directory-gate-v1/**"
       ]
     },
     {

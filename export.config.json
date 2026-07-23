@@ -125,7 +125,9 @@
     "tooling": {
       "include": [
         "bin/**",
-        "PROJECT_DOCS/TOOLING/**"
+        "PROJECT_DOCS/TOOLING/**",
+        "contracts/governance/project-structure/**",
+        "src/test/resources/tooling/project-directory-gate-v1/**"
       ],
       "exclude": []
     },
