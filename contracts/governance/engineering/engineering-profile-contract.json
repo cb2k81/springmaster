@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "springmaster.engineering-profile-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+  "profiles": [
+    {
+      "id": "fast",
+      "purpose": "Short changed- or affected-scope feedback during implementation",
+      "requiredForCompletion": false,
+      "allowedScopeModes": ["changed", "affected"],
+      "checkClasses": ["syntax", "focused-tests", "changed-contract-validation", "changed-documentation"]
+    },
+    {
+      "id": "qualification",
+      "purpose": "Complete technical evidence for the accepted change scope",
+      "requiredForCompletion": true,
+      "allowedScopeModes": ["affected", "all"],
+      "checkClasses": [
+        "baseline",
+        "scope-conformance",
+        "contract-validation",
+        "tests",
+        "quality-gates",
+        "documentation",
+        "project-structure",
+        "dependency-impact",
+        "version-impact",
+        "diff-hygiene",
+        "evidence-completion"
+      ]
+    },
+    {
+      "id": "audit",
+      "purpose": "Full registered inventory review independent of one changed scope",
+      "requiredForCompletion": false,
+      "allowedScopeModes": ["all", "target-compare"],
+      "checkClasses": [
+        "baseline",
+        "full-contract-inventory",
+        "full-rule-inventory",
+        "full-test-inventory",
+        "findings-baseline",
+        "waiver-deviation-review",
+        "evidence-completion"
+      ]
+    },
+    {
+      "id": "release",
+      "purpose": "Qualification and audit extended by publication and distribution evidence",
+      "requiredForCompletion": false,
+      "allowedScopeModes": ["all", "target-compare"],
+      "checkClasses": [
+        "qualification",
+        "audit",
+        "version-closure",
+        "release-build",
+        "sbom",
+        "artifact-provenance",
+        "release-manifest"
+      ]
+    }
+  ],
+  "selectionRules": [
+    {
+      "id": "ENG-PROFILE-SEL-001",
+      "when": {"always": true},
+      "requiredProfiles": ["qualification"]
+    },
+    {
+      "id": "ENG-PROFILE-SEL-002",
+      "when": {"anyFlag": ["governanceMigration", "strictPromotion", "periodicAudit"]},
+      "requiredProfiles": ["audit"]
+    },
+    {
+      "id": "ENG-PROFILE-SEL-003",
+      "when": {"anyClass": ["release"]},
+      "requiredProfiles": ["audit", "release"]
+    },
+    {
+      "id": "ENG-PROFILE-SEL-004",
+      "when": {"anyFlag": ["releaseCandidate"]},
+      "requiredProfiles": ["audit", "release"]
+    }
+  ],
+  "optionalProfiles": ["fast"],
+  "substitution": [
+    {"profile": "audit", "covers": []},
+    {"profile": "release", "covers": ["qualification", "audit"]}
+  ],
+  "selectionOutputSchema": "springmaster.engineering-profile-selection.v1"
+}

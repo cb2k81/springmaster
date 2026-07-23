@@ -406,12 +406,15 @@ Gemeinsame Engineering-Prinzipien verlangen keine identischen Repositorystruktur
 Mindestens erforderlich sind:
 
 ```text
-contracts/governance/change-classification-contract.json
-contracts/governance/engineering-profile-contract.json
-contracts/governance/engineering-evidence-contract.json
+contracts/governance/engineering/change-classification-contract.json
+contracts/governance/engineering/engineering-profile-contract.json
+contracts/governance/engineering/engineering-evidence-contract.json
+contracts/governance/engineering/engineering-completion-contract.json
 ```
 
-Der Project Directory Contract bestimmt die endgültigen Pfade. Die Contracts konkretisieren Klassen, Risikokriterien, Profilzuordnung und Evidence-Felder, dürfen aber keine neue normative Prozessregel einführen.
+Der Project Directory Contract bestimmt die endgültigen Pfade. Die Contracts konkretisieren Klassen, Risikokriterien, deterministische Profilzuordnung, Evidence-Felder und die vierzehn Completion-Kriterien, dürfen aber keine neue normative Prozessregel einführen.
+
+Die Contract-Familie ist seit `SPRINGMASTER-SPRINT-001`, Slice S-01, als report-only Foundation materialisiert. `bin/engineering-contracts.py` validiert die Verträge sowie Classification-, Evidence- und Completion-Records. Der Validator ist noch kein Engineering-Qualification-Gate und erteilt weder Strict-Promotion noch Releasefreigabe. Seine positiven, negativen und Tool-Error-Szenarien liegen unter `src/test/resources/tooling/engineering-contracts-v1/`.
 
 Die aktuelle `AGENTS.md` enthält bereits belastbare Regeln zu Baseline, Klassifikation, kleinstem vollständigen Schnitt, risikobasierter Verifikation und Definition of Done. Diese Governance konsolidiert sie kanonisch; die `AGENTS.md` bleibt anschließend ein kompakter Einstieg.
 
@@ -449,3 +452,4 @@ Sie ist inhaltlich vollständig, wenn:
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-22 | – | draft | Konsolidierter Volltextentwurf auf Basis des verifizierten Springmaster-Bestands |
+| 2026-07-23 | draft | draft | S-01 materialisiert Classification-, Profile-, Evidence- und Completion-Contracts als report-only Foundation. |

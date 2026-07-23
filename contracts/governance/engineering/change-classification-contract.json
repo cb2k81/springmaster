@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "springmaster.change-classification-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+  "changeInputSchema": "springmaster.engineering-change-classification.v1",
+  "changeIdPattern": "^[A-Z][A-Z0-9-]{2,63}$",
+  "riskLevels": [
+    {"id": "low", "order": 10},
+    {"id": "medium", "order": 20},
+    {"id": "high", "order": 30},
+    {"id": "critical", "order": 40}
+  ],
+  "changeClasses": [
+    {"id": "documentation", "description": "Explanatory documentation without normative or technical effect"},
+    {"id": "governance", "description": "Governance, lifecycle or process semantics"},
+    {"id": "standard", "description": "Normative technical detail rule"},
+    {"id": "adr", "description": "Durable architecture decision"},
+    {"id": "contract", "description": "Machine-readable contract, schema, OpenAPI or registry"},
+    {"id": "fixture", "description": "Golden fixture, reference report or test fixture"},
+    {"id": "java-core", "description": "Reusable domain-neutral core Java"},
+    {"id": "java-application", "description": "Executable Springmaster application Java"},
+    {"id": "java-demo", "description": "Demo or reference-slice Java"},
+    {"id": "api", "description": "Public or internal interface"},
+    {"id": "persistence", "description": "Persistence, Liquibase or DBTool contract"},
+    {"id": "security", "description": "Authentication, authorization or permission contract"},
+    {"id": "test", "description": "Test harness, test code, test data or coverage configuration"},
+    {"id": "tooling", "description": "Bash, Python or Java tooling"},
+    {"id": "template", "description": "Project, code or configuration template"},
+    {"id": "dependency", "description": "Dependency, plugin, framework, generator or external CLI"},
+    {"id": "build", "description": "Maven structure, profile, packaging or build environment"},
+    {"id": "quality-rule", "description": "Technically checkable quality or architecture rule"},
+    {"id": "platform-update", "description": "Target comparison, planning, generation, compatibility or mutation"},
+    {"id": "managed-project-delivery", "description": "Qualified delivery to a managed project"},
+    {"id": "release", "description": "Release build, version or distribution"}
+  ],
+  "riskIndicators": [
+    {"id": "internal-multi-class-change", "minimumRisk": "medium"},
+    {"id": "public-or-reusable-contract", "minimumRisk": "high"},
+    {"id": "persistence-effect", "minimumRisk": "high"},
+    {"id": "security-effect", "minimumRisk": "high"},
+    {"id": "new-dependency", "minimumRisk": "high"},
+    {"id": "project-new-effect", "minimumRisk": "high"},
+    {"id": "platform-update-effect", "minimumRisk": "high"},
+    {"id": "strict-relevant-rule", "minimumRisk": "high"},
+    {"id": "irreversible-data-effect", "minimumRisk": "critical"},
+    {"id": "central-security-or-integrity-boundary", "minimumRisk": "critical"},
+    {"id": "broad-automatic-migration", "minimumRisk": "critical"},
+    {"id": "limited-rollback", "minimumRisk": "critical"}
+  ],
+  "requiredFields": [
+    "schemaVersion",
+    "changeId",
+    "classes",
+    "declaredRiskLevel",
+    "riskIndicators",
+    "flags"
+  ],
+  "flags": [
+    "governanceMigration",
+    "strictPromotion",
+    "periodicAudit",
+    "releaseCandidate"
+  ]
+}

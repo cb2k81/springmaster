@@ -99,6 +99,13 @@ run_optional_contract_check \
   "${PROJECT_ROOT}/bin/sprint-gate-it.sh"
 
 run_optional_contract_check \
+  "engineering contract foundation" \
+  "${PROJECT_ROOT}/bin/engineering-contracts.sh" \
+  bash -c '"$1" --check contracts >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/engineering-contracts.sh" \
+  "${PROJECT_ROOT}/bin/engineering-contracts-it.sh"
+
+run_optional_contract_check \
   "configuration contract" \
   "${PROJECT_ROOT}/bin/config-contract.sh" \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \

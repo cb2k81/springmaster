@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "springmaster.engineering-completion-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+  "completionSchema": "springmaster.engineering-completion.v1",
+  "completionIdPattern": "^ENG-COMP-[A-Z0-9-]{3,80}$",
+  "requiredFields": [
+    "schemaVersion",
+    "completionId",
+    "changeRef",
+    "evidenceRef",
+    "status",
+    "criterionResults",
+    "openBlockingFindingIds",
+    "openToolErrorIds",
+    "acceptedFindingIds",
+    "reviewers",
+    "completedAt",
+    "cancellationReason"
+  ],
+  "statuses": [
+    "qualified",
+    "qualified-with-findings",
+    "blocked",
+    "incomplete",
+    "cancelled"
+  ],
+  "criterionStatuses": ["passed", "failed", "pending", "not-applicable"],
+  "criteria": [
+    {"id": "ENG-COMP-001", "title": "Actual scope matches accepted scope"},
+    {"id": "ENG-COMP-002", "title": "No unrelated side changes"},
+    {"id": "ENG-COMP-003", "title": "Applicable ADRs, governance and standards are satisfied or updated"},
+    {"id": "ENG-COMP-004", "title": "Code, contracts, tests, fixtures, evidence and documentation agree"},
+    {"id": "ENG-COMP-005", "title": "Required profiles were executed and evaluated"},
+    {"id": "ENG-COMP-006", "title": "No open tool or execution error"},
+    {"id": "ENG-COMP-007", "title": "All blocking results are resolved"},
+    {"id": "ENG-COMP-008", "title": "Non-blocking findings are assessed and tracked"},
+    {"id": "ENG-COMP-009", "title": "Dependencies and structural changes followed their lifecycle"},
+    {"id": "ENG-COMP-010", "title": "Version, Project-New and managed-project impact is assessed"},
+    {"id": "ENG-COMP-011", "title": "Debt, risks and deferrals are registered"},
+    {"id": "ENG-COMP-012", "title": "No secret, forbidden runtime artifact or foreign change is included"},
+    {"id": "ENG-COMP-013", "title": "No unsupported maturity, security, persistence, strict-gate or delivery claim exists"},
+    {"id": "ENG-COMP-014", "title": "Engineering evidence is complete"}
+  ],
+  "qualifiedCriterionStatuses": ["passed", "not-applicable"]
+}

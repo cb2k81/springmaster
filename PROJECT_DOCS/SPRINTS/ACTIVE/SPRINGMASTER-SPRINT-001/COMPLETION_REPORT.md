@@ -35,7 +35,7 @@ Vorgesehenes Ergebnis ist eine report-only Engineering-Qualification-Kette aus p
 
 | Teilziel | Anforderungen | Abschlussstatus | Ergebnis oder Deferral |
 |---|---|---|---|
-| M-001 | `EQP-REQ-001`, `EQP-REQ-002` | pending | Engineering-Profile sowie Evidence-/Completion-Verträge ausstehend. |
+| M-001 | `EQP-REQ-001`, `EQP-REQ-002` | completed | Vier report-only Contracts, deterministische Profilwahl, Validator und 18 Fixtures materialisiert. |
 | M-002 | `EQP-REQ-003` | pending | Quality Rule Catalog und Gate Registry ausstehend. |
 | M-003 | `EQP-REQ-004` | pending | Test-Suite- und Fixture-Verträge ausstehend. |
 | M-004 | `EQP-REQ-005`, `EQP-REQ-006` | pending | report-only Gate und Integrationsnachweise ausstehend. |
@@ -55,7 +55,10 @@ Qualification ist `pending`. Bei Closure werden mindestens dokumentiert:
 
 ## Akzeptierte Änderungen
 
-Noch keine Implementierungsänderung ist diesem Sprint als akzeptierter Slice zugeordnet. Der Initiierungspatch enthält ausschließlich Sprintdokumente und Indexeinträge.
+- Patch `000175_springmaster_engineering_qualification_pilot_sprint` eröffnete den Sprint ohne Implementierungsänderung.
+- Patch `000176_springmaster_engineering_contract_foundation` liefert Slice S-01 beziehungsweise M-001: Change-Classification-, Engineering-Profile-, Engineering-Evidence- und Engineering-Completion-Contract, einen read-only Contract-Validator sowie 18 Contract-Fixtures.
+
+S-01 enthält noch kein Engineering-Qualification-Gate, keine Strict-Promotion und keine externe Dependency.
 
 ## Dauerhafte Promotionen
 
@@ -94,3 +97,4 @@ Noch nicht bewertbar. Nicht erreichte Teilziele, kontrollierte Deferrals, Folges
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-23 | – | draft | Dauerhafter Completion- und Qualification-Rahmen beim Sprintstart angelegt. |
+| 2026-07-23 | draft | draft | M-001/S-01 als qualifizierter Contract-Foundation-Slice aufgenommen; Sprint-Closure bleibt offen. |

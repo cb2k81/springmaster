@@ -87,7 +87,9 @@
       "description": "Technical change lifecycle, classification, readiness, profile selection and completion governance",
       "physicalPaths": [
         "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
-        "contracts/governance/engineering/**"
+        "contracts/governance/engineering/**",
+        "bin/engineering-contracts*",
+        "src/test/resources/tooling/engineering-contracts-v1/**"
       ]
     },
     {

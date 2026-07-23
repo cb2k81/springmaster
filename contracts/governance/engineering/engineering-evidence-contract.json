@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "springmaster.engineering-evidence-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "report-only",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+  "evidenceSchema": "springmaster.engineering-evidence.v1",
+  "evidenceIdPattern": "^ENG-EVID-[A-Z0-9-]{3,80}$",
+  "requiredFields": [
+    "schemaVersion",
+    "evidenceId",
+    "changeRef",
+    "sprintRef",
+    "baseline",
+    "acceptedScope",
+    "classification",
+    "profileSelection",
+    "ruleSources",
+    "executions",
+    "findings",
+    "deferrals",
+    "technicalDebt",
+    "impact",
+    "artifactFamilies",
+    "technicalStatus",
+    "completionRef"
+  ],
+  "baselineRequiredFields": [
+    "gitHead",
+    "dirty",
+    "sourceExportSha256"
+  ],
+  "scopeRequiredFields": [
+    "desiredResult",
+    "requirements",
+    "paths",
+    "outOfScope"
+  ],
+  "executionRequiredFields": [
+    "executionId",
+    "profileId",
+    "checkId",
+    "status",
+    "command",
+    "reportRefs"
+  ],
+  "executionStatuses": [
+    "passed",
+    "passed-with-findings",
+    "blocked",
+    "tool-error",
+    "not-applicable",
+    "not-executed"
+  ],
+  "findingSeverities": [
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "BLOCKER"
+  ],
+  "impactRequiredFields": [
+    "version",
+    "projectNew",
+    "managedProjects",
+    "dependencies",
+    "documentation"
+  ],
+  "technicalStatuses": [
+    "qualified",
+    "qualified-with-findings",
+    "blocked",
+    "incomplete",
+    "cancelled"
+  ],
+  "qualifiedExecutionStatuses": [
+    "passed",
+    "passed-with-findings",
+    "not-applicable"
+  ],
+  "findingRequiredFields": [
+    "findingId",
+    "severity",
+    "status",
+    "message"
+  ],
+  "findingStatuses": [
+    "open",
+    "accepted",
+    "resolved",
+    "baselined",
+    "waived",
+    "suppressed"
+  ]
+}

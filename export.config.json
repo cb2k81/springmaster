@@ -129,7 +129,9 @@
         "contracts/governance/project-structure/**",
         "src/test/resources/tooling/project-directory-gate-v1/**",
         "contracts/governance/sprint/**",
-        "src/test/resources/tooling/sprint-gate-v1/**"
+        "src/test/resources/tooling/sprint-gate-v1/**",
+        "contracts/governance/engineering/**",
+        "src/test/resources/tooling/engineering-contracts-v1/**"
       ],
       "exclude": []
     },

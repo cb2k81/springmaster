@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "springmaster.engineering-contracts-it.v1",
+  "cases": [
+    {"id": "contracts-valid", "operation": "contracts", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "contracts-duplicate-class", "operation": "contracts", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "contracts-unknown-profile-reference", "operation": "contracts", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "profiles-low-documentation", "operation": "profiles", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "profiles-high-contract", "operation": "profiles", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "profiles-release", "operation": "profiles", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "profiles-unknown-class", "operation": "profiles", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "evidence-incomplete-valid", "operation": "evidence", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "evidence-qualified-valid", "operation": "evidence", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "evidence-profile-selection-mismatch", "operation": "evidence", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "evidence-qualified-with-tool-error", "operation": "evidence", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "evidence-duplicate-execution", "operation": "evidence", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "completion-qualified-valid", "operation": "completion", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "completion-qualified-with-findings-valid", "operation": "completion", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "completion-qualified-open-blocker", "operation": "completion", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "completion-blocked-without-cause", "operation": "completion", "expectedExit": 1, "expectedStatus": "FINDINGS"},
+    {"id": "completion-incomplete-valid", "operation": "completion", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "tool-error-missing-contract-root", "operation": "contracts", "expectedExit": 2, "expectedStatus": "TOOL_ERROR"}
+  ]
+}
