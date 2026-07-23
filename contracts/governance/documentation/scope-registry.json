@@ -117,6 +117,36 @@
         "PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md",
         "contracts/governance/dependencies/**"
       ]
+    },
+    {
+      "id": "springmaster/standards/java-architecture",
+      "level": "capability",
+      "kind": "logical",
+      "parent": "springmaster/standards",
+      "description": "Java namespace, package, dependency-direction, Spring boundary and architecture-test standard",
+      "physicalPaths": [
+        "PROJECT_DOCS/STANDARDS/ARCHITECTURE/JAVA_ARCHITECTURE_STANDARD.md"
+      ]
+    },
+    {
+      "id": "springmaster/standards/java-coding",
+      "level": "capability",
+      "kind": "logical",
+      "parent": "springmaster/standards",
+      "description": "Java source structure, visibility, documentation and clean-code standard",
+      "physicalPaths": [
+        "PROJECT_DOCS/STANDARDS/JAVA/JAVA_CODING_STANDARD.md"
+      ]
+    },
+    {
+      "id": "springmaster/standards/testing",
+      "level": "capability",
+      "kind": "logical",
+      "parent": "springmaster/standards",
+      "description": "Automated test-code, fixture, assertion and test-double implementation standard",
+      "physicalPaths": [
+        "PROJECT_DOCS/STANDARDS/TESTING/TESTING_STANDARD.md"
+      ]
     }
   ]
 }

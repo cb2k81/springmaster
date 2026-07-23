@@ -114,6 +114,9 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 - `PROJECT_DOCS/PLANNING/SPRINGMASTER_IMPLEMENTATION_PLAN.md`
 ## STANDARDS
 
+- `PROJECT_DOCS/STANDARDS/ARCHITECTURE/JAVA_ARCHITECTURE_STANDARD.md` — draft V2 standard for Java namespaces, dependency directions and architecture boundaries
+- `PROJECT_DOCS/STANDARDS/JAVA/JAVA_CODING_STANDARD.md` — draft V2 standard for Java code structure, visibility, documentation and clean-code rules
+- `PROJECT_DOCS/STANDARDS/TESTING/TESTING_STANDARD.md` — draft V2 standard for automated test code, fixtures, assertions and test doubles
 - `PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md`
 - `PROJECT_DOCS/STANDARDS/API/API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`
 - `PROJECT_DOCS/STANDARDS/API/API_ENDPOINT_CONTRACT_DEFINITION_BACKLOG.md`
@@ -220,3 +223,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 | 2026-07-20 | - | active | Bootstrap-Index eingeführt |
 | 2026-07-22 | active | active | Auf V2-Metadaten und Bootstrap-Templates erweitert |
 | 2026-07-22 | active | active | Fünf validierte Kern-Governance-Drafts indexiert |
+| 2026-07-22 | active | active | Drei validierte Engineering-Standards als Drafts indexiert |
