@@ -23,6 +23,7 @@ Springmaster uses an explicit target lifecycle and profile allow-list:
 | Target | Status | Lifecycle | Delivery | Allowed profiles | Path |
 |---|---|---|---:|---|---|
 | `zbm` | `DELIVERY_ENABLED` | `update-enabled` | `true` | `tooling-cutover,core` | `/opt/cocondo/zbm` |
+| `zdm` | `INITIALIZATION_CANDIDATE` | `initialization` | `false` | `project-new,core,core-runtime,core-tests,tooling,defaults` | `/opt/cocondo/zdm` |
 | `contacts` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/contacts` |
 | `idm` | `DEFERRED_EXISTING_PROJECT_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/idm` |
 | `orders` | `TO_VERIFY_NO_DELIVERY` | `existing-deferred` | `false` | descriptor-specific | `/opt/cocondo/orders` |

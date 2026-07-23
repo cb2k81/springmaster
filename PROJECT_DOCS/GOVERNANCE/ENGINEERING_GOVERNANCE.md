@@ -307,7 +307,7 @@ Zuerst wird die engste aussagekräftige Prüfung ausgeführt. Fehlschläge werde
 
 Vor Abschluss MUSS das aus Klassen und Risiko abgeleitete Qualification-Profil ausgeführt werden. Es umfasst die durch Test Governance, Quality Gate Governance, Dependency Governance und Standards geforderten Prüfungen.
 
-Prüfresultate MÜSSEN inhaltlich ausgewertet werden. Zu unterscheiden sind mindestens erfolgreiche Nachweise, blockierende Ergebnisse, nicht blockierende Findings, nicht ausgeführte Prüfungen, Toolfehler und bekannte Bestandsabweichungen.
+Prüfresultate MÜSSEN inhaltlich ausgewertet werden. Zu unterscheiden sind mindestens erfolgreiche Nachweise, blockierende Ergebnisse, nicht blockierende Findings, nicht ausgeführte Prüfungen, Tool Error und bekannte Bestandsabweichungen.
 
 ### 9.5 Abschluss
 

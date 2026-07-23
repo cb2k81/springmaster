@@ -699,7 +699,7 @@ Folgende Bestandsformen werden nicht allein durch Aktivierung dieses Standards z
 - vorhandene manuelle Mapper und manuell erzeugte Validatoren,
 - das Fehlen eines dedizierten Architecture-Gate-Werkzeugs.
 
-Diese Formen sind keine automatische Empfehlung für neuen, nicht trivialen Code. Neue Verstöße dürfen nicht über eine Transition-Baseline legitimiert werden.
+Diese Formen sind keine automatische Empfehlung für neuen, nicht trivialen Code. Neue Verstöße dürfen nicht über eine Findings-Baseline legitimiert werden.
 
 ### 16.3 Migration statt Big Bang
 

@@ -98,8 +98,11 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 
 - `PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md` — draft V2 governance for external dependency lifecycle and approval
 - `PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md` — draft V2 governance for technical change lifecycle and completion
+- `PROJECT_DOCS/GOVERNANCE/MANAGED_PROJECT_GOVERNANCE.md` — draft governance for adoption, deviations and controlled target updates
 - `PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md` — draft V2 governance for repository structure and canonical ownership
 - `PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md` — draft V2 governance for rule, gate, baseline and waiver semantics
+- `PROJECT_DOCS/GOVERNANCE/RELEASE_AND_VERSION_GOVERNANCE.md` — draft governance for version impact, qualification and release decisions
+- `PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md` — draft governance for problem framing, solution planning, status and sprint closure
 - `PROJECT_DOCS/GOVERNANCE/SPRINT_P1_RUNTIME_CONTRACT_FOUNDATION.md`
 - `PROJECT_DOCS/GOVERNANCE/SPRINT_P2_MANAGED_TARGET_LIFECYCLE.md`
 - `PROJECT_DOCS/GOVERNANCE/SPRINT_RELEASE_GOVERNANCE.md`
@@ -116,6 +119,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 
 - `PROJECT_DOCS/STANDARDS/ARCHITECTURE/JAVA_ARCHITECTURE_STANDARD.md` — draft V2 standard for Java namespaces, dependency directions and architecture boundaries
 - `PROJECT_DOCS/STANDARDS/JAVA/JAVA_CODING_STANDARD.md` — draft V2 standard for Java code structure, visibility, documentation and clean-code rules
+- `PROJECT_DOCS/STANDARDS/BUILD_AND_TOOLING_STANDARD.md` — draft standard for Maven, Bash, Python, CLI and tooling safety
 - `PROJECT_DOCS/STANDARDS/TESTING/TESTING_STANDARD.md` — draft V2 standard for automated test code, fixtures, assertions and test doubles
 - `PROJECT_DOCS/STANDARDS/API/API_CONTRACT_GATE_CONCEPT.md`
 - `PROJECT_DOCS/STANDARDS/API/API_COUNT_RESPONSE_CONTRACT_CANDIDATE.md`
@@ -224,3 +228,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/`. Du
 | 2026-07-22 | active | active | Auf V2-Metadaten und Bootstrap-Templates erweitert |
 | 2026-07-22 | active | active | Fünf validierte Kern-Governance-Drafts indexiert |
 | 2026-07-22 | active | active | Drei validierte Engineering-Standards als Drafts indexiert |
+| 2026-07-23 | active | active | Vier verbleibende Governance- und Standard-Drafts für Gesamtaudit 02 integriert |

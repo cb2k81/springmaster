@@ -147,6 +147,54 @@
       "physicalPaths": [
         "PROJECT_DOCS/STANDARDS/TESTING/TESTING_STANDARD.md"
       ]
+    },
+    {
+      "id": "springmaster/sprints",
+      "level": "ecosystem",
+      "kind": "logical",
+      "parent": "springmaster/governance",
+      "description": "Sprint problem framing, solution planning, status, qualification and closure governance",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "PROJECT_DOCS/SPRINTS/**"
+      ]
+    },
+    {
+      "id": "springmaster/managed-projects",
+      "level": "ecosystem",
+      "kind": "logical",
+      "parent": "springmaster/governance",
+      "description": "Project adoption, managed-project deviations, read-only checks and controlled target mutation",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/MANAGED_PROJECT_GOVERNANCE.md",
+        "platform/update/**",
+        "PROJECT_DOCS/TARGET_UPDATES/**"
+      ]
+    },
+    {
+      "id": "springmaster/release-versioning",
+      "level": "ecosystem",
+      "kind": "logical",
+      "parent": "springmaster/governance",
+      "description": "Version impact, version closure, release qualification and release decisions",
+      "physicalPaths": [
+        "PROJECT_DOCS/GOVERNANCE/RELEASE_AND_VERSION_GOVERNANCE.md",
+        "platform/versions/**",
+        "PROJECT_DOCS/TOOLING/RELEASE_QUALIFICATION.md"
+      ]
+    },
+    {
+      "id": "springmaster/standards/build-tooling",
+      "level": "capability",
+      "kind": "logical",
+      "parent": "springmaster/standards",
+      "description": "Maven, Bash, Python, CLI, build and repository tooling implementation standard",
+      "physicalPaths": [
+        "PROJECT_DOCS/STANDARDS/BUILD_AND_TOOLING_STANDARD.md",
+        "pom.xml",
+        "bin/**",
+        "platform/update/tools/**"
+      ]
     }
   ]
 }

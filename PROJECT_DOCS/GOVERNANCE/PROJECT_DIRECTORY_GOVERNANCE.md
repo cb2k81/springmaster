@@ -65,7 +65,7 @@ Neue Root-Inhalte, nicht registrierte Verzeichnisse und neue Inhaltsklassen sind
 - im Directory Contract registrierte Pfade,
 - registrierte Extension Points,
 - definierte generierte oder temporäre Pfade,
-- einzeln erfasste Übergangspfade einer kontrollierten Transition-Baseline.
+- einzeln erfasste Übergangspfade einer kontrollierten Directory Transition Baseline.
 
 Physische Existenz in einem Export oder Arbeitsverzeichnis begründet keine Zulässigkeit.
 
@@ -135,7 +135,7 @@ Der Contract definiert mindestens:
 - Extension Points,
 - zulässige Ableitungen und Duplikate,
 - Naming-, Case- und Symlink-Regeln,
-- Transition-Baseline und Managed-Project-Deviations.
+- Directory Transition Baseline und Managed-Project-Deviations.
 
 ### 5.3 Bereichsdeskriptor
 
@@ -438,7 +438,7 @@ Vor einer kanonischen Pfadverschiebung sind mindestens zu prüfen:
 
 ### 13.3 Migrationsplan
 
-Ein Migrationsplan enthält Quell- und Zielpfad, Ownerwechsel, Consumer, Reihenfolge, Übergangsregel, Rückrollstrategie, Gates, Tests und den Abbau der Transition-Baseline.
+Ein Migrationsplan enthält Quell- und Zielpfad, Ownerwechsel, Consumer, Reihenfolge, Übergangsregel, Rückrollstrategie, Gates, Tests und den Abbau der Directory Transition Baseline.
 
 Die Migration soll atomar erfolgen. Unvermeidbare Zwischenzustände müssen ausdrücklich unterstützt, eindeutig gerichtet und zeitlich begrenzt sein.
 
@@ -446,9 +446,9 @@ Dauerhafte parallele Alt- und Neupfade sind nicht zulässig. Temporäre Aliase b
 
 ## 14. Bestands- und Transition-Regeln
 
-### 14.1 Transition-Baseline
+### 14.1 Directory Transition Baseline
 
-Der aktuelle Bestand wird für die Gate-Einführung in einer maschinenlesbaren Transition-Baseline erfasst. Sie darf nur einzeln identifizierte Abweichungen enthalten und keine ganzen Root-Bereiche pauschal ausnehmen.
+Der aktuelle Bestand wird für die Gate-Einführung in einer maschinenlesbaren Directory Transition Baseline erfasst. Sie darf nur einzeln identifizierte Abweichungen enthalten und keine ganzen Root-Bereiche pauschal ausnehmen.
 
 Neue Instanzen eines `forbidden-new`- oder `migration-candidate`-Musters müssen unabhängig vom Bestandsstatus erkannt werden. Die allgemeine Baseline-Semantik regelt die Quality Gate Governance.
 
@@ -464,9 +464,9 @@ PROJECT_DOCS/TEMPLATES/
 PROJECT_DOCS/TOOLING/
 ```
 
-Diese Instanzen werden einzeln als kanonische technische Übergangsquelle, Golden Fixture, Transition-Baseline oder Migrationskandidat klassifiziert.
+Diese Instanzen werden einzeln als kanonische technische Übergangsquelle, Golden Fixture, Directory Transition Baseline oder Migrationskandidat klassifiziert.
 
-Neue technische Dateien unter `PROJECT_DOCS/` sind nur bei ausdrücklicher Contract-Freigabe zulässig. Die Transition-Baseline darf nicht erweitert werden, um neue Fehlplatzierungen aufzunehmen.
+Neue technische Dateien unter `PROJECT_DOCS/` sind nur bei ausdrücklicher Contract-Freigabe zulässig. Die Directory Transition Baseline darf nicht erweitert werden, um neue Fehlplatzierungen aufzunehmen.
 
 ### 14.3 Gekoppelte Bestandspfade
 
@@ -508,7 +508,7 @@ Das Gate prüft mindestens:
 - Canonical Ownership,
 - Byte-Duplikate und deklarierte Ableitungen,
 - potenzielle semantische Parallelstrukturen,
-- neue Verstöße gegen Transition-Baseline,
+- neue Verstöße gegen Directory Transition Baseline,
 - ungültige oder abgelaufene Managed-Project-Deviations.
 
 ### 15.2 Modi
@@ -527,7 +527,7 @@ Der All-Modus ist mindestens erforderlich für Root- und Pfadmigrationen, Direct
 
 ### 15.3 Effizienz und Sicherheit
 
-Das Gate muss read-only, raw-byte-sicher und deterministisch arbeiten. Es trennt Toolfehler von Findings, begrenzt teure Vollscans im Changed-Modus und verändert keine Quelldateien.
+Das Gate muss read-only, raw-byte-sicher und deterministisch arbeiten. Es trennt Tool Error von Findings, begrenzt teure Vollscans im Changed-Modus und verändert keine Quelldateien.
 
 ### 15.4 Fixtures
 
@@ -570,7 +570,7 @@ Diese Governance erzeugt oder kontrolliert ausschließlich:
 - Bereichs-, Pfad- und Lifecycle-Klassen,
 - Canonical Ownership und Extension Points,
 - Strukturänderungs- und Migrationsprozess,
-- Anforderungen an Directory Contract, Transition-Baseline und Directory Gate.
+- Anforderungen an Directory Contract, Directory Transition Baseline und Directory Gate.
 
 ### 17.2 Abnahmekriterien
 
@@ -586,7 +586,7 @@ Die Governance ist inhaltlich vollständig, wenn:
 8. Naming-, Case-, Backup- und Symlink-Regeln technisch ableitbar sind,
 9. Migrationen alle relevanten Consumer berücksichtigen,
 10. der reale Bestand ohne Big-Bang-Umbau modelliert werden kann,
-11. neue Fehlplatzierungen trotz Transition-Baseline erkannt werden,
+11. neue Fehlplatzierungen trotz Directory Transition Baseline erkannt werden,
 12. Project-New ein gültiges reduziertes Profil erzeugt,
 13. gemanagte Projekte read-only prüfbar sind,
 14. changed-, all- und report-fähige Gates ableitbar sind,
@@ -598,7 +598,7 @@ Zur Umsetzung werden benötigt:
 
 - Live-Git-Preflight von Root- und Tracking-Baseline,
 - Project Directory Contract,
-- Transition-Baseline,
+- Directory Transition Baseline,
 - Directory-Gate-Validator,
 - positive und negative Fixtures,
 - report-only Bestandsaudit,

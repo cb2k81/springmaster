@@ -16,8 +16,8 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-07-22
-reviewBy: 2027-01-22
+lastReviewedAt: 2026-07-23
+reviewBy: 2027-01-23
 supersedes: []
 supersededBy: null
 temporary: false
@@ -303,13 +303,17 @@ Ein Dokument darf nicht gleichzeitig in aktiver und archivierter Form manuell ge
 
 ## 8. Temporäre Dokumente
 
-Temporäre Repository-Dokumente sind nur in einem registrierten aktiven Sprint-Arbeitsbereich zulässig. Zielpfad:
+Temporäre Repository-Dokumente sind nur in einem registrierten aktiven Sprintbereich zulässig.
+
+Allgemeine Arbeitsdokumente liegen unter:
 
 ```text
 PROJECT_DOCS/SPRINTS/ACTIVE/<sprint-id>/WORK/
 ```
 
-Sie benötigen:
+Die Sprint Governance kann klar benannte verpflichtende Steuerungsdokumente am Root des aktiven Sprintordners zulassen. Derzeit gilt diese Ausnahme ausschließlich für `SOLUTION_PLAN.md` und `STATUS.md`; sie dürfen keine allgemeinen Arbeitsnotizen aufnehmen.
+
+Temporäre Dokumente benötigen:
 
 ```yaml
 temporary: true
@@ -369,7 +373,7 @@ Für jeden aktiven Dokumenttyp muss ein verbindliches Template bestehen. Mindest
 - Standard und Guide,
 - Plan und Checklist,
 - Report,
-- Sprint Brief, Sprint Status und Sprint Completion Report,
+- Sprint Brief, Solution Plan, Sprint Status und Sprint Completion Report,
 - Technical Debt,
 - Register.
 
@@ -536,5 +540,6 @@ Bestehende Contract-Pfade unter `contracts/governance/` sind zu bevorzugen, sola
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
-| 2026-07-20 | - | active | Bootstrap-Governance für neue Dokumente und Transition-Baseline eingeführt |
+| 2026-07-20 | - | active | Bootstrap-Governance für neue Dokumente und Documentation Transition Baseline eingeführt |
 | 2026-07-22 | active | active | Konsolidiertes Metadaten-, Lifecycle-, Index- und Gate-V2-Modell aktiviert |
+| 2026-07-23 | active | active | Temporäre Sprint-Steuerungsdokumente und Solution Plan kontrolliert integriert |

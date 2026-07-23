@@ -387,7 +387,7 @@ Bestehende Stärken werden als Baseline gesichert, aber nicht ohne Rule Fixtures
 - noch nicht festgelegte Komplexitäts- und Größenwerte,
 - fehlender dedizierter Java-Quality-Toolstack.
 
-Bestehende Findings werden nach Quality Gate Governance inventarisiert. Neue Verstöße dürfen nicht pauschal in die Transition-Baseline aufgenommen werden.
+Bestehende Findings werden nach Quality Gate Governance inventarisiert. Neue Verstöße dürfen nicht pauschal in die Findings-Baseline aufgenommen werden.
 
 Wird ein bestehender Typ wesentlich geändert, SOLLEN lokale, risikoarme Verstöße im direkt betroffenen Bereich behoben werden. Dies rechtfertigt keine unverbundene Formatierungs-, Javadoc- oder Refactoring-Welle.
 
