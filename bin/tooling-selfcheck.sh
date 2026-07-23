@@ -106,6 +106,13 @@ run_optional_contract_check \
   "${PROJECT_ROOT}/bin/engineering-contracts-it.sh"
 
 run_optional_contract_check \
+  "quality rule catalog and gate registry" \
+  "${PROJECT_ROOT}/bin/quality-registry.sh" \
+  bash -c '"$1" --check all >/dev/null && "$2" >/dev/null' _ \
+  "${PROJECT_ROOT}/bin/quality-registry.sh" \
+  "${PROJECT_ROOT}/bin/quality-registry-it.sh"
+
+run_optional_contract_check \
   "configuration contract" \
   "${PROJECT_ROOT}/bin/config-contract.sh" \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \

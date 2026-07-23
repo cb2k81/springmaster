@@ -131,7 +131,9 @@
         "contracts/governance/sprint/**",
         "src/test/resources/tooling/sprint-gate-v1/**",
         "contracts/governance/engineering/**",
-        "src/test/resources/tooling/engineering-contracts-v1/**"
+        "src/test/resources/tooling/engineering-contracts-v1/**",
+        "contracts/governance/quality/**",
+        "src/test/resources/tooling/quality-registry-v1/**"
       ],
       "exclude": []
     },

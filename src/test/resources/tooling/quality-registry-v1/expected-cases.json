@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "springmaster.quality-registry-it.v1",
+  "cases": [
+    {"id":"all-valid","expectedExit":0,"expectedStatus":"PASS"},
+    {"id":"catalog-valid","expectedExit":0,"expectedStatus":"PASS","operation":"catalog"},
+    {"id":"gates-valid","expectedExit":0,"expectedStatus":"PASS","operation":"gates"},
+    {"id":"duplicate-rule","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"duplicate-gate","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"invalid-rule-id","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"normative-text-forbidden","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"unknown-gate-reference","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"unknown-rule-reference","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"missing-source-path","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"missing-source-section","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"missing-entrypoint","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"missing-input-contract","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"strict-default-forbidden","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"planned-rule-unmapped","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"nonreciprocal-rule-gate","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"invalid-testability","expectedExit":1,"expectedStatus":"FINDINGS"},
+    {"id":"tool-error-missing-root","expectedExit":2,"expectedStatus":"TOOL_ERROR"}
+  ]
+}

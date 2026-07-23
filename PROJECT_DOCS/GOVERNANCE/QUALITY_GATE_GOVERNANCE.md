@@ -503,6 +503,21 @@ Der Baseline-Review aus Patch 000070 bleibt historische Evidence. Eine technisch
 
 Kein bestehendes Gate wird durch diese Governance strict.
 
+### 16.3 Technischer Umsetzungsstand
+
+Slice `S-02` des Pilotsprints `SPRINGMASTER-SPRINT-001` materialisiert erstmals den zentralen Quality Rule Catalog und die Gate Registry.
+
+Der report-only Stand umfasst:
+
+- `contracts/governance/quality/quality-rule-catalog.json`,
+- `contracts/governance/quality/gate-registry.json`,
+- den read-only Validator `bin/quality-registry.py`,
+- positive, negative und Tool-Error-Fixtures unter `src/test/resources/tooling/quality-registry-v1/`.
+
+Registriert sind die qualifizierten Regeln der Documentation-, Project-Directory- und Sprint-Gates sowie die in S-01 implementierten Engineering-Profil- und Completion-Regeln. Engineering-Regeln verweisen bis Slice S-04 ausschließlich auf das geplante `engineering-qualification-gate-v1`; sie werden durch diesen Slice nicht zu einem produktiven Gate promoviert.
+
+Der Catalog enthält Titel und normative Quellenreferenzen, aber keinen duplizierten Regeltext. Die Gate Registry bleibt auf `report-only`, read-only und Reportdateien als einzige Side Effects begrenzt. Keine Regel und kein Gate wird durch diesen Umsetzungsstand `strict`.
+
 ## 17. Abnahmekriterien
 
 Diese Governance ist vollständig, wenn:

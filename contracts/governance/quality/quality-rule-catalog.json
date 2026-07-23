@@ -1,0 +1,1835 @@
+{
+  "schemaVersion": "springmaster.quality-rule-catalog.v1",
+  "catalogVersion": "1.0.0",
+  "status": "report-only",
+  "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+  "allowedLayers": [
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6"
+  ],
+  "allowedTestabilityClasses": [
+    "automated",
+    "partially-automated",
+    "manual-review",
+    "architectural-review"
+  ],
+  "allowedSeverities": [
+    "BLOCKER",
+    "ERROR",
+    "WARNING",
+    "INFO",
+    "MANUAL_REVIEW"
+  ],
+  "allowedLifecycles": [
+    "proposed",
+    "implemented-report-only",
+    "qualified-report-only",
+    "strict",
+    "deprecated",
+    "retired"
+  ],
+  "allowedEnforcementModes": [
+    "report-only",
+    "manual-review",
+    "strict"
+  ],
+  "rules": [
+    {
+      "ruleId": "DOC-BASELINE-001",
+      "title": "Documentation transition baseline is immutable except by accepted contract change",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "13.3 Migrationskontrolle"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-ID-001",
+      "title": "Document IDs must be unique and valid",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "5.2 Feldregeln"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-INDEX-001",
+      "title": "Documentation index must cover the current Markdown inventory",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "11. Dokumentationsindex"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-META-001",
+      "title": "V2 front matter required for new or migrated documents",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "5. Metadatenmodell"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-NAME-001",
+      "title": "Durable document filenames must not encode manual revisions",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "5.2 Feldregeln"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-REVIEW-001",
+      "title": "Required review dates must be present and current",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "5.4 Reviewpflicht"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-SCOPE-001",
+      "title": "Scope and applies-to values must be registered",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "5.3 Scope-Level"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-SUPERSESSION-001",
+      "title": "Supersession references must be valid and reciprocal",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "7.2 Supersession"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-TECH-001",
+      "title": "New technical artifacts are forbidden under PROJECT_DOCS",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "3.3 Dokumentation und Contract Sources"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-TEMPLATE-001",
+      "title": "Registered document types must resolve to an existing template",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "10.1 Templates"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "DOC-TYPE-001",
+      "title": "Document type and status must be registered",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md",
+        "section": "4. Dokumenttypen"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "documentation-gate-v2"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "ENG-COMP-001",
+      "title": "Actual scope matches accepted scope",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-002",
+      "title": "No unrelated side changes",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-003",
+      "title": "Applicable ADRs, governance and standards are satisfied or updated",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-004",
+      "title": "Code, contracts, tests, fixtures, evidence and documentation agree",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-005",
+      "title": "Required profiles were executed and evaluated",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-006",
+      "title": "No open tool or execution error",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-007",
+      "title": "All blocking results are resolved",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-008",
+      "title": "Non-blocking findings are assessed and tracked",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-009",
+      "title": "Dependencies and structural changes followed their lifecycle",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-010",
+      "title": "Version, Project-New and managed-project impact is assessed",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-011",
+      "title": "Debt, risks and deferrals are registered",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-012",
+      "title": "No secret, forbidden runtime artifact or foreign change is included",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-013",
+      "title": "No unsupported maturity, security, persistence, strict-gate or delivery claim exists",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-COMP-014",
+      "title": "Engineering evidence is complete",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "11. Engineering Completion und Abschlussstatus"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "partially-automated",
+      "defaultSeverity": "MANUAL_REVIEW",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-completion-contract.json"
+    },
+    {
+      "ruleId": "ENG-PROFILE-SEL-001",
+      "title": "Qualification profile is required for every accepted change",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "10. Engineering-Profile"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-profile-contract.json"
+    },
+    {
+      "ruleId": "ENG-PROFILE-SEL-002",
+      "title": "Governance migration, strict promotion and periodic audit require the audit profile",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "10. Engineering-Profile"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-profile-contract.json"
+    },
+    {
+      "ruleId": "ENG-PROFILE-SEL-003",
+      "title": "Release changes require audit and release profiles",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "10. Engineering-Profile"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-profile-contract.json"
+    },
+    {
+      "ruleId": "ENG-PROFILE-SEL-004",
+      "title": "Release candidates require audit and release profiles",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md",
+        "section": "10. Engineering-Profile"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "implemented-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "plannedGateId": "engineering-qualification-gate-v1",
+      "implementationRef": "contracts/governance/engineering/engineering-profile-contract.json"
+    },
+    {
+      "ruleId": "PDIR-AREA-001",
+      "title": "Every path must be covered by a registered directory area",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "5. Machine-Readable Project Directory Contract"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-CASE-001",
+      "title": "Case-colliding paths are forbidden",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "10.2 Case-Regeln"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-DEV-001",
+      "title": "Managed-project directory deviations must be valid and unexpired",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "16.2 Managed Projects"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-DOC-001",
+      "title": "Technical files require an explicit technical documentation area",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "14.2 Technische Dateien unter `PROJECT_DOCS/`"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-DUP-001",
+      "title": "Byte-identical duplicates require a declared derivation or allowance",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "12. Duplikate und Parallelstrukturen"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-GIT-001",
+      "title": "Generated, runtime and temporary paths must not be tracked",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "11. Temporäre, generierte und lokale Artefakte"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-LINK-001",
+      "title": "Symlinks are forbidden unless a profile explicitly permits them",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "10.5 Symlinks"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-NAME-001",
+      "title": "Backup, copy, editor and temporary artifact names are forbidden",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "10.1 Namen"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-ROOT-001",
+      "title": "Required root files and directories must exist",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "6. Root-Allowlist"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-ROOT-002",
+      "title": "Root files and directories must be registered for the profile",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "6.4 Neue Root-Inhalte"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-TRANS-001",
+      "title": "Baseline-only transition areas cannot grow silently",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "14.1 Directory Transition Baseline"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "PDIR-TYPE-001",
+      "title": "File types must be allowed by the registered directory area",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
+        "section": "10.3 Dateitypen"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "project-directory-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "QREG-CATALOG-001",
+      "title": "Quality Rule Catalog entries must satisfy the registered schema and vocabularies",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "section": "5.1 Rule ID und Catalog"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "quality-registry-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/quality-registry.py"
+    },
+    {
+      "ruleId": "QREG-GATE-001",
+      "title": "Gate descriptors must satisfy the registered gate model",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "section": "6.2 Gate-Registry"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "quality-registry-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/quality-registry.py"
+    },
+    {
+      "ruleId": "QREG-IDENTITY-001",
+      "title": "Rule IDs and Gate IDs must be valid and unique",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "section": "5.1 Rule ID und Catalog"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "quality-registry-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/quality-registry.py"
+    },
+    {
+      "ruleId": "QREG-REFERENCE-001",
+      "title": "Rule-to-gate and gate-to-rule references must be reciprocal and resolvable",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "section": "6.2 Gate-Registry"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "quality-registry-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/quality-registry.py"
+    },
+    {
+      "ruleId": "QREG-SOURCE-001",
+      "title": "Every catalog rule must resolve to an existing normative source section",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+        "section": "4.1 Normative Quelle vor Prüfung"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "quality-registry-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/quality-registry.py"
+    },
+    {
+      "ruleId": "SPR-AMEND-001",
+      "title": "Accepted material drift requires a complete amendment",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "11.4 Amendment-Pflicht"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-CLOSURE-001",
+      "title": "Qualification, temporary document disposition and archive closure",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "13. Closure, Promotion und Archivierung"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-CONTRACT-001",
+      "title": "Sprint identity and canonical paths",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "4. Identitäten, Scope und Zeitraum"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-DOC-001",
+      "title": "Required sprint documents and metadata",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "5. Verbindliche Sprintstruktur"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-DOD-001",
+      "title": "Definition of Done completeness",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "6.5 Definition of Done"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-DOR-001",
+      "title": "Definition of Ready completeness",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "6.4 Definition of Ready"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-DRIFT-001",
+      "title": "Drift result must use the controlled vocabulary",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "11. Drift und Amendments"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-DRIFT-002",
+      "title": "Crossed target completion requires a current drift review",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "11.1 Prüfereignisse"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-INDEX-001",
+      "title": "Sprint documents are discoverable in the documentation index",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "17. Sprint Gate und Contracts"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-MILESTONE-001",
+      "title": "Measurable milestone contract",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "9. Messbare Teilziele"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-SEPARATION-001",
+      "title": "Problem and solution space separation",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "3.1 Problemraum vor Lösungsraum"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "ruleId": "SPR-STATUS-001",
+      "title": "Single current status and valid lifecycle values",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
+        "section": "10. Sprint Status"
+      },
+      "scopePaths": [
+        "springmaster/quality-gates"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": true,
+      "evidenceTypes": [
+        "json-report"
+      ],
+      "gateIds": [
+        "sprint-gate-v1"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    }
+  ]
+}

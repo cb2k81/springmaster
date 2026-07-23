@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "springmaster.gate-registry.v1",
+  "registryVersion": "1.0.0",
+  "status": "report-only",
+  "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
+  "gates": [
+    {
+      "gateId": "documentation-gate-v2",
+      "name": "Documentation Gate V2",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Validate documentation metadata, index, transition and artifact boundaries",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "all",
+        "changed",
+        "report"
+      ],
+      "entrypoint": "bin/documentation-gate.sh",
+      "inputContracts": [
+        "contracts/governance/documentation/document-metadata-contract.json",
+        "contracts/governance/documentation/document-types.json",
+        "contracts/governance/documentation/scope-registry.json",
+        "PROJECT_DOCS/TOOLING/documentation-transition-baseline.json"
+      ],
+      "ruleIds": [
+        "DOC-BASELINE-001",
+        "DOC-ID-001",
+        "DOC-INDEX-001",
+        "DOC-META-001",
+        "DOC-NAME-001",
+        "DOC-REVIEW-001",
+        "DOC-SCOPE-001",
+        "DOC-SUPERSESSION-001",
+        "DOC-TECH-001",
+        "DOC-TEMPLATE-001",
+        "DOC-TYPE-001"
+      ],
+      "reportSchema": "springmaster.documentation-gate-report.v2",
+      "fixtureEntrypoint": "bin/documentation-gate-it.sh",
+      "selfcheckEntrypoint": "bin/documentation-gate-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "gateId": "project-directory-gate-v1",
+      "name": "Project Directory Gate V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Validate project profiles, canonical areas, hygiene and sealed transition paths",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "all",
+        "changed",
+        "report"
+      ],
+      "entrypoint": "bin/project-directory-gate.sh",
+      "inputContracts": [
+        "contracts/governance/project-structure/project-directory-contract.json",
+        "contracts/governance/project-structure/directory-transition-baseline.json"
+      ],
+      "ruleIds": [
+        "PDIR-AREA-001",
+        "PDIR-CASE-001",
+        "PDIR-DEV-001",
+        "PDIR-DOC-001",
+        "PDIR-DUP-001",
+        "PDIR-GIT-001",
+        "PDIR-LINK-001",
+        "PDIR-NAME-001",
+        "PDIR-ROOT-001",
+        "PDIR-ROOT-002",
+        "PDIR-TRANS-001",
+        "PDIR-TYPE-001"
+      ],
+      "reportSchema": "springmaster.project-directory-gate-report.v1",
+      "fixtureEntrypoint": "bin/project-directory-gate-it.sh",
+      "selfcheckEntrypoint": "bin/project-directory-gate-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    },
+    {
+      "gateId": "quality-registry-v1",
+      "name": "Quality Registry Validator V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Validate Quality Rule Catalog and Gate Registry integrity without executing registered gates",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "all"
+      ],
+      "entrypoint": "bin/quality-registry.sh",
+      "inputContracts": [
+        "contracts/governance/quality/quality-rule-catalog.json",
+        "contracts/governance/quality/gate-registry.json"
+      ],
+      "ruleIds": [
+        "QREG-CATALOG-001",
+        "QREG-GATE-001",
+        "QREG-IDENTITY-001",
+        "QREG-REFERENCE-001",
+        "QREG-SOURCE-001"
+      ],
+      "reportSchema": "springmaster.quality-registry-report.v1",
+      "fixtureEntrypoint": "bin/quality-registry-it.sh",
+      "selfcheckEntrypoint": "bin/quality-registry-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ]
+    },
+    {
+      "gateId": "sprint-gate-v1",
+      "name": "Sprint Gate V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Validate active and archived Sprint Contract instances, drift and closure structure",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "all",
+        "changed",
+        "report"
+      ],
+      "entrypoint": "bin/sprint-gate.sh",
+      "inputContracts": [
+        "contracts/governance/sprint/sprint-contract.json",
+        "contracts/governance/sprint/sprint-drift-contract.json"
+      ],
+      "ruleIds": [
+        "SPR-AMEND-001",
+        "SPR-CLOSURE-001",
+        "SPR-CONTRACT-001",
+        "SPR-DOC-001",
+        "SPR-DOD-001",
+        "SPR-DOR-001",
+        "SPR-DRIFT-001",
+        "SPR-DRIFT-002",
+        "SPR-INDEX-001",
+        "SPR-MILESTONE-001",
+        "SPR-SEPARATION-001",
+        "SPR-STATUS-001"
+      ],
+      "reportSchema": "springmaster.sprint-gate-report.v1",
+      "fixtureEntrypoint": "bin/sprint-gate-it.sh",
+      "selfcheckEntrypoint": "bin/sprint-gate-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster",
+        "project-new",
+        "generated-projects",
+        "managed-projects"
+      ]
+    }
+  ]
+}

@@ -99,7 +99,20 @@
       "description": "Quality rule, gate, enforcement, baseline, waiver and suppression governance",
       "physicalPaths": [
         "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
-        "contracts/governance/quality/**"
+        "contracts/governance/quality/**",
+        "bin/quality-registry*",
+        "src/test/resources/tooling/quality-registry-v1/**"
+      ]
+    },
+    {
+      "id": "springmaster/tooling/quality-registry",
+      "level": "component",
+      "kind": "logical",
+      "parent": "springmaster/quality-gates",
+      "description": "Quality Rule Catalog and Gate Registry validation tooling and fixtures",
+      "physicalPaths": [
+        "bin/quality-registry*",
+        "src/test/resources/tooling/quality-registry-v1/**"
       ]
     },
     {
