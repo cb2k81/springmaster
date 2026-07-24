@@ -4,25 +4,24 @@
 
 Diese Datei gilt für das gesamte Springmaster-Repository. Eine tiefer liegende `AGENTS.md` darf Regeln für ihren Teilbaum präzisieren, aber keine akzeptierte ADR oder verbindliche Sicherheitsregel stillschweigend aufheben.
 
-Die Datei wurde aus dem vollständigen Springmaster-Export vom 17. Juli 2026 abgeleitet. Vor jeder Änderung sind der tatsächliche Working Tree, `platform/versions/platform.env`, `pom.xml` und die für den Auftrag relevanten aktuellen Dokumente erneut zu prüfen.
+Die Datei wurde zuletzt gegen den vollständigen, qualifizierten Springmaster-Export vom 23. Juli 2026 abgeglichen. Vor jeder Änderung sind der tatsächliche Working Tree, `platform/versions/platform.env`, `pom.xml` und die für den Auftrag relevanten aktuellen Dokumente erneut zu prüfen.
 
-## Verbindliche lokale Ausführungspfade
+## Umgebungsabhängige Pfade und Prozesszustand
 
-Für vorbereitete und manuell ausgeführte Springmaster-Kommandos gelten diese Pfade:
+Repository-, Worktree-, Artefakt- und Runtime-Pfade werden niemals aus einem festen Benutzernamen oder Installationsverzeichnis abgeleitet. Vor manueller Prozessarbeit gilt:
 
 ```bash
-cd /opt/cocondo/springmaster || exit 1
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
+cd "$PROJECT_ROOT"
+./bin/process-ops.sh resolve
 ```
 
-Patch-ZIPs und andere vom Benutzer heruntergeladene Übergabeartefakte werden ausschließlich unter folgendem Pfad erwartet:
+Lokale Artefakt- und Worktree-Wurzeln werden über `COCONDO_ARTIFACT_ROOT`, `COCONDO_WORKTREE_ROOT` oder die Git-Konfiguration `cocondo.artifactRoot` und `cocondo.worktreeRoot` bereitgestellt. Interne ChatGPT-Pfade, konkrete Home-Verzeichnisse und feste Repository-Installationspfade dürfen weder in Benutzerkommandos noch in portablen Sidecars, Manifesten, Guides oder generischen Toolverträgen stehen.
 
-```text
-/home/cb/Downloads
-```
+Toolkit-Runs, Locks, Acceptance-Evidence, Prozesspointer und Incidents liegen unter dem Git-Common-Directory. Ein Pfad mit Präfix `.git/` wird deshalb gegen `git rev-parse --git-common-dir` und nicht gegen die `.git`-Datei eines verknüpften Worktrees aufgelöst. Temporäre Prozessdaten dürfen den Working Tree nicht verschmutzen.
 
-`Downloads` ist ausschließlich Ein- und Ausgang für bewusst übergebene Artefakte. Patch-Runtime, Startausgabe, Run-IDs, Summaries, PIDs und Diagnose-Logs werden nicht dorthin geschrieben. Sie liegen projektlokal unter `patches/runtime/**`, `patches/logs/accept/**`, `patches/logs/validation/**` oder bei expliziter Diagnose unter `build/**`. Manuelle Pointer- oder Startlogdateien außerhalb des Repositories sind nicht Teil des kanonischen Workflows.
-
-Kein vorbereiteter mutierender Befehl darf sich auf das aktuelle Terminalverzeichnis verlassen. Jeder ausführbare Block setzt das Arbeitsverzeichnis explizit. Ein Bundle- oder Patch-Runner muss vor einer Mutation den sauberen Git-Status, den erwarteten Downloadpfad und die Patchdatei prüfen.
+Kein mutierender Befehl darf das aktuelle Terminalverzeichnis mit dem Integrations-Worktree verwechseln. `bin/process-ops.sh` ermittelt den Integrations-Checkout über `CPATCH_INTEGRATION_BRANCH` und `git worktree list --porcelain`, prüft dort den sauberen Zustand und lässt fremde Feature-Worktrees unverändert.
 
 ## Auftrag des Projekts
 
@@ -218,6 +217,7 @@ Nach ADR-0005:
 - Python-Tools verwenden `argparse`, klare Exit-Codes, UTF-8, deterministische JSON-Ausgabe und soweit möglich nur die Standardbibliothek.
 - Tool-Ausführungsfehler strikt von report-only Findings unterscheiden.
 - Bei Änderungen an Patch-, Export- oder Platform-Update-Tooling positive und negative Integration Fixtures ergänzen. Rollback-, Hash-, Pfad- und Berechtigungsklassen nicht nur im Happy Path testen.
+- Neue `*-it.sh`-, Selfcheck-, Acceptance- oder Regression-Einstiege sowie neue Dateien unter `src/test/resources/tooling/**` im selben Change in Suite-, Fixture- und Inventory-Contracts registrieren. Vor dem vollständigen Selfcheck `./bin/test-contracts.sh --check all` und `./bin/test-contracts-it.sh` ausführen.
 - Patch-Runs ausschließlich über `patch.sh status|watch|wait|result|diagnose|doctor` beobachten; keine manuelle Auswahl der neuesten Summary, keine dauerhaften Pointer auf temporäre Attempt-Summaries und kein Logstreaming in interaktiven Terminals.
 - Whitespace-Prüfungen für Patchänderungen pfadbegrenzt ausführen. Keine impliziten Formatierungswellen oder wiederholten Full-Repository-Scans einführen.
 
@@ -304,51 +304,55 @@ Bei `--zip` verbleiben unter `exports/text/` nur das aktuelle ZIP und `<zip>.sha
 
 ## Patch-, Git- und Export-Governance
 
-Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die dauerhafte Repositoryhistorie.
+Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die dauerhafte Repositoryhistorie. Cocondo Patch Toolkit `1.1.1` und `bin/cpatch` sind der kanonische mutierende Patchpfad.
 
-- Erzeuge nicht für jede normale lokale Änderung künstlich Patch-ZIPs, Patchnummern, Acceptance-Evidence oder Full-Exports.
-- Wenn der Auftrag ausdrücklich ein lieferbares Patchartefakt verlangt, gelten Manifest-, Baseline-Hash-, Sandbox- und Artifact-Preflight-Regeln vollständig.
-- Neue lieferbare Patchartefakte führen eine globale, sequenzunabhängige `artifactId`; die lokale `patchId` dient nur der Apply-Reihenfolge und Provenienz.
-- Das Manifest ist die Transaktionswahrheit. Der aktuelle `CHANGELOG` ist eine Legacy-Pflicht der vorhandenen Engine, keine zweite dauerhafte Produktbeschreibung.
-- Vor einem Patch-Apply vollständige Live-Baseline-Hashes prüfen; keine Hashes aus dem Textexport ableiten.
-- Qualifizierte Patch-ZIPs gegen einen sauberen committed Baseline-Stand prüfen:
+- Normale Entwicklung erfolgt Git-nativ in einem dedizierten Worktree und Branch. Ein lieferbares Patchartefakt wird erst aus zwei echten, committed Git-Refs erzeugt.
+- Jeder Feature- oder Chatprozess bindet seinen Worktree vor `create` an einen eindeutigen Workspace und eine feste Scope-Menge:
 
 ```bash
-./bin/patch.sh live-baseline <patch.zip>
-./bin/patch.sh apply --dry-run <patch.zip>
-./bin/patch.sh artifact-preflight <patch.zip> --no-export
+./bin/cpatch workspace init \
+  --name <workspace> \
+  --scope <scope> [--scope <weiterer-scope>]
 ```
 
-- Für einen ausdrücklich verlangten lokalen Patchabschluss ohne Release-/Handoff-Export den idempotenten Run-Flow verwenden:
+- Ein Patch wird ausschließlich aus dem gebundenen Worktree erzeugt:
 
 ```bash
-./bin/patch.sh accept <patch.zip> \
-  --background \
-  --wait-for-lock \
-  --no-export \
-  --commit \
-  --watch
+./bin/cpatch create \
+  --base <baseline-commit> \
+  --head HEAD \
+  --scope <scope> \
+  --patch-id <lokale-id> \
+  --title "<titel>" \
+  --output "${COCONDO_ARTIFACT_ROOT:?}/<delivery-directory>"
 ```
 
-Für Automation wird die maschinenlesbare Startausgabe direkt in einer Shell-Variablen ausgewertet; es werden keine Startlogs oder Run-ID-Dateien angelegt:
+- Plan, Dry-run und Accept werden aus dem sauberen `main`-Checkout ausgeführt. Das Profil bleibt standardmäßig `auto`; pfad- und risikobasierte Mindestvalidatoren dürfen nicht abgesenkt werden:
 
 ```bash
-START_ENV="$(./bin/patch.sh accept <patch.zip> --background --wait-for-lock --no-export --commit --format env)"
-RUN_ID="$(printf '%s\n' "${START_ENV}" | sed -n 's/^RUN_ID=//p')"
-./bin/patch.sh result "${RUN_ID}" --format env
+./bin/cpatch plan <patch.zip>
+./bin/cpatch apply <patch.zip> --dry-run
+./bin/cpatch accept <patch.zip>
 ```
 
-- `--wait-for-lock` wartet nur auf den Write-Lock; auf das Run-Ende wartet `patch.sh wait <run-id>`.
-- Vor jedem Retry `patch.sh status <patch-id>` und bei Widersprüchen `patch.sh doctor` ausführen. `APPLIED` oder ein aktiver Run verbieten einen Neustart. Historische, vor Einführung der Run API angewendete Patches ohne kanonische Acceptance sind Doctor-Warnungen; für neue Patches bleibt derselbe Zustand ein Fehler.
-- Acceptance- und Verify-Evidence getrennt halten. Ein späterer fehlgeschlagener Verify-/Retry-Run darf eine erfolgreiche kanonische Acceptance nicht überschreiben.
-- `status`, `watch`, `wait`, `result` und `diagnose` erhalten eine nicht leere Run- oder Patch-Referenz; für patchbezogene Automation ist `--patch <patch-id>` zulässig. Leere Referenzen dürfen nie auf das aktuelle Verzeichnis oder den Repositorynamen zurückfallen.
-- Jeder Run dokumentiert seine sanitierte Invocation projektlokal in `invocation.json`; gespeichert werden Artefaktname, SHA-256 und Optionen, nicht der absolute Downloadpfad.
+- `accept` läuft standardmäßig detached. Start, Beobachtung und Wiederaufnahme erfolgen über `bin/process-ops.sh`; dieses delegiert direkt an `cpatch` oder `crun` und besitzt keine zweite Prozesszustandsmaschine.
+- `status`, `resume`, `watch`, `wait`, `result`, `diagnose` und `incident` sind Observer. Terminalverlust oder `Ctrl-C` am Observer beendet keinen Worker. Ein strikter Exitcode muss explizit mit `--strict-exit` angefordert werden.
+- Dry-run und Accept bleiben zwei getrennte Operatorentscheidungen. Ein äußerer `nohup`-/`setsid`-Orchestrator oder ein automatisches Verketten beider Schritte ist verboten.
+- Worktreepflicht, Workspacebindung, `main` als Integrationsbranch, Scope-Locks, kurzer Transfer-Lock, Compare-and-swap und begrenzte Requalifikation sind produktive Sicherheitsregeln.
+- Lokale `patchId`-Werte dürfen sich zwischen Scopes überschneiden. Automatisierung und Abhängigkeiten verwenden immer `artifactId` und Artefakt-SHA-256.
+- Kein Push ohne ausdrückliche Freigabe. Ein Export ist kein Bestandteil jedes Accepts; Handoff-, Release- und Audit-Exporte werden explizit aus dem akzeptierten Live-Commit erzeugt.
+- `bin/patch.sh` und `bin/patch.py` sind nur noch historische Diagnose-, Verify-, Artifact-Preflight-, Live-Baseline- und Dry-run-Kompatibilität. Legacy `accept`, nicht-trockener `apply` und nicht-trockener `rollback` müssen mit `LEGACY_PATCH_MUTATION_DISABLED` abbrechen.
+- Vor Release oder nach Tooling-Konfigurationsänderungen ausführen:
+
+```bash
+./bin/ctool-doctor --production --format json
+./bin/cpatch doctor --production --format json
+./bin/patch-toolkit-activation.sh --check
+```
 
 - Niemals pauschal `git add .` verwenden. Keine fremden oder bereits vorgestagten Änderungen übernehmen.
-- Kein Push ohne ausdrückliche Freigabe; `--push` ist immer separat und bewusst.
 - Keine fremden Änderungen zurücksetzen, überschreiben oder in denselben Commit ziehen.
 - Lokale Runtime-, Validation-, Accept-, Build-, Export- und Generated-Artefakte nicht committen.
-- Der kanonische Patchabschluss bleibt Git-first: Acceptance regelmäßig mit `--no-export --commit`, den Handoff-Export danach explizit aus dem akzeptierten Live-Commit erzeugen. Keine Exportverzeichnisse aus temporären Worktrees manuell in den Live-Checkout kopieren.
 
 Insbesondere nicht versionieren:
 
@@ -417,3 +421,7 @@ Assigned opaque IDs and optimistic-locking newness are an implemented Core decis
 ### Scope least privilege
 
 Do not widen `root` for an entire roadmap. Use the narrow built-in scope whenever possible; project templates may not inherit Springmaster-specific package paths. Every scope expansion requires a separate bounded patch and a removal decision.
+
+### Long-running process singleton rule
+
+Named long-running operations that must not overlap are started through `bin/process-ops.sh run-start --singleton-key <stable-key>`. A descriptive `crun --name` alone is not a lock. Repeated active starts must reuse the canonical run ID; terminal restarts require an explicit flag. Never overwrite a useful run pointer merely because a later duplicate run was created. More than one active run for the same singleton key is an incident and must fail closed.

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "springmaster.patch-toolkit-activation-contract.v1",
+  "projectId": "springmaster",
+  "toolkitVersion": "1.1.1",
+  "runtimeSha256": "c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684",
+  "integrationBranch": "main",
+  "requireCleanTree": true,
+  "requireWorktree": true,
+  "requireWorkspaceForCreate": true,
+  "commitOnAccept": true,
+  "canonicalMutatingEntrypoint": "bin/cpatch",
+  "legacyEntrypoints": [
+    "bin/patch.sh",
+    "bin/patch.py"
+  ],
+  "legacyMutationPolicy": "disabled",
+  "allowedLegacyOperations": [
+    "artifact-preflight",
+    "live-baseline",
+    "apply-dry-run",
+    "verify",
+    "status",
+    "watch",
+    "wait",
+    "result",
+    "diagnose",
+    "doctor",
+    "list",
+    "show"
+  ],
+  "versionClosure": {
+    "platformVersion": "0.18.0-foundation",
+    "mavenVersion": "0.18.0-foundation-SNAPSHOT",
+    "toolingVersion": "0.8.0",
+    "statePatch": "000181_springmaster_patch_toolkit_activation_and_version_closure"
+  },
+  "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
+  "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
+  "processOperations": {
+    "contract": "contracts/governance/tooling/process-operations-contract.json",
+    "entrypoint": "bin/process-ops.sh",
+    "integrationTest": "bin/process-ops-it.sh",
+    "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
+    "nestedDetachment": "forbidden",
+    "pathResolution": "git-runtime",
+    "terminalOutput": "compact-default",
+    "config": ".cocondo/process.env",
+    "singletonStart": "project-neutral-atomic-reuse",
+    "duplicateActiveStart": "reuse-existing-run",
+    "terminalRestart": "explicit-only",
+    "multipleActiveSingleton": "incident-fail-closed"
+  }
+}

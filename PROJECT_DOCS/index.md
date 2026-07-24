@@ -38,6 +38,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/ADR/ADR-0010-observability-and-error-trace-strategy.md`
 - `PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md`
 - `PROJECT_DOCS/ADR/ADR-0012-patch-transaction-and-evidence-boundary.md`
+- `PROJECT_DOCS/ADR/ADR-0014-process-execution-observation-and-recovery.md` — dynamische Pfade, genau ein Worker Owner, terminal-sichere Observer und Recovery
 - `PROJECT_DOCS/ADR/ADR-0013-core-distribution-strategy.md` — accepted Core distribution direction
 - `PROJECT_DOCS/ADR/ADR_GAP_BACKLOG.md`
 - `PROJECT_DOCS/ADR/ADR_GOVERNANCE_AND_BACKLOG_ALIGNMENT.md`
@@ -194,6 +195,9 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TOOLING/PATCH_SCOPE_LEAST_PRIVILEGE.md` — least-privilege rules for Springmaster and generated project scopes
 - `PROJECT_DOCS/TOOLING/PATCH_TRANSACTIONAL_ACCEPTANCE.md` — detached-worktree validation and live commit transfer contract
 - `PROJECT_DOCS/TOOLING/PATCH_SYSTEM.md`
+- `PROJECT_DOCS/TOOLING/PROCESS_OPERATIONS.md` — dynamische Pfadauflösung, direkte Run-API-Nutzung, terminal-sichere Beobachtung und Recovery
+- `PROJECT_DOCS/TOOLING/PROCESS_KNOWN_ERRORS.md` — bekannte Pfad-, Worktree-, Lock-, Terminal- und Hintergrundprozessfehler
+- `PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md` — finale Installations-, Aktivierungs-, Version-Closure- und Legacy-Cutover-Evidence
 - `PROJECT_DOCS/TOOLING/PATCH_VALIDATION_POLICY.md`
 - `PROJECT_DOCS/TOOLING/PLATFORM_UPDATE.md`
 - `PROJECT_DOCS/TOOLING/PLATFORM_UPDATE_MANAGED_STATE.md`

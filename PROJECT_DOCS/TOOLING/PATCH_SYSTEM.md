@@ -410,3 +410,58 @@ Effective `accept` runs in a detached Git worktree. The live repository receives
 Seit Patch `000164_springmaster_patch_run_api_git_transaction_hardening` ist kanonische Acceptance-Evidence Bestandteil des verbindlichen Patchabschlusses. Der Doctor bewertet ältere angewendete Patcharchive ohne `accepted.json` als aggregierte historische Warnung. Für Patchnummern ab `000164` ist derselbe Zustand `APPLIED_WITHOUT_CANONICAL_ACCEPTANCE` ein Fehler.
 
 Statusabfragen verwenden eine nicht leere Run-ID oder Patch-ID; `--patch <patch-id>` ist die explizite patchbezogene Form. Leere Referenzen werden abgelehnt und fallen nie auf das aktuelle Verzeichnis zurück. Jeder Run besitzt eine sanitierte `invocation.json` ohne absoluten Downloadpfad. Temporäre, zeitgestempelte Summary-Pfade sind keine stabilen Schnittstellen und dürfen insbesondere bei Selbstupdates nicht als dauerhafte Pointer verwendet werden. Die Statusauflösung liest die kanonische `accepted.json` und liefert Run-ID, Artifact-ID, Commit und Aktualisierungszeit auch dann, wenn der ursprüngliche Attempt-Pfad bereits entfernt oder kompaktiert wurde.
+
+## Cocondo Patch Toolkit 1.1.1 activation
+
+The canonical mutating workflow is now:
+
+```bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+: "${COCONDO_WORKTREE_ROOT:?set a local worktree root}"
+: "${COCONDO_ARTIFACT_ROOT:?set a local artifact root}"
+WORKTREE="${COCONDO_WORKTREE_ROOT}/<name>"
+
+git -C "$PROJECT_ROOT" worktree add "$WORKTREE" -b change/<name> main
+cd "$WORKTREE"
+./bin/cpatch workspace init --name <name> --scope <scope>
+# implement and commit the bounded change
+./bin/cpatch create --base <base-commit> --head HEAD \
+  --scope <scope> --patch-id <local-id> --title "<title>" \
+  --output "${COCONDO_ARTIFACT_ROOT}/<delivery-directory>"
+
+cd "$PROJECT_ROOT"
+./bin/cpatch plan <patch.zip>
+./bin/process-ops.sh patch-dry-run <patch.zip>
+# after explicit review
+./bin/process-ops.sh patch-accept <patch.zip>
+```
+
+`cpatch` runs dry-run and acceptance through the same isolated qualification pipeline. Worktree and workspace binding are mandatory, `main` is the integration branch, effective path-derived validators cannot be downgraded, and disjoint integration progress triggers bounded full requalification.
+
+The legacy `patch.sh` engine is no longer a live mutation path in the canonical Springmaster checkout. It remains available for historical `list`, `show`, `status`, `doctor`, diagnostics, verification, live-baseline, artifact-preflight and dry-run compatibility. Legacy `accept`, non-dry-run `apply` and non-dry-run `rollback` fail with `LEGACY_PATCH_MUTATION_DISABLED`.
+
+The activation contract and its machine-readable evidence are validated by:
+
+```bash
+./bin/patch-toolkit-activation.sh --check
+./bin/patch-toolkit-activation-it.sh
+```
+
+Both checks are part of `./bin/tooling-selfcheck.sh --no-export`.
+
+## Process Operations refinement
+
+Operational patch runs use the project-neutral process adapter rather than a second shell orchestrator:
+
+```bash
+./bin/process-ops.sh resolve
+./bin/process-ops.sh patch-dry-run <patch.zip> --profile auto
+./bin/process-ops.sh watch <run-id>
+./bin/process-ops.sh result <run-id>
+# after explicit review
+./bin/process-ops.sh patch-accept <patch.zip> --profile auto
+```
+
+The adapter resolves the integration worktree from Git, delegates worker ownership directly to `cpatch`, stores operational pointers below the Git common directory and keeps default terminal output compact. Dry-run and accept are separate promotion decisions. External `nohup`, `setsid`, PID files and polling supervisors around a detached Toolkit run are non-canonical.
+
+A caller may operate from a linked feature worktree. Mutation still checks the configured integration worktree, while observation never stages, resets or otherwise modifies the caller's worktree. Managed-project rollout remains blocked until the Springmaster pilot scenarios in the process-operations contract are complete.

@@ -78,6 +78,20 @@ run_optional_contract_check() {
 }
 
 run_optional_contract_check \
+  "Cocondo Patch Toolkit activation contract" \
+  "${PROJECT_ROOT}/bin/patch-toolkit-activation.sh" \
+  bash -c '''"$1" --check >/dev/null && "$2" >/dev/null''' _ \
+  "${PROJECT_ROOT}/bin/patch-toolkit-activation.sh" \
+  "${PROJECT_ROOT}/bin/patch-toolkit-activation-it.sh"
+
+run_optional_contract_check \
+  "process operations contract" \
+  "${PROJECT_ROOT}/bin/process-ops-contract.sh" \
+  bash -c '''"$1" --check >/dev/null && "$2" >/dev/null''' _ \
+  "${PROJECT_ROOT}/bin/process-ops-contract.sh" \
+  "${PROJECT_ROOT}/bin/process-ops-it.sh"
+
+run_optional_contract_check \
   "documentation governance" \
   "${PROJECT_ROOT}/bin/documentation-gate.sh" \
   bash -c '"$1" --check >/dev/null && "$2" >/dev/null' _ \

@@ -278,3 +278,21 @@ Ergänzt wurden:
 * Payload-Profil `defaults` für Baseline-Konfigurationsdefaults.
 
 Damit bleibt die nächste Arbeit auf das sichere Generieren und Akzeptieren von `zbm` fokussiert. Laufende Projekte werden nicht nebenbei beliefert.
+
+## Qualified Patch Toolkit baseline
+
+Springmaster uses Cocondo Patch Toolkit `1.1.1` as the canonical mutating patch runtime. The immutable runtime SHA-256 is:
+
+```text
+c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684
+```
+
+The production baseline requires clean-tree enforcement, commit-on-accept, dedicated Git worktrees, workspace binding and integration into `main`. The activation is verified by `bin/patch-toolkit-activation.sh`, its negative integration fixture and the regular Tooling Selfcheck.
+
+The former local patch engine is retained as a read-only and dry-run compatibility surface. It is not an alternative mutating core and cannot be used to bypass the Toolkit transaction, scope or qualification contract.
+
+## Process operations baseline
+
+`bin/process-ops.sh` is the canonical operator facade for long-running Toolkit work. It is project-neutral and derives project root, Git common directory and integration worktree at runtime. Toolkit records remain below the configured shared Git runtime directories; process operation reports and incidents use `.git/cocondo-process` through Git-common-directory resolution.
+
+The facade starts patch workers only through `cpatch` and generic workers only through `crun`. It does not introduce a second supervisor. Default status, resume, watch, wait, result, diagnose and incident output is compact and terminal-safe. The machine-readable contract is `contracts/governance/tooling/process-operations-contract.json`.

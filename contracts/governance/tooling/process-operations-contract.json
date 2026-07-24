@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "cocondo.process-operations-contract.v1",
+  "projectNeutral": true,
+  "pathResolution": {
+    "projectRoot": "git-rev-parse-show-toplevel",
+    "gitCommonDirectory": "git-rev-parse-absolute-git-common-dir",
+    "integrationWorktree": "git-worktree-list-by-configured-integration-branch",
+    "artifactRootSources": [
+      "COCONDO_ARTIFACT_ROOT",
+      "git-config:cocondo.artifactRoot"
+    ],
+    "worktreeRootSources": [
+      "COCONDO_WORKTREE_ROOT",
+      "git-config:cocondo.worktreeRoot"
+    ],
+    "absolutePortablePathsForbidden": true
+  },
+  "runtimeDirectories": {
+    "toolkitRuns": "CPATCH_RUN_DIRECTORY",
+    "toolkitLocks": "CPATCH_LOCK_DIRECTORY",
+    "toolkitAccepted": "CPATCH_ACCEPTED_DIRECTORY",
+    "processState": "CPROCESS_STATE_DIRECTORY",
+    "processIncidents": "CPROCESS_INCIDENT_DIRECTORY",
+    "gitRelativePathsUseCommonDirectory": true,
+    "trackedWorkingTreeMutationForbidden": true
+  },
+  "workingTreePolicy": {
+    "mutatingPatchRunsRequireCleanIntegrationWorktree": true,
+    "featureWorktreeMayInvokeIntegrationRun": true,
+    "observerCommandsDoNotRequireCleanFeatureWorktree": true,
+    "blindRetryForbidden": true,
+    "duplicatePreparationMutationForbidden": true
+  },
+  "backgroundPolicy": {
+    "workerOwner": "cocondo-toolkit-run-api",
+    "nestedDetachmentForbidden": true,
+    "externalSupervisorForbidden": true,
+    "genericCommandsUse": "crun",
+    "patchRunsUse": "cpatch",
+    "observerLossDoesNotStopWorker": true,
+    "singletonStartSupported": true,
+    "singletonLockDirectory": "CPROCESS_STATE_DIRECTORY/locks",
+    "singletonPointerDirectory": "CPROCESS_STATE_DIRECTORY/pointers",
+    "duplicateActiveStart": "REUSE_EXISTING_RUN",
+    "terminalRestartRequiresExplicitFlag": true
+  },
+  "observerPolicy": {
+    "commands": [
+      "status",
+      "resume",
+      "watch",
+      "wait",
+      "result",
+      "diagnose",
+      "incident"
+    ],
+    "defaultTerminalSafeExit": true,
+    "strictExitMustBeExplicit": true,
+    "compactOutputByDefault": true,
+    "verboseResultMustBeExplicit": true
+  },
+  "rolloutPolicy": {
+    "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
+    "requiredPilotScenarios": [
+      "linked-worktree-resolution",
+      "terminal-loss",
+      "watcher-interrupt",
+      "run-id-resume",
+      "orphan-reconciliation",
+      "transient-status-failure",
+      "no-nested-detachment",
+      "portable-sidecars",
+      "bounded-terminal-output",
+      "clean-integration-guard",
+      "duplicate-start-reuse",
+      "atomic-singleton-pointer",
+      "multiple-active-singleton-detection",
+      "registered-tooling-tests",
+      "registered-source-fixtures",
+      "stage-specific-failure-evidence"
+    ]
+  },
+  "implementation": {
+    "entrypoint": "bin/process-ops.sh",
+    "python": "bin/process-ops.py",
+    "integrationTest": "bin/process-ops-it.sh",
+    "guide": "PROJECT_DOCS/TOOLING/PROCESS_OPERATIONS.md",
+    "knownErrors": "PROJECT_DOCS/TOOLING/PROCESS_KNOWN_ERRORS.md",
+    "decision": "PROJECT_DOCS/ADR/ADR-0014-process-execution-observation-and-recovery.md",
+    "config": ".cocondo/process.env"
+  },
+  "qualificationPolicy": {
+    "orderedStages": [
+      "syntax-and-contracts",
+      "test-inventory-and-fixture-registration",
+      "focused-integration-tests",
+      "tooling-selfcheck-no-export",
+      "detached-patch-dry-run",
+      "explicit-accept"
+    ],
+    "stageLogsRequired": true,
+    "failedStageRequired": true,
+    "genericFailureWithoutStageIsInsufficient": true
+  }
+}

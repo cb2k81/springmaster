@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-suite-contract.v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "status": "report-only",
   "ruleSource": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
   "profileSources": {
@@ -257,6 +257,8 @@
         "bin/core-persistence-newness-contract-it.sh",
         "bin/db-migration-contract-it.sh",
         "bin/observability-contract-it.sh",
+        "bin/patch-toolkit-activation-it.sh",
+        "bin/process-ops-it.sh",
         "bin/release-manifest-it.sh"
       ],
       "engineeringProfiles": [

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.1.0",
+  "baselineVersion": "1.2.0",
   "status": "sealed-report-only",
   "generatedAt": "2026-07-23T11:11:07.843888Z",
   "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
@@ -617,11 +617,25 @@
       "mutationClass": "isolated-mutation"
     },
     {
+      "path": "bin/patch-toolkit-activation-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "contract",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
       "path": "bin/patch-transactional-accept-it.sh",
       "suiteId": "tooling-patch-export-fixtures",
       "testLevel": "integration",
       "runnerId": "bash",
       "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/process-ops-it.sh",
+      "suiteId": "tooling-runtime-contract-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
     },
     {
       "path": "bin/project-directory-gate-it.sh",
@@ -808,6 +822,17 @@
       "normalization": "canonical-json"
     },
     {
+      "path": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
+      "fixtureType": "golden-json",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/patch-toolkit-activation-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "canonical-json"
+    },
+    {
       "path": "src/test/resources/tooling/project-directory-gate-v1/expected-cases.json",
       "fixtureType": "expected-case-catalog",
       "owner": "springmaster-maintainers",
@@ -887,8 +912,8 @@
   ],
   "summary": {
     "javaTestClassCount": 49,
-    "toolingEntrypointCount": 31,
-    "sourceFixtureCount": 14,
+    "toolingEntrypointCount": 33,
+    "sourceFixtureCount": 15,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
     "coveragePolicyStatus": "unresolved"
@@ -898,5 +923,7 @@
     "No Failsafe or tag-based technical suite split is implemented.",
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
-  ]
+  ],
+  "lastUpdatedAt": "2026-07-24T07:32:52Z",
+  "lastUpdateReason": "Register Toolkit activation and project-neutral process-operation tests and fixtures."
 }

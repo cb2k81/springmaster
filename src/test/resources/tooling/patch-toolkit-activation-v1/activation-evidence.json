@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
+  "projectId": "springmaster",
+  "toolkitVersion": "1.1.1",
+  "runtimeSha256": "c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684",
+  "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
+  "installationCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
+  "installationQualification": {
+    "status": "PASS",
+    "stages": [
+      "ctool-doctor-production",
+      "cpatch-doctor-production",
+      "scope-classification",
+      "tooling-selfcheck",
+      "project-targeted",
+      "project-full",
+      "project-release",
+      "maven-clean-verify"
+    ]
+  },
+  "qualifiedExport": {
+    "fileName": "springmaster_export_full_2026-07-23T19-03-30-885456Z.zip",
+    "sha256": "13a936462c4d85288a8c5c800338c936c0389759eb4f779ef3d887587ecd7050",
+    "sourceCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
+    "status": "COMPLETE"
+  },
+  "operationalRecovery": {
+    "invalidManualToolkitLockRemoved": true,
+    "productionDoctorAfterRepair": "HEALTHY",
+    "failedQualificationEvidencePreserved": true
+  },
+  "legacyMutationPolicy": "disabled",
+  "canonicalMutatingEntrypoint": "bin/cpatch",
+  "processOperations": {
+    "contractStatus": "PASS",
+    "integrationFixture": "PASS",
+    "realSpringmasterPilot": "PENDING",
+    "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
+    "supersededOperationalPattern": "nested-detached-orchestrator",
+    "singletonStart": "project-neutral-atomic-reuse",
+    "duplicateActiveStart": "reuse-existing-run",
+    "terminalRestart": "explicit-only",
+    "multipleActiveSingleton": "incident-fail-closed"
+  }
+}

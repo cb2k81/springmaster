@@ -59,3 +59,11 @@ Regular baseline exports require a clean Git working tree. The exporter records 
 Patch `000167_springmaster_patch_run_api_project_local_start_handoff` closes the remaining boundary between patch runtime and user transfer directories. `Downloads` is an artifact ingress only; the patch engine never requires external start logs, PID files, run-ID pointers or summary pointers. Background `accept` and `verify` provide `human`, `env` and `json` start output, and `--watch` can attach the compact observer directly after process creation.
 
 Each run writes a sanitized `invocation.json` below its project-local run log. The record contains patch filename, SHA-256, patch/artifact identity and requested options, but no absolute download path. Observer commands reject empty references and support explicit `--patch <patch-id>` resolution. This keeps operational evidence local, portable and unambiguous while Git remains the durable repository truth.
+
+## Accepted operational refinement: canonical toolkit activation
+
+Cocondo Patch Toolkit `1.1.1` is the canonical mutating patch implementation for Springmaster after its qualified installation and version closure. New patch artifacts are created from authentic committed Git refs in a dedicated bound worktree, qualified through the configured non-downgradable validation plan and transferred to `main` only after successful isolated qualification.
+
+The former local engine remains available only for historical inspection, diagnostics, artifact preflight, live-baseline analysis, verification and dry-run compatibility. Live mutation through legacy `accept`, non-dry-run `apply` or non-dry-run `rollback` is fail-closed with `LEGACY_PATCH_MUTATION_DISABLED`. Re-enabling legacy mutation requires a separate accepted decision and equivalent production evidence.
+
+Workspace binding, worktree enforcement, integration-branch compare-and-swap, scope locks, bounded requalification and immutable runtime verification are production requirements rather than optional operator conventions.
