@@ -31,8 +31,8 @@
   "versionClosure": {
     "platformVersion": "0.18.0-foundation",
     "mavenVersion": "0.18.0-foundation-SNAPSHOT",
-    "toolingVersion": "0.8.0",
-    "statePatch": "000181_springmaster_patch_toolkit_activation_and_version_closure"
+    "toolingVersion": "0.8.1",
+    "statePatch": "000182_springmaster_process_ops_git_fixture_hermeticity"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
@@ -48,6 +48,7 @@
     "singletonStart": "project-neutral-atomic-reuse",
     "duplicateActiveStart": "reuse-existing-run",
     "terminalRestart": "explicit-only",
-    "multipleActiveSingleton": "incident-fail-closed"
+    "multipleActiveSingleton": "incident-fail-closed",
+    "gitFixtureIsolation": "hermetic"
   }
 }

@@ -100,6 +100,16 @@
     ],
     "stageLogsRequired": true,
     "failedStageRequired": true,
-    "genericFailureWithoutStageIsInsufficient": true
+    "genericFailureWithoutStageIsInsufficient": true,
+    "gitFixtureIsolation": {
+      "systemConfig": "disabled",
+      "globalConfig": "disabled",
+      "homeAndXdgConfig": "isolated-temporary-directories",
+      "templateDirectory": "isolated-empty-directory",
+      "terminalPrompt": "disabled",
+      "fixtureReferenceBackend": "files-via-git-config",
+      "directGitRefFilesystemInspectionForbidden": true,
+      "failedFixtureStepRequired": true
+    }
   }
 }

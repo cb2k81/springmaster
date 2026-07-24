@@ -66,7 +66,7 @@ Der qualifizierte neue Tooling-, Governance- und Delivery-Surface ist ein kompat
 | Dimension | Vorher | Nachher |
 |---|---:|---:|
 | `PLATFORM_VERSION` | `0.17.0-foundation` | `0.18.0-foundation` |
-| `PLATFORM_TOOLING_VERSION` | `0.7.0` | `0.8.0` |
+| `PLATFORM_TOOLING_VERSION` | `0.7.0` | `0.8.1` |
 | Maven Snapshot | `0.17.0-foundation-SNAPSHOT` | `0.18.0-foundation-SNAPSHOT` |
 
 Core-, Demo-, Template- und Platform-Update-Version bleiben unverändert. `PLATFORM_STATE_PATCH` verweist auf den aktivierenden Patch.
@@ -83,7 +83,7 @@ Der erste äußere Dry-run-Orchestrator wurde als nicht kanonisch verworfen: Sei
 
 Die korrigierte Aktivierung führt deshalb `bin/process-ops.sh` und ADR-0014 ein. Das Tool löst Git-Common-Directory und Integrations-Worktree dynamisch auf, delegiert Worker direkt an `cpatch` oder `crun`, trennt Dry-run und Accept und hält Observer terminal-sicher. Prozesszustand und Incidents liegen außerhalb des Working Trees.
 
-Die projektneutrale Integration Fixture ist `PASS`. Der reale Springmaster-Pilot wird mit dem neu erzeugten Patchartefakt durchgeführt. Eine Propagation in gemanagte Projekte bleibt bis zum separaten Pilotabschluss `BLOCKED_PENDING_SPRINGMASTER_PILOT`.
+Die projektneutrale Integration Fixture ist nach Patch `000182` hermetisch gegen systemweite und benutzerspezifische Git-Konfiguration, Templates, Hooks und experimentelle Ref-Storage-Defaults isoliert. Der reale Springmaster-Pilot wird nach dieser Korrektur erneut qualifiziert. Eine Propagation in gemanagte Projekte bleibt bis zum separaten Pilotabschluss `BLOCKED_PENDING_SPRINGMASTER_PILOT`.
 
 ## 7. Verbleibende Grenzen
 
@@ -98,3 +98,4 @@ Die projektneutrale Integration Fixture ist `PASS`. Der reale Springmaster-Pilot
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-24 | - | final | Toolkit 1.1.1, Prozessbetriebsvertrag, Version Closure und kontrollierter Legacy-Cutover dokumentiert; Managed-Project-Rollout bleibt bis zum Pilotabschluss gesperrt. |
+| 2026-07-24 | `0.8.0` | `0.8.1` | Git-Integration-Fixture hermetisch isoliert; Post-Accept-Qualifikation wird erneut ausgeführt. |

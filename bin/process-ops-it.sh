@@ -4,7 +4,39 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/process-ops-it.XXXXXX")"
-trap 'rm -rf "${TMP_ROOT}"' EXIT
+CURRENT_STEP=bootstrap
+cleanup() {
+  local rc=$?
+  trap - EXIT
+  if [[ "${rc}" -ne 0 ]]; then
+    printf '%s\n' \
+      'PROCESS_OPS_IT=FAILED' \
+      "FAILED_STEP=${CURRENT_STEP}" \
+      "FIXTURE_ROOT=${TMP_ROOT}" >&2
+  fi
+  rm -rf "${TMP_ROOT}"
+  exit "${rc}"
+}
+trap cleanup EXIT
+
+# Git fixtures must not inherit operator-specific configuration, templates,
+# hooks, credentials or an experimental default reference backend.
+FIXTURE_HOME="${TMP_ROOT}/home"
+FIXTURE_XDG_CONFIG_HOME="${TMP_ROOT}/xdg-config"
+FIXTURE_TEMPLATE_DIR="${TMP_ROOT}/git-template"
+mkdir -p \
+  "${FIXTURE_HOME}" \
+  "${FIXTURE_XDG_CONFIG_HOME}" \
+  "${FIXTURE_TEMPLATE_DIR}"
+
+export HOME="${FIXTURE_HOME}"
+export XDG_CONFIG_HOME="${FIXTURE_XDG_CONFIG_HOME}"
+export GIT_CONFIG_NOSYSTEM=1
+export GIT_CONFIG_GLOBAL=/dev/null
+export GIT_TEMPLATE_DIR="${FIXTURE_TEMPLATE_DIR}"
+export GIT_TERMINAL_PROMPT=0
+unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE
+unset GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
 
 REPO="${TMP_ROOT}/repo"
 FEATURE="${TMP_ROOT}/feature"
@@ -100,12 +132,17 @@ chmod +x "${REPO}/bin/cpatch" "${REPO}/bin/crun"
 
 touch "${ARTIFACT}"
 
-git -C "${REPO}" init -q -b main
+CURRENT_STEP=fixture-git-init
+git -c init.defaultRefFormat=files \
+  -C "${REPO}" init -q -b main
+CURRENT_STEP=fixture-baseline-commit
 git -C "${REPO}" config user.email process-ops@example.invalid
 git -C "${REPO}" config user.name process-ops-it
 git -C "${REPO}" add .
 git -C "${REPO}" commit -q -m baseline
+CURRENT_STEP=fixture-linked-worktree
 git -C "${REPO}" worktree add -q -b change/fixture "${FEATURE}" main
+CURRENT_STEP=process-ops-scenarios
 
 export PROCESS_OPS_TEST_CALL_LOG="${CALL_LOG}"
 export COCONDO_ARTIFACT_ROOT="${TMP_ROOT}"
@@ -246,4 +283,5 @@ fi
 test -z "$(git -C "${REPO}" status --porcelain=v1 --untracked-files=all)"
 test -z "$(git -C "${FEATURE}" status --porcelain=v1 --untracked-files=all)"
 
+CURRENT_STEP=completed
 printf '%s\n' 'PROCESS_OPS_IT=PASS'

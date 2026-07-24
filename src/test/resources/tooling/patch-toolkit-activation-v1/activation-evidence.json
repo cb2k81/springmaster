@@ -40,6 +40,8 @@
     "singletonStart": "project-neutral-atomic-reuse",
     "duplicateActiveStart": "reuse-existing-run",
     "terminalRestart": "explicit-only",
-    "multipleActiveSingleton": "incident-fail-closed"
+    "multipleActiveSingleton": "incident-fail-closed",
+    "gitFixtureIsolation": "PASS",
+    "postAcceptQualification": "PENDING_RETRY_AFTER_000182"
   }
 }

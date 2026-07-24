@@ -131,3 +131,13 @@ sprintId: null
 **Recovery:** Register the entrypoint in `contracts/governance/testing/test-inventory-baseline.json`, register source fixtures in both the inventory and `test-fixture-contract.json`, align the owning suite in `test-suite-contract.json`, then run `./bin/test-contracts.sh --check all` and `./bin/test-contracts-it.sh` before the full selfcheck.
 
 **Prevention:** Test code, fixture evidence and their machine-readable registrations are one atomic change. A delivery helper must report the failing qualification stage and preserve its log rather than returning only a generic worker failure.
+
+## Git integration fixture inherits operator configuration
+
+**Symptom:** A tooling integration test fails during fixture bootstrap with a path below `.git/refs`, invokes an unexpected hook, requests credentials, or behaves differently between developer machines.
+
+**Cause:** The temporary Git repository inherited system/global Git configuration, templates, hooks or an experimental reference-storage default from the operator environment.
+
+**Recovery:** Preserve the failed stage log, identify the fixture bootstrap step, and rerun only after isolating `HOME`, `XDG_CONFIG_HOME`, system/global Git configuration and the template directory. Do not create missing `.git/refs/**` directories manually in a repository that may use another reference backend.
+
+**Prevention:** Git integration fixtures use an isolated home/config/template environment and select a deterministic reference backend for the fixture repository through Git configuration. Product code continues to use Git commands and must not inspect file-backend internals such as `.git/refs/heads`.
