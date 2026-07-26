@@ -302,6 +302,20 @@ Quellhashes stammen aus dem Raw-Byte-`fileManifest` der Metadatei, niemals aus d
 
 Bei `--zip` verbleiben unter `exports/text/` nur das aktuelle ZIP und `<zip>.sha256`; Text, Metadaten und Split-Index liegen im ZIP. Vorherige projektbezogene Exportsets werden nach `exports/text/Archiv/` verschoben. Der aktuelle Export wird ausschließlich mit `./bin/export.sh --current` ermittelt, nicht über Explorer- oder `ls`-Sortierung.
 
+## AI-Agent- und Codex-Pilot
+
+Nach ADR-0015 und der AI Agent Development Governance gilt fuer den Springmaster-Piloten:
+
+- Bis `bin/codex-pilot-ready.sh project --live --check` den Zustand `PROJECT_READY` nachweist, ist jede Codex-Ausfuehrung verboten; mutierende Lieferungen erfolgen weiter ueber `bin/cpatch` beziehungsweise `bin/process-ops.sh`.
+- `PROJECT_READY` ist der bewusste Cutover-Punkt zu einer getrennt freizugebenden Codex-Kalibrierung. Der Zustand autorisiert noch keine schreibende Standardentwicklung; dafuer ist spaeter `PILOT_WRITE_READY` erforderlich.
+- Beschreibbar ist ausschliesslich ein externer, detached Springmaster-Task-Worktree am exakten `baseCommit`. Der Integrations-Checkout, GWC, Personnel und alle gemanagten Projekte bleiben ausserhalb des Schreibscopes.
+- Jeder Task benoetigt vor Vorbereitung einen unveraenderlichen Vertrag nach `contracts/governance/agent/agent-task-contract.schema.json`. Er definiert erlaubte und verbotene Pfade, Limits, exakte Qualifikationskommandos und Evidence.
+- Worktree-, Run- und Artefakt-Roots werden ueber `COCONDO_WORKTREE_ROOT`, `COCONDO_AGENT_RUN_ROOT` und `COCONDO_ARTIFACT_ROOT` absolut und ausserhalb des Repositories konfiguriert.
+- Der Harness `bin/agent-task.sh` ruft Codex nicht auf und bietet keine Commit-, Merge-, Cherry-pick-, Push- oder Main-Integration an. Er bereitet vor, prueft Scope und Evidence, qualifiziert deklarierte Kommandos und raeumt nach ausdruecklicher Entscheidung auf.
+- Commit, Push, Branchwechsel, `.git`-Mutation, Netzwerkzugriff, Symlink-Erzeugung, nicht deklarierte Root-Artefakte und fremde Repositoryaenderungen sind fuer Agent-Tasks verboten.
+- Fachkonzept, Akzeptanzvertrag, Generator und generiertes Ergebnis werden in getrennten Tasks veraendert. Ein Agent darf seinen eigenen Oracle nicht opportunistisch anpassen.
+- Eine echte Grenzverletzung, fehlende Evidence, Integrations-Drift oder nicht deterministische Wiederholung stoppt den Piloten.
+
 ## Patch-, Git- und Export-Governance
 
 Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die dauerhafte Repositoryhistorie. Cocondo Patch Toolkit `1.1.1` und `bin/cpatch` sind der kanonische mutierende Patchpfad.

@@ -26,6 +26,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 ## ADR
 
+- `PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md` — accepted Springmaster-only AI-agent pilot and staged Codex cutover
+
 - `PROJECT_DOCS/ADR/ADR-0001-springmaster-bootstrap.md`
 - `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`
 - `PROJECT_DOCS/ADR/ADR-0003-application-layer-and-transaction-boundary.md`
@@ -71,6 +73,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/CORE/README.md`
 ## DEMO
 
+- `PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md` — frozen dummy domain concept for the Codex end-to-end pilot
+
 - `PROJECT_DOCS/DEMO/CATALOGITEM_CANDIDATE_SLICE_EVIDENCE.md`
 - `PROJECT_DOCS/DEMO/CATALOGITEM_CORE_PAGED_QUERY_SORT_SUPPORT_ADOPTION.md`
 - `PROJECT_DOCS/DEMO/CATALOGITEM_COUNT_REFERENCE_SLICE.md`
@@ -96,6 +100,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 - `PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md`
 ## GOVERNANCE
+
+- `PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md` — active normative task, worktree, evidence, calibration and stop boundaries
 
 - `PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md` — draft V2 governance for external dependency lifecycle and approval
 - `PROJECT_DOCS/GOVERNANCE/ENGINEERING_GOVERNANCE.md` — draft V2 governance for technical change lifecycle and completion
@@ -171,6 +177,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 - `PROJECT_DOCS/TEMPLATES/project-skeleton/README.md`
 ## TOOLING
+
+- `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — pre-cutover readiness, external-root, task preparation and diagnostic procedure
 
 - `PROJECT_DOCS/TOOLING/BUILD_TOOL.md`
 - `PROJECT_DOCS/TOOLING/DBTOOL.md`

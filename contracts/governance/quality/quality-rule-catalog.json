@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.quality-rule-catalog.v1",
-  "catalogVersion": "1.2.0",
+  "catalogVersion": "1.3.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "allowedLayers": [
@@ -1097,7 +1097,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
-        "section": "11. Temporäre, generierte und lokale Artefakte"
+        "section": "11. Tempor\u00e4re, generierte und lokale Artefakte"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1441,7 +1441,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
-        "section": "4.1 Normative Quelle vor Prüfung"
+        "section": "4.1 Normative Quelle vor Pr\u00fcfung"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1535,7 +1535,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "4. Identitäten, Scope und Zeitraum"
+        "section": "4. Identit\u00e4ten, Scope und Zeitraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1695,7 +1695,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "11.1 Prüfereignisse"
+        "section": "11.1 Pr\u00fcfereignisse"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1791,7 +1791,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "3.1 Problemraum vor Lösungsraum"
+        "section": "3.1 Problemraum vor L\u00f6sungsraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1915,7 +1915,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einführung"
+        "section": "16.3 Migrationsarme Einf\u00fchrung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2125,7 +2125,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einführung"
+        "section": "16.3 Migrationsarme Einf\u00fchrung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2268,6 +2268,223 @@
         "springmaster"
       ],
       "implementationRef": "contracts/governance/engineering/engineering-qualification-gate-contract.json"
+    },
+    {
+      "ruleId": "AIA-PROJECT-001",
+      "title": "Accepted pilot sources and active contracts define PROJECT_READY",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "3.2 PROJECT_READY"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-PATCH-001",
+      "title": "Cocondo Patch Toolkit remains the canonical mutation mechanism until project readiness",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "3.1 PRE_CUTOVER"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-HARNESS-001",
+      "title": "The pre-cutover harness creates detached scoped worktrees and exposes no Codex or integration operation",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "4. Task contract"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-CONCEPT-001",
+      "title": "The Business Partner concept and acceptance oracle are frozen and traceable",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "9. Business Partner reference input"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-CUTOVER-001",
+      "title": "PROJECT_READY authorizes calibration only and not writable Codex development",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "3.3 CALIBRATION_REQUIRED"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-HYGIENE-001",
+      "title": "Worktree, run, evidence and artifact roots remain external and repository runtime paths stay ignored",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "5. Filesystem and Git boundaries"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-INVENTORY-001",
+      "title": "Pilot gates, tests and fixtures are registered and self-tested",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "7. Evidence"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "ERROR",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-pilot-ready.py"
     }
   ]
 }

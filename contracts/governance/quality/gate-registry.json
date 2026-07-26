@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.gate-registry.v1",
-  "registryVersion": "1.2.0",
+  "registryVersion": "1.3.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "gates": [
@@ -288,6 +288,49 @@
       "reportSchema": "springmaster.engineering-qualification-gate-report.v1",
       "fixtureEntrypoint": "bin/engineering-qualification-gate-it.sh",
       "selfcheckEntrypoint": "bin/engineering-qualification-gate-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ]
+    },
+    {
+      "gateId": "codex-pilot-readiness-v1",
+      "name": "Codex Pilot Project Readiness V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Strictly verify Springmaster-only governance, contracts, harness, frozen reference input and external-boundary prerequisites before the first Codex calibration",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "candidate",
+        "live"
+      ],
+      "entrypoint": "bin/codex-pilot-ready.sh",
+      "inputContracts": [
+        "contracts/governance/agent/codex-pilot-contract.json",
+        "contracts/governance/agent/agent-task-contract.schema.json",
+        "contracts/pilots/codex/business-partner-pilot-acceptance.json",
+        "contracts/governance/quality/quality-rule-catalog.json",
+        "contracts/governance/testing/test-inventory-baseline.json"
+      ],
+      "ruleIds": [
+        "AIA-PROJECT-001",
+        "AIA-PATCH-001",
+        "AIA-HARNESS-001",
+        "AIA-CONCEPT-001",
+        "AIA-CUTOVER-001",
+        "AIA-HYGIENE-001",
+        "AIA-INVENTORY-001"
+      ],
+      "reportSchema": "springmaster.codex-pilot-readiness-report.v1",
+      "fixtureEntrypoint": "bin/codex-pilot-ready-it.sh",
+      "selfcheckEntrypoint": "bin/codex-pilot-ready-it.sh",
       "readOnly": true,
       "sideEffects": [
         "report-files-only"

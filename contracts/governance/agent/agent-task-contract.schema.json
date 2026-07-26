@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:agent-task:v1",
+  "title": "Springmaster Agent Task Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "pilotId",
+    "repositoryId",
+    "mode",
+    "baseCommit",
+    "integrationBranch",
+    "riskClass",
+    "changeClasses",
+    "allowedPaths",
+    "forbiddenPaths",
+    "limits",
+    "capabilities",
+    "qualificationCommands",
+    "requiredEvidence",
+    "completionCriteria"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "springmaster.agent-task.v1"},
+    "taskId": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$"},
+    "pilotId": {"const": "springmaster-codex-pilot-v1"},
+    "repositoryId": {"const": "springmaster"},
+    "mode": {"enum": ["analysis", "implementation", "qualification"]},
+    "baseCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "integrationBranch": {"const": "main"},
+    "riskClass": {"enum": ["low", "medium", "high", "critical"]},
+    "changeClasses": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+    },
+    "allowedPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "forbiddenPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxChangedFiles", "maxAddedBytes"],
+      "properties": {
+        "maxChangedFiles": {"type": "integer", "minimum": 1, "maximum": 200},
+        "maxAddedBytes": {"type": "integer", "minimum": 0, "maximum": 10485760}
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mayModifyTests",
+        "mayModifyGovernance",
+        "mayModifyContracts",
+        "mayCommit",
+        "mayPush",
+        "network"
+      ],
+      "properties": {
+        "mayModifyTests": {"type": "boolean"},
+        "mayModifyGovernance": {"type": "boolean"},
+        "mayModifyContracts": {"type": "boolean"},
+        "mayCommit": {"const": false},
+        "mayPush": {"const": false},
+        "network": {"const": "disabled"}
+      }
+    },
+    "qualificationCommands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "argv", "timeoutSeconds"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+          "argv": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string"}
+          },
+          "timeoutSeconds": {"type": "integer", "minimum": 1, "maximum": 7200}
+        }
+      }
+    },
+    "requiredEvidence": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+    },
+    "completionCriteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "notes": {"type": "string"}
+  }
+}

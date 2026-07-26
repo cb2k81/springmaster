@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "springmaster.codex-business-partner-pilot-acceptance.v1",
+  "contractVersion": "1.0.0",
+  "status": "frozen-for-pilot",
+  "pilotId": "springmaster-codex-pilot-v1",
+  "concept": {
+    "path": "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
+    "documentId": "REQ-CODEX-BP-0001",
+    "version": "1.0.0"
+  },
+  "authoritativeRequirementPrefixes": ["BP-REQ-"],
+  "requiredStages": [
+    {
+      "id": "canonical-intent",
+      "outputType": "json",
+      "humanApprovalRequired": false,
+      "mustReferenceEveryRequirement": true
+    },
+    {
+      "id": "generated-slice-spec",
+      "outputType": "yaml-or-json",
+      "humanApprovalRequired": false,
+      "mustReferenceEveryRequirement": true
+    },
+    {
+      "id": "intermediate-representation",
+      "outputType": "json",
+      "humanApprovalRequired": false,
+      "mustReferenceEveryRequirement": true
+    },
+    {
+      "id": "application-ui-spec",
+      "outputType": "json",
+      "humanApprovalRequired": true,
+      "mustReferenceEveryRequirement": true
+    },
+    {
+      "id": "gwc-implementation-manifest",
+      "outputType": "json",
+      "humanApprovalRequired": false,
+      "mustReferenceEveryRequirement": true
+    },
+    {
+      "id": "generated-gwc-application",
+      "outputType": "external-directory",
+      "humanApprovalRequired": true,
+      "mustReferenceEveryRequirement": true
+    }
+  ],
+  "acceptanceScenarios": [
+    {
+      "id": "BP-ACC-001",
+      "title": "Create an organization partner with one primary email",
+      "requirements": ["BP-REQ-010", "BP-REQ-020", "BP-REQ-021", "BP-REQ-024", "BP-REQ-030", "BP-REQ-071"],
+      "expectedOutcome": "Partner is created active and detail shows the persisted primary email."
+    },
+    {
+      "id": "BP-ACC-002",
+      "title": "Reject duplicate normalized code",
+      "requirements": ["BP-REQ-003", "BP-REQ-013"],
+      "expectedOutcome": "Create fails with global conflict error and existing data is unchanged."
+    },
+    {
+      "id": "BP-ACC-003",
+      "title": "Filter and sort the paged list",
+      "requirements": ["BP-REQ-040", "BP-REQ-041", "BP-REQ-042", "BP-REQ-043", "BP-REQ-044", "BP-REQ-062"],
+      "expectedOutcome": "URL-representable filters and stable sorting return the expected rows."
+    },
+    {
+      "id": "BP-ACC-004",
+      "title": "Deactivate and reactivate a partner",
+      "requirements": ["BP-REQ-031", "BP-REQ-032", "BP-REQ-033", "BP-REQ-034", "BP-REQ-066"],
+      "expectedOutcome": "Only the valid command is available and state transitions are persisted."
+    },
+    {
+      "id": "BP-ACC-005",
+      "title": "Block stale edit",
+      "requirements": ["BP-REQ-014", "BP-REQ-072"],
+      "expectedOutcome": "Stale update returns conflict and newer data is not overwritten."
+    },
+    {
+      "id": "BP-ACC-006",
+      "title": "Enforce permissions",
+      "requirements": ["BP-REQ-050", "BP-REQ-051", "BP-REQ-052", "BP-REQ-064", "BP-REQ-066"],
+      "expectedOutcome": "Backend returns 401 or 403 correctly and UI action state mirrors but does not replace authorization."
+    },
+    {
+      "id": "BP-ACC-007",
+      "title": "Render loading, empty, error and forbidden states",
+      "requirements": ["BP-REQ-063", "BP-REQ-067"],
+      "expectedOutcome": "Each state is explicit, accessible and does not present stale success data."
+    },
+    {
+      "id": "BP-ACC-008",
+      "title": "Maintain contact methods atomically",
+      "requirements": ["BP-REQ-005", "BP-REQ-020", "BP-REQ-021", "BP-REQ-022", "BP-REQ-023", "BP-REQ-024", "BP-REQ-069"],
+      "expectedOutcome": "Valid child changes persist with the aggregate and invalid children prevent the whole save."
+    }
+  ],
+  "traceability": {
+    "requiredCoveragePercent": 100,
+    "inventedFieldsAllowed": false,
+    "inventedCommandsAllowed": false,
+    "inventedPermissionsAllowed": false,
+    "unresolvedAmbiguityPolicy": "block"
+  },
+  "repeatability": {
+    "cleanRunsRequired": 3,
+    "normalizedSpecHashesMustMatch": true,
+    "manifestHashesMustMatch": true,
+    "residualFilesAllowed": false
+  },
+  "evolution": {
+    "required": true,
+    "version": "1.1.0",
+    "changeMustBeIsolated": true,
+    "manualExtensionPointsMustSurvive": true
+  },
+  "safetyTargets": {
+    "writesOutsideTaskWorktree": 0,
+    "otherRepositoryChanges": 0,
+    "directMainChanges": 0,
+    "unauthorizedNetworkOperations": 0,
+    "undeclaredChangedFiles": 0,
+    "newRepositoryRootArtifacts": 0,
+    "missingRunRecords": 0,
+    "manualCleanupActions": 0
+  },
+  "efficiencyTargets": {
+    "minimumWritableTasksMeasured": 5,
+    "elapsedTimeReductionPercent": 30,
+    "manualTransferStepReductionPercent": 80,
+    "manualInterventionReductionPercent": 50,
+    "maximumMedianReviewCorrectionRounds": 1,
+    "minimumFirstPassTargetedQualificationPercent": 70
+  }
+}

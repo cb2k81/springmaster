@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "springmaster.codex-pilot-readiness-fixture.v1",
+  "gateId": "codex-pilot-readiness-v1",
+  "cases": [
+    {
+      "id": "candidate-project-ready",
+      "expectedStatus": "PROJECT_READY",
+      "expectedExit": 0
+    },
+    {
+      "id": "missing-normative-source",
+      "expectedStatus": "FINDINGS",
+      "expectedFindingCode": "REQUIRED_FILE_MISSING",
+      "expectedExit": 1
+    },
+    {
+      "id": "invalid-contract-json",
+      "expectedStatus": "TOOL_ERROR",
+      "expectedToolErrorCode": "JSON_INVALID",
+      "expectedExit": 2
+    },
+    {
+      "id": "live-roots-unset",
+      "expectedStatus": "FINDINGS",
+      "expectedFindingCode": "EXTERNAL_ROOT_UNSET",
+      "expectedExit": 1
+    }
+  ]
+}

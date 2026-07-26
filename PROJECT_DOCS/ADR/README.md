@@ -31,6 +31,7 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0012-patch-transaction-and-evidence-boundary.md` | Accepted | Patch transaction, evidence, retention and export boundary |
 | `ADR-0013-core-distribution-strategy.md` | Accepted | Versioned Maven artifact/BOM direction; source-copy remains controlled-pilot |
 | `ADR-0014-process-execution-observation-and-recovery.md` | Accepted | dynamic path resolution, single worker owner, terminal-safe observation and recovery |
+| `ADR-0015-controlled-ai-assisted-development-pilot.md` | Accepted | Springmaster-only AI-assisted development pilot, external task boundaries and staged Codex cutover |
 
 ## Planned ADR backlog
 

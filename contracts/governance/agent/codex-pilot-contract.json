@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "springmaster.codex-pilot-contract.v1",
+  "contractVersion": "1.0.0",
+  "status": "active",
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+  "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
+  "pilot": {
+    "pilotId": "springmaster-codex-pilot-v1",
+    "repositoryId": "springmaster",
+    "integrationBranch": "main",
+    "currentLifecycle": "PROJECT_READY",
+    "projectReadyLifecycle": "PROJECT_READY",
+    "cutoverLifecycle": "CALIBRATION_REQUIRED",
+    "writableLifecycle": "PILOT_WRITE_READY",
+    "preCutoverMutationMechanism": "cocondo-patch-toolkit",
+    "codexExecutionBeforeProjectReady": "forbidden",
+    "managedProjectMutation": "forbidden"
+  },
+  "externalRoots": {
+    "worktreeEnv": "COCONDO_WORKTREE_ROOT",
+    "runEnv": "COCONDO_AGENT_RUN_ROOT",
+    "artifactEnv": "COCONDO_ARTIFACT_ROOT",
+    "mustBeAbsolute": true,
+    "mustExistForLiveReadiness": true,
+    "mustBeOutsideProject": true,
+    "mustBeOutsideGitCommonDirectory": true,
+    "mustBePairwiseDistinct": true,
+    "symlinkRootPolicy": "forbid"
+  },
+  "taskContract": {
+    "schemaPath": "contracts/governance/agent/agent-task-contract.schema.json",
+    "schemaVersion": "springmaster.agent-task.v1",
+    "immutableAfterPrepare": true,
+    "storedOutsideRepository": true,
+    "baseCommitMustEqualIntegrationHeadAtPrepare": true
+  },
+  "worktree": {
+    "mode": "detached",
+    "integrationWorktreeWritableByAgent": false,
+    "mayCommit": false,
+    "mayPush": false,
+    "maySwitchBranch": false,
+    "mayCreateNestedRepository": false,
+    "mayCreateSymlink": false,
+    "maximumActiveTasks": 1
+  },
+  "paths": {
+    "alwaysForbidden": [
+      ".git/**",
+      ".cocondo/tooling/cocondo-toolkit.pyz",
+      ".cocondo/tooling/cocondo-toolkit.pyz.sha256",
+      "patches/archives/**",
+      "patches/runtime/**",
+      "patches/logs/accept/**",
+      "patches/logs/validation/**",
+      "exports/**",
+      "target/**",
+      "build/**",
+      "tmp/**"
+    ],
+    "rootWritesRequireExactAllow": true,
+    "undeclaredChangedPathPolicy": "block",
+    "changedSymlinkPolicy": "block"
+  },
+  "commands": {
+    "qualificationUsesArgumentArrays": true,
+    "shellEvaluation": "forbidden",
+    "arbitraryCommandOperation": "forbidden",
+    "networkForAgentShell": "disabled",
+    "forbiddenCommandFamilies": [
+      "git push",
+      "git reset --hard",
+      "git clean",
+      "git checkout",
+      "git switch",
+      "git branch",
+      "git worktree",
+      "ssh",
+      "scp",
+      "curl",
+      "wget"
+    ]
+  },
+  "evidence": {
+    "required": [
+      "task-contract",
+      "task-contract-sha256",
+      "prepare-record",
+      "integration-pre-state",
+      "worktree-pre-state",
+      "changed-path-report",
+      "qualification-records",
+      "final-result",
+      "cleanup-disposition"
+    ],
+    "repositoryRootArtifacts": "forbidden",
+    "canonicalStorage": "external-run-root",
+    "diagnosticUploadPath": "patches/logs/validation/codex-pilot"
+  },
+  "projectReadiness": {
+    "gateId": "codex-pilot-readiness-v1",
+    "entrypoint": "bin/codex-pilot-ready.sh",
+    "candidateCommand": [
+      "bin/codex-pilot-ready.sh",
+      "project",
+      "--candidate",
+      "--check"
+    ],
+    "liveCommand": [
+      "bin/codex-pilot-ready.sh",
+      "project",
+      "--live",
+      "--check"
+    ],
+    "successStatus": "PROJECT_READY",
+    "nextAction": "CODEX_CALIBRATION",
+    "doesNotAuthorizeWritableCodex": true
+  },
+  "referenceInput": {
+    "conceptPath": "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
+    "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
+    "conceptVersion": "1.0.0",
+    "status": "frozen-for-pilot",
+    "existingGeneratedSliceGoldenRole": "comparison-fixture-only"
+  },
+  "stopCriteria": [
+    "write-outside-task-worktree",
+    "integration-worktree-drift",
+    "other-repository-mutation",
+    "unauthorized-network-success",
+    "task-contract-mutation",
+    "undeclared-path-change",
+    "missing-evidence",
+    "manual-repository-repair-required",
+    "non-deterministic-clean-rerun",
+    "oracle-self-modification"
+  ]
+}

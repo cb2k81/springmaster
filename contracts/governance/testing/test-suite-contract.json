@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-suite-contract.v1",
-  "contractVersion": "1.1.0",
+  "contractVersion": "1.2.0",
   "status": "report-only",
   "ruleSource": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
   "profileSources": {
@@ -369,6 +369,38 @@
         "test",
         "tooling",
         "build"
+      ]
+    },
+    {
+      "id": "tooling-agent-pilot-fixtures",
+      "name": "AI agent pilot boundary and project-readiness fixtures",
+      "runnerId": "bash",
+      "testLevels": [
+        "integration",
+        "qualification"
+      ],
+      "scopePaths": [
+        "bin/agent-task-it.sh",
+        "bin/codex-pilot-ready-it.sh"
+      ],
+      "engineeringProfiles": [
+        "qualification",
+        "audit",
+        "release"
+      ],
+      "runtimeClass": "medium",
+      "parallelizable": false,
+      "enforcementMode": "report-only",
+      "reports": [
+        "text-summary",
+        "json-report"
+      ],
+      "changeClasses": [
+        "governance",
+        "contract",
+        "quality-rule",
+        "test",
+        "tooling"
       ]
     }
   ],
