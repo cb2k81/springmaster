@@ -64,3 +64,7 @@ Existing scripts with static paths or nested background supervision are non-cano
 ## Accepted clarification: project-local operator evidence
 
 The canonical worker and run state remain below the Git common directory. A project may additionally define project-relative, ignored operator-log and single-current-workflow handoff directories. These directories are not alternate run truth. Patch starts prepare the handoff workspace fail-closed; observers never clean it. Diagnostic upload artifacts are generated from canonical run evidence as exactly one archive, while patch workers continue to be started directly through the `cpatch` Run API.
+
+## Accepted clarification: historical operator-log evidence
+
+The project-relative operator-log root may contain retained tracked historical evidence. Runtime safety is enforced at the exact generated run directory `<operator-log-root>/<patch-id>/<run-id>/`: that directory must be ignored, non-symlinked and free of tracked content. Historical tracked siblings elsewhere below the shared root are compatible and must neither block observers nor be modified by runtime preparation.

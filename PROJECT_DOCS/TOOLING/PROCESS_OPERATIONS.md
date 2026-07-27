@@ -100,6 +100,8 @@ Preparation is fail-closed:
 
 The workspace is only a current operator handoff area. Canonical run state, locks and acceptance evidence remain below the Git common directory. Durable local operator summaries are written below `CPROCESS_OPERATOR_LOG_DIRECTORY` (Springmaster default: `patches/logs/validation/`).
 
+Operator logs are isolated per canonical run under `<operator-log-root>/<patch-id>/<run-id>/`. Historical tracked evidence elsewhere below the shared operator-log root is compatible and remains untouched. Only the exact current run directory must be Git-ignored and free of tracked content; a collision with tracked content in that directory fails closed.
+
 A terminal run can be packaged for upload as exactly one deterministic ZIP:
 
 ```bash

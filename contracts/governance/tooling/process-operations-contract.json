@@ -87,7 +87,9 @@
       "diagnostic-handoff-single-archive",
       "operator-log-project-local",
       "workspace-export-excluded",
-      "agent-workspace-write-forbidden"
+      "agent-workspace-write-forbidden",
+      "operator-log-historical-tracked-sibling-compatible",
+      "operator-log-current-run-tracked-content-blocked"
     ]
   },
   "implementation": {
@@ -122,7 +124,7 @@
       "failedFixtureStepRequired": true
     }
   },
-  "contractVersion": "1.1.0",
+  "contractVersion": "1.1.1",
   "operatorWorkspacePolicy": {
     "scope": "one-current-patch-workflow",
     "pathMustBeProjectRelative": true,
@@ -148,8 +150,11 @@
     "canonicalRunStateRemainsInGitCommonDirectory": true,
     "commitPolicy": "forbidden",
     "exportPolicy": "excluded",
-    "trackedContent": "block",
     "symlinkPath": "block",
-    "pathPreparation": "fail-closed"
+    "pathPreparation": "fail-closed-current-run-directory",
+    "historicalTrackedSiblings": "allow",
+    "currentRunDirectoryTrackedContent": "block",
+    "currentRunDirectoryIgnored": "required",
+    "runDirectoryPattern": "<operator-log-root>/<patch-id>/<run-id>"
   }
 }

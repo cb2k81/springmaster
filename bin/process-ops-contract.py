@@ -101,6 +101,21 @@ def main() -> int:
         findings.append({"code": "PROCESS_OPERATOR_LOG_TRUTH_MISMATCH"})
     if operator_logs.get("commitPolicy") != "forbidden" or operator_logs.get("exportPolicy") != "excluded":
         findings.append({"code": "PROCESS_OPERATOR_LOG_LIFECYCLE_MISMATCH"})
+    operator_log_expected = {
+        "historicalTrackedSiblings": "allow",
+        "currentRunDirectoryTrackedContent": "block",
+        "currentRunDirectoryIgnored": "required",
+        "runDirectoryPattern": "<operator-log-root>/<patch-id>/<run-id>",
+        "pathPreparation": "fail-closed-current-run-directory",
+    }
+    for key, expected in operator_log_expected.items():
+        if operator_logs.get(key) != expected:
+            findings.append({
+                "code": "PROCESS_OPERATOR_LOG_POLICY_MISMATCH",
+                "key": key,
+                "expected": expected,
+                "actual": operator_logs.get(key),
+            })
 
     implementation = contract.get("implementation") if isinstance(contract.get("implementation"), dict) else {}
     required = {

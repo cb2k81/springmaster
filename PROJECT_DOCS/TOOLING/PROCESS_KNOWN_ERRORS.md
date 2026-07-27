@@ -157,3 +157,12 @@ sprintId: null
 **Cause:** the configured workspace contains an active workflow, tracked content, a symlink, nested repository, mount point or special file.
 
 **Resolution:** inspect the current `WORKSPACE.json` and canonical run status. Do not bypass cleanup guards. Preserve/upload required diagnostics, then remove the blocking unsafe condition explicitly.
+## Historical tracked validation evidence blocks observers
+
+**Symptom:** a canonical patch acceptance succeeds, but a subsequent `status`, `watch`, `result` or diagnostic operation fails with `OPERATOR_LOG_TRACKED_CONTENT`.
+
+**Cause:** the process adapter validates the entire shared operator-log root even though that root contains legitimate historical tracked validation evidence.
+
+**Recovery:** query the canonical run directly with `cpatch`, preserve the successful run ID, and apply the compatibility correction. Do not repeat a successful acceptance.
+
+**Prevention:** allow historical tracked sibling evidence below the shared root. Enforce Git-ignore and tracked-content prohibitions only for the exact generated run directory `<operator-log-root>/<patch-id>/<run-id>/`.

@@ -29,10 +29,10 @@
     "show"
   ],
   "versionClosure": {
-    "platformVersion": "0.21.0-foundation",
-    "mavenVersion": "0.21.0-foundation-SNAPSHOT",
-    "toolingVersion": "0.11.0",
-    "statePatch": "000186_springmaster_patch_workflow_workspace_contract"
+    "platformVersion": "0.21.1-foundation",
+    "mavenVersion": "0.21.1-foundation-SNAPSHOT",
+    "toolingVersion": "0.11.1",
+    "statePatch": "000187_springmaster_operator_log_history_compatibility"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
@@ -55,6 +55,7 @@
     "diagnosticHandoff": "single-archive-in-operator-workspace",
     "canonicalPatchStart": "direct-cpatch-run-api",
     "realSpringmasterPilot": "PASS_000184",
-    "operatorWorkspacePilot": "PENDING_000186"
+    "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
+    "operatorLogHistoryCompatibility": "FIXED_000187"
   }
 }

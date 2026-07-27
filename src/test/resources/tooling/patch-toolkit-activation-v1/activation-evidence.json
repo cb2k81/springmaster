@@ -43,11 +43,14 @@
     "multipleActiveSingleton": "incident-fail-closed",
     "gitFixtureIsolation": "PASS",
     "postAcceptQualification": "PASS_000184_WITH_EXTERNAL_ROOTS",
-    "acceptedPatch": "000184_springmaster_codex_calibration_execution_task_semantic_hardening",
-    "acceptedCommit": "e6d184c69d2616a02da499540a3be90f208e78be",
+    "acceptedPatch": "000186_springmaster_patch_workflow_workspace_contract",
+    "acceptedCommit": "ef713cc73518da94419dfa342303df6847120420",
     "dryRunId": "run-20260727T084807Z-336bc56656e9",
     "acceptRunId": "run-20260727T091140Z-1dd557514153",
     "liveReadinessRunId": "run-20260727T093113Z-0be8cada4b89",
-    "operatorWorkspacePilot": "PENDING_000186"
+    "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
+    "operatorLogHistoryCompatibility": "FIXED_000187",
+    "operatorWorkspaceDryRunId": "run-20260727T114228Z-ed48eef336de",
+    "operatorWorkspaceAcceptRunId": "run-20260727T120640Z-800d2ab4656d"
   }
 }

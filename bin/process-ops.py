@@ -432,13 +432,10 @@ def prepare_operator_log_directory(context: Context, payload: dict[str, Any]) ->
         error_code="OPERATOR_LOG_SYMLINK_FORBIDDEN",
         path_role="operator-log-root",
     )
-    tracked = git_tracked_below(context, context.operator_log_root)
-    if tracked:
-        raise ProcessOpsError("OPERATOR_LOG_TRACKED_CONTENT", "Tracked content below the operator log root is forbidden", paths=tracked[:40])
-    assert_runtime_path_ignored(context, context.operator_log_root)
     context.operator_log_root.mkdir(parents=True, exist_ok=True)
     if context.operator_log_root.is_symlink() or not context.operator_log_root.is_dir():
         raise ProcessOpsError("OPERATOR_LOG_PATH_INVALID", "Operator log root must be a real directory", path=str(context.operator_log_root))
+
     patch_id = safe_component(payload.get("patchId"), "unscoped")
     run_id = safe_component(payload.get("runId"), "no-run-id")
     directory = context.operator_log_root / patch_id / run_id
@@ -448,6 +445,17 @@ def prepare_operator_log_directory(context: Context, payload: dict[str, Any]) ->
         error_code="OPERATOR_LOG_SYMLINK_FORBIDDEN",
         path_role="operator-run-log",
     )
+
+    tracked = git_tracked_below(context, directory)
+    if tracked:
+        raise ProcessOpsError(
+            "OPERATOR_LOG_TRACKED_CONTENT",
+            "Tracked content below the current operator run log directory is forbidden",
+            path=project_relative(context, directory),
+            paths=tracked[:40],
+        )
+
+    assert_runtime_path_ignored(context, directory)
     directory.mkdir(parents=True, exist_ok=True)
     if directory.is_symlink() or not directory.is_dir():
         raise ProcessOpsError("OPERATOR_LOG_PATH_INVALID", "Operator run log path must be a real directory", path=str(directory))

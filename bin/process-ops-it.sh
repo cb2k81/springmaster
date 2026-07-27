@@ -151,6 +151,15 @@ git -C "${REPO}" config user.email process-ops@example.invalid
 git -C "${REPO}" config user.name process-ops-it
 git -C "${REPO}" add .
 git -C "${REPO}" commit -q -m baseline
+
+# Historical tracked validation evidence below the shared operator-log root is
+# compatible with new run-scoped runtime logs.
+CURRENT_STEP=fixture-historical-operator-log-evidence
+mkdir -p "${REPO}/patches/logs/validation/000001_historical"
+printf 'historical evidence\n' > "${REPO}/patches/logs/validation/000001_historical/00-evidence.log"
+git -C "${REPO}" add -f patches/logs/validation/000001_historical/00-evidence.log
+git -C "${REPO}" commit -q -m 'historical operator log evidence fixture'
+
 CURRENT_STEP=fixture-linked-worktree
 git -C "${REPO}" worktree add -q -b change/fixture "${FEATURE}" main
 CURRENT_STEP=process-ops-scenarios
@@ -196,6 +205,8 @@ test ! -e "${REPO}/patches/work/stale.txt"
 test -f "${REPO}/patches/work/WORKSPACE.json"
 grep -q '"runId": "run-dry-1"' "${REPO}/patches/work/WORKSPACE.json"
 test -n "$(find "${REPO}/patches/logs/validation" -type f -name '*patch-dry-run.json' -print -quit)"
+test -f "${REPO}/patches/logs/validation/000001_historical/00-evidence.log"
+git -C "${REPO}" check-ignore -q -- patches/logs/validation/000999_fixture/run-dry-1/.probe
 
 git -C "${FEATURE}" clean -fdq
 
@@ -209,6 +220,26 @@ grep -Fx 'status=FAILED' "${STATUS_OUTPUT}" >/dev/null
 grep -Fx 'exitCode=7' "${STATUS_OUTPUT}" >/dev/null
 
 test "$(wc -l < "${STATUS_OUTPUT}")" -le 16
+
+# Tracked content in the exact current run directory remains fail-closed even
+# though tracked historical sibling evidence below the shared root is allowed.
+CURRENT_STEP=tracked-current-operator-run-log
+printf 'tracked conflict\n' > "${REPO}/patches/logs/validation/000999_fixture/run-dry-1/tracked-conflict.log"
+git -C "${REPO}" add -f patches/logs/validation/000999_fixture/run-dry-1/tracked-conflict.log
+git -C "${REPO}" commit -qm 'tracked current operator run log fixture'
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh status run-dry-1 > "${TMP_ROOT}/tracked-current-log.out" 2>&1
+)
+TRACKED_CURRENT_LOG_RC=$?
+set -e
+test "${TRACKED_CURRENT_LOG_RC}" -eq 9
+grep -F 'errorCode=OPERATOR_LOG_TRACKED_CONTENT' "${TMP_ROOT}/tracked-current-log.out" >/dev/null
+grep -F 'path=patches/logs/validation/000999_fixture/run-dry-1' "${TMP_ROOT}/tracked-current-log.out" >/dev/null
+git -C "${REPO}" rm -q -f patches/logs/validation/000999_fixture/run-dry-1/tracked-conflict.log
+git -C "${REPO}" commit -qm 'remove tracked current operator run log fixture'
+CURRENT_STEP=process-ops-scenarios
 
 # A terminal patch run can be packaged as exactly one deterministic diagnostic handoff ZIP.
 RUN_EVIDENCE_DIR="${REPO}/.git/cocondo-toolkit/runs/run-dry-1"
@@ -296,7 +327,7 @@ grep -F 'errorCode=OPERATOR_WORKSPACE_SYMLINK_FORBIDDEN' "${TMP_ROOT}/symlink-wo
 rm -rf "${REPO}/patches/work"
 
 # A symlinked operator-log component blocks project-local evidence writes.
-rm -rf "${REPO}/patches/logs"
+rm -rf "${REPO}/patches/logs/validation/unscoped"
 mkdir -p "${REPO}/patches/logs/validation"
 ln -s "${TMP_ROOT}" "${REPO}/patches/logs/validation/unscoped"
 set +e

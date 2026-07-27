@@ -105,3 +105,11 @@ Die projektneutrale Integration Fixture ist nach Patch `000182` hermetisch gegen
 Patch `000184_springmaster_codex_calibration_execution_task_semantic_hardening` completed the real Springmaster process pilot: canonical dry-run `run-20260727T084807Z-336bc56656e9`, acceptance `run-20260727T091140Z-1dd557514153`, accepted commit `e6d184c69d2616a02da499540a3be90f208e78be`, and live readiness completion `run-20260727T093113Z-0be8cada4b89` all finished successfully. The first postcheck correctly exposed missing external agent roots and was completed after explicit provisioning; it did not invalidate the accepted source patch.
 
 The follow-up workspace contract introduces project-relative operator logs and a single-current-workflow `patches/work/` handoff area. This is not a second run-state store. Direct `cpatch` Run API use remains mandatory, while diagnostic upload bundles are derived from canonical evidence and excluded from Git and exports.
+
+## 9. Operator-log history compatibility correction
+
+Patch `000186_springmaster_patch_workflow_workspace_contract` completed its canonical dry-run and acceptance on the real Springmaster history. Acceptance run `run-20260727T120640Z-800d2ab4656d` committed `ef713cc73518da94419dfa342303df6847120420` after all syntax, targeted, full and release validators passed.
+
+The first observer call after acceptance exposed a compatibility defect: the new process adapter rejected the entire shared operator-log root because Springmaster intentionally retains historical tracked validation evidence below `patches/logs/validation/`. The canonical acceptance remained successful; repeating it was neither required nor permitted.
+
+Patch `000187_springmaster_operator_log_history_compatibility` narrows the fail-closed check to the exact generated run directory `<operator-log-root>/<patch-id>/<run-id>/`. Historical tracked sibling evidence is tolerated and left untouched. The current run directory must remain ignored and free of tracked content. Integration fixtures cover both the real-history compatibility case and the tracked-current-run collision case.
