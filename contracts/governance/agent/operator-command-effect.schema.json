@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:operator-command-effect:v1",
+  "title": "Springmaster Operator Command Effect Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "commandId",
+    "taskId",
+    "purpose",
+    "argv",
+    "workingDirectory",
+    "reads",
+    "writes",
+    "network",
+    "repositoryMutation",
+    "destructiveActions",
+    "directoryCreationPolicy",
+    "overwritePolicy",
+    "environmentInputs"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "springmaster.operator-command-effect.v1"
+    },
+    "commandId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9-]{2,63}$"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    },
+    "argv": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "workingDirectory": {
+      "type": "string",
+      "pattern": "^/"
+    },
+    "reads": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "task-worktree",
+          "integration-worktree-read-only",
+          "external-run-root-read-only",
+          "external-artifact-root-read-only"
+        ]
+      }
+    },
+    "writes": {
+      "oneOf": [
+        {
+          "const": []
+        },
+        {
+          "const": [
+            "task-worktree"
+          ]
+        }
+      ]
+    },
+    "network": {
+      "const": "codex-control-plane-only"
+    },
+    "repositoryMutation": {
+      "enum": [
+        "none",
+        "task-worktree-only"
+      ]
+    },
+    "destructiveActions": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "directoryCreationPolicy": {
+      "const": "declared-task-paths-only"
+    },
+    "overwritePolicy": {
+      "const": "declared-task-paths-only"
+    },
+    "environmentInputs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "CODEX_HOME",
+          "HOME",
+          "LANG",
+          "LC_ALL",
+          "LOGNAME",
+          "PATH",
+          "TMPDIR",
+          "TZ",
+          "USER"
+        ]
+      }
+    }
+  }
+}

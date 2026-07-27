@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-25
+lastReviewedAt: 2026-07-27
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -30,15 +30,19 @@ Before cutover, repository changes continue through `bin/cpatch` and `bin/proces
 
 ## 2. External roots
 
-Configure absolute paths outside the Springmaster repository and Git common directory:
+The operator chooses and provisions three absolute, pairwise distinct paths outside the Springmaster repository and Git common directory. The harness has no default and does not create them.
 
 ```bash
-export COCONDO_WORKTREE_ROOT="$HOME/cocondo-worktrees/springmaster"
-export COCONDO_AGENT_RUN_ROOT="$HOME/cocondo-agent-runs/springmaster"
-export COCONDO_ARTIFACT_ROOT="$HOME/cocondo-artifacts/springmaster"
+: "${COCONDO_WORKTREE_ROOT:?set an explicitly authorized existing directory}"
+: "${COCONDO_AGENT_RUN_ROOT:?set an explicitly authorized existing directory}"
+: "${COCONDO_ARTIFACT_ROOT:?set an explicitly authorized existing directory}"
+
+test -d "${COCONDO_WORKTREE_ROOT}"
+test -d "${COCONDO_AGENT_RUN_ROOT}"
+test -d "${COCONDO_ARTIFACT_ROOT}"
 ```
 
-All three roots are explicit environment inputs in pilot V1. Hidden fallback locations are intentionally not used.
+Provisioning those directories is a separate operator action and must state its own effects. The validation command above reads the three configured paths and writes nothing.
 
 ## 3. Project readiness
 
@@ -67,7 +71,7 @@ NEXT_ACTION=CODEX_CALIBRATION
 
 ## 4. Agent task preparation
 
-A later calibration task is prepared from an immutable JSON task contract:
+A later calibration task is prepared from an immutable Task Contract V2:
 
 ```bash
 ./bin/agent-task.sh validate /absolute/path/to/task.json
@@ -77,7 +81,37 @@ A later calibration task is prepared from an immutable JSON task contract:
 
 Preparation creates a detached worktree and run record outside the repository. It does not start Codex.
 
-After a manually started calibration run:
+Before the manually started calibration run, the operator prepares two JSON files below the explicit `COCONDO_ARTIFACT_ROOT`:
+
+- an operator-command-effect declaration according to `operator-command-effect.schema.json`;
+- a Codex invocation record according to `codex-invocation-record.schema.json`.
+
+After the invocation has completed, record both immutable inputs:
+
+```bash
+./bin/agent-task.sh record-invocation <task-id> \
+  --effect "${COCONDO_ARTIFACT_ROOT:?}/<effect-file>.json" \
+  --record "${COCONDO_ARTIFACT_ROOT:?}/<invocation-file>.json"
+```
+
+The effect declaration must make the operator-visible effects explicit:
+
+```text
+READS: prepared task worktree and explicitly declared read-only inputs
+WRITES: none for analysis/qualification; prepared task worktree only for implementation
+NETWORK: Codex control plane only; agent shell network disabled
+REPOSITORY_MUTATION: none for analysis/qualification; detached task worktree only for implementation
+DESTRUCTIVE_ACTIONS: none
+DIRECTORY_CREATION: declared task paths only
+OVERWRITE: declared task paths only
+```
+
+
+The immutable invocation evidence must show the safe non-interactive shape: `codex exec`, `--ephemeral`, `--ignore-user-config`, `--ignore-rules`, `--json`, explicit `--model`, mode-specific `--sandbox` and `--ask-for-approval never`. Linux records identify `linux-bwrap-read-only` or `linux-bwrap-workspace-write`. `--add-dir`, user/profile configuration overrides, full-auto and sandbox-bypass flags are rejected.
+
+The Codex process never receives write authority for the operator home, operator handoff or download directories, integration checkout, Git common directory, external run or artifact roots, other repositories or host temporary directories. A concrete local handoff path is operator configuration, never a portable agent capability. Copying an accepted artifact there is a separate explicit operator action after the Codex task has ended.
+
+Then run postcheck and qualification:
 
 ```bash
 ./bin/agent-task.sh postcheck <task-id>
@@ -89,7 +123,7 @@ The harness still does not integrate the result.
 
 ## 5. Deliberate stop at cutover
 
-`agent-task` has no `run-codex`, `commit`, `merge`, `push` or `integrate` command. The first Codex invocation is intentionally outside this pre-cutover patch and requires an explicit operator decision after reviewing live project-readiness evidence.
+`agent-task` has no `run-codex`, `commit`, `merge`, `push` or `integrate` command. `record-invocation` records an already completed explicit operator action; it does not execute Codex. The first invocation still requires a separate operator decision after reviewing live project-readiness evidence and the declared command effects.
 
 ## 6. Diagnostics
 

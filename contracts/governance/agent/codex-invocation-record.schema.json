@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:codex-invocation-record:v1",
+  "title": "Springmaster Codex Invocation Record V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "commandId",
+    "recordedAt",
+    "agent",
+    "execution"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "springmaster.codex-invocation-record.v1"
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9-]{2,63}$"
+    },
+    "commandId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "recordedAt": {
+      "type": "string",
+      "pattern": "Z$"
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "cliVersion",
+        "model"
+      ],
+      "properties": {
+        "name": {
+          "const": "codex"
+        },
+        "cliVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argv",
+        "workingDirectory",
+        "sandboxProfile",
+        "approvalPolicy",
+        "platformSandbox",
+        "environmentKeys",
+        "startedAt",
+        "finishedAt",
+        "exitCode",
+        "status"
+      ],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "workingDirectory": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "sandboxProfile": {
+          "enum": [
+            "linux-bwrap-read-only",
+            "linux-bwrap-workspace-write"
+          ]
+        },
+        "approvalPolicy": {
+          "const": "never"
+        },
+        "environmentKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "CODEX_HOME",
+              "HOME",
+              "LANG",
+              "LC_ALL",
+              "LOGNAME",
+              "PATH",
+              "TMPDIR",
+              "TZ",
+              "USER"
+            ]
+          }
+        },
+        "startedAt": {
+          "type": "string",
+          "pattern": "Z$"
+        },
+        "finishedAt": {
+          "type": "string",
+          "pattern": "Z$"
+        },
+        "exitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "COMPLETED",
+            "FAILED",
+            "INTERRUPTED"
+          ]
+        },
+        "platformSandbox": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "implementation",
+            "workspaceRoot",
+            "additionalWritableRoots",
+            "operatorHomeWritable",
+            "operatorDownloadsWritable",
+            "integrationWorktreeWritable",
+            "gitCommonDirectoryWritable",
+            "externalRunRootWritable",
+            "externalArtifactRootWritable",
+            "temporaryDirectoriesWritable"
+          ],
+          "properties": {
+            "implementation": {
+              "const": "linux-bwrap"
+            },
+            "workspaceRoot": {
+              "type": "string",
+              "pattern": "^/"
+            },
+            "additionalWritableRoots": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "operatorHomeWritable": {
+              "const": false
+            },
+            "operatorDownloadsWritable": {
+              "const": false
+            },
+            "integrationWorktreeWritable": {
+              "const": false
+            },
+            "gitCommonDirectoryWritable": {
+              "const": false
+            },
+            "externalRunRootWritable": {
+              "const": false
+            },
+            "externalArtifactRootWritable": {
+              "const": false
+            },
+            "temporaryDirectoriesWritable": {
+              "const": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

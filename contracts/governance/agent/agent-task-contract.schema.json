@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:springmaster:schema:agent-task:v1",
-  "title": "Springmaster Agent Task Contract V1",
+  "$id": "urn:springmaster:schema:agent-task:v2",
+  "title": "Springmaster Agent Task Contract V2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -23,7 +23,7 @@
     "completionCriteria"
   ],
   "properties": {
-    "schemaVersion": {"const": "springmaster.agent-task.v1"},
+    "schemaVersion": {"const": "springmaster.agent-task.v2"},
     "taskId": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$"},
     "pilotId": {"const": "springmaster-codex-pilot-v1"},
     "repositoryId": {"const": "springmaster"},
@@ -35,7 +35,20 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+      "items": {
+        "enum": [
+          "analysis",
+          "documentation",
+          "governance",
+          "contract",
+          "tooling",
+          "test",
+          "java",
+          "build",
+          "generated-slice",
+          "fixture"
+        ]
+      }
     },
     "allowedPaths": {
       "type": "array",
@@ -52,10 +65,10 @@
     "limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["maxChangedFiles", "maxAddedBytes"],
+      "required": ["maxChangedFiles", "maxNetAddedBytes"],
       "properties": {
-        "maxChangedFiles": {"type": "integer", "minimum": 1, "maximum": 200},
-        "maxAddedBytes": {"type": "integer", "minimum": 0, "maximum": 10485760}
+        "maxChangedFiles": {"type": "integer", "minimum": 0, "maximum": 200},
+        "maxNetAddedBytes": {"type": "integer", "minimum": 0, "maximum": 10485760}
       }
     },
     "capabilities": {
@@ -90,7 +103,7 @@
           "argv": {
             "type": "array",
             "minItems": 1,
-            "items": {"type": "string"}
+            "items": {"type": "string", "minLength": 1}
           },
           "timeoutSeconds": {"type": "integer", "minimum": 1, "maximum": 7200}
         }
@@ -98,14 +111,44 @@
     },
     "requiredEvidence": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 13,
+      "maxItems": 13,
       "uniqueItems": true,
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+      "items": {
+        "enum": [
+          "task-contract",
+          "task-contract-sha256",
+          "prepare-record",
+          "integration-pre-state",
+          "worktree-pre-state",
+          "operator-command-effect",
+          "operator-command-effect-sha256",
+          "invocation-record",
+          "invocation-record-sha256",
+          "changed-path-report",
+          "qualification-records",
+          "final-result",
+          "cleanup-disposition"
+        ]
+      }
     },
     "completionCriteria": {
-      "type": "array",
-      "minItems": 1,
-      "items": {"type": "string", "minLength": 1}
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "postcheckPass",
+        "allQualificationCommandsPass",
+        "requiredEvidenceComplete",
+        "invocationRecordRequired",
+        "explicitCleanupDisposition"
+      ],
+      "properties": {
+        "postcheckPass": {"const": true},
+        "allQualificationCommandsPass": {"const": true},
+        "requiredEvidenceComplete": {"const": true},
+        "invocationRecordRequired": {"const": true},
+        "explicitCleanupDisposition": {"const": true}
+      }
     },
     "notes": {"type": "string"}
   }

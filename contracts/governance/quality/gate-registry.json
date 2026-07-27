@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.gate-registry.v1",
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.4.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "gates": [
@@ -317,7 +317,9 @@
         "contracts/governance/agent/agent-task-contract.schema.json",
         "contracts/pilots/codex/business-partner-pilot-acceptance.json",
         "contracts/governance/quality/quality-rule-catalog.json",
-        "contracts/governance/testing/test-inventory-baseline.json"
+        "contracts/governance/testing/test-inventory-baseline.json",
+        "contracts/governance/agent/operator-command-effect.schema.json",
+        "contracts/governance/agent/codex-invocation-record.schema.json"
       ],
       "ruleIds": [
         "AIA-PROJECT-001",
@@ -326,7 +328,9 @@
         "AIA-CONCEPT-001",
         "AIA-CUTOVER-001",
         "AIA-HYGIENE-001",
-        "AIA-INVENTORY-001"
+        "AIA-INVENTORY-001",
+        "AIA-EXECUTION-001",
+        "AIA-TASK-SEMANTICS-001"
       ],
       "reportSchema": "springmaster.codex-pilot-readiness-report.v1",
       "fixtureEntrypoint": "bin/codex-pilot-ready-it.sh",

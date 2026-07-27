@@ -24,6 +24,8 @@ REQUIRED_RULE_IDS = {
     "AIA-CUTOVER-001",
     "AIA-HYGIENE-001",
     "AIA-INVENTORY-001",
+    "AIA-EXECUTION-001",
+    "AIA-TASK-SEMANTICS-001",
 }
 REQUIRED_TEST_PATHS = {"bin/agent-task-it.sh", "bin/codex-pilot-ready-it.sh"}
 REQUIRED_FIXTURE_ID = "codex-pilot-readiness-v1"
@@ -32,8 +34,11 @@ REQUIRED_FILES = {
     "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
     "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
     "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md",
+    "PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md",
     "contracts/governance/agent/codex-pilot-contract.json",
     "contracts/governance/agent/agent-task-contract.schema.json",
+    "contracts/governance/agent/operator-command-effect.schema.json",
+    "contracts/governance/agent/codex-invocation-record.schema.json",
     "contracts/pilots/codex/business-partner-pilot-acceptance.json",
     "bin/agent-task.py",
     "bin/agent-task.sh",
@@ -169,6 +174,9 @@ def check_external_roots(root: Path, common: Path, findings: list[dict[str, Any]
         if not path.exists() or not path.is_dir():
             finding(findings, "AIA-HYGIENE-001", "EXTERNAL_ROOT_MISSING", f"{variable} must exist and be a directory", value=raw)
             continue
+        if not os.access(path, os.W_OK | os.X_OK):
+            finding(findings, "AIA-HYGIENE-001", "EXTERNAL_ROOT_NOT_WRITABLE", f"{variable} must be writable and searchable", value=raw)
+            continue
         linked = symlink_component(path)
         if linked is not None:
             finding(findings, "AIA-HYGIENE-001", "EXTERNAL_ROOT_SYMLINK", f"{variable} contains a symlink component", component=str(linked))
@@ -216,6 +224,7 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
             "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md": "active",
             "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md": "active",
             "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md": "active",
+            "PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md": "active",
         }
         for relative, expected in expected_statuses.items():
             actual = frontmatter_value(root / relative, "status")
@@ -224,6 +233,8 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
 
     pilot = load_json(root / "contracts/governance/agent/codex-pilot-contract.json")
     task_schema = load_json(root / "contracts/governance/agent/agent-task-contract.schema.json")
+    effect_schema = load_json(root / "contracts/governance/agent/operator-command-effect.schema.json")
+    invocation_schema = load_json(root / "contracts/governance/agent/codex-invocation-record.schema.json")
     acceptance = load_json(root / "contracts/pilots/codex/business-partner-pilot-acceptance.json")
     if pilot.get("schemaVersion") != "springmaster.codex-pilot-contract.v1" or pilot.get("status") != "active":
         finding(findings, "AIA-PROJECT-001", "PILOT_CONTRACT_INVALID", "Pilot contract schema or status is invalid")
@@ -237,11 +248,59 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     readiness = pilot.get("projectReadiness") if isinstance(pilot.get("projectReadiness"), dict) else {}
     if readiness.get("doesNotAuthorizeWritableCodex") is not True or readiness.get("nextAction") != "CODEX_CALIBRATION":
         finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PROJECT_READY must authorize calibration only", projectReadiness=readiness)
-    if task_schema.get("$id") != "urn:springmaster:schema:agent-task:v1" or task_schema.get("additionalProperties") is not False:
+    if task_schema.get("$id") != "urn:springmaster:schema:agent-task:v2" or task_schema.get("additionalProperties") is not False:
         finding(findings, "AIA-HARNESS-001", "TASK_SCHEMA_INVALID", "Task schema identity or closed-object policy is invalid")
     required_task_fields = set(task_schema.get("required", []))
     if not {"allowedPaths", "forbiddenPaths", "capabilities", "qualificationCommands", "requiredEvidence"} <= required_task_fields:
         finding(findings, "AIA-HARNESS-001", "TASK_SCHEMA_INCOMPLETE", "Task schema misses required boundary fields")
+    if effect_schema.get("$id") != "urn:springmaster:schema:operator-command-effect:v1" or effect_schema.get("additionalProperties") is not False:
+        finding(findings, "AIA-EXECUTION-001", "OPERATOR_EFFECT_SCHEMA_INVALID", "Operator command effect schema identity or closed-object policy is invalid")
+    if invocation_schema.get("$id") != "urn:springmaster:schema:codex-invocation-record:v1" or invocation_schema.get("additionalProperties") is not False:
+        finding(findings, "AIA-EXECUTION-001", "INVOCATION_RECORD_SCHEMA_INVALID", "Codex invocation record schema identity or closed-object policy is invalid")
+    invocation = pilot.get("invocation") if isinstance(pilot.get("invocation"), dict) else {}
+    expected_mode_writes = {"analysis": [], "implementation": ["task-worktree"], "qualification": []}
+    expected_mode_mutations = {"analysis": "none", "implementation": "task-worktree-only", "qualification": "none"}
+    expected_sandboxes = {
+        "analysis": {"cliValue": "read-only", "recordValue": "linux-bwrap-read-only"},
+        "implementation": {"cliValue": "workspace-write", "recordValue": "linux-bwrap-workspace-write"},
+        "qualification": {"cliValue": "read-only", "recordValue": "linux-bwrap-read-only"},
+    }
+    forbidden_flags = set(invocation.get("forbiddenFlags", []))
+    required_flags = set(invocation.get("requiredBooleanFlags", []))
+    hard_forbidden = {"--add-dir", "--dangerously-bypass-approvals-and-sandbox", "--yolo", "--full-auto", "--config", "-c", "--profile", "-p"}
+    always_forbidden_writes = set(invocation.get("alwaysForbiddenAgentWriteScopes", []))
+    expected_forbidden_writes = {
+        "operator-home", "operator-downloads", "integration-worktree", "git-common-directory",
+        "external-run-root", "external-artifact-root", "other-repositories", "temporary-directories",
+    }
+    invocation_valid = (
+        invocation.get("recordOperation") == "agent-task record-invocation"
+        and invocation.get("immutableAfterRecord") is True
+        and invocation.get("requiredArgvPrefix") == ["codex", "exec"]
+        and {"--ephemeral", "--ignore-user-config", "--ignore-rules", "--json"} <= required_flags
+        and hard_forbidden <= forbidden_flags
+        and invocation.get("requiredApprovalPolicy") == "never"
+        and invocation.get("modeWriteScopes") == expected_mode_writes
+        and invocation.get("modeRepositoryMutationPolicies") == expected_mode_mutations
+        and invocation.get("modeSandboxPolicies") == expected_sandboxes
+        and invocation.get("platformSandboxImplementation") == "linux-bwrap"
+        and invocation.get("additionalWritableRoots") == []
+        and invocation.get("agentWriteBoundary") == "task-worktree-only"
+        and expected_forbidden_writes <= always_forbidden_writes
+        and invocation.get("operatorHandoffPolicy") == "separate-trusted-operator-action"
+        and invocation.get("agentHandoffCapability") == "forbidden"
+    )
+    if not invocation_valid:
+        finding(findings, "AIA-EXECUTION-001", "INVOCATION_POLICY_INVALID", "Codex invocation recording policy is incomplete or unsafe", invocation=invocation)
+    semantics = pilot.get("taskSemantics") if isinstance(pilot.get("taskSemantics"), dict) else {}
+    if set(semantics.get("supportedModes", [])) != {"analysis", "implementation", "qualification"}:
+        finding(findings, "AIA-TASK-SEMANTICS-001", "TASK_MODE_POLICY_INVALID", "Task mode policy is incomplete")
+    mode_policies = semantics.get("modePolicies", {}) if isinstance(semantics.get("modePolicies"), dict) else {}
+    if mode_policies.get("analysis", {}).get("changedPathPolicy") != "forbid" or mode_policies.get("qualification", {}).get("changedPathPolicy") != "forbid":
+        finding(findings, "AIA-TASK-SEMANTICS-001", "NON_MUTATING_MODE_POLICY_INVALID", "Analysis and qualification modes must forbid changed paths")
+    risk_policies = semantics.get("riskPolicies", {}) if isinstance(semantics.get("riskPolicies"), dict) else {}
+    if set(risk_policies) != {"low", "medium", "high", "critical"} or "implementation" in risk_policies.get("critical", {}).get("allowedModes", []):
+        finding(findings, "AIA-TASK-SEMANTICS-001", "RISK_POLICY_INVALID", "Risk policies are incomplete or allow critical implementation tasks")
     if acceptance.get("status") != "frozen-for-pilot" or acceptance.get("pilotId") != "springmaster-codex-pilot-v1":
         finding(findings, "AIA-CONCEPT-001", "ACCEPTANCE_CONTRACT_INVALID", "Business Partner acceptance contract is not frozen for the pilot")
     if acceptance.get("traceability", {}).get("requiredCoveragePercent") != 100:
@@ -276,6 +335,14 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     for marker in prohibited_markers:
         if marker in harness_source:
             finding(findings, "AIA-HARNESS-001", "HARNESS_OPERATION_FORBIDDEN", "Pre-cutover harness exposes a forbidden operation", marker=marker)
+    required_harness_markers = [
+        'add_parser("record-invocation")', "EXTERNAL_ROOT_MISSING", "TASK_MODE_WRITE_FORBIDDEN",
+        "INVOCATION_FLAG_FORBIDDEN", "INVOCATION_ADDITIONAL_WRITE_ROOT_FORBIDDEN",
+        "INVOCATION_HOST_WRITE_SCOPE_FORBIDDEN", "linux-bwrap",
+    ]
+    missing_harness_markers = [marker for marker in required_harness_markers if marker not in harness_source]
+    if missing_harness_markers:
+        finding(findings, "AIA-EXECUTION-001", "HARNESS_HARDENING_MISSING", "Agent harness misses invocation, explicit-root, sandbox or mode-enforcement hardening", missing=missing_harness_markers)
 
     agents = (root / "AGENTS.md").read_text(encoding="utf-8") if (root / "AGENTS.md").is_file() else ""
     if "## AI-Agent- und Codex-Pilot" not in agents or "PROJECT_READY" not in agents or "PILOT_WRITE_READY" not in agents:

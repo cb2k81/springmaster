@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.codex-pilot-contract.v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.2.0",
   "status": "active",
   "ruleSource": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
@@ -25,11 +25,13 @@
     "mustBeOutsideProject": true,
     "mustBeOutsideGitCommonDirectory": true,
     "mustBePairwiseDistinct": true,
-    "symlinkRootPolicy": "forbid"
+    "symlinkRootPolicy": "forbid",
+    "implicitCreation": "forbidden",
+    "mustBeWritable": true
   },
   "taskContract": {
     "schemaPath": "contracts/governance/agent/agent-task-contract.schema.json",
-    "schemaVersion": "springmaster.agent-task.v1",
+    "schemaVersion": "springmaster.agent-task.v2",
     "immutableAfterPrepare": true,
     "storedOutsideRepository": true,
     "baseCommitMustEqualIntegrationHeadAtPrepare": true
@@ -88,6 +90,10 @@
       "prepare-record",
       "integration-pre-state",
       "worktree-pre-state",
+      "operator-command-effect",
+      "operator-command-effect-sha256",
+      "invocation-record",
+      "invocation-record-sha256",
       "changed-path-report",
       "qualification-records",
       "final-result",
@@ -134,5 +140,254 @@
     "manual-repository-repair-required",
     "non-deterministic-clean-rerun",
     "oracle-self-modification"
-  ]
+  ],
+  "invocation": {
+    "effectSchemaPath": "contracts/governance/agent/operator-command-effect.schema.json",
+    "effectSchemaVersion": "springmaster.operator-command-effect.v1",
+    "recordSchemaPath": "contracts/governance/agent/codex-invocation-record.schema.json",
+    "recordSchemaVersion": "springmaster.codex-invocation-record.v1",
+    "recordOperation": "agent-task record-invocation",
+    "agentName": "codex",
+    "executableName": "codex",
+    "workingDirectoryPolicy": "prepared-task-worktree",
+    "allowedReadScopes": [
+      "task-worktree",
+      "integration-worktree-read-only",
+      "external-run-root-read-only",
+      "external-artifact-root-read-only"
+    ],
+    "requiredReadScopes": [
+      "task-worktree"
+    ],
+    "networkPolicy": "codex-control-plane-only",
+    "directoryCreationPolicy": "declared-task-paths-only",
+    "overwritePolicy": "declared-task-paths-only",
+    "environmentAllowlist": [
+      "CODEX_HOME",
+      "HOME",
+      "LANG",
+      "LC_ALL",
+      "LOGNAME",
+      "PATH",
+      "TMPDIR",
+      "TZ",
+      "USER"
+    ],
+    "sourceEvidenceRoot": "external-artifact-root",
+    "immutableAfterRecord": true,
+    "modeWriteScopes": {
+      "analysis": [],
+      "implementation": [
+        "task-worktree"
+      ],
+      "qualification": []
+    },
+    "modeRepositoryMutationPolicies": {
+      "analysis": "none",
+      "implementation": "task-worktree-only",
+      "qualification": "none"
+    },
+    "modeSandboxPolicies": {
+      "analysis": {
+        "cliValue": "read-only",
+        "recordValue": "linux-bwrap-read-only"
+      },
+      "implementation": {
+        "cliValue": "workspace-write",
+        "recordValue": "linux-bwrap-workspace-write"
+      },
+      "qualification": {
+        "cliValue": "read-only",
+        "recordValue": "linux-bwrap-read-only"
+      }
+    },
+    "requiredArgvPrefix": [
+      "codex",
+      "exec"
+    ],
+    "requiredBooleanFlags": [
+      "--ephemeral",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--json"
+    ],
+    "requiredValueFlags": [
+      "--model",
+      "--sandbox",
+      "--ask-for-approval"
+    ],
+    "requiredApprovalPolicy": "never",
+    "forbiddenFlags": [
+      "--add-dir",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--yolo",
+      "--full-auto",
+      "--config",
+      "-c",
+      "--profile",
+      "-p"
+    ],
+    "platformSandboxImplementation": "linux-bwrap",
+    "additionalWritableRoots": [],
+    "agentWriteBoundary": "task-worktree-only",
+    "alwaysForbiddenAgentWriteScopes": [
+      "operator-home",
+      "operator-downloads",
+      "integration-worktree",
+      "git-common-directory",
+      "external-run-root",
+      "external-artifact-root",
+      "other-repositories",
+      "temporary-directories"
+    ],
+    "operatorHandoffPolicy": "separate-trusted-operator-action",
+    "agentHandoffCapability": "forbidden",
+    "agentHomePolicy": "dedicated-read-only-or-worktree-contained",
+    "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree"
+  },
+  "taskSemantics": {
+    "supportedModes": [
+      "analysis",
+      "implementation",
+      "qualification"
+    ],
+    "modePolicies": {
+      "analysis": {
+        "changedPathPolicy": "forbid"
+      },
+      "implementation": {
+        "changedPathPolicy": "declared-only"
+      },
+      "qualification": {
+        "changedPathPolicy": "forbid"
+      }
+    },
+    "riskPolicies": {
+      "low": {
+        "allowedModes": [
+          "analysis",
+          "implementation",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check"
+        ]
+      },
+      "medium": {
+        "allowedModes": [
+          "analysis",
+          "implementation",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check",
+          "targeted-check"
+        ]
+      },
+      "high": {
+        "allowedModes": [
+          "analysis",
+          "implementation",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check",
+          "targeted-check",
+          "broad-check"
+        ]
+      },
+      "critical": {
+        "allowedModes": [
+          "analysis",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check",
+          "targeted-check",
+          "broad-check",
+          "critical-check"
+        ]
+      }
+    },
+    "changeClassPolicies": {
+      "analysis": {
+        "requiredQualificationCommandIds": [
+          "diff-check"
+        ]
+      },
+      "documentation": {
+        "requiredQualificationCommandIds": [
+          "documentation-check"
+        ]
+      },
+      "governance": {
+        "requiredQualificationCommandIds": [
+          "documentation-check",
+          "governance-check"
+        ]
+      },
+      "contract": {
+        "requiredQualificationCommandIds": [
+          "contract-check"
+        ]
+      },
+      "tooling": {
+        "requiredQualificationCommandIds": [
+          "tooling-check"
+        ]
+      },
+      "test": {
+        "requiredQualificationCommandIds": [
+          "targeted-check"
+        ]
+      },
+      "java": {
+        "requiredQualificationCommandIds": [
+          "targeted-check",
+          "broad-check"
+        ]
+      },
+      "build": {
+        "requiredQualificationCommandIds": [
+          "broad-check"
+        ]
+      },
+      "generated-slice": {
+        "requiredQualificationCommandIds": [
+          "generated-slice-check"
+        ]
+      },
+      "fixture": {
+        "requiredQualificationCommandIds": [
+          "diff-check"
+        ]
+      }
+    },
+    "capabilityChangeClasses": {
+      "mayModifyTests": "test",
+      "mayModifyGovernance": "governance",
+      "mayModifyContracts": "contract"
+    },
+    "pathClassifications": {
+      "tests": [
+        "src/test/**",
+        "bin/*-it.sh",
+        "platform/update/tests/**"
+      ],
+      "governance": [
+        "PROJECT_DOCS/GOVERNANCE/**",
+        "PROJECT_DOCS/ADR/**"
+      ],
+      "contracts": [
+        "contracts/**"
+      ]
+    },
+    "completionCriteria": {
+      "postcheckPass": true,
+      "allQualificationCommandsPass": true,
+      "requiredEvidenceComplete": true,
+      "invocationRecordRequired": true,
+      "explicitCleanupDisposition": true
+    }
+  }
 }

@@ -14,7 +14,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-25
+lastReviewedAt: 2026-07-27
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -97,7 +97,7 @@ The state may be promoted only by a separate committed change that references im
 
 Completion requires the end-to-end Business Partner chain, three clean deterministic reruns, a controlled V1.1 concept change, preserved manual extension points, complete traceability and measured efficiency improvement without a safety regression.
 
-## 4. Task contract
+## 4. Task contract and semantic enforcement
 
 Every agent task must be defined before worktree creation. The task contract is immutable for the lifetime of the task and contains at least:
 
@@ -105,20 +105,35 @@ Every agent task must be defined before worktree creation. The task contract is 
 - exact `baseCommit` and integration branch;
 - risk class and change classes;
 - allowed paths and forbidden paths;
-- maximum changed file count and maximum added bytes;
+- maximum changed file count and maximum net added bytes relative to the exact base commit;
 - explicit booleans for test, governance, contract, commit, push and network capabilities;
 - exact qualification commands as argument arrays;
-- required evidence and completion criteria.
+- required evidence and machine-evaluable completion criteria.
 
 The task contract is stored in the external run root. It is never generated or rewritten inside the task worktree.
 
 A material scope change ends the current task. A new task contract and worktree are required.
 
+Task Contract V2 enforces the declared semantics:
+
+- `analysis` and `qualification` are non-mutating modes. Both require zero change limits and fail when any changed path is detected;
+- `implementation` may change only declared paths and remains subject to explicit capability flags;
+- risk classes determine mandatory qualification command IDs;
+- change classes are closed and add their own mandatory qualification command IDs;
+- `critical` implementation tasks are forbidden during calibration;
+- enabled test, governance and contract capabilities require the matching change class;
+- the required evidence set is closed and evaluated before qualification completion and again after cleanup;
+- completion requires a passing postcheck, all qualification commands, complete invocation evidence and an explicit cleanup disposition.
+
+### 4.1 Compatibility decision
+
+Task Contract V2 is an intentional incompatible pilot-contract revision. V1 tasks are rejected rather than migrated implicitly because they do not declare the closed evidence set, machine-evaluable completion criteria, risk-driven qualification or the corrected net-added-byte limit. The pilot is still pre-write and has no accepted V1 task history that requires an upgrade path. This governance decision authorizes the corresponding Springmaster and Tooling minor-version increments.
+
 ## 5. Filesystem and Git boundaries
 
 1. The integration worktree must be clean before task preparation.
 2. The task worktree is detached at the exact base commit.
-3. The worktree path and run path must be outside the repository and Git common directory.
+3. The worktree, run and artifact roots must be explicitly provisioned before the task starts, writable, pairwise distinct and outside the repository and Git common directory. The harness validates them and never creates these roots implicitly.
 4. Symbolic links in changed paths are forbidden.
 5. `.git` mutation, submodule introduction and nested repository creation are forbidden.
 6. Root-level writes are forbidden unless the exact root path is allowed in the task contract.
@@ -126,10 +141,17 @@ A material scope change ends the current task. A new task contract and worktree 
 8. Integration `HEAD`, branch and working tree are rechecked after the task.
 9. Cleanup never discards a non-empty task worktree implicitly. A review bundle or explicit discard decision is required.
 
-## 6. Command and network boundaries
+## 6. Command, invocation and network boundaries
 
 - Qualification commands are exact argument arrays from the task contract. Shell strings and implicit evaluation are forbidden.
 - The harness does not offer a generic arbitrary-command operation.
+- Every generated operator command with host effects follows `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md`. Manual execution does not authorize undisclosed writes, directory creation, overwrite, network use or repository mutation.
+- Codex execution remains an explicit operator action. Before qualification, `agent-task record-invocation` stores an immutable operator-command-effect declaration and Codex invocation record from the external artifact root into the external run root.
+- The invocation record binds task ID, exact argument array, working directory, Codex CLI version, model, sandbox profile, approval policy, environment-key allowlist, timestamps, exit status and exit code.
+- The operator-command-effect declaration is mode-specific: `analysis` and `qualification` declare no write scope and no repository mutation; `implementation` declares only `task-worktree` and `task-worktree-only`. It may not declare destructive actions, external directory creation or integration-repository mutation.
+- Codex runs non-interactively through `codex exec` with ephemeral state, ignored user configuration and repository rules, JSON event output, approval policy `never` and a mode-specific sandbox (`read-only` or `workspace-write`). The model is an explicit argument and part of immutable evidence.
+- Linux calibration requires the platform sandbox implementation `bwrap`. Additional writable directories, `--add-dir`, profile/config overrides, full-auto and all sandbox-bypass flags are forbidden.
+- The operator home, `Downloads`, integration worktree, Git common directory, external run root, external artifact root, other repositories and host temporary directories are unconditional agent write denials. An operator declaration cannot grant these scopes to Codex. Handoff or publication is a separate trusted operator action outside the agent lifecycle.
 - Codex shell network access is disabled during the pilot. Network-dependent dependency installation is a separate human-controlled preparation step and is not part of an agent task.
 - Push, remote mutation, branch creation, destructive integration-tree Git commands and credential acquisition are forbidden.
 - Codex approvals do not replace these boundaries. A request to escape them is a blocked result, not an invitation to approve.
@@ -141,6 +163,8 @@ The external run root contains at least:
 - immutable task contract and its SHA-256;
 - preparation record;
 - integration and task-worktree pre-state;
+- operator-command-effect declaration and SHA-256;
+- Codex invocation record and SHA-256;
 - changed-path and post-state report;
 - qualification command records and bounded logs;
 - final result and cleanup disposition.
@@ -177,7 +201,7 @@ The existing `GENERATED_SLICE_SPEC_GOLDEN_BUSINESS_PARTNER.yaml`, IR and patch b
 
 The pilot stops and returns to `PRE_CUTOVER` or a blocked state when any of the following occurs:
 
-- a write outside the task worktree or declared external run roots;
+- a Codex write outside the task worktree, including operator home, `Downloads`, integration worktree, Git common directory, external run or artifact roots, other repositories or host temporary directories;
 - integration-worktree mutation or drift;
 - another repository is modified;
 - an unauthorized network operation succeeds;
@@ -226,4 +250,6 @@ This governance has no automatic Project-New or managed-project effect. Later ro
 
 | Date | Previous | New | Reason |
 |---|---|---|---|
+| 2026-07-27 | - | active | Mode-specific Codex sandbox, exact safe invocation shape and unconditional operator-home/Downloads write denial added; handoff remains a separate trusted operator action. |
 | 2026-07-25 | - | active | Springmaster-only pre-cutover governance, strict project-readiness boundary and Codex calibration lifecycle established. |
+| 2026-07-27 | active | active | Task Contract V2, explicit-root behavior, operator-effect declaration, immutable invocation evidence and fail-closed task semantics added. |

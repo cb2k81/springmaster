@@ -283,6 +283,7 @@
         "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
         "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
         "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md",
+        "PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md",
         "contracts/governance/agent/**",
         "contracts/pilots/codex/**",
         "bin/agent-task*",

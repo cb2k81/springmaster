@@ -179,6 +179,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## TOOLING
 
 - `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — pre-cutover readiness, external-root, task preparation and diagnostic procedure
+- `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md` — normative host-command effect declaration and explicit authorization boundary
 
 - `PROJECT_DOCS/TOOLING/BUILD_TOOL.md`
 - `PROJECT_DOCS/TOOLING/DBTOOL.md`

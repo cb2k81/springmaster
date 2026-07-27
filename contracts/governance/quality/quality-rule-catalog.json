@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.quality-rule-catalog.v1",
-  "catalogVersion": "1.3.0",
+  "catalogVersion": "1.4.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "allowedLayers": [
@@ -1097,7 +1097,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
-        "section": "11. Tempor\u00e4re, generierte und lokale Artefakte"
+        "section": "11. Temporäre, generierte und lokale Artefakte"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1441,7 +1441,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
-        "section": "4.1 Normative Quelle vor Pr\u00fcfung"
+        "section": "4.1 Normative Quelle vor Prüfung"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1535,7 +1535,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "4. Identit\u00e4ten, Scope und Zeitraum"
+        "section": "4. Identitäten, Scope und Zeitraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1695,7 +1695,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "11.1 Pr\u00fcfereignisse"
+        "section": "11.1 Prüfereignisse"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1791,7 +1791,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "3.1 Problemraum vor L\u00f6sungsraum"
+        "section": "3.1 Problemraum vor Lösungsraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1915,7 +1915,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einf\u00fchrung"
+        "section": "16.3 Migrationsarme Einführung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2125,7 +2125,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einf\u00fchrung"
+        "section": "16.3 Migrationsarme Einführung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2337,7 +2337,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
-        "section": "4. Task contract"
+        "section": "4. Task contract and semantic enforcement"
       },
       "scopePaths": [
         "springmaster/engineering"
@@ -2485,6 +2485,68 @@
         "springmaster"
       ],
       "implementationRef": "bin/codex-pilot-ready.py"
+    },
+    {
+      "ruleId": "AIA-EXECUTION-001",
+      "title": "Codex calibration enforces exact safe invocation, mode-specific write scope and unconditional host-path denial",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "6. Command, invocation and network boundaries"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/agent-task.py"
+    },
+    {
+      "ruleId": "AIA-TASK-SEMANTICS-001",
+      "title": "Task modes, risk classes, change classes, limits and completion evidence are enforced fail-closed",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "4. Task contract and semantic enforcement"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/agent-task.py"
     }
   ]
 }

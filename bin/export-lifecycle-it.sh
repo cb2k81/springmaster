@@ -11,6 +11,22 @@ fail_test() {
   exit 1
 }
 
+zip_member_by_suffix() {
+  local zip="$1"
+  local suffix="$2"
+  python3 - "${zip}" "${suffix}" <<'PYZIP'
+import sys
+import zipfile
+
+zip_path, suffix = sys.argv[1:]
+with zipfile.ZipFile(zip_path, "r") as archive:
+    matches = [name for name in archive.namelist() if name.endswith(suffix)]
+if len(matches) != 1:
+    raise SystemExit(1)
+print(matches[0])
+PYZIP
+}
+
 for command in git python3 sha256sum unzip; do
   command -v "${command}" >/dev/null 2>&1 || fail_test "required command is missing: ${command}"
 done
@@ -97,9 +113,9 @@ assert_current_export_set() {
     sha256sum -c "$(basename "${checksum}")" >/dev/null
   )
   unzip -tq "${zip}" >/dev/null
-  unzip -Z1 "${zip}" | grep -q '/fixture_export_full.meta.json$' \
+  zip_member_by_suffix "${zip}" "/fixture_export_full.meta.json" >/dev/null \
     || fail_test "metadata is not packaged inside the ZIP"
-  unzip -Z1 "${zip}" | grep -q '/fixture_export_full.txt$' \
+  zip_member_by_suffix "${zip}" "/fixture_export_full.txt" >/dev/null \
     || fail_test "text export is not packaged inside the ZIP"
 
   [[ ! -d "${zip%.zip}" ]] \
@@ -162,7 +178,7 @@ DIRTY_REL="$(cd "${SANDBOX}" && HOME="${FAKE_HOME}" APP_EXPORT_PROJECT_KEY=fixtu
 DIRTY_ZIP="${SANDBOX}/${DIRTY_REL}"
 assert_current_export_set "${DIRTY_ZIP}"
 
-CURRENT_META="$(unzip -Z1 "${DIRTY_ZIP}" | grep '/fixture_export_full.meta.json$')"
+CURRENT_META="$(zip_member_by_suffix "${DIRTY_ZIP}" "/fixture_export_full.meta.json")"
 unzip -p "${DIRTY_ZIP}" "${CURRENT_META}" \
   | python3 -c 'import json,sys; data=json.load(sys.stdin); assert data["sourceGit"]["dirty"] is True'
 
