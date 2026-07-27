@@ -204,11 +204,13 @@ def main() -> int:
         if not isinstance(process_evidence, dict):
             findings.append({"code": "PROCESS_OPERATIONS_EVIDENCE_MISSING"})
         else:
+            process_contract = contract.get("processOperations") if isinstance(contract.get("processOperations"), dict) else {}
             expected_process_evidence = {
                 "contractStatus": "PASS",
                 "integrationFixture": "PASS",
-                "realSpringmasterPilot": "PENDING",
-                "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
+                "realSpringmasterPilot": process_contract.get("realSpringmasterPilot"),
+                "managedProjectRollout": process_contract.get("managedProjectRollout"),
+                "operatorWorkspacePilot": process_contract.get("operatorWorkspacePilot"),
             }
             for key, expected in expected_process_evidence.items():
                 actual = process_evidence.get(key)

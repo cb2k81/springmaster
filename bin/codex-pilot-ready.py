@@ -347,23 +347,35 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     agents = (root / "AGENTS.md").read_text(encoding="utf-8") if (root / "AGENTS.md").is_file() else ""
     if "## AI-Agent- und Codex-Pilot" not in agents or "PROJECT_READY" not in agents or "PILOT_WRITE_READY" not in agents:
         finding(findings, "AIA-PROJECT-001", "AGENTS_PILOT_RULES_MISSING", "AGENTS.md does not contain the pilot boundary section")
-    diagnostic_path = pilot.get("evidence", {}).get("diagnosticUploadPath")
-    if diagnostic_path != "patches/logs/validation/codex-pilot":
-        finding(findings, "AIA-HYGIENE-001", "DIAGNOSTIC_PATH_INVALID", "Pilot upload diagnostics must use the existing validation-log area", actual=diagnostic_path)
+    evidence_policy = pilot.get("evidence", {}) if isinstance(pilot.get("evidence"), dict) else {}
+    diagnostic_path = evidence_policy.get("diagnosticUploadPath")
+    operator_log_path = evidence_policy.get("operatorLogPath")
+    if diagnostic_path != "patches/work":
+        finding(findings, "AIA-HYGIENE-001", "DIAGNOSTIC_PATH_INVALID", "Pilot upload diagnostics must use the single-current-workflow operator workspace", actual=diagnostic_path)
+    if operator_log_path != "patches/logs/validation":
+        finding(findings, "AIA-HYGIENE-001", "OPERATOR_LOG_PATH_INVALID", "Pilot operator logs must use the validation-log area", actual=operator_log_path)
     ignore = (root / ".gitignore").read_text(encoding="utf-8") if (root / ".gitignore").is_file() else ""
-    if "patches/logs/validation/" not in ignore.splitlines():
-        finding(findings, "AIA-HYGIENE-001", "IGNORE_PATTERN_MISSING", "Pilot diagnostics are not covered by the existing validation-log ignore rule", pattern="patches/logs/validation/")
+    ignore_lines = set(ignore.splitlines())
+    for pattern in ("patches/logs/validation/", "patches/work/"):
+        if pattern not in ignore_lines:
+            finding(findings, "AIA-HYGIENE-001", "IGNORE_PATTERN_MISSING", "Pilot runtime path is not covered by Git ignore rules", pattern=pattern)
     export_config = load_json(root / "export.config.json")
+    global_exclude = set(export_config.get("globalExclude", [])) if isinstance(export_config.get("globalExclude"), list) else set()
+    if "patches/work/**" not in global_exclude:
+        finding(findings, "AIA-HYGIENE-001", "EXPORT_EXCLUDE_MISSING", "Pilot diagnostic handoff workspace is not globally excluded from exports", pattern="patches/work/**")
     profiles = export_config.get("profiles", {}) if isinstance(export_config.get("profiles"), dict) else {}
     for profile_id in ("full", "patches"):
         profile = profiles.get(profile_id, {}) if isinstance(profiles.get(profile_id), dict) else {}
-        if "patches/logs/validation/**" not in set(profile.get("exclude", [])):
-            finding(findings, "AIA-HYGIENE-001", "EXPORT_EXCLUDE_MISSING", "Pilot diagnostics are not excluded from the export profile", profile=profile_id, pattern="patches/logs/validation/**")
+        excludes = set(profile.get("exclude", []))
+        for pattern in ("patches/logs/validation/**", "patches/work/**"):
+            if pattern not in excludes and pattern not in global_exclude:
+                finding(findings, "AIA-HYGIENE-001", "EXPORT_EXCLUDE_MISSING", "Pilot runtime path is not excluded from the export profile", profile=profile_id, pattern=pattern)
     directory_contract = load_json(root / "contracts/governance/project-structure/project-directory-contract.json")
     areas = directory_contract.get("areas", [])
     area_patterns = {pattern for area in areas if isinstance(area, dict) for pattern in area.get("patterns", [])}
-    if "patches/logs/validation/**" not in area_patterns:
-        finding(findings, "AIA-HYGIENE-001", "DIRECTORY_AREA_MISSING", "Pilot diagnostics are not covered by the existing validation-log directory area", pattern="patches/logs/validation/**")
+    for pattern in ("patches/logs/validation/**", "patches/work/**"):
+        if pattern not in area_patterns:
+            finding(findings, "AIA-HYGIENE-001", "DIRECTORY_AREA_MISSING", "Pilot runtime path is not covered by the directory contract", pattern=pattern)
 
     catalog = load_json(root / "contracts/governance/quality/quality-rule-catalog.json")
     rules = catalog.get("rules", [])

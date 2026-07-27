@@ -16,6 +16,7 @@
     "!.env.example",
     "patches/archives/**",
     "patches/runtime/**",
+    "patches/work/**",
     "platform/update/generated/**",
     "platform/update/manifests/**",
     ".idea/**",
@@ -43,7 +44,8 @@
       ],
       "exclude": [
         "patches/logs/validation/**",
-        "patches/logs/accept/**"
+        "patches/logs/accept/**",
+        "patches/work/**"
       ]
     },
     "root": {
@@ -71,7 +73,8 @@
       ],
       "exclude": [
         "patches/logs/validation/**",
-        "patches/logs/accept/**"
+        "patches/logs/accept/**",
+        "patches/work/**"
       ]
     },
     "java": {
@@ -183,7 +186,9 @@
       "include": [
         "patches/logs/**"
       ],
-      "exclude": []
+      "exclude": [
+        "patches/work/**"
+      ]
     }
   },
   "splitProfiles": {

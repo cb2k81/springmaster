@@ -22,7 +22,9 @@
     "processState": "CPROCESS_STATE_DIRECTORY",
     "processIncidents": "CPROCESS_INCIDENT_DIRECTORY",
     "gitRelativePathsUseCommonDirectory": true,
-    "trackedWorkingTreeMutationForbidden": true
+    "trackedWorkingTreeMutationForbidden": true,
+    "operatorLogs": "CPROCESS_OPERATOR_LOG_DIRECTORY",
+    "operatorWorkspace": "CPROCESS_WORK_DIRECTORY"
   },
   "workingTreePolicy": {
     "mutatingPatchRunsRequireCleanIntegrationWorktree": true,
@@ -77,7 +79,15 @@
       "multiple-active-singleton-detection",
       "registered-tooling-tests",
       "registered-source-fixtures",
-      "stage-specific-failure-evidence"
+      "stage-specific-failure-evidence",
+      "operator-workspace-clean-start",
+      "active-workspace-cleanup-blocked",
+      "workspace-symlink-blocked",
+      "workspace-tracked-content-blocked",
+      "diagnostic-handoff-single-archive",
+      "operator-log-project-local",
+      "workspace-export-excluded",
+      "agent-workspace-write-forbidden"
     ]
   },
   "implementation": {
@@ -111,5 +121,35 @@
       "directGitRefFilesystemInspectionForbidden": true,
       "failedFixtureStepRequired": true
     }
+  },
+  "contractVersion": "1.1.0",
+  "operatorWorkspacePolicy": {
+    "scope": "one-current-patch-workflow",
+    "pathMustBeProjectRelative": true,
+    "defaultDirectory": "patches/work",
+    "cleanupTrigger": "before-each-new-patch-dry-run-or-accept",
+    "observerMutationForbidden": true,
+    "activeWorkflowCleanup": "block",
+    "trackedContent": "block",
+    "symlinkContent": "block",
+    "nestedRepositoryContent": "block",
+    "specialFileContent": "block",
+    "mountPointContent": "block",
+    "safeUntrackedTerminalWorkflowContent": "remove",
+    "workspaceRecord": "WORKSPACE.json",
+    "diagnosticHandoffCommand": "diagnostic-handoff",
+    "diagnosticArchiveCount": 1,
+    "agentWritePolicy": "forbidden"
+  },
+  "operatorLogPolicy": {
+    "pathMustBeProjectRelative": true,
+    "defaultDirectory": "patches/logs/validation",
+    "runScoped": true,
+    "canonicalRunStateRemainsInGitCommonDirectory": true,
+    "commitPolicy": "forbidden",
+    "exportPolicy": "excluded",
+    "trackedContent": "block",
+    "symlinkPath": "block",
+    "pathPreparation": "fail-closed"
   }
 }

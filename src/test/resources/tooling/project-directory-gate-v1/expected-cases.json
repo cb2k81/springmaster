@@ -7,6 +7,11 @@
       "expectedStatus": "PASS"
     },
     {
+      "id": "valid-patch-work-runtime",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
       "id": "unexpected-root",
       "mode": "changed",
       "expectedExit": 1,

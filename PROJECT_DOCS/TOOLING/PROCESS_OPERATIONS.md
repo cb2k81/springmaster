@@ -40,9 +40,9 @@ The tool derives:
 - Git common directory from `git rev-parse --path-format=absolute --git-common-dir`;
 - integration worktree from `git worktree list --porcelain` and `CPATCH_INTEGRATION_BRANCH`;
 - Toolkit run, lock and acceptance roots from project configuration;
-- process operation and incident state from `.cocondo/process.env` (`CPROCESS_STATE_DIRECTORY` and `CPROCESS_INCIDENT_DIRECTORY`).
+- process operation, incident, operator-log and operator-workspace paths from `.cocondo/process.env` (`CPROCESS_STATE_DIRECTORY`, `CPROCESS_INCIDENT_DIRECTORY`, `CPROCESS_OPERATOR_LOG_DIRECTORY` and `CPROCESS_WORK_DIRECTORY`).
 
-Artifact and worktree roots are intentionally environmental:
+Artifact and detached Git-worktree roots are intentionally environmental. They are unrelated to the project-local operator workspace:
 
 ```bash
 export COCONDO_ARTIFACT_ROOT="<local-artifact-directory>"
@@ -84,6 +84,29 @@ After an explicitly reviewed `DRY_RUN_SUCCEEDED`, start accept as a separate dec
 ```
 
 Never wrap these commands in an additional detached orchestrator and never chain dry-run and accept automatically.
+
+
+## 3.1 Project-local operator workspace
+
+Every new `patch-dry-run` and `patch-accept` starts a new patch workflow. Before the canonical `cpatch` worker is started, `process-ops` safely prepares the configured project-relative operator workspace (Springmaster default: `patches/work/`).
+
+Preparation is fail-closed:
+
+- an active prior workflow blocks cleanup;
+- tracked files, symlinks, nested repositories, mount points and special files block cleanup;
+- safe untracked content from a terminal prior workflow is removed;
+- observers (`status`, `watch`, `wait`, `result`, `resume`) never clean or mutate the workspace;
+- a `WORKSPACE.json` record binds the current workspace to operation, artifact and canonical run ID.
+
+The workspace is only a current operator handoff area. Canonical run state, locks and acceptance evidence remain below the Git common directory. Durable local operator summaries are written below `CPROCESS_OPERATOR_LOG_DIRECTORY` (Springmaster default: `patches/logs/validation/`).
+
+A terminal run can be packaged for upload as exactly one deterministic ZIP:
+
+```bash
+./bin/process-ops.sh diagnostic-handoff <run-id>
+```
+
+The command reads canonical Toolkit evidence and the project-local operator logs, writes one archive below `CPROCESS_WORK_DIRECTORY`, and does not alter tracked source, commit, push or start another worker.
 
 ## 4. Generic long-running command
 

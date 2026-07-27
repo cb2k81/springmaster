@@ -60,3 +60,7 @@ Existing scripts with static paths or nested background supervision are non-cano
 13. A terminal singleton is returned as existing state. Starting another worker requires the explicit `--restart-terminal` flag.
 14. More than one active run for the same singleton key is an incident. The tool fails closed and requires diagnosis rather than selecting one arbitrarily.
 15. Canonical pointers are hints to a run ID, not a second state machine. They are written atomically and can be reconstructed from Toolkit run records.
+
+## Accepted clarification: project-local operator evidence
+
+The canonical worker and run state remain below the Git common directory. A project may additionally define project-relative, ignored operator-log and single-current-workflow handoff directories. These directories are not alternate run truth. Patch starts prepare the handoff workspace fail-closed; observers never clean it. Diagnostic upload artifacts are generated from canonical run evidence as exactly one archive, while patch workers continue to be started directly through the `cpatch` Run API.

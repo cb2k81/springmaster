@@ -12,6 +12,25 @@ Lies und befolge PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md.
 
 ## Verbindlicher Standard
 
+## Kanonischer terminalschonender Patchstart
+
+Neue Operator-Bundles müssen einen Patchlauf direkt als Patchlauf starten:
+
+```bash
+./bin/process-ops.sh patch-dry-run <patch.zip> --profile auto
+```
+
+Der zurückgegebene `runId` wird anschließend mit `watch`, `status` und `result` beobachtet. Ein `run-start` um `cpatch`, `patch.sh` oder `process-ops patch-dry-run` ist verboten, weil dadurch nur der äußere generische Prozess und nicht der kanonische Patchworker beobachtet würde.
+
+Vor dem Start bereinigt `process-ops` den projektrelativen Operator-Workspace gemäß `.cocondo/process.env`. Logs werden unter dem konfigurierten `patches/logs/`-Bereich geführt. Bei Fehlern erzeugt ausschließlich:
+
+```bash
+./bin/process-ops.sh diagnostic-handoff <run-id>
+```
+
+genau ein Upload-ZIP unter `patches/work/`. Observer desselben Workflows bereinigen diesen Pfad nicht.
+
+
 Für neue Patches ist der Standardabschluss ein idempotenter Hintergrund-Run mit expliziter Lock-Semantik:
 
 ```bash
@@ -79,9 +98,9 @@ Staging erfolgt ausschließlich durch das Patchsystem aus der Patch-Dateiliste. 
 ### Documentation-only
 
 ```bash
-cd /opt/cocondo/<projekt>
+cd <project-root>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile docs --background --wait-for-lock --no-export --commit --watch
+./bin/patch.sh accept <operator-download-directory>/<patch>.zip --profile docs --background --wait-for-lock --no-export --commit --watch
 ```
 
 Kein Maven-Test, kein Build.
@@ -89,9 +108,9 @@ Kein Maven-Test, kein Build.
 ### Tooling-/Patchsystem-/Export-Patches
 
 ```bash
-cd /opt/cocondo/<projekt>
+cd <project-root>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile tooling --background --wait-for-lock --no-export --commit --watch
+./bin/patch.sh accept <operator-download-directory>/<patch>.zip --profile tooling --background --wait-for-lock --no-export --commit --watch
 ```
 
 Das Patchsystem führt Shell-/Python-Syntaxprüfung, Tooling-Selfcheck und Full-ZIP-Export aus. Ein Maven-Test wird nur ergänzt, wenn Java-Code, Tests, Build-Konfiguration oder Java-wirksame Templates betroffen sind.
@@ -99,9 +118,9 @@ Das Patchsystem führt Shell-/Python-Syntaxprüfung, Tooling-Selfcheck und Full-
 ### Java-/Test-/Build-Patches
 
 ```bash
-cd /opt/cocondo/<projekt>
+cd <project-root>
 git status --short
-./bin/patch.sh accept /home/cb/Downloads/<patch>.zip --profile code --background --wait-for-lock --no-export --commit --watch
+./bin/patch.sh accept <operator-download-directory>/<patch>.zip --profile code --background --wait-for-lock --no-export --commit --watch
 ```
 
 `mvn -q test` ist Pflicht. Im Profil `auto` wird der vollständige Maven-Test automatisch aktiviert, sobald Java-Code, Tests oder Build-Konfiguration betroffen sind.

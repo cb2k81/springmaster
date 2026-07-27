@@ -36,6 +36,7 @@ FAKE_HOME="${TMP_DIR}/home"
 mkdir -p \
   "${SANDBOX}/bin/lib/core" \
   "${SANDBOX}/exports/text" \
+  "${SANDBOX}/patches/work" \
   "${FAKE_HOME}/Downloads"
 
 cp "${PROJECT_ROOT}/bin/export.sh" "${SANDBOX}/bin/export.sh"
@@ -49,6 +50,7 @@ printf 'fixture payload\n' > "${SANDBOX}/sample.txt"
 printf 'exports/\n' > "${SANDBOX}/.gitignore"
 printf 'must remain local\n' > "${SANDBOX}/exports/text/keep.txt"
 printf 'downloads sentinel\n' > "${FAKE_HOME}/Downloads/sentinel.txt"
+printf 'diagnostic sentinel\n' > "${SANDBOX}/patches/work/current-diagnostics.zip"
 
 cat > "${SANDBOX}/export.config.json" <<'JSON'
 {
@@ -57,10 +59,10 @@ cat > "${SANDBOX}/export.config.json" <<'JSON'
   "outputDirectory": "exports/text",
   "metaFile": true,
   "maxFileSizeBytes": 2097152,
-  "globalExclude": ["exports/**", ".git/**", "build/**", "tmp/**"],
+  "globalExclude": ["exports/**", ".git/**", "build/**", "tmp/**", "patches/work/**"],
   "profiles": {
     "full": {
-      "include": ["README.md", "sample.txt", "bin/**", "export.config.json"],
+      "include": ["README.md", "sample.txt", "bin/**", "export.config.json", "patches/**"],
       "exclude": []
     }
   },
@@ -117,6 +119,17 @@ assert_current_export_set() {
     || fail_test "metadata is not packaged inside the ZIP"
   zip_member_by_suffix "${zip}" "/fixture_export_full.txt" >/dev/null \
     || fail_test "text export is not packaged inside the ZIP"
+
+  if python3 - "${zip}" <<'PY_WORK'
+import sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as archive:
+    raise SystemExit(0 if not any("patches/work/" in name for name in archive.namelist()) else 1)
+PY_WORK
+  then
+    :
+  else
+    fail_test "patches/work content was packaged into the ZIP"
+  fi
 
   [[ ! -d "${zip%.zip}" ]] \
     || fail_test "unpacked export directory remained next to the ZIP"

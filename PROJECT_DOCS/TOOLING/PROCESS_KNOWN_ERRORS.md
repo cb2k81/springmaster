@@ -141,3 +141,19 @@ sprintId: null
 **Recovery:** Preserve the failed stage log, identify the fixture bootstrap step, and rerun only after isolating `HOME`, `XDG_CONFIG_HOME`, system/global Git configuration and the template directory. Do not create missing `.git/refs/**` directories manually in a repository that may use another reference backend.
 
 **Prevention:** Git integration fixtures use an isolated home/config/template environment and select a deterministic reference backend for the fixture repository through Git configuration. Product code continues to use Git commands and must not inspect file-backend internals such as `.git/refs/heads`.
+
+## Generic outer run reports success before patch result
+
+**Symptom:** the observer reports `Generic command completed`, but no `patchId`, validation stage or canonical patch result is present.
+
+**Cause:** a patch command was wrapped in `process-ops run-start` or another generic detached worker.
+
+**Resolution:** start the patch directly with `process-ops patch-dry-run` or `process-ops patch-accept`, then observe the returned canonical patch `runId`.
+
+## Operator workspace cannot be cleaned
+
+**Symptom:** `OPERATOR_WORKSPACE_*` error before a new patch start.
+
+**Cause:** the configured workspace contains an active workflow, tracked content, a symlink, nested repository, mount point or special file.
+
+**Resolution:** inspect the current `WORKSPACE.json` and canonical run status. Do not bypass cleanup guards. Preserve/upload required diagnostics, then remove the blocking unsafe condition explicitly.

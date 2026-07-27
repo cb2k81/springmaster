@@ -100,7 +100,10 @@ def prepare(case_id: str):
     changed_paths: list[str] = []
     deviations = None
 
-    if case_id == "unexpected-root":
+    if case_id == "valid-patch-work-runtime":
+        (root / "patches/work").mkdir(parents=True, exist_ok=True)
+        (root / "patches/work/current-diagnostics.zip").write_bytes(b"fixture")
+    elif case_id == "unexpected-root":
         (root / "rogue").mkdir()
         (root / "rogue/file.txt").write_text("rogue\n", encoding="utf-8")
         changed_paths = ["rogue/file.txt"]

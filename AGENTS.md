@@ -216,6 +216,9 @@ Nach ADR-0005:
 - Mutierende Tools benötigen Fail-Closed-Preflights und dürfen keine stillen Fallbacks auf unsichere Defaults einführen.
 - Python-Tools verwenden `argparse`, klare Exit-Codes, UTF-8, deterministische JSON-Ausgabe und soweit möglich nur die Standardbibliothek.
 - Tool-Ausführungsfehler strikt von report-only Findings unterscheiden.
+- Patch-Dry-runs und Patch-Accepts werden direkt über `bin/process-ops.sh patch-dry-run|patch-accept` gestartet; kein generischer äußerer Background-Worker darf einen Patchlauf umschließen.
+- `patches/work/` ist der kurzlebige, projektlokale Operator-Handoff-Workspace. Er wird vor jedem neuen Patch-Dry-run oder Accept sicher bereinigt, aber niemals durch Observer desselben Laufs. Kanonischer Run-Zustand bleibt unter dem Git-Common-Directory.
+- Diagnoseartefakte für einen Chat-/Operator-Handoff werden ausschließlich über `process-ops diagnostic-handoff` als genau ein ZIP unter `patches/work/` erzeugt. Codex darf diesen Pfad weder lesen noch beschreiben.
 - Bei Änderungen an Patch-, Export- oder Platform-Update-Tooling positive und negative Integration Fixtures ergänzen. Rollback-, Hash-, Pfad- und Berechtigungsklassen nicht nur im Happy Path testen.
 - Neue `*-it.sh`-, Selfcheck-, Acceptance- oder Regression-Einstiege sowie neue Dateien unter `src/test/resources/tooling/**` im selben Change in Suite-, Fixture- und Inventory-Contracts registrieren. Vor dem vollständigen Selfcheck `./bin/test-contracts.sh --check all` und `./bin/test-contracts-it.sh` ausführen.
 - Patch-Runs ausschließlich über `patch.sh status|watch|wait|result|diagnose|doctor` beobachten; keine manuelle Auswahl der neuesten Summary, keine dauerhaften Pointer auf temporäre Attempt-Summaries und kein Logstreaming in interaktiven Terminals.
@@ -384,6 +387,7 @@ patches/archives/
 patches/runtime/
 patches/logs/accept/
 patches/logs/validation/
+patches/work/
 platform/update/generated/
 platform/update/manifests/
 ```

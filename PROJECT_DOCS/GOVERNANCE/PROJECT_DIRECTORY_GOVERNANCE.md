@@ -619,3 +619,9 @@ Vor einer Aktivierung oder Strict-Promotion bleiben offen:
 | 2026-07-22 | – | draft | Volltext auf Basis des verifizierten Springmaster-Bestands |
 | 2026-07-23 | draft | draft | Report-only Directory Contract, Transition Baseline, Gate und Fixtures technisch abgeleitet; Aktivierung bleibt offen |
 | 2026-07-23 | draft | draft | Project-New-Materialisierung und Fresh-Project-Acceptance für das Profil `generated-project` ergänzt |
+
+## Patch workflow runtime areas
+
+`patches/logs/accept/**`, `patches/logs/validation/**`, `patches/runtime/**`, `patches/archives/**` and `patches/work/**` are generated runtime areas and must not be committed as normal source.
+
+`patches/work/**` has the narrower role of a single-current-workflow operator handoff workspace. It is safely cleared before a new patch dry-run or accept, not by observers within the same workflow. It is excluded from exports and duplicate analysis. Symlinks, nested repositories, tracked files, mount points or special files make cleanup fail closed.

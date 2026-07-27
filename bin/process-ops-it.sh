@@ -56,10 +56,16 @@ CPATCH_LOCK_DIRECTORY=.git/cocondo-toolkit/locks
 CPATCH_ACCEPTED_DIRECTORY=.git/cocondo-toolkit/accepted
 EOF
 cat > "${REPO}/.cocondo/process.env" <<'EOF'
-CPROCESS_CONFIG_VERSION=1
+CPROCESS_CONFIG_VERSION=2
 CPROCESS_STATE_DIRECTORY=.git/cocondo-process
 CPROCESS_INCIDENT_DIRECTORY=.git/cocondo-process/incidents
+CPROCESS_OPERATOR_LOG_DIRECTORY=patches/logs/validation
+CPROCESS_WORK_DIRECTORY=patches/work
 EOF
+printf '%s\n' \
+  'patches/logs/validation/' \
+  'patches/work/' \
+  > "${REPO}/.gitignore"
 
 cat > "${REPO}/bin/cpatch" <<'SH2'
 #!/usr/bin/env bash
@@ -76,7 +82,12 @@ case "$command" in
     exit 0
     ;;
   status)
-    printf '%s\n' "${PROCESS_OPS_TEST_STATUS_JSON:-{\"ok\":true,\"runId\":\"run-dry-1\",\"status\":\"FAILED\",\"phase\":\"failed\",\"exitCode\":7,\"logFile\":\"fixture-run.log\"}}"
+    reference="${2:-run-dry-1}"
+    if [[ "${reference}" == "run-active-1" ]]; then
+      printf '%s\n' '{"ok":true,"runId":"run-active-1","status":"RUNNING","phase":"validation:targeted","logFile":"fixture-active.log"}'
+      exit 0
+    fi
+    printf '%s\n' "${PROCESS_OPS_TEST_STATUS_JSON:-{\"ok\":true,\"runId\":\"run-dry-1\",\"patchId\":\"000999_fixture\",\"artifactId\":\"urn:uuid:11111111-1111-4111-8111-111111111111\",\"status\":\"FAILED\",\"phase\":\"failed\",\"exitCode\":7,\"logFile\":\"fixture-run.log\"}}"
     exit "${PROCESS_OPS_TEST_STATUS_RC:-7}"
     ;;
   result)
@@ -164,10 +175,14 @@ assert value["projectId"] == "fixture-project", value
 common = Path(value["gitCommonDir"]).resolve()
 assert Path(value["toolkitRunRoot"]).resolve() == common / "cocondo-toolkit/runs", value
 assert Path(value["processStateRoot"]).resolve() == common / "cocondo-process", value
+assert Path(value["operatorLogRoot"]).resolve() == Path(sys.argv[2]).resolve() / "patches/logs/validation", value
+assert Path(value["operatorWorkRoot"]).resolve() == Path(sys.argv[2]).resolve() / "patches/work", value
 PY
 
 # A dirty feature worktree must not be confused with the clean integration worktree.
 printf 'feature-only\n' > "${FEATURE}/feature.tmp"
+mkdir -p "${REPO}/patches/work"
+printf 'stale\n' > "${REPO}/patches/work/stale.txt"
 DRY_OUTPUT="${TMP_ROOT}/dry.out"
 (
   cd "${FEATURE}"
@@ -177,6 +192,10 @@ grep -Fx 'runId=run-dry-1' "${DRY_OUTPUT}" >/dev/null
 grep -F "cwd=${REPO} args=apply ${ARTIFACT} --dry-run --profile auto --format json" "${CALL_LOG}" >/dev/null
 
 test -n "$(find "${REPO}/.git/cocondo-process/operations" -type f -name '*patch-dry-run*.json' -print -quit)"
+test ! -e "${REPO}/patches/work/stale.txt"
+test -f "${REPO}/patches/work/WORKSPACE.json"
+grep -q '"runId": "run-dry-1"' "${REPO}/patches/work/WORKSPACE.json"
+test -n "$(find "${REPO}/patches/logs/validation" -type f -name '*patch-dry-run.json' -print -quit)"
 
 git -C "${FEATURE}" clean -fdq
 
@@ -189,7 +208,35 @@ STATUS_OUTPUT="${TMP_ROOT}/status.out"
 grep -Fx 'status=FAILED' "${STATUS_OUTPUT}" >/dev/null
 grep -Fx 'exitCode=7' "${STATUS_OUTPUT}" >/dev/null
 
-test "$(wc -l < "${STATUS_OUTPUT}")" -le 12
+test "$(wc -l < "${STATUS_OUTPUT}")" -le 16
+
+# A terminal patch run can be packaged as exactly one deterministic diagnostic handoff ZIP.
+RUN_EVIDENCE_DIR="${REPO}/.git/cocondo-toolkit/runs/run-dry-1"
+mkdir -p "${RUN_EVIDENCE_DIR}/validation"
+printf '%s\n' '{"runId":"run-dry-1","patchId":"000999_fixture","status":"FAILED"}' > "${RUN_EVIDENCE_DIR}/run.json"
+printf '%s\n' 'fixture run log' > "${RUN_EVIDENCE_DIR}/run.log"
+printf '%s\n' '{"complete":false}' > "${RUN_EVIDENCE_DIR}/validation/stages.json"
+printf '%s\n' 'fixture validator log' > "${RUN_EVIDENCE_DIR}/validation/02-targeted.log"
+HANDOFF_OUTPUT="${TMP_ROOT}/handoff.out"
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh diagnostic-handoff run-dry-1 > "${HANDOFF_OUTPUT}"
+)
+HANDOFF_ZIP="$(sed -n 's/^diagnosticArchive=//p' "${HANDOFF_OUTPUT}")"
+test -f "${HANDOFF_ZIP}"
+test "$(find "${REPO}/patches/work" -maxdepth 1 -type f -name '*.zip' | wc -l | tr -d ' ')" -eq 1
+python3 - "${HANDOFF_ZIP}" <<'PY_HANDOFF'
+import zipfile
+import sys
+with zipfile.ZipFile(sys.argv[1]) as archive:
+    names=set(archive.namelist())
+required={"MANIFEST.sha256","summary.json","status.json","diagnose.json","WORKSPACE.json","canonical-run/run.json","canonical-run/run.log","canonical-run/validation/stages.json","canonical-run/validation/02-targeted.log"}
+missing=sorted(required-names)
+assert not missing, missing
+PY_HANDOFF
+
+# Generic detached commands do not clean or mutate the current patch workflow workspace.
+WORKSPACE_HASH_BEFORE="$(sha256sum "${REPO}/patches/work/WORKSPACE.json" | awk '{print $1}')"
 
 # Generic detached commands are delegated directly to crun, without a second supervisor.
 RUN_OUTPUT="${TMP_ROOT}/run.out"
@@ -199,6 +246,87 @@ RUN_OUTPUT="${TMP_ROOT}/run.out"
 )
 grep -Fx 'runId=run-generic-1' "${RUN_OUTPUT}" >/dev/null
 grep -F "cwd=${REPO} args=start --name fixture --cwd ${FEATURE} --format json -- printf ok" "${CALL_LOG}" >/dev/null
+test "$(sha256sum "${REPO}/patches/work/WORKSPACE.json" | awk '{print $1}')" = "${WORKSPACE_HASH_BEFORE}"
+test -f "${HANDOFF_ZIP}"
+
+# A new patch workflow safely removes terminal prior-workflow data.
+SECOND_DRY_OUTPUT="${TMP_ROOT}/second-dry.out"
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh patch-dry-run "${ARTIFACT}" > "${SECOND_DRY_OUTPUT}"
+)
+test ! -e "${HANDOFF_ZIP}"
+test "$(find "${REPO}/patches/work" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')" -eq 1
+test -f "${REPO}/patches/work/WORKSPACE.json"
+
+# An active prior patch workflow blocks cleanup and no new cpatch start occurs.
+python3 - "${REPO}/patches/work/WORKSPACE.json" <<'PY_ACTIVE'
+import json,sys
+p=sys.argv[1]
+d=json.load(open(p))
+d["runId"]="run-active-1"
+d["status"]="RUNNING"
+open(p,"w").write(json.dumps(d,indent=2,sort_keys=True)+"\n")
+PY_ACTIVE
+BEFORE_ACTIVE_CALLS="$(grep -c 'args=apply ' "${CALL_LOG}" || true)"
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh patch-dry-run "${ARTIFACT}" > "${TMP_ROOT}/active-workspace.out" 2>&1
+)
+ACTIVE_RC=$?
+set -e
+test "${ACTIVE_RC}" -eq 9
+grep -F 'errorCode=OPERATOR_WORKSPACE_ACTIVE' "${TMP_ROOT}/active-workspace.out" >/dev/null
+test "$(grep -c 'args=apply ' "${CALL_LOG}" || true)" -eq "${BEFORE_ACTIVE_CALLS}"
+
+# Symlink content blocks cleanup fail-closed.
+rm -rf "${REPO}/patches/work"
+mkdir -p "${REPO}/patches/work"
+ln -s "${TMP_ROOT}" "${REPO}/patches/work/escape"
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh patch-dry-run "${ARTIFACT}" > "${TMP_ROOT}/symlink-workspace.out" 2>&1
+)
+SYMLINK_RC=$?
+set -e
+test "${SYMLINK_RC}" -eq 9
+grep -F 'errorCode=OPERATOR_WORKSPACE_SYMLINK_FORBIDDEN' "${TMP_ROOT}/symlink-workspace.out" >/dev/null
+rm -rf "${REPO}/patches/work"
+
+# A symlinked operator-log component blocks project-local evidence writes.
+rm -rf "${REPO}/patches/logs"
+mkdir -p "${REPO}/patches/logs/validation"
+ln -s "${TMP_ROOT}" "${REPO}/patches/logs/validation/unscoped"
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh patch-dry-run "${ARTIFACT}" > "${TMP_ROOT}/symlink-operator-log.out" 2>&1
+)
+LOG_SYMLINK_RC=$?
+set -e
+test "${LOG_SYMLINK_RC}" -eq 9
+grep -F 'errorCode=OPERATOR_LOG_SYMLINK_FORBIDDEN' "${TMP_ROOT}/symlink-operator-log.out" >/dev/null
+rm -f "${REPO}/patches/logs/validation/unscoped"
+
+# Tracked content below the workspace is never deleted.
+mkdir -p "${REPO}/patches/work"
+printf 'tracked\n' > "${REPO}/patches/work/tracked.txt"
+git -C "${REPO}" add -f patches/work/tracked.txt
+git -C "${REPO}" commit -qm 'tracked workspace fixture'
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh patch-dry-run "${ARTIFACT}" > "${TMP_ROOT}/tracked-workspace.out" 2>&1
+)
+TRACKED_RC=$?
+set -e
+test "${TRACKED_RC}" -eq 9
+grep -F 'errorCode=OPERATOR_WORKSPACE_TRACKED_CONTENT' "${TMP_ROOT}/tracked-workspace.out" >/dev/null
+test -f "${REPO}/patches/work/tracked.txt"
+git -C "${REPO}" rm -q -f patches/work/tracked.txt
+git -C "${REPO}" commit -qm 'remove tracked workspace fixture'
 
 # Singleton start reuses an existing active run and repairs the canonical pointer.
 SINGLETON_NAME='cocondo-singleton:fixture-project:revision-prepare'

@@ -99,3 +99,9 @@ Die projektneutrale Integration Fixture ist nach Patch `000182` hermetisch gegen
 |---|---|---|---|
 | 2026-07-24 | - | final | Toolkit 1.1.1, Prozessbetriebsvertrag, Version Closure und kontrollierter Legacy-Cutover dokumentiert; Managed-Project-Rollout bleibt bis zum Pilotabschluss gesperrt. |
 | 2026-07-24 | `0.8.0` | `0.8.1` | Git-Integration-Fixture hermetisch isoliert; Post-Accept-Qualifikation wird erneut ausgeführt. |
+
+## 8. Springmaster process pilot closure and workspace hardening
+
+Patch `000184_springmaster_codex_calibration_execution_task_semantic_hardening` completed the real Springmaster process pilot: canonical dry-run `run-20260727T084807Z-336bc56656e9`, acceptance `run-20260727T091140Z-1dd557514153`, accepted commit `e6d184c69d2616a02da499540a3be90f208e78be`, and live readiness completion `run-20260727T093113Z-0be8cada4b89` all finished successfully. The first postcheck correctly exposed missing external agent roots and was completed after explicit provisioning; it did not invalidate the accepted source patch.
+
+The follow-up workspace contract introduces project-relative operator logs and a single-current-workflow `patches/work/` handoff area. This is not a second run-state store. Direct `cpatch` Run API use remains mandatory, while diagnostic upload bundles are derived from canonical evidence and excluded from Git and exports.

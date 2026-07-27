@@ -5,13 +5,17 @@ from __future__ import annotations
 
 import argparse
 import fcntl
+import hashlib
 import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 import time
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,6 +55,8 @@ class Context:
     toolkit_accepted_root: Path
     process_state_root: Path
     process_incident_root: Path
+    operator_log_root: Path
+    operator_work_root: Path
     artifact_root: Path | None
     worktree_root: Path | None
 
@@ -152,6 +158,22 @@ def resolve_config_path(value: str, *, project_root: Path, git_common_dir: Path)
     return (project_root / path).resolve()
 
 
+def resolve_project_relative_runtime_path(value: str, *, project_root: Path, key: str) -> Path:
+    if not value or value.startswith("~"):
+        raise ProcessOpsError("PROCESS_PROJECT_PATH_INVALID", "Project runtime path must be a non-empty project-relative path", key=key, value=value)
+    path = Path(value)
+    if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
+        raise ProcessOpsError("PROCESS_PROJECT_PATH_INVALID", "Project runtime path must not be absolute or escape the project", key=key, value=value)
+    resolved = project_root.joinpath(*path.parts)
+    try:
+        resolved.relative_to(project_root)
+    except ValueError as exc:
+        raise ProcessOpsError("PROCESS_PROJECT_PATH_ESCAPE", "Project runtime path escapes the integration root", key=key, value=value) from exc
+    if resolved == project_root or resolved == project_root / ".git":
+        raise ProcessOpsError("PROCESS_PROJECT_PATH_INVALID", "Project runtime path must be a dedicated subdirectory", key=key, value=value)
+    return resolved
+
+
 def optional_path(value: str | None) -> Path | None:
     if not value:
         return None
@@ -192,6 +214,16 @@ def resolve_context(explicit_root: str | None) -> Context:
         project_root=integration_root,
         git_common_dir=git_common_dir,
     )
+    operator_log_root = resolve_project_relative_runtime_path(
+        process_env.get("CPROCESS_OPERATOR_LOG_DIRECTORY", "patches/logs/validation"),
+        project_root=integration_root,
+        key="CPROCESS_OPERATOR_LOG_DIRECTORY",
+    )
+    operator_work_root = resolve_project_relative_runtime_path(
+        process_env.get("CPROCESS_WORK_DIRECTORY", "patches/work"),
+        project_root=integration_root,
+        key="CPROCESS_WORK_DIRECTORY",
+    )
 
     artifact_root = optional_path(
         os.environ.get("COCONDO_ARTIFACT_ROOT")
@@ -215,9 +247,242 @@ def resolve_context(explicit_root: str | None) -> Context:
         toolkit_accepted_root=toolkit_accepted_root,
         process_state_root=process_state_root,
         process_incident_root=process_incident_root,
+        operator_log_root=operator_log_root,
+        operator_work_root=operator_work_root,
         artifact_root=artifact_root,
         worktree_root=worktree_root,
     )
+
+
+def iso_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def safe_component(value: object, fallback: str) -> str:
+    text = str(value or fallback)
+    normalized = re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip(".-")
+    return normalized[:160] or fallback
+
+
+def project_relative(context: Context, path: Path) -> str:
+    try:
+        return path.resolve(strict=False).relative_to(context.integration_root).as_posix()
+    except ValueError as exc:
+        raise ProcessOpsError("PROCESS_PROJECT_PATH_ESCAPE", "Path is outside the integration root", path=str(path)) from exc
+
+
+def assert_no_symlink_components(
+    project_root: Path,
+    target: Path,
+    *,
+    error_code: str,
+    path_role: str,
+) -> None:
+    current = project_root
+    try:
+        relative = target.relative_to(project_root)
+    except ValueError as exc:
+        raise ProcessOpsError(
+            "PROCESS_PROJECT_PATH_ESCAPE",
+            "Operator runtime path escapes the integration root",
+            path=str(target),
+            pathRole=path_role,
+        ) from exc
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ProcessOpsError(
+                error_code,
+                "Symlink component is forbidden",
+                path=str(current),
+                pathRole=path_role,
+            )
+
+
+def git_tracked_below(context: Context, path: Path) -> list[str]:
+    relative = project_relative(context, path)
+    output = git(context.integration_root, "ls-files", "--", relative, check=False)
+    return [line for line in output.splitlines() if line.strip()]
+
+
+def assert_runtime_path_ignored(context: Context, path: Path) -> None:
+    relative = project_relative(context, path)
+    probe = f"{relative}/.cocondo-ignore-probe"
+    result = run_command(["git", "check-ignore", "-q", "--", probe], cwd=context.integration_root, check=False)
+    if result.returncode != 0:
+        raise ProcessOpsError("OPERATOR_RUNTIME_PATH_NOT_IGNORED", "Operator runtime path must be ignored by Git", path=relative)
+
+
+def validate_workspace_tree(root: Path) -> None:
+    if not root.exists():
+        return
+    if root.is_symlink():
+        raise ProcessOpsError("OPERATOR_WORKSPACE_SYMLINK_FORBIDDEN", "Operator workspace root must not be a symlink", path=str(root))
+    if not root.is_dir():
+        raise ProcessOpsError("OPERATOR_WORKSPACE_NOT_DIRECTORY", "Operator workspace root must be a directory", path=str(root))
+    if os.path.ismount(root):
+        raise ProcessOpsError("OPERATOR_WORKSPACE_MOUNT_FORBIDDEN", "Operator workspace root must not be a mount point", path=str(root))
+    for path in sorted(root.rglob("*")):
+        if path.name == ".git":
+            raise ProcessOpsError("OPERATOR_WORKSPACE_NESTED_REPOSITORY", "Nested Git repository metadata is forbidden", path=str(path))
+        if path.is_symlink():
+            raise ProcessOpsError("OPERATOR_WORKSPACE_SYMLINK_FORBIDDEN", "Symlink content is forbidden", path=str(path))
+        if os.path.ismount(path):
+            raise ProcessOpsError("OPERATOR_WORKSPACE_MOUNT_FORBIDDEN", "Mount point content is forbidden", path=str(path))
+        mode = path.lstat().st_mode
+        if not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+            raise ProcessOpsError("OPERATOR_WORKSPACE_SPECIAL_FILE_FORBIDDEN", "Only regular files and directories are allowed", path=str(path))
+
+
+def workspace_record_path(context: Context) -> Path:
+    return context.operator_work_root / "WORKSPACE.json"
+
+
+def read_workspace_record(context: Context) -> dict[str, Any] | None:
+    path = workspace_record_path(context)
+    if not path.exists():
+        return None
+    record = read_json_file(path)
+    if record is None:
+        raise ProcessOpsError("OPERATOR_WORKSPACE_RECORD_INVALID", "Workspace record is not valid JSON", path=str(path))
+    if record.get("schemaVersion") != "cocondo.operator-workspace.v1":
+        raise ProcessOpsError("OPERATOR_WORKSPACE_RECORD_INVALID", "Workspace record schema is unsupported", path=str(path))
+    return record
+
+
+def workspace_run_status(context: Context, record: dict[str, Any]) -> str | None:
+    run_id = record.get("runId")
+    if not isinstance(run_id, str) or not run_id:
+        return None
+    try:
+        payload = status_payload(context, run_id)
+    except ProcessOpsError as exc:
+        raise ProcessOpsError("OPERATOR_WORKSPACE_STATUS_UNRESOLVED", "Prior workspace run status cannot be resolved", runId=run_id) from exc
+    return str(payload.get("status") or "UNKNOWN")
+
+
+def clear_workspace_contents(root: Path) -> int:
+    removed = 0
+    for child in sorted(root.iterdir(), key=lambda item: item.name):
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+        removed += 1
+    return removed
+
+
+def prepare_operator_workspace(context: Context, operation: str, artifact: Path) -> dict[str, Any]:
+    assert_no_symlink_components(
+        context.integration_root,
+        context.operator_work_root,
+        error_code="OPERATOR_WORKSPACE_SYMLINK_FORBIDDEN",
+        path_role="operator-workspace",
+    )
+    tracked = git_tracked_below(context, context.operator_work_root)
+    if tracked:
+        raise ProcessOpsError("OPERATOR_WORKSPACE_TRACKED_CONTENT", "Tracked content below the operator workspace is forbidden", paths=tracked[:40])
+    assert_runtime_path_ignored(context, context.operator_work_root)
+    context.operator_work_root.mkdir(parents=True, exist_ok=True)
+    validate_workspace_tree(context.operator_work_root)
+    previous = read_workspace_record(context)
+    if previous is not None:
+        status = workspace_run_status(context, previous)
+        if status in ACTIVE_STATES:
+            raise ProcessOpsError("OPERATOR_WORKSPACE_ACTIVE", "Active prior patch workflow blocks workspace cleanup", runId=previous.get("runId"), status=status)
+    removed = clear_workspace_contents(context.operator_work_root)
+    workflow_id = f"{safe_component(operation, 'patch')}-{utc_stamp()}-{os.getpid()}"
+    record: dict[str, Any] = {
+        "schemaVersion": "cocondo.operator-workspace.v1",
+        "workflowId": workflow_id,
+        "projectId": context.project_id,
+        "operation": operation,
+        "artifact": str(artifact),
+        "preparedAt": iso_now(),
+        "status": "PREPARED",
+        "removedEntryCount": removed,
+        "canonicalRunState": "git-common-directory",
+        "agentWritePolicy": "forbidden",
+    }
+    atomic_json(workspace_record_path(context), record)
+    return record
+
+
+def update_workspace_record(context: Context, payload: dict[str, Any], **extra: object) -> None:
+    path = workspace_record_path(context)
+    if not path.is_file():
+        return
+    record = read_workspace_record(context) or {}
+    payload_run = payload.get("runId")
+    record_run = record.get("runId")
+    if record_run and payload_run and record_run != payload_run:
+        return
+    for key in ("runId", "artifactId", "patchId", "status", "phase", "message", "exitCode", "logFile"):
+        if payload.get(key) is not None:
+            record[key] = payload.get(key)
+    record.update(extra)
+    record["updatedAt"] = iso_now()
+    atomic_json(path, record)
+
+
+def prepare_operator_log_directory(context: Context, payload: dict[str, Any]) -> Path:
+    assert_no_symlink_components(
+        context.integration_root,
+        context.operator_log_root,
+        error_code="OPERATOR_LOG_SYMLINK_FORBIDDEN",
+        path_role="operator-log-root",
+    )
+    tracked = git_tracked_below(context, context.operator_log_root)
+    if tracked:
+        raise ProcessOpsError("OPERATOR_LOG_TRACKED_CONTENT", "Tracked content below the operator log root is forbidden", paths=tracked[:40])
+    assert_runtime_path_ignored(context, context.operator_log_root)
+    context.operator_log_root.mkdir(parents=True, exist_ok=True)
+    if context.operator_log_root.is_symlink() or not context.operator_log_root.is_dir():
+        raise ProcessOpsError("OPERATOR_LOG_PATH_INVALID", "Operator log root must be a real directory", path=str(context.operator_log_root))
+    patch_id = safe_component(payload.get("patchId"), "unscoped")
+    run_id = safe_component(payload.get("runId"), "no-run-id")
+    directory = context.operator_log_root / patch_id / run_id
+    assert_no_symlink_components(
+        context.integration_root,
+        directory,
+        error_code="OPERATOR_LOG_SYMLINK_FORBIDDEN",
+        path_role="operator-run-log",
+    )
+    directory.mkdir(parents=True, exist_ok=True)
+    if directory.is_symlink() or not directory.is_dir():
+        raise ProcessOpsError("OPERATOR_LOG_PATH_INVALID", "Operator run log path must be a real directory", path=str(directory))
+    return directory
+
+
+def operator_log_directory(context: Context, payload: dict[str, Any]) -> Path:
+    patch_id = safe_component(payload.get("patchId"), "unscoped")
+    run_id = safe_component(payload.get("runId"), "no-run-id")
+    return context.operator_log_root / patch_id / run_id
+
+
+def persist_operator_log(context: Context, operation: str, payload: dict[str, Any]) -> Path:
+    directory = prepare_operator_log_directory(context, payload)
+    target = directory / f"{utc_stamp()}-{safe_component(operation, 'operation')}.json"
+    atomic_json(target, payload)
+    return target
+
+
+def append_operator_event(context: Context, payload: dict[str, Any]) -> Path:
+    directory = prepare_operator_log_directory(context, payload)
+    target = directory / "watch.jsonl"
+    with target.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(compact(payload), sort_keys=True, separators=(",", ":")) + "\n")
+    return target
+
+
+def deterministic_zip(source_root: Path, target: Path) -> None:
+    with zipfile.ZipFile(target, mode="x", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for path in sorted(item for item in source_root.rglob("*") if item.is_file()):
+            info = zipfile.ZipInfo(path.relative_to(source_root).as_posix(), date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            info.create_system = 3
+            archive.writestr(info, path.read_bytes())
 
 
 def atomic_json(path: Path, value: object) -> None:
@@ -420,6 +685,8 @@ def command_resolve(args: argparse.Namespace, context: Context) -> int:
         "toolkitAcceptedRoot": str(context.toolkit_accepted_root),
         "processStateRoot": str(context.process_state_root),
         "processIncidentRoot": str(context.process_incident_root),
+        "operatorLogRoot": str(context.operator_log_root),
+        "operatorWorkRoot": str(context.operator_work_root),
         "artifactRoot": str(context.artifact_root) if context.artifact_root else None,
         "worktreeRoot": str(context.worktree_root) if context.worktree_root else None,
     }
@@ -430,21 +697,28 @@ def command_resolve(args: argparse.Namespace, context: Context) -> int:
 def command_patch_start(args: argparse.Namespace, context: Context, *, accept: bool) -> int:
     assert_integration_clean(context)
     artifact = resolve_artifact(args.artifact, context)
+    name = "patch-accept" if accept else "patch-dry-run"
+    workspace = prepare_operator_workspace(context, name, artifact)
     if accept:
         command = ["accept", str(artifact), "--profile", args.profile]
         if args.no_commit:
             command.append("--no-commit")
-        name = "patch-accept"
     else:
         command = ["apply", str(artifact), "--dry-run", "--profile", args.profile]
-        name = "patch-dry-run"
     payload = cpatch_json(context, command)
     payload["operation"] = name
     payload["artifactFileName"] = artifact.name
     payload["integrationRoot"] = str(context.integration_root)
+    payload["operatorWorkspace"] = str(context.operator_work_root)
+    payload["workspaceCleanupRemovedEntries"] = workspace.get("removedEntryCount", 0)
+    update_workspace_record(context, payload)
     report = persist_operation(context, name, payload)
+    operator_log = persist_operator_log(context, name, payload)
     summary = compact(payload)
     summary["operationReport"] = str(report)
+    summary["operatorLog"] = str(operator_log)
+    summary["operatorWorkspace"] = str(context.operator_work_root)
+    summary["workspaceCleanupRemovedEntries"] = workspace.get("removedEntryCount", 0)
     emit(summary, args.format)
     return 0 if payload.get("runId") else 9
 
@@ -514,9 +788,12 @@ def status_payload(context: Context, reference: str) -> dict[str, Any]:
 
 def command_status(args: argparse.Namespace, context: Context) -> int:
     payload = status_payload(context, args.reference)
+    update_workspace_record(context, payload)
     report = persist_operation(context, "status", payload)
+    operator_log = persist_operator_log(context, "status", payload)
     summary = compact(payload)
     summary["operationReport"] = str(report)
+    summary["operatorLog"] = str(operator_log)
     emit(summary, args.format)
     return 0
 
@@ -535,10 +812,13 @@ def recommendation(status: str) -> str:
 
 def command_resume(args: argparse.Namespace, context: Context) -> int:
     payload = status_payload(context, args.reference)
+    update_workspace_record(context, payload)
     summary = compact(payload)
     summary["recommendedAction"] = recommendation(str(summary.get("status") or "UNKNOWN"))
     report = persist_operation(context, "resume", payload)
+    operator_log = persist_operator_log(context, "resume", payload)
     summary["operationReport"] = str(report)
+    summary["operatorLog"] = str(operator_log)
     emit(summary, args.format)
     return 0
 
@@ -551,8 +831,11 @@ def command_observe(args: argparse.Namespace, context: Context, *, verbose: bool
             payload = status_payload(context, args.reference)
             summary = compact(payload)
             signature = (summary.get("status"), summary.get("phase"), summary.get("message"), summary.get("exitCode"))
-            if verbose and signature != last_signature:
-                emit(summary, args.format)
+            if signature != last_signature:
+                update_workspace_record(context, payload)
+                append_operator_event(context, payload)
+                if verbose:
+                    emit(summary, args.format)
             last_signature = signature
             status = str(summary.get("status") or "UNKNOWN")
             if status in TERMINAL_STATES:
@@ -572,9 +855,12 @@ def command_observe(args: argparse.Namespace, context: Context, *, verbose: bool
 
 def command_result(args: argparse.Namespace, context: Context) -> int:
     payload = cpatch_json(context, ["result", args.reference])
+    update_workspace_record(context, payload)
     report = persist_operation(context, "result", payload)
+    operator_log = persist_operator_log(context, "result", payload)
     summary = compact(payload)
     summary["operationReport"] = str(report)
+    summary["operatorLog"] = str(operator_log)
     emit(payload if args.verbose else summary, args.format)
     if args.strict_exit and str(summary.get("status")) in FAILURE_STATES:
         return int(summary.get("exitCode") or 1)
@@ -585,8 +871,10 @@ def command_diagnose(args: argparse.Namespace, context: Context) -> int:
     output = Path(args.output).expanduser().resolve() if args.output else context.process_state_root / "diagnostics" / f"{utc_stamp()}-{args.reference}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     payload = cpatch_json(context, ["diagnose", args.reference, "--output", str(output)])
+    operator_log = persist_operator_log(context, "diagnose", payload)
     summary = compact(payload)
     summary["diagnosticFile"] = str(output)
+    summary["operatorLog"] = str(operator_log)
     emit(summary, args.format)
     return 0
 
@@ -614,6 +902,70 @@ def command_incident(args: argparse.Namespace, context: Context) -> int:
     summary["incidentDirectory"] = str(incident_dir)
     summary["recommendedAction"] = recommendation(str(summary.get("status") or "UNKNOWN"))
     atomic_json(incident_dir / "summary.json", summary)
+    emit(summary, args.format)
+    return 0
+
+
+def command_diagnostic_handoff(args: argparse.Namespace, context: Context) -> int:
+    payload = status_payload(context, args.reference)
+    status = str(payload.get("status") or "UNKNOWN")
+    if status in ACTIVE_STATES:
+        raise ProcessOpsError("DIAGNOSTIC_HANDOFF_ACTIVE_RUN", "Diagnostic handoff requires a terminal run", runId=payload.get("runId"), status=status)
+    run_id = str(payload.get("runId") or args.reference)
+    record = read_workspace_record(context)
+    if record is None or record.get("runId") != run_id:
+        raise ProcessOpsError("DIAGNOSTIC_HANDOFF_WORKSPACE_MISMATCH", "Current operator workspace is not bound to the requested run", requestedRunId=run_id, workspaceRunId=record.get("runId") if record else None)
+    validate_workspace_tree(context.operator_work_root)
+    patch_id = safe_component(payload.get("patchId"), "unscoped")
+    archive = context.operator_work_root / f"{patch_id}-diagnostics-{safe_component(run_id, 'run')}.zip"
+    if archive.exists():
+        raise ProcessOpsError("DIAGNOSTIC_HANDOFF_EXISTS", "Diagnostic handoff archive already exists", archive=str(archive))
+    with tempfile.TemporaryDirectory(prefix="diagnostic-handoff-", dir=context.process_state_root) as temporary_text:
+        temporary = Path(temporary_text)
+        atomic_json(temporary / "status.json", payload)
+        diagnosis_path = temporary / "diagnose.json"
+        diagnosis = cpatch_json(context, ["diagnose", args.reference, "--output", str(diagnosis_path)])
+        atomic_json(temporary / "diagnose-command.json", diagnosis)
+        run_dir = context.toolkit_run_root / run_id
+        for relative in ("run.json", "run.log", "invocation.json", "command.json", "validation/stages.json"):
+            copy_if_file(run_dir / relative, temporary / "canonical-run" / relative)
+        validation_dir = run_dir / "validation"
+        if validation_dir.is_dir():
+            for source in sorted(validation_dir.glob("*.log")):
+                copy_if_file(source, temporary / "canonical-run" / "validation" / source.name)
+        log_dir = operator_log_directory(context, payload)
+        if log_dir.is_dir():
+            shutil.copytree(log_dir, temporary / "operator-logs", dirs_exist_ok=True)
+        copy_if_file(workspace_record_path(context), temporary / "WORKSPACE.json")
+        summary = {
+            "schemaVersion": "cocondo.diagnostic-handoff.v1",
+            "projectId": context.project_id,
+            "runId": run_id,
+            "patchId": payload.get("patchId"),
+            "artifactId": payload.get("artifactId"),
+            "status": status,
+            "createdAt": iso_now(),
+            "canonicalRunRoot": str(run_dir),
+            "operatorLogRoot": str(log_dir),
+            "sourceMutation": False,
+        }
+        atomic_json(temporary / "summary.json", summary)
+        manifest_lines: list[str] = []
+        for source in sorted(item for item in temporary.rglob("*") if item.is_file()):
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            manifest_lines.append(f"{digest}  {source.relative_to(temporary).as_posix()}")
+        atomic_text(temporary / "MANIFEST.sha256", "\n".join(manifest_lines) + "\n")
+        deterministic_zip(temporary, archive)
+    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+    update_workspace_record(context, payload, diagnosticArchive=str(archive), diagnosticArchiveSha256=digest)
+    handoff_payload = dict(payload)
+    handoff_payload["diagnosticArchive"] = str(archive)
+    handoff_payload["diagnosticArchiveSha256"] = digest
+    operator_log = persist_operator_log(context, "diagnostic-handoff", handoff_payload)
+    summary = compact(payload)
+    summary["diagnosticArchive"] = str(archive)
+    summary["diagnosticArchiveSha256"] = digest
+    summary["operatorLog"] = str(operator_log)
     emit(summary, args.format)
     return 0
 
@@ -665,6 +1017,9 @@ def build_parser() -> argparse.ArgumentParser:
     incident = sub.add_parser("incident")
     incident.add_argument("reference")
 
+    handoff = sub.add_parser("diagnostic-handoff")
+    handoff.add_argument("reference")
+
     return parser
 
 
@@ -695,6 +1050,8 @@ def main() -> int:
             return command_diagnose(args, context)
         if args.command_name == "incident":
             return command_incident(args, context)
+        if args.command_name == "diagnostic-handoff":
+            return command_diagnostic_handoff(args, context)
         raise ProcessOpsError("COMMAND_UNSUPPORTED", "Unsupported command", command=args.command_name)
     except ProcessOpsError as exc:
         error = {"ok": False, "errorCode": exc.code, "message": exc.message, **exc.details}

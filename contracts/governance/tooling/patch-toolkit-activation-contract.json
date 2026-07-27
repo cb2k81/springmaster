@@ -29,10 +29,10 @@
     "show"
   ],
   "versionClosure": {
-    "platformVersion": "0.20.0-foundation",
-    "mavenVersion": "0.20.0-foundation-SNAPSHOT",
-    "toolingVersion": "0.10.0",
-    "statePatch": "000184_springmaster_codex_calibration_execution_task_semantic_hardening"
+    "platformVersion": "0.21.0-foundation",
+    "mavenVersion": "0.21.0-foundation-SNAPSHOT",
+    "toolingVersion": "0.11.0",
+    "statePatch": "000186_springmaster_patch_workflow_workspace_contract"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
@@ -49,6 +49,12 @@
     "duplicateActiveStart": "reuse-existing-run",
     "terminalRestart": "explicit-only",
     "multipleActiveSingleton": "incident-fail-closed",
-    "gitFixtureIsolation": "hermetic"
+    "gitFixtureIsolation": "hermetic",
+    "operatorWorkspace": "project-relative-clean-per-patch-workflow",
+    "operatorLogs": "project-relative-run-scoped",
+    "diagnosticHandoff": "single-archive-in-operator-workspace",
+    "canonicalPatchStart": "direct-cpatch-run-api",
+    "realSpringmasterPilot": "PASS_000184",
+    "operatorWorkspacePilot": "PENDING_000186"
   }
 }

@@ -13,6 +13,7 @@ platform/update/manifests/
 # Patch runtime diagnostics (not normal patch content)
 patches/logs/accept/
 patches/logs/validation/
+patches/work/
 
 # Local environment and IDE files
 .env

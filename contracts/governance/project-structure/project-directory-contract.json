@@ -376,6 +376,24 @@
       "newPathPolicy": "allow"
     },
     {
+      "id": "patch-workspace",
+      "patterns": [
+        "patches/work/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "pathClass": "temporary",
+      "sourceKind": "generated",
+      "commitPolicy": "forbidden",
+      "allowedSuffixes": [
+        "*"
+      ],
+      "newPathPolicy": "allow"
+    },
+    {
       "id": "patch-changelogs",
       "patterns": [
         "patches/logs/**/CHANGELOG-*.md"
@@ -583,7 +601,8 @@
       "patches/runtime/**",
       "patches/archives/**",
       "platform/update/generated/**",
-      "platform/update/manifests/**"
+      "platform/update/manifests/**",
+      "patches/work/**"
     ],
     "allowedPairs": [
       {

@@ -34,7 +34,7 @@
   "processOperations": {
     "contractStatus": "PASS",
     "integrationFixture": "PASS",
-    "realSpringmasterPilot": "PENDING",
+    "realSpringmasterPilot": "PASS_000184",
     "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
     "supersededOperationalPattern": "nested-detached-orchestrator",
     "singletonStart": "project-neutral-atomic-reuse",
@@ -42,6 +42,12 @@
     "terminalRestart": "explicit-only",
     "multipleActiveSingleton": "incident-fail-closed",
     "gitFixtureIsolation": "PASS",
-    "postAcceptQualification": "PENDING_RETRY_AFTER_000182"
+    "postAcceptQualification": "PASS_000184_WITH_EXTERNAL_ROOTS",
+    "acceptedPatch": "000184_springmaster_codex_calibration_execution_task_semantic_hardening",
+    "acceptedCommit": "e6d184c69d2616a02da499540a3be90f208e78be",
+    "dryRunId": "run-20260727T084807Z-336bc56656e9",
+    "acceptRunId": "run-20260727T091140Z-1dd557514153",
+    "liveReadinessRunId": "run-20260727T093113Z-0be8cada4b89",
+    "operatorWorkspacePilot": "PENDING_000186"
   }
 }

@@ -76,6 +76,32 @@ def main() -> int:
                 "actual": background.get(key),
             })
 
+    workspace = contract.get("operatorWorkspacePolicy") if isinstance(contract.get("operatorWorkspacePolicy"), dict) else {}
+    workspace_expected = {
+        "scope": "one-current-patch-workflow",
+        "pathMustBeProjectRelative": True,
+        "cleanupTrigger": "before-each-new-patch-dry-run-or-accept",
+        "observerMutationForbidden": True,
+        "activeWorkflowCleanup": "block",
+        "diagnosticHandoffCommand": "diagnostic-handoff",
+        "diagnosticArchiveCount": 1,
+        "agentWritePolicy": "forbidden",
+    }
+    for key, expected in workspace_expected.items():
+        if workspace.get(key) != expected:
+            findings.append({
+                "code": "PROCESS_WORKSPACE_POLICY_MISMATCH",
+                "key": key,
+                "expected": expected,
+                "actual": workspace.get(key),
+            })
+
+    operator_logs = contract.get("operatorLogPolicy") if isinstance(contract.get("operatorLogPolicy"), dict) else {}
+    if operator_logs.get("canonicalRunStateRemainsInGitCommonDirectory") is not True:
+        findings.append({"code": "PROCESS_OPERATOR_LOG_TRUTH_MISMATCH"})
+    if operator_logs.get("commitPolicy") != "forbidden" or operator_logs.get("exportPolicy") != "excluded":
+        findings.append({"code": "PROCESS_OPERATOR_LOG_LIFECYCLE_MISMATCH"})
+
     implementation = contract.get("implementation") if isinstance(contract.get("implementation"), dict) else {}
     required = {
         "entrypoint": "bin/process-ops.sh",
@@ -105,8 +131,11 @@ def main() -> int:
         findings.append({"code": "PROCESS_CONFIG_INVALID", "detail": str(exc)})
         env = {}
     expected_env = {
+        "CPROCESS_CONFIG_VERSION": "2",
         "CPROCESS_STATE_DIRECTORY": ".git/cocondo-process",
         "CPROCESS_INCIDENT_DIRECTORY": ".git/cocondo-process/incidents",
+        "CPROCESS_OPERATOR_LOG_DIRECTORY": "patches/logs/validation",
+        "CPROCESS_WORK_DIRECTORY": "patches/work",
     }
     for key, expected in expected_env.items():
         if env.get(key) != expected:
@@ -119,6 +148,7 @@ def main() -> int:
         "bin/process-ops.py",
         "PROJECT_DOCS/ADR/ADR-0014-process-execution-observation-and-recovery.md",
         "PROJECT_DOCS/TOOLING/PROCESS_OPERATIONS.md",
+        "PROJECT_DOCS/TOOLING/PATCH_COMMAND_GENERATION_CONTRACT.md",
     ]
     for relative in scanned:
         path = root / relative
@@ -132,6 +162,40 @@ def main() -> int:
             for pattern in FORBIDDEN_PROCESS_WORDS:
                 if pattern.search(text):
                     findings.append({"code": "PROCESS_NESTED_DETACHMENT_FORBIDDEN", "path": relative, "pattern": pattern.pattern})
+
+    gitignore_path = root / ".gitignore"
+    if not gitignore_path.is_file() or "patches/work/" not in gitignore_path.read_text(encoding="utf-8").splitlines():
+        findings.append({"code": "PROCESS_WORKSPACE_GITIGNORE_MISSING"})
+
+    try:
+        export_config = read_json(root / "export.config.json")
+    except Exception as exc:
+        findings.append({"code": "PROCESS_EXPORT_CONFIG_INVALID", "detail": str(exc)})
+        export_config = {}
+    global_exclude = export_config.get("globalExclude") if isinstance(export_config.get("globalExclude"), list) else []
+    if "patches/work/**" not in global_exclude:
+        findings.append({"code": "PROCESS_WORKSPACE_EXPORT_EXCLUDE_MISSING"})
+
+    try:
+        directory_contract = read_json(root / "contracts/governance/project-structure/project-directory-contract.json")
+    except Exception as exc:
+        findings.append({"code": "PROCESS_DIRECTORY_CONTRACT_INVALID", "detail": str(exc)})
+        directory_contract = {}
+    areas = directory_contract.get("areas") if isinstance(directory_contract.get("areas"), list) else []
+    workspace_areas = [item for item in areas if isinstance(item, dict) and item.get("id") == "patch-workspace"]
+    if len(workspace_areas) != 1 or workspace_areas[0].get("patterns") != ["patches/work/**"]:
+        findings.append({"code": "PROCESS_WORKSPACE_DIRECTORY_AREA_MISSING"})
+    elif workspace_areas[0].get("commitPolicy") != "forbidden" or workspace_areas[0].get("pathClass") != "temporary":
+        findings.append({"code": "PROCESS_WORKSPACE_DIRECTORY_POLICY_MISMATCH"})
+
+    try:
+        codex_contract = read_json(root / "contracts/governance/agent/codex-pilot-contract.json")
+    except Exception as exc:
+        findings.append({"code": "PROCESS_CODEX_CONTRACT_INVALID", "detail": str(exc)})
+        codex_contract = {}
+    codex_paths = codex_contract.get("paths") if isinstance(codex_contract.get("paths"), dict) else {}
+    if "patches/work/**" not in codex_paths.get("alwaysForbidden", []):
+        findings.append({"code": "PROCESS_WORKSPACE_CODEX_DENY_MISSING"})
 
     activation_path = root / "contracts/governance/tooling/patch-toolkit-activation-contract.json"
     try:
