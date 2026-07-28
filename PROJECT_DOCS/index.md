@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-07-22
+lastReviewedAt: 2026-07-28
 reviewBy: 2026-10-22
 supersedes: []
 supersededBy: null
@@ -101,6 +101,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md`
 ## GOVERNANCE
 
+- `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` — active canonical source for the five general Springmaster project goals
+
 - `PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md` — active normative task, worktree, evidence, calibration and stop boundaries
 
 - `PROJECT_DOCS/GOVERNANCE/DEPENDENCY_GOVERNANCE.md` — draft V2 governance for external dependency lifecycle and approval
@@ -169,6 +171,11 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_GENERATED_SLICE_PILOT_PLAN.md`
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
+
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/SPRINT_BRIEF.md` — active problem, scope, requirements and exact Definition of Done for the Codex calibration and Business Partner pilot
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/SOLUTION_PLAN.md` — temporary staged execution plan for calibration, generation, repeatability and closure
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/STATUS.md` — single current status source for the active pilot sprint
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/COMPLETION_REPORT.md` — durable draft qualification and closure report
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
@@ -254,3 +261,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-23 | active | active | Vier verbleibende Governance- und Standard-Drafts für Gesamtaudit 02 integriert |
 | 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |
 | 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |
+| 2026-07-28 | active | active | Canonical project goals and complete active Sprint 002 harness indexed |
