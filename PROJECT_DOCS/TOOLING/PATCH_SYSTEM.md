@@ -411,6 +411,22 @@ Seit Patch `000164_springmaster_patch_run_api_git_transaction_hardening` ist kan
 
 Statusabfragen verwenden eine nicht leere Run-ID oder Patch-ID; `--patch <patch-id>` ist die explizite patchbezogene Form. Leere Referenzen werden abgelehnt und fallen nie auf das aktuelle Verzeichnis zurück. Jeder Run besitzt eine sanitierte `invocation.json` ohne absoluten Downloadpfad. Temporäre, zeitgestempelte Summary-Pfade sind keine stabilen Schnittstellen und dürfen insbesondere bei Selbstupdates nicht als dauerhafte Pointer verwendet werden. Die Statusauflösung liest die kanonische `accepted.json` und liefert Run-ID, Artifact-ID, Commit und Aktualisierungszeit auch dann, wenn der ursprüngliche Attempt-Pfad bereits entfernt oder kompaktiert wurde.
 
+
+## Live-Umgebungsdiagnose vor extern vorbereiteten Patches
+
+Extern vorbereitete Lieferungen dürfen eine Exportbaseline nicht als vollständige Live-Qualifikation darstellen. Vor der Konstruktion eines Patches mit repositoryweiter Governance-, Git- oder Toolingwirkung ist auf dem DEV-System ein rein lesender Diagnoseprozess auszuführen. Er muss mindestens committed HEAD, Working Tree, Linked Worktrees, aktive Toolkit-Version, Scopes, Validatoren, Manifestvertrag, Directory-Gate-Baseline und relevante getrackte/ignorierte Pfade erfassen.
+
+Die Patchvorbereitung verwendet anschließend zwei getrennte Evidence-Stände:
+
+- Baseline-Report auf dem unveränderten Integrations-HEAD,
+- Kandidaten-Report nach der Änderung in einem dedizierten Worktree.
+
+Die Qualifikation bewertet den semantischen Diff. Bereits vorhandene Findings dürfen nicht als durch den Kandidaten neu verursacht gelten; neue Regeln dürfen historischen Bestand aber auch nicht still pauschal freigeben. Sicher entfernbarer Runtime- und Generated-Bestand wird in einem eigenen Cleanup-Schnitt gelöscht.
+
+Delivery-Wrapper müssen jeden Preflight-Schritt mit Status und Logpfad ausweisen. Bei einem Fehler sind die eigentliche Ursache und ein Diagnosearchiv unter `patches/work/` bereitzustellen. Eine fehlende Run-ID darf die vorherige Preflightursache nicht verdecken.
+
+Statusbegriffe sind strikt zu verwenden: Producer- oder Exportprüfung ist keine Live-Qualifikation; `PASS` eines report-only Gates bedeutet zunächst nur erfolgreiche Ausführung. Null neue Findings, erfolgreiche Planung, Dry-run und Accept sind jeweils eigene Nachweise.
+
 ## Cocondo Patch Toolkit 1.1.1 activation
 
 The canonical mutating workflow is now:
@@ -477,3 +493,7 @@ Patch qualification must stage the manifest path set without weakening ignore pr
 - the final staged path set must equal the manifest path set exactly.
 
 A single `git add --all -- <manifest-paths>` call is prohibited. Git may stage a deleted tracked file below an ignored directory and still return a non-zero status, which makes the command unsuitable as the transactional staging primitive. Regression coverage must include ignored tracked deletions, rejected ignored additions, mixed changes, special filenames and path sets above 1,000 entries.
+
+## Runtime archive audit after directory-governance adoption
+
+Patch archives and acceptance/validation logs are local runtime evidence, not committed product source. Exact cleanup patches may remove their formerly tracked files while empty directory skeletons remain temporarily in a worktree. `patch-state-audit` ignores only such empty skeletons. As soon as a directory contains a file or symlink, the normal fail-closed archive contract applies and a missing or unreadable `patch-log.json` is blocking.

@@ -93,6 +93,33 @@
       "expectedTransitionCode": "LEGACY_PATH_PRESENT"
     },
     {
+      "id": "valid-springmaster-toolkit-layout",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "ignored-local-artifacts",
+      "expectedExit": 0,
+      "expectedStatus": "PASS",
+      "expectedIgnoredPathCountMin": 4
+    },
+    {
+      "id": "tracked-patch-runtime",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "NONCOMMITTABLE_PATH_TRACKED"
+    },
+    {
+      "id": "non-executable-extensionless-tool",
+      "expectedExit": 1,
+      "expectedStatus": "FINDINGS",
+      "expectedCode": "FILE_TYPE_NOT_ALLOWED",
+      "expectedDetail": {
+        "requiresExecutable": true,
+        "executable": false
+      }
+    },
+    {
       "id": "expired-deviation",
       "expectedExit": 1,
       "expectedStatus": "FINDINGS",

@@ -31,8 +31,8 @@
   "versionClosure": {
     "platformVersion": "0.21.1-foundation",
     "mavenVersion": "0.21.1-foundation-SNAPSHOT",
-    "toolingVersion": "0.11.2",
-    "statePatch": "000194_springmaster_patch_toolkit_staging_version_closure"
+    "toolingVersion": "0.11.3",
+    "statePatch": "000196_springmaster_directory_governance_runtime_audit_closure"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",

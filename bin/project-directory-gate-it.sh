@@ -46,7 +46,8 @@ def base_fixture(case_id: str) -> Path:
         (root / directory).mkdir(parents=True, exist_ok=True)
     for name, content in {
         ".env.example": "APP_NAME=fixture\n",
-        ".gitignore": "target/\nbuild/\ntmp/\nexports/\n",
+        ".gitignore": "target/\nbuild/\ntmp/\nexports/\npatches/archives/\npatches/runtime/\npatches/logs/accept/\npatches/logs/validation/\npatches/work/\nplatform/update/generated/\nplatform/update/manifests/\n.env\n.env.*\n!.env.example\n.idea/\n*.iml\n__pycache__/\n*.pyc\n",
+        "AGENTS.md": "# Fixture Agents\n",
         "README.md": "# Fixture\n",
         "export.config.json": '{"project": "fixture"}\n',
         "pom.xml": "<project/>\n",
@@ -71,6 +72,36 @@ def base_fixture(case_id: str) -> Path:
         root / "contracts/governance/project-structure/directory-transition-baseline.json",
     )
     return root
+
+
+def init_git(root: Path):
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.email", "fixture@example.invalid"], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.name", "Directory Gate Fixture"], check=True)
+    subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture baseline"], check=True)
+
+
+def prepare_springmaster_fixture(root: Path):
+    (root / "docs").mkdir(parents=True, exist_ok=True)
+    (root / "patches/bootstrap.json").unlink(missing_ok=True)
+    for name, content in {
+        ".cocondo/process.env": "CPROCESS_CONFIG_VERSION=2\n",
+        ".cocondo/tooling/project.env": "CPATCH_CONFIG_VERSION=1\n",
+        ".cocondo/tooling/scopes/tooling.env": "CPATCH_SCOPE_ID=tooling\n",
+        ".cocondo/tooling/validators/full.env": "CPATCH_VALIDATOR_ID=full\n",
+        ".cocondo/tooling/tooling.lock.json": "{\"toolingVersion\": \"fixture\"}\n",
+        ".cocondo/tooling/cocondo-toolkit.pyz.sha256": "fixture  cocondo-toolkit.pyz\n",
+    }.items():
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    (root / ".cocondo/tooling/cocondo-toolkit.pyz").write_bytes(b"fixture-toolkit")
+    for name in ("cpatch", "crun", "cartifact", "cmanifest", "cgit-tx", "csource-check", "ctool-doctor"):
+        path = root / "bin" / name
+        path.write_text(f"#!/usr/bin/env bash\nset -euo pipefail\nprintf '%s\\n' {name!r}\n", encoding="utf-8")
+        path.chmod(0o755)
+    init_git(root)
 
 
 def load_contract(root: Path):
@@ -99,6 +130,7 @@ def prepare(case_id: str):
     root = base_fixture(case_id)
     changed_paths: list[str] = []
     deviations = None
+    profile = "generated-project"
 
     if case_id == "valid-patch-work-runtime":
         (root / "patches/work").mkdir(parents=True, exist_ok=True)
@@ -166,6 +198,37 @@ def prepare(case_id: str):
             "reason": "Fixture baseline entry",
         }]
         sync_baseline(root, entries)
+    elif case_id == "valid-springmaster-toolkit-layout":
+        profile = "springmaster-source"
+        prepare_springmaster_fixture(root)
+    elif case_id == "ignored-local-artifacts":
+        profile = "springmaster-source"
+        prepare_springmaster_fixture(root)
+        for name, content in {
+            ".env": "SECRET=local\n",
+            ".idea/workspace.xml": "<workspace/>\n",
+            "springmaster.iml": "<module/>\n",
+            "bin/__pycache__/fixture.cpython-312.pyc": "local-cache\n",
+        }.items():
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+    elif case_id == "tracked-patch-runtime":
+        profile = "springmaster-source"
+        prepare_springmaster_fixture(root)
+        runtime = root / "patches/logs/validation/fixture/result.log"
+        runtime.parent.mkdir(parents=True, exist_ok=True)
+        runtime.write_text("runtime\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(root), "add", "-f", runtime.relative_to(root).as_posix()], check=True)
+        subprocess.run(["git", "-C", str(root), "commit", "-qm", "track forbidden runtime"], check=True)
+    elif case_id == "non-executable-extensionless-tool":
+        profile = "springmaster-source"
+        prepare_springmaster_fixture(root)
+        path = root / "bin/non-executable"
+        path.write_text("not executable\n", encoding="utf-8")
+        path.chmod(0o644)
+        subprocess.run(["git", "-C", str(root), "add", path.relative_to(root).as_posix()], check=True)
+        subprocess.run(["git", "-C", str(root), "commit", "-qm", "add non executable tool"], check=True)
     elif case_id == "expired-deviation":
         deviations = root / "contracts/deviations.json"
         write_json(deviations, {
@@ -193,19 +256,19 @@ def prepare(case_id: str):
     elif case_id == "tool-error-missing-contract":
         (root / "contracts/governance/project-structure/project-directory-contract.json").unlink()
 
-    return root, changed_paths, deviations
+    return root, changed_paths, deviations, profile
 
 
 for case in expectations["cases"]:
     case_id = case["id"]
-    root, changed_paths, deviations = prepare(case_id)
+    root, changed_paths, deviations, profile = prepare(case_id)
     report = run_dir / f"{case_id}.json"
     mode = case.get("mode", "all")
     command = [
         sys.executable,
         str(root / "bin/project-directory-gate.py"),
         "--root", str(root),
-        "--profile", "generated-project",
+        "--profile", profile,
         "--mode", mode,
         "--out", str(report),
         "--check",
@@ -234,6 +297,12 @@ for case in expectations["cases"]:
         raise SystemExit(f"{case_id}: expected tool error {expected_tool}, got {sorted(tool_codes)}")
     if "expectedExpandedToAll" in case and payload.get("expandedToAll") is not case["expectedExpandedToAll"]:
         raise SystemExit(f"{case_id}: expected expandedToAll={case['expectedExpandedToAll']}, got {payload.get('expandedToAll')}")
+    expected_ignored_min = case.get("expectedIgnoredPathCountMin")
+    if expected_ignored_min is not None and payload.get("summary", {}).get("ignoredPathCount", 0) < expected_ignored_min:
+        raise SystemExit(
+            f"{case_id}: expected ignoredPathCount >= {expected_ignored_min}, "
+            f"got {payload.get('summary', {}).get('ignoredPathCount')}"
+        )
     expected_detail = case.get("expectedDetail")
     if expected_detail:
         candidates = [item for item in payload.get("newFindings", []) if item.get("code") == expected_code]

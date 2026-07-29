@@ -296,3 +296,9 @@ The former local patch engine is retained as a read-only and dry-run compatibili
 `bin/process-ops.sh` is the canonical operator facade for long-running Toolkit work. It is project-neutral and derives project root, Git common directory and integration worktree at runtime. Toolkit records remain below the configured shared Git runtime directories; process operation reports and incidents use `.git/cocondo-process` through Git-common-directory resolution.
 
 The facade starts patch workers only through `cpatch` and generic workers only through `crun`. It does not introduce a second supervisor. Default status, resume, watch, wait, result, diagnose and incident output is compact and terminal-safe. The machine-readable contract is `contracts/governance/tooling/process-operations-contract.json`.
+
+## Directory-runtime audit closure since 000196
+
+`patches/archives/**`, `patches/logs/accept/**` and `patches/logs/validation/**` are local runtime areas and are not repository source. `patch-state-audit` validates archive directories only when they contain runtime files or symlinks. Empty directory skeletons left after exact tracked-file deletion are ignored. A non-empty archive directory without a readable `patch-log.json` remains a blocking `PATCH_LOG_INVALID` finding.
+
+A change to `PLATFORM_TOOLING_VERSION` or `PLATFORM_STATE_PATCH` must update `contracts/governance/tooling/patch-toolkit-activation-contract.json` in the same candidate. Delivery preparation verifies this closure before the broader project profiles.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.project-directory-contract.v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "status": "report-only",
   "defaultProfile": "springmaster-source",
   "ruleSource": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
@@ -30,6 +30,7 @@
         "pom.xml"
       ],
       "requiredRootDirectories": [
+        ".cocondo",
         "PROJECT_DOCS",
         "bin",
         "contracts",
@@ -39,6 +40,7 @@
         "src"
       ],
       "allowedRootDirectories": [
+        ".cocondo",
         "PROJECT_DOCS",
         "bin",
         "contracts",
@@ -86,6 +88,7 @@
         "src"
       ],
       "allowedRootDirectories": [
+        ".cocondo",
         "PROJECT_DOCS",
         "bin",
         "contracts",
@@ -137,6 +140,30 @@
     "symlinkPolicy": "forbid"
   },
   "areas": [
+    {
+      "id": "cocondo-tooling-config",
+      "patterns": [
+        ".cocondo/process.env",
+        ".cocondo/tooling/**"
+      ],
+      "profiles": [
+        "springmaster-source",
+        "generated-project",
+        "managed-project"
+      ],
+      "purpose": "Project-local Cocondo Toolkit configuration, immutable toolkit payload and scope/validator contracts.",
+      "owner": "springmaster-tooling",
+      "pathClass": "canonical-source",
+      "sourceKind": "source",
+      "commitPolicy": "allowed",
+      "allowedSuffixes": [
+        ".env",
+        ".json",
+        ".pyz",
+        ".sha256"
+      ],
+      "newPathPolicy": "allow"
+    },
     {
       "id": "generated-root",
       "patterns": [
@@ -338,7 +365,10 @@
         ".py",
         ".bash"
       ],
-      "newPathPolicy": "allow"
+      "newPathPolicy": "allow",
+      "allowExtensionlessExecutable": true,
+      "purpose": "Repository-wide executable entrypoints and shared tooling libraries.",
+      "owner": "springmaster-tooling"
     },
     {
       "id": "legacy-docs",
@@ -373,7 +403,9 @@
       "allowedSuffixes": [
         "*"
       ],
-      "newPathPolicy": "allow"
+      "newPathPolicy": "allow",
+      "purpose": "Local patch runtime, validation, acceptance and archive artifacts; never product source.",
+      "owner": "springmaster-tooling"
     },
     {
       "id": "patch-workspace",
@@ -391,7 +423,9 @@
       "allowedSuffixes": [
         "*"
       ],
-      "newPathPolicy": "allow"
+      "newPathPolicy": "allow",
+      "purpose": "Current diagnostic and operator handoff workspace; always local and replaceable.",
+      "owner": "springmaster-tooling"
     },
     {
       "id": "patch-changelogs",
@@ -544,7 +578,9 @@
       "allowedSuffixes": [
         "*"
       ],
-      "newPathPolicy": "allow"
+      "newPathPolicy": "allow",
+      "purpose": "Generated platform-update manifests and payload work products.",
+      "owner": "springmaster-platform-update"
     },
     {
       "id": "platform",
@@ -626,5 +662,15 @@
       "approved",
       "active"
     ]
+  },
+  "inventoryPolicy": {
+    "gitSourceCandidates": [
+      "tracked",
+      "untracked-nonignored"
+    ],
+    "ignoredPaths": "informational-only",
+    "filesystemFallback": "allowed-only-when-profile-does-not-require-git",
+    "ignoredSampleLimit": 50,
+    "ruleSource": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md"
   }
 }

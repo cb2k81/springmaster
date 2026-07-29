@@ -1,3 +1,0 @@
-[OK] Candidate Evidence JSON geprüft
-legacyHelperState=unpaged-CatalogItemService-list-removed
-implementedOperations=['bodyless-delete', 'create', 'detail-by-id', 'full-update', 'lookup-by-sku', 'paged-list']

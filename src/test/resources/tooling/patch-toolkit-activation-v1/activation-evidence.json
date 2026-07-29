@@ -66,6 +66,21 @@
       "largePathSetCount": 1700,
       "fullPatchDryRun": "DRY_RUN_SUCCEEDED"
     },
-    "postAcceptExport": "REQUIRED"
+    "postAcceptExport": {
+      "status": "PASS",
+      "fileName": "springmaster_export_full_2026-07-29T09-11-00-091826Z.zip",
+      "sha256": "09576b2ed554f12febc6025f6562015b59ca5fc2cd20f77ef6765b8d9acfc7ec",
+      "sourceCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
+      "qualification": "POST_ACCEPT_QUALIFICATION_PASS"
+    }
+  },
+  "directoryGovernanceRuntimeAudit": {
+    "candidatePatch": "000196_springmaster_directory_governance_runtime_audit_closure",
+    "baselineCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
+    "cleanupPathCount": 995,
+    "cleanupPathListSha256": "94f751492f04abd0078be59ef867bd5e29b6bd632f30ea3025d6921f543a4081",
+    "emptyArchiveSkeletonPolicy": "IGNORE_EMPTY_ONLY",
+    "nonEmptyArchiveWithoutPatchLog": "BLOCKING",
+    "deliveryRequirement": "CANONICAL_DRY_RUN_THEN_EXPLICIT_ACCEPT"
   }
 }

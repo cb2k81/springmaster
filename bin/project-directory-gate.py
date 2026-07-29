@@ -105,7 +105,8 @@ def resolve_profile(contract: dict[str, Any], profile_id: str) -> dict[str, Any]
     return merged
 
 
-def list_repository_paths(root: Path) -> tuple[list[str], dict[str, os.stat_result]]:
+def list_filesystem_paths(root: Path) -> tuple[list[str], dict[str, os.stat_result]]:
+    """List all repository paths when no Git source inventory is available."""
     paths: list[str] = []
     stats: dict[str, os.stat_result] = {}
     ignored_roots = {".git"}
@@ -139,19 +140,89 @@ def list_repository_paths(root: Path) -> tuple[list[str], dict[str, os.stat_resu
     return sorted(set(paths)), stats
 
 
-def git_tracked_paths(root: Path, required: bool) -> set[str]:
+def git_path_set(root: Path, arguments: list[str], error_code: str) -> set[str]:
     completed = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z"],
+        ["git", "-C", str(root), *arguments, "-z"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
     )
     if completed.returncode != 0:
-        if required:
-            message = completed.stderr.decode("utf-8", errors="replace").strip()
-            raise GateToolError("GIT_TRACKING_UNAVAILABLE", f"git ls-files failed: {message}")
-        return set()
+        message = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise GateToolError(error_code, message or f"git {' '.join(arguments)} failed")
     return {item.decode("utf-8") for item in completed.stdout.split(b"\0") if item}
+
+
+def repository_inventory(root: Path, require_git_tracking: bool) -> dict[str, Any]:
+    """Build the source inventory used for governance findings.
+
+    In a Git worktree, tracked paths and untracked, non-ignored paths are source
+    candidates. Ignored local/build/runtime paths remain visible as bounded
+    inventory metadata but cannot become repository-structure findings.
+    """
+    probe = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    git_root = Path(probe.stdout.strip()).resolve() if probe.returncode == 0 and probe.stdout.strip() else None
+    if probe.returncode != 0 or git_root != root.resolve():
+        if require_git_tracking:
+            message = probe.stderr.strip() or "Directory is not the root of a Git worktree"
+            raise GateToolError("GIT_TRACKING_UNAVAILABLE", message)
+        paths, stats = list_filesystem_paths(root)
+        return {
+            "mode": "filesystem",
+            "paths": paths,
+            "stats": stats,
+            "tracked": set(),
+            "untracked": set(paths),
+            "ignoredCount": 0,
+            "ignoredSamples": [],
+        }
+
+    tracked = git_path_set(root, ["ls-files"], "GIT_TRACKING_UNAVAILABLE")
+    untracked = git_path_set(
+        root,
+        ["ls-files", "--others", "--exclude-standard"],
+        "GIT_UNTRACKED_PATHS_UNAVAILABLE",
+    )
+    ignored = git_path_set(
+        root,
+        ["ls-files", "--others", "--ignored", "--exclude-standard"],
+        "GIT_IGNORED_PATHS_UNAVAILABLE",
+    )
+
+    relevant_leaf_paths = tracked | untracked
+    relevant_paths: set[str] = set()
+    stats: dict[str, os.stat_result] = {}
+    for rel in sorted(relevant_leaf_paths):
+        candidate = root / rel
+        if not os.path.lexists(candidate):
+            continue
+        current = Path(rel)
+        while current != Path(".") and current.as_posix() not in {"", "."}:
+            current_rel = current.as_posix()
+            relevant_paths.add(current_rel)
+            current = current.parent
+    for rel in sorted(relevant_paths):
+        candidate = root / rel
+        try:
+            stats[rel] = candidate.lstat()
+        except OSError as exc:
+            raise GateToolError("PATH_STAT_ERROR", f"Cannot inspect {rel}: {exc}", rel) from exc
+
+    return {
+        "mode": "git-source",
+        "paths": sorted(relevant_paths),
+        "stats": stats,
+        "tracked": tracked,
+        "untracked": untracked,
+        "ignoredCount": len(ignored),
+        "ignoredSamples": sorted(ignored)[:50],
+    }
 
 
 def git_changed_paths(root: Path) -> list[str]:
@@ -277,8 +348,10 @@ def run_gate(
             raise GateToolError("BASELINE_DUPLICATE_PATH", f"Duplicate baseline path: {path}", path)
         baseline_map[path] = set(codes)
 
-    all_paths, stat_map = list_repository_paths(root)
-    tracked = git_tracked_paths(root, bool(profile.get("requireGitTracking")))
+    inventory = repository_inventory(root, bool(profile.get("requireGitTracking")))
+    all_paths = inventory["paths"]
+    stat_map = inventory["stats"]
+    tracked = inventory["tracked"]
 
     scan_mode = "all" if requested_mode in {"all", "report"} else "changed"
     changed_paths = sorted(set(changed_paths_arg))
@@ -379,7 +452,12 @@ def run_gate(
         if path.is_file():
             allowed_suffixes = area.get("allowedSuffixes", [])
             suffix = suffix_for(path)
-            if "*" not in allowed_suffixes and suffix not in set(allowed_suffixes):
+            type_allowed = "*" in allowed_suffixes or suffix in set(allowed_suffixes)
+            extensionless_executable = suffix == "" and area.get("allowExtensionlessExecutable") is True
+            executable = bool(stat_value.st_mode & 0o111)
+            if extensionless_executable and executable:
+                type_allowed = True
+            if not type_allowed:
                 raw_findings.append(finding(
                     "FILE_TYPE_NOT_ALLOWED",
                     "PDIR-TYPE-001",
@@ -388,6 +466,8 @@ def run_gate(
                     areaId=area.get("id"),
                     suffix=suffix,
                     allowed=allowed_suffixes,
+                    requiresExecutable=extensionless_executable,
+                    executable=executable,
                 ))
             if rel.startswith(technical_root + "/") and suffix not in human_suffixes and area.get("id") not in allowed_technical_area_ids:
                 raw_findings.append(finding(
@@ -487,10 +567,17 @@ def run_gate(
             "entryCount": len(entries),
             "entrySetSha256": digest,
         },
+        "inventory": {
+            "mode": inventory["mode"],
+            "ignoredPathCount": inventory["ignoredCount"],
+            "ignoredSamplePaths": inventory["ignoredSamples"],
+        },
         "summary": {
             "repositoryPathCount": len(all_paths),
             "selectedPathCount": len(selected),
             "trackedPathCount": len(tracked),
+            "untrackedPathCount": len(inventory["untracked"]),
+            "ignoredPathCount": inventory["ignoredCount"],
             "transitionFindingCount": len(transition_findings),
             "newFindingCount": len(new_findings),
             "warningFindingCount": 0,
@@ -521,10 +608,17 @@ def tool_error_report(profile: str, requested_mode: str, exc: GateToolError) -> 
         "expandedToAll": False,
         "contract": {},
         "transitionBaseline": {},
+        "inventory": {
+            "mode": "unknown",
+            "ignoredPathCount": 0,
+            "ignoredSamplePaths": [],
+        },
         "summary": {
             "repositoryPathCount": 0,
             "selectedPathCount": 0,
             "trackedPathCount": 0,
+            "untrackedPathCount": 0,
+            "ignoredPathCount": 0,
             "transitionFindingCount": 0,
             "newFindingCount": 0,
             "warningFindingCount": 0,

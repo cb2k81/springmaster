@@ -250,11 +250,17 @@ observability/
 
 Ein einzelner neuer Vertrag rechtfertigt nicht automatisch eine neue Familie.
 
-### 7.4 `bin/` und komponentenlokales Tooling
+### 7.4 `.cocondo/`
+
+`.cocondo/` ist die kanonische projektlokale Konfiguration und Distribution des Cocondo Toolkits. Zulässig sind ausschließlich registrierte Prozess-, Projekt-, Scope-, Validator-, Lock- und qualifizierte Toolkit-Dateien. Lokale Prozesszustände gehören weiterhin unter `.git/cocondo-process/` beziehungsweise `.git/cocondo-toolkit/` und niemals unter `.cocondo/`.
+
+### 7.5 `bin/` und komponentenlokales Tooling
 
 Die Governance-Einführung organisiert `bin/` nicht pauschal in neue Unterbäume um. Komponentenlokale Implementierungen dürfen beim Owner der Komponente liegen; `platform/update/tools/` und `platform/update/tests/` sind dafür ein bestehendes Muster.
 
-### 7.5 `patches/`
+Extensionlose Dateien unter `bin/` sind nur als ausführbare, versionierte Einstiegspunkte zulässig. Ein extensionloser, nicht ausführbarer Bestand ist ein Dateityp-Finding.
+
+### 7.6 `patches/`
 
 Der Contract muss mindestens unterscheiden zwischen:
 
@@ -264,7 +270,7 @@ Der Contract muss mindestens unterscheiden zwischen:
 
 Physische Präsenz im Snapshot beweist keine Commitfähigkeit.
 
-### 7.6 `docs/`
+### 7.7 `docs/`
 
 Die vorhandenen Dokumente werden einzeln als Migration nach `PROJECT_DOCS/`, historisches Archiv oder dauerhaft separater Bestand entschieden. Jede Verschiebung muss Exportprofile, Patch-Scopes, Index und Referenzen mitändern.
 
@@ -358,7 +364,7 @@ Erlaubte und verbotene Dateitypen werden pro Bereich registriert. Die Endung all
 
 ### 10.4 Leere Verzeichnisse
 
-Leere Source-Verzeichnisse sollen nicht vorsorglich angelegt werden. Erforderliche Platzhalter wie `.gitkeep` müssen ausdrücklich zugelassen sein.
+Leere Source-Verzeichnisse sollen nicht vorsorglich angelegt werden. `.gitkeep` ist keine neutrale Standarddatei und darf nur über einen exakten Contract-Eintrag mit Zweck, Owner und Commitregel zugelassen werden. In generierten, Runtime- oder temporären Verzeichnissen ist ein Platzhalter grundsätzlich zu entfernen statt als Source zu konservieren.
 
 ### 10.5 Symlinks
 
@@ -387,7 +393,7 @@ Für jeden Pfad muss geregelt sein, ob Inhalte:
 - nur als qualifizierte Evidence commitfähig sind,
 - oder als deterministische Ableitung versioniert werden.
 
-Eine `.gitignore`-Regel ersetzt diese Klassifikation nicht.
+Eine `.gitignore`-Regel ersetzt diese Klassifikation nicht. Für Git-Repositories bilden jedoch nur getrackte sowie ungetrackte, nicht ignorierte Pfade die Source-Inventur des Directory Gates. Ignorierte lokale Pfade werden lediglich mit Anzahl und begrenzten Beispielen informativ ausgewiesen; sie dürfen keine Source-Findings erzeugen.
 
 Runtime- und temporäre Pfade benötigen eine Retention- oder Bereinigungsregel. Fehlt ein vorgesehener Runtime-Pfad oder ist er nicht beschreibbar, darf ein Tool nicht in Source- oder Dokumentationsbereiche ausweichen; es muss fail closed reagieren.
 
@@ -443,6 +449,22 @@ Ein Migrationsplan enthält Quell- und Zielpfad, Ownerwechsel, Consumer, Reihenf
 Die Migration soll atomar erfolgen. Unvermeidbare Zwischenzustände müssen ausdrücklich unterstützt, eindeutig gerichtet und zeitlich begrenzt sein.
 
 Dauerhafte parallele Alt- und Neupfade sind nicht zulässig. Temporäre Aliase benötigen kanonische Richtung, Owner, Ablaufdatum und Schutz gegen manuelle Doppelpflege.
+
+
+### 13.4 Live-Adoption vor repositoryweiten Regeländerungen
+
+Eine neue oder verschärfte Regel, die Git-Tracking, Rootpfade oder den gesamten Repositorybaum bewertet, benötigt vor der Patchkonstruktion eine Live-Diagnose auf dem committed Integrationsstand. Der verbindliche Ablauf ist:
+
+1. sauberen HEAD und tatsächliche Worktree-Topologie erfassen,
+2. unveränderten Baseline-Report erzeugen und semantisch auswerten,
+3. Kandidatenänderung in einem eigenen Worktree anwenden,
+4. Kandidaten-Report erzeugen,
+5. Baseline und Kandidat differenziell vergleichen,
+6. erst danach ein Patchartefakt erzeugen.
+
+Ein Textexport kann Quellinhalte und Hashes liefern, beweist aber weder den vollständigen Git-Bestand noch ignorierte lokale Pfade oder Linked Worktrees. Ein technisch erfolgreich ausgeführtes report-only Gate ist außerdem kein Nachweis für null Findings; Ausführungsstatus und Findingzahlen müssen getrennt geprüft werden.
+
+Historisch getrackte Runtime-Artefakte sollen bevorzugt in einem eigenen Cleanup-Schnitt aus Git entfernt werden. Eine Transition Baseline ist nur zulässig, wenn eine sofortige Bereinigung fachlich oder technisch nicht sicher möglich ist.
 
 ## 14. Bestands- und Transition-Regeln
 

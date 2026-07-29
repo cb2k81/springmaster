@@ -156,10 +156,16 @@ def audit(project_root: Path, require_clean: bool, skip_git: bool) -> dict[str, 
     reconciliations = load_reconciliations(project_root, findings)
     used_reconciliations: set[str] = set()
 
-    archive_dirs = sorted(
+    archive_directory_candidates = sorted(
         [path for path in archives_root.iterdir() if path.is_dir()],
         key=lambda path: path.name,
     ) if archives_root.is_dir() else []
+
+    def contains_runtime_entry(path: Path) -> bool:
+        return any(entry.is_file() or entry.is_symlink() for entry in path.rglob("*"))
+
+    archive_dirs = [path for path in archive_directory_candidates if contains_runtime_entry(path)]
+    empty_archive_dirs = [path for path in archive_directory_candidates if path not in archive_dirs]
 
     for archive_dir in archive_dirs:
         patch_id = archive_dir.name
@@ -273,12 +279,14 @@ def audit(project_root: Path, require_clean: bool, skip_git: bool) -> dict[str, 
         "status": "pass" if errors == 0 else "fail",
         "summary": {
             "archives": len(archive_dirs),
+            "emptyArchiveDirectories": len(empty_archive_dirs),
             "errors": errors,
             "warnings": warnings,
             "dirtyPaths": len(dirty_paths),
             "reconciliations": len(reconciliations),
         },
         "patches": patches,
+        "emptyArchiveDirectories": [path.name for path in empty_archive_dirs],
         "dirtyPaths": dirty_paths,
         "findings": findings,
     }

@@ -363,6 +363,10 @@ Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die da
 - Lokale `patchId`-Werte dürfen sich zwischen Scopes überschneiden. Automatisierung und Abhängigkeiten verwenden immer `artifactId` und Artefakt-SHA-256.
 - Kein Push ohne ausdrückliche Freigabe. Ein Export ist kein Bestandteil jedes Accepts; Handoff-, Release- und Audit-Exporte werden explizit aus dem akzeptierten Live-Commit erzeugt.
 - `bin/patch.sh` und `bin/patch.py` sind nur noch historische Diagnose-, Verify-, Artifact-Preflight-, Live-Baseline- und Dry-run-Kompatibilität. Legacy `accept`, nicht-trockener `apply` und nicht-trockener `rollback` müssen mit `LEGACY_PATCH_MUTATION_DISABLED` abbrechen.
+- Repositoryweite Git-, Root- oder Directory-Regeln benötigen vor der Patchkonstruktion eine Live-Diagnose auf dem committed Integrations-HEAD. Erzeuge Baseline- und Kandidatenreport getrennt und bewerte den semantischen Diff. Ein Textexport ist dafür nicht ausreichend.
+- Bei report-only Gates Ausführungsstatus und Findingzahlen getrennt prüfen. `[PASS]` für die Toolausführung bedeutet nicht automatisch null neue Findings.
+- Extern gelieferte Wrapper müssen Preflightfehler direkt mit Logpfad und Diagnosearchiv unter `patches/work/` ausweisen; eine fehlende Run-ID darf die ursprüngliche Ursache nicht verdecken.
+
 - Vor Release oder nach Tooling-Konfigurationsänderungen ausführen:
 
 ```bash

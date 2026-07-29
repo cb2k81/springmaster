@@ -123,8 +123,18 @@ Patch `000194_springmaster_patch_toolkit_staging_version_closure` corrects the s
 
 Toolkit `1.1.2` stages tracked modifications and deletions with `git add -u` and stages additions separately without `--force`. Both operations use NUL-separated literal pathspec input. This preserves exact filenames, avoids command-line-size coupling, permits cleanup of historically tracked ignored files and continues to reject new ignored runtime files. The existing staged-path parity check remains mandatory.
 
-Producer regression evidence covers a mixed change set, filenames with spaces and pathspec characters, rejection of a new ignored file, 1,700 paths, dynamic Codex-readiness version resolution from the activation contract and explicit negative version-closure fixtures. The `qualifiedExport` object in the machine-readable evidence remains the historical 1.1.1 installation export; a new full export is required immediately after acceptance of this hotfix.
+Producer regression evidence covers a mixed change set, filenames with spaces and pathspec characters, rejection of a new ignored file, 1,700 paths, dynamic Codex-readiness version resolution from the activation contract and explicit negative version-closure fixtures. The historical `qualifiedExport` object remains unchanged. The dedicated `stagingHotfix.postAcceptExport` evidence records the successful post-accept qualification and full export from accepted commit `47264e5f00686fcdd2d3bda82b92ba317d29854e`.
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-28 | Toolkit `1.1.1`, Tooling `0.11.1` | Toolkit `1.1.2`, Tooling `0.11.2` | Split staging for deleted tracked files below ignored directories; new ignored files remain forbidden. |
+
+## 11. Directory governance runtime-audit closure
+
+Patch `000196_springmaster_directory_governance_runtime_audit_closure` advances `PLATFORM_TOOLING_VERSION` to `0.11.3` and updates `PLATFORM_STATE_PATCH` accordingly. The Activation Contract remains the canonical version-closure source and must be changed in the same candidate as `platform/versions/platform.env`.
+
+The patch removes the exact digest-bound historical runtime inventory and makes `patch-state-audit` compatible with file-by-file Toolkit deletion: empty archive directory skeletons are ignored, while every non-empty archive without a readable `patch-log.json` remains blocking. The delivery preparation verifies the Activation Contract explicitly before running the full project profiles. The delivery requires a canonical dry-run followed by a separate explicit accept; neither step may be inferred from producer-side qualification.
+
+| Datum | Vorher | Nachher | Grund |
+|---|---|---|---|
+| 2026-07-29 | Tooling `0.11.2`, State Patch `000194_springmaster_patch_toolkit_staging_version_closure` | Tooling `0.11.3`, State Patch `000196_springmaster_directory_governance_runtime_audit_closure` | Directory-Governance-Cleanup, Runtime-Archive-Audit-Closure und explizite Activation-Version-Closure. |

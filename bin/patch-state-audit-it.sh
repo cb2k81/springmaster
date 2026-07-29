@@ -81,4 +81,27 @@ if python3 "${AUDITOR}" "${STALE_ROOT}" --check --skip-git >/dev/null 2>&1; then
   exit 1
 fi
 
+EMPTY_ARCHIVE_ROOT="${TMP_ROOT}/empty-archive-skeleton"
+mkdir -p "${EMPTY_ARCHIVE_ROOT}/patches/archives/000008_removed/after/deep"
+python3 "${AUDITOR}" "${EMPTY_ARCHIVE_ROOT}" --check --skip-git --report "${TMP_ROOT}/empty-archive-report.json" > "${TMP_ROOT}/empty-archive.log"
+python3 - "${TMP_ROOT}/empty-archive-report.json" <<'PY_EMPTY_ARCHIVE'
+import json
+import sys
+from pathlib import Path
+report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert report["status"] == "pass", report
+assert report["summary"]["archives"] == 0, report
+assert report["summary"]["emptyArchiveDirectories"] == 1, report
+assert report["emptyArchiveDirectories"] == ["000008_removed"], report
+assert not any(item["id"] == "PATCH_LOG_INVALID" for item in report["findings"]), report
+PY_EMPTY_ARCHIVE
+
+PARTIAL_ARCHIVE_ROOT="${TMP_ROOT}/partial-archive"
+mkdir -p "${PARTIAL_ARCHIVE_ROOT}/patches/archives/000009_partial"
+printf 'residual\n' > "${PARTIAL_ARCHIVE_ROOT}/patches/archives/000009_partial/residual.txt"
+if python3 "${AUDITOR}" "${PARTIAL_ARCHIVE_ROOT}" --check --skip-git > "${TMP_ROOT}/partial-archive.log" 2>&1; then
+  echo "Expected non-empty archive without patch-log.json to fail." >&2
+  exit 1
+fi
+grep -q 'PATCH_LOG_INVALID 000009_partial' "${TMP_ROOT}/partial-archive.log"
 echo "PATCH_STATE_AUDIT_IT=PASS"
