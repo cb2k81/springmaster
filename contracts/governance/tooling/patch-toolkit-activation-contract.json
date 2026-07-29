@@ -1,8 +1,8 @@
 {
   "schemaVersion": "springmaster.patch-toolkit-activation-contract.v1",
   "projectId": "springmaster",
-  "toolkitVersion": "1.1.1",
-  "runtimeSha256": "c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684",
+  "toolkitVersion": "1.1.2",
+  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
   "integrationBranch": "main",
   "requireCleanTree": true,
   "requireWorktree": true,
@@ -31,8 +31,8 @@
   "versionClosure": {
     "platformVersion": "0.21.1-foundation",
     "mavenVersion": "0.21.1-foundation-SNAPSHOT",
-    "toolingVersion": "0.11.1",
-    "statePatch": "000187_springmaster_operator_log_history_compatibility"
+    "toolingVersion": "0.11.2",
+    "statePatch": "000194_springmaster_patch_toolkit_staging_version_closure"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
@@ -57,5 +57,12 @@
     "realSpringmasterPilot": "PASS_000184",
     "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
     "operatorLogHistoryCompatibility": "FIXED_000187"
+  },
+  "stagingModel": {
+    "pathInput": "nul-separated-literal-pathspecs",
+    "trackedUpdatesAndDeletions": "git-add-u",
+    "additions": "git-add-without-force",
+    "ignoredAdditions": "rejected",
+    "stagedPathParity": "manifest-exact"
   }
 }

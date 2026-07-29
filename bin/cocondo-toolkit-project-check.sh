@@ -12,23 +12,40 @@ syntax_check() {
   git diff --check HEAD --
 }
 
+run_stage() {
+  local name="$1"
+  shift
+  printf 'VALIDATION_SUBSTEP=%s\n' "${name}"
+  if "$@"; then
+    printf 'VALIDATION_SUBSTEP_RESULT=%s:PASS\n' "${name}"
+  else
+    local rc=$?
+    printf 'VALIDATION_SUBSTEP_RESULT=%s:FAIL:%s\n' "${name}" "${rc}" >&2
+    return "${rc}"
+  fi
+}
+
 case "${MODE}" in
-  syntax) syntax_check ;;
+  syntax)
+    run_stage syntax syntax_check
+    ;;
   targeted)
-    syntax_check
+    run_stage syntax syntax_check
     if [[ -x ./bin/tooling-selfcheck.sh && "${COCONDO_PATCH_SCOPES:-}" == *tooling* ]]; then
-      ./bin/tooling-selfcheck.sh --no-export
+      run_stage tooling-selfcheck ./bin/tooling-selfcheck.sh --no-export
     else
-      mvn -q test
+      run_stage maven-test mvn -q test
     fi
     ;;
   full)
-    mvn -q test
+    run_stage maven-test mvn -q test
     if [[ -x ./bin/springmaster-gates.sh ]]; then
-      mvn -q -Pspringmaster-gates-report test
-      ./bin/springmaster-gates.sh report --clean
+      run_stage maven-gates-report mvn -q -Pspringmaster-gates-report test
+      run_stage springmaster-gates-report ./bin/springmaster-gates.sh report --clean
     fi
     ;;
-  release) mvn -q clean verify ;;
+  release)
+    run_stage maven-clean-verify mvn -q clean verify
+    ;;
   *) printf 'Unknown validation mode: %s\n' "${MODE}" >&2; exit 2 ;;
 esac

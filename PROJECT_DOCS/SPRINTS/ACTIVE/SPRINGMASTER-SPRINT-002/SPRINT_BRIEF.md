@@ -56,7 +56,7 @@ Kanonische Baseline beim Sprintstart:
 - nächster erlaubter Zustand: `CODEX_CALIBRATION`;
 - schreibender Codex-Einsatz: nicht autorisiert;
 - Business-Partner-Fachkonzept und Acceptance Contract: vorhanden und eingefroren;
-- Patch- und Prozessausführung: Cocondo Patch Toolkit 1.1.1 mit getrenntem Dry-run und Accept.
+- Patch- und Prozessausführung: Cocondo Patch Toolkit 1.1.2 mit getrenntem Dry-run und Accept sowie activation-contract-basierter Version Closure.
 
 Der frühere D3-Kalibrierungskandidat ist nicht Teil der Repositoryhistorie und muss gegen diese Baseline neu erzeugt werden.
 

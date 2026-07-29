@@ -143,7 +143,7 @@ run_optional_contract_check \
 run_optional_contract_check \
   "Springmaster Codex pilot project readiness" \
   "${PROJECT_ROOT}/bin/codex-pilot-ready.sh" \
-  bash -c '"$1" project --candidate --check --skip-self-tests >/dev/null && "$2" >/dev/null && "$3" >/dev/null' _ \
+  bash -c '"$1" project --candidate --check --skip-self-tests && "$2" && "$3"' _ \
   "${PROJECT_ROOT}/bin/codex-pilot-ready.sh" \
   "${PROJECT_ROOT}/bin/agent-task-it.sh" \
   "${PROJECT_ROOT}/bin/codex-pilot-ready-it.sh"

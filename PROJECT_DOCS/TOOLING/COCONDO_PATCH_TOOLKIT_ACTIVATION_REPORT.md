@@ -1,6 +1,6 @@
 ---
 documentId: TOOL-PATCH-TOOLKIT-ACTIVATION-0001
-title: Cocondo Patch Toolkit 1.1.1 Activation and Version Closure Report
+title: Cocondo Patch Toolkit Activation and Version Closure Report
 documentType: report
 status: final
 authority: evidence
@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-23
 validFrom: 2026-07-23
-lastReviewedAt: 2026-07-23
+lastReviewedAt: 2026-07-28
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -21,15 +21,17 @@ temporary: false
 sprintId: null
 ---
 
-# Cocondo Patch Toolkit 1.1.1 Activation and Version Closure Report
+# Cocondo Patch Toolkit Activation and Version Closure Report
 
 ## 1. Entscheidung
 
-Cocondo Patch Toolkit `1.1.1` ist der kanonische mutierende Patchpfad für Springmaster. Git bleibt die dauerhafte Repositoryhistorie. `bin/cpatch` erzeugt, qualifiziert und transferiert neue Patchartefakte aus gebundenen Git-Worktrees.
+Cocondo Patch Toolkit `1.1.2` ist nach Annahme von Patch `000194_springmaster_patch_toolkit_staging_version_closure` der kanonische mutierende Patchpfad für Springmaster. Git bleibt die dauerhafte Repositoryhistorie. `bin/cpatch` erzeugt, qualifiziert und transferiert neue Patchartefakte aus gebundenen Git-Worktrees. Toolkit `1.1.2` ersetzt `1.1.1` ausschließlich durch die unten dokumentierte Split-Staging-Korrektur; Manifest-, Workspace-, Validierungs- und Accept-Verträge bleiben kompatibel.
 
 Die bisherige lokale Engine unter `bin/patch.sh` und `bin/patch.py` bleibt vorübergehend für historische Diagnose, Read-only-Auswertung, Artifact Preflight, Live-Baseline und Dry-run-Kompatibilität erhalten. Live-Mutation über `accept`, nicht-trockenen `apply` oder nicht-trockenen `rollback` ist nach diesem Cutover technisch mit `LEGACY_PATCH_MUTATION_DISABLED` gesperrt.
 
-## 2. Installations- und Qualification Evidence
+## 2. Historische Installations- und Qualification Evidence für 1.1.1
+
+Die folgende Evidence beschreibt die ursprüngliche Aktivierung von Toolkit `1.1.1`. Sie bleibt als unveränderliche Provenienz erhalten. Die Qualifikation von `1.1.2`, der Incidentbezug und die Pflicht zum neuen Post-Accept-Export sind in Abschnitt 10 sowie in der maschinenlesbaren Activation Evidence dokumentiert.
 
 | Eigenschaft | Wert |
 |---|---|
@@ -113,3 +115,16 @@ Patch `000186_springmaster_patch_workflow_workspace_contract` completed its cano
 The first observer call after acceptance exposed a compatibility defect: the new process adapter rejected the entire shared operator-log root because Springmaster intentionally retains historical tracked validation evidence below `patches/logs/validation/`. The canonical acceptance remained successful; repeating it was neither required nor permitted.
 
 Patch `000187_springmaster_operator_log_history_compatibility` narrows the fail-closed check to the exact generated run directory `<operator-log-root>/<patch-id>/<run-id>/`. Historical tracked sibling evidence is tolerated and left untouched. The current run directory must remain ignored and free of tracked content. Integration fixtures cover both the real-history compatibility case and the tracked-current-run collision case.
+
+
+## 10. Toolkit 1.1.2 split-staging and version-closure hotfix
+
+Patch `000194_springmaster_patch_toolkit_staging_version_closure` corrects the staging boundary exposed by the failed cleanup dry-run `run-20260728T153249Z-5f8dd710bdcc` and closes the version-drift defect exposed by failed hotfix dry-run `run-20260729T081344Z-2ab09fa58419`. Patch `000193` remains incident evidence and is not reused. The former implementation passed every manifest path to one `git add --all` invocation. Git stages a deleted tracked file below an ignored directory but still exits non-zero, which the Toolkit correctly treated as a Git command failure.
+
+Toolkit `1.1.2` stages tracked modifications and deletions with `git add -u` and stages additions separately without `--force`. Both operations use NUL-separated literal pathspec input. This preserves exact filenames, avoids command-line-size coupling, permits cleanup of historically tracked ignored files and continues to reject new ignored runtime files. The existing staged-path parity check remains mandatory.
+
+Producer regression evidence covers a mixed change set, filenames with spaces and pathspec characters, rejection of a new ignored file, 1,700 paths, dynamic Codex-readiness version resolution from the activation contract and explicit negative version-closure fixtures. The `qualifiedExport` object in the machine-readable evidence remains the historical 1.1.1 installation export; a new full export is required immediately after acceptance of this hotfix.
+
+| Datum | Vorher | Nachher | Grund |
+|---|---|---|---|
+| 2026-07-28 | Toolkit `1.1.1`, Tooling `0.11.1` | Toolkit `1.1.2`, Tooling `0.11.2` | Split staging for deleted tracked files below ignored directories; new ignored files remain forbidden. |

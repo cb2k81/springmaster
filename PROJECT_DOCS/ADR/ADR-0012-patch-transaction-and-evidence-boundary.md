@@ -62,7 +62,7 @@ Each run writes a sanitized `invocation.json` below its project-local run log. T
 
 ## Accepted operational refinement: canonical toolkit activation
 
-Cocondo Patch Toolkit `1.1.1` is the canonical mutating patch implementation for Springmaster after its qualified installation and version closure. New patch artifacts are created from authentic committed Git refs in a dedicated bound worktree, qualified through the configured non-downgradable validation plan and transferred to `main` only after successful isolated qualification.
+Cocondo Patch Toolkit `1.1.2` is the canonical mutating patch implementation for Springmaster after its qualified installation and version closure. Toolkit version consumers must resolve the expected version from the activation contract; independent hard-coded current-version constants are forbidden. New patch artifacts are created from authentic committed Git refs in a dedicated bound worktree, qualified through the configured non-downgradable validation plan and transferred to `main` only after successful isolated qualification.
 
 The former local engine remains available only for historical inspection, diagnostics, artifact preflight, live-baseline analysis, verification and dry-run compatibility. Live mutation through legacy `accept`, non-dry-run `apply` or non-dry-run `rollback` is fail-closed with `LEGACY_PATCH_MUTATION_DISABLED`. Re-enabling legacy mutation requires a separate accepted decision and equivalent production evidence.
 

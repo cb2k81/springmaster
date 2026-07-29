@@ -64,4 +64,86 @@ set -e
 test "${LEGACY_STATUS}" -eq 78
 printf '%s\n' "${LEGACY_OUTPUT}" | grep -q 'LEGACY_PATCH_MUTATION_DISABLED'
 
+# PATCH_TOOLKIT_SPLIT_STAGING_REGRESSION_V1
+python3 - "${PROJECT_ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" "${WORK_ROOT}/split-staging" <<'PY_STAGING'
+from pathlib import Path
+import json
+import subprocess
+import sys
+
+runtime = Path(sys.argv[1])
+root = Path(sys.argv[2])
+sys.path.insert(0, str(runtime))
+from cocondo_toolkit.gitops import GitRepository
+
+
+def run(args, cwd, check=True):
+    return subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=check)
+
+
+def init_repo(path):
+    path.mkdir(parents=True)
+    run(["git", "init", "-q", "-b", "main"], path)
+    run(["git", "config", "user.name", "Test"], path)
+    run(["git", "config", "user.email", "test@example.invalid"], path)
+    return path
+
+mixed = init_repo(root / "mixed")
+(mixed / ".gitignore").write_text("ignored/**\n", encoding="utf-8")
+(mixed / "ignored").mkdir()
+(mixed / "ignored/deleted file.txt").write_text("old\n", encoding="utf-8")
+(mixed / "normal.txt").write_text("old\n", encoding="utf-8")
+(mixed / "literal[abc].txt").write_text("old\n", encoding="utf-8")
+run(["git", "add", "-f", ".gitignore", "ignored/deleted file.txt", "normal.txt", "literal[abc].txt"], mixed)
+run(["git", "commit", "-qm", "baseline"], mixed)
+(mixed / "ignored/deleted file.txt").unlink()
+(mixed / "normal.txt").write_text("new\n", encoding="utf-8")
+(mixed / "new file.txt").write_text("new\n", encoding="utf-8")
+(mixed / "literal[abc].txt").write_text("new\n", encoding="utf-8")
+repo = GitRepository(mixed)
+expected = sorted(["ignored/deleted file.txt", "normal.txt", "new file.txt", "literal[abc].txt"])
+repo.stage_paths(expected, mixed)
+assert repo.staged_paths(mixed) == expected
+
+ignored = init_repo(root / "ignored-addition")
+(ignored / ".gitignore").write_text("ignored/**\n", encoding="utf-8")
+run(["git", "add", ".gitignore"], ignored)
+run(["git", "commit", "-qm", "baseline"], ignored)
+(ignored / "ignored").mkdir()
+(ignored / "ignored/new.txt").write_text("new\n", encoding="utf-8")
+repo = GitRepository(ignored)
+try:
+    repo.stage_paths(["ignored/new.txt"], ignored)
+except Exception as exc:
+    assert getattr(exc, "code", None) == "GIT_COMMAND_FAILED", repr(exc)
+else:
+    raise AssertionError("new ignored file was staged")
+assert repo.staged_paths(ignored) == []
+
+large = init_repo(root / "large")
+paths = []
+for index in range(1024):
+    path = large / f"files/f{index:04d}.txt"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text("old\n", encoding="utf-8")
+run(["git", "add", "."], large)
+run(["git", "commit", "-qm", "baseline"], large)
+for index in range(1024):
+    path = large / f"files/f{index:04d}.txt"
+    if index % 3 == 0:
+        path.unlink()
+    else:
+        path.write_text("new\n", encoding="utf-8")
+    paths.append(f"files/f{index:04d}.txt")
+for index in range(64):
+    path = large / f"additions/n{index:04d}.txt"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text("new\n", encoding="utf-8")
+    paths.append(f"additions/n{index:04d}.txt")
+repo = GitRepository(large)
+repo.stage_paths(paths, large)
+assert repo.staged_paths(large) == sorted(paths)
+print(json.dumps({"mixed": "PASS", "ignoredAddition": "REJECTED", "largePathCount": len(paths)}, sort_keys=True))
+PY_STAGING
+
 echo "PATCH_TOOLKIT_ACTIVATION_IT=PASS"

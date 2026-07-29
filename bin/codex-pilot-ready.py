@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -15,7 +16,12 @@ from typing import Any
 
 REPORT_SCHEMA = "springmaster.codex-pilot-readiness-report.v1"
 EXPECTED_PROJECT_ID = "springmaster"
-EXPECTED_TOOLKIT_VERSION = "1.1.1"
+ACTIVATION_CONTRACT_PATH = "contracts/governance/tooling/patch-toolkit-activation-contract.json"
+TOOLING_LOCK_PATH = ".cocondo/tooling/tooling.lock.json"
+ACTIVATION_EVIDENCE_PATH = "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json"
+TOOLKIT_RUNTIME_PATH = ".cocondo/tooling/cocondo-toolkit.pyz"
+TOOLKIT_SIDECAR_PATH = ".cocondo/tooling/cocondo-toolkit.pyz.sha256"
+HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_RULE_IDS = {
     "AIA-PROJECT-001",
     "AIA-PATCH-001",
@@ -30,6 +36,11 @@ REQUIRED_RULE_IDS = {
 REQUIRED_TEST_PATHS = {"bin/agent-task-it.sh", "bin/codex-pilot-ready-it.sh"}
 REQUIRED_FIXTURE_ID = "codex-pilot-readiness-v1"
 REQUIRED_FILES = {
+    ACTIVATION_CONTRACT_PATH,
+    TOOLING_LOCK_PATH,
+    ACTIVATION_EVIDENCE_PATH,
+    TOOLKIT_RUNTIME_PATH,
+    TOOLKIT_SIDECAR_PATH,
     "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
     "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
     "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
@@ -104,6 +115,14 @@ def load_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise GateToolError("JSON_ROOT_INVALID", "JSON root must be an object", path=str(path))
     return value
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def parse_env(path: Path) -> dict[str, str]:
@@ -308,10 +327,31 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     if acceptance.get("safetyTargets", {}).get("writesOutsideTaskWorktree") != 0:
         finding(findings, "AIA-CONCEPT-001", "SAFETY_TARGET_INVALID", "Writes outside the task worktree target must be zero")
 
+    activation_contract = load_json(root / ACTIVATION_CONTRACT_PATH)
+    toolkit_lock = load_json(root / TOOLING_LOCK_PATH)
+    activation_evidence = load_json(root / ACTIVATION_EVIDENCE_PATH)
+    expected_toolkit_version = activation_contract.get("toolkitVersion")
+    expected_runtime_sha256 = activation_contract.get("runtimeSha256")
+    if (
+        activation_contract.get("schemaVersion") != "springmaster.patch-toolkit-activation-contract.v1"
+        or activation_contract.get("projectId") != EXPECTED_PROJECT_ID
+        or not isinstance(expected_toolkit_version, str)
+        or not expected_toolkit_version.strip()
+        or not isinstance(expected_runtime_sha256, str)
+        or not HEX_SHA256.fullmatch(expected_runtime_sha256)
+    ):
+        finding(
+            findings,
+            "AIA-PATCH-001",
+            "CPATCH_ACTIVATION_CONTRACT_INVALID",
+            "Cocondo Patch Toolkit activation contract is invalid",
+            contract=ACTIVATION_CONTRACT_PATH,
+        )
+
     project_env = parse_env(root / ".cocondo/tooling/project.env")
     expected_env = {
         "CPATCH_PROJECT_ID": EXPECTED_PROJECT_ID,
-        "CPATCH_TOOLKIT_VERSION": EXPECTED_TOOLKIT_VERSION,
+        "CPATCH_TOOLKIT_VERSION": expected_toolkit_version,
         "CPATCH_REQUIRE_CLEAN_TREE": "true",
         "CPATCH_REQUIRE_WORKTREE": "true",
         "CPATCH_REQUIRE_WORKSPACE_FOR_CREATE": "true",
@@ -320,10 +360,63 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     for key, expected in expected_env.items():
         if project_env.get(key) != expected:
             finding(findings, "AIA-PATCH-001", "CPATCH_CONFIG_INVALID", "Cocondo Patch Toolkit project configuration is invalid", key=key, expected=expected, actual=project_env.get(key))
+
+    closure_checks = [
+        (TOOLING_LOCK_PATH, "toolkitVersion", expected_toolkit_version, toolkit_lock.get("toolkitVersion")),
+        (TOOLING_LOCK_PATH, "sha256", expected_runtime_sha256, toolkit_lock.get("sha256")),
+        (ACTIVATION_EVIDENCE_PATH, "toolkitVersion", expected_toolkit_version, activation_evidence.get("toolkitVersion")),
+        (ACTIVATION_EVIDENCE_PATH, "runtimeSha256", expected_runtime_sha256, activation_evidence.get("runtimeSha256")),
+    ]
+    for source, key, expected, actual in closure_checks:
+        if actual != expected:
+            finding(
+                findings,
+                "AIA-PATCH-001",
+                "CPATCH_VERSION_CLOSURE_INVALID",
+                "Cocondo Patch Toolkit version closure is inconsistent",
+                source=source,
+                key=key,
+                expected=expected,
+                actual=actual,
+            )
+
+    runtime_path = root / TOOLKIT_RUNTIME_PATH
+    sidecar_path = root / TOOLKIT_SIDECAR_PATH
+    if runtime_path.is_file() and isinstance(expected_runtime_sha256, str):
+        actual_runtime_sha256 = sha256(runtime_path)
+        if actual_runtime_sha256 != expected_runtime_sha256:
+            finding(
+                findings,
+                "AIA-PATCH-001",
+                "CPATCH_VERSION_CLOSURE_INVALID",
+                "Cocondo Patch Toolkit runtime hash does not match the activation contract",
+                source=TOOLKIT_RUNTIME_PATH,
+                key="sha256",
+                expected=expected_runtime_sha256,
+                actual=actual_runtime_sha256,
+            )
+    else:
+        finding(findings, "AIA-PATCH-001", "CPATCH_TOOLKIT_BINARY_MISSING", "Cocondo Patch Toolkit binary is missing", path=TOOLKIT_RUNTIME_PATH)
+
+    if sidecar_path.is_file() and isinstance(expected_runtime_sha256, str):
+        sidecar_tokens = sidecar_path.read_text(encoding="utf-8").split()
+        actual_sidecar_sha256 = sidecar_tokens[0] if sidecar_tokens else None
+        if actual_sidecar_sha256 != expected_runtime_sha256:
+            finding(
+                findings,
+                "AIA-PATCH-001",
+                "CPATCH_VERSION_CLOSURE_INVALID",
+                "Cocondo Patch Toolkit sidecar does not match the activation contract",
+                source=TOOLKIT_SIDECAR_PATH,
+                key="sha256",
+                expected=expected_runtime_sha256,
+                actual=actual_sidecar_sha256,
+            )
+    else:
+        finding(findings, "AIA-PATCH-001", "CPATCH_TOOLKIT_SIDECAR_MISSING", "Cocondo Patch Toolkit sidecar is missing", path=TOOLKIT_SIDECAR_PATH)
+
     if not (root / "bin/cpatch").is_file():
         finding(findings, "AIA-PATCH-001", "CPATCH_ENTRYPOINT_MISSING", "Canonical cpatch entrypoint is missing")
-    if mode == "live" and not (root / ".cocondo/tooling/cocondo-toolkit.pyz").is_file():
-        finding(findings, "AIA-PATCH-001", "CPATCH_TOOLKIT_BINARY_MISSING", "Cocondo Patch Toolkit binary is missing in the live checkout")
 
     executable_paths = ["bin/agent-task.py", "bin/agent-task.sh", "bin/agent-task-it.sh", "bin/codex-pilot-ready.py", "bin/codex-pilot-ready.sh", "bin/codex-pilot-ready-it.sh"]
     for relative in executable_paths:

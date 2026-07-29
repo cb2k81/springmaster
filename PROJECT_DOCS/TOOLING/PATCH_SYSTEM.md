@@ -465,3 +465,15 @@ Operational patch runs use the project-neutral process adapter rather than a sec
 The adapter resolves the integration worktree from Git, delegates worker ownership directly to `cpatch`, stores operational pointers below the Git common directory and keeps default terminal output compact. Dry-run and accept are separate promotion decisions. External `nohup`, `setsid`, PID files and polling supervisors around a detached Toolkit run are non-canonical.
 
 A caller may operate from a linked feature worktree. Mutation still checks the configured integration worktree, while observation never stages, resets or otherwise modifies the caller's worktree. Managed-project rollout remains blocked until the Springmaster pilot scenarios in the process-operations contract are complete.
+
+
+## Exact split staging since 000194
+
+Patch qualification must stage the manifest path set without weakening ignore protection. The Toolkit partitions the exact normalized manifest paths after apply:
+
+- paths already present in the Git index are staged with `git add -u`; this includes modifications and deletions below directories that are ignored today,
+- additions are staged separately with normal `git add` and without `--force`,
+- both operations use NUL-separated literal pathspec input,
+- the final staged path set must equal the manifest path set exactly.
+
+A single `git add --all -- <manifest-paths>` call is prohibited. Git may stage a deleted tracked file below an ignored directory and still return a non-zero status, which makes the command unsuitable as the transactional staging primitive. Regression coverage must include ignored tracked deletions, rejected ignored additions, mixed changes, special filenames and path sets above 1,000 entries.

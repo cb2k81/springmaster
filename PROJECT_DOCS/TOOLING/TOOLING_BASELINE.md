@@ -281,10 +281,10 @@ Damit bleibt die nächste Arbeit auf das sichere Generieren und Akzeptieren von 
 
 ## Qualified Patch Toolkit baseline
 
-Springmaster uses Cocondo Patch Toolkit `1.1.1` as the canonical mutating patch runtime. The immutable runtime SHA-256 is:
+Springmaster uses Cocondo Patch Toolkit `1.1.2` as the canonical mutating patch runtime. The immutable runtime SHA-256 is:
 
 ```text
-c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684
+351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155
 ```
 
 The production baseline requires clean-tree enforcement, commit-on-accept, dedicated Git worktrees, workspace binding and integration into `main`. The activation is verified by `bin/patch-toolkit-activation.sh`, its negative integration fixture and the regular Tooling Selfcheck.

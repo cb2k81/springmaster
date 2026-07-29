@@ -1,8 +1,8 @@
 {
   "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
   "projectId": "springmaster",
-  "toolkitVersion": "1.1.1",
-  "runtimeSha256": "c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684",
+  "toolkitVersion": "1.1.2",
+  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
   "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
   "installationCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
   "installationQualification": {
@@ -52,5 +52,20 @@
     "operatorLogHistoryCompatibility": "FIXED_000187",
     "operatorWorkspaceDryRunId": "run-20260727T114228Z-ed48eef336de",
     "operatorWorkspaceAcceptRunId": "run-20260727T120640Z-800d2ab4656d"
+  },
+  "stagingHotfix": {
+    "patchId": "000194_springmaster_patch_toolkit_staging_version_closure",
+    "incidentRunId": "run-20260728T153249Z-5f8dd710bdcc",
+    "diagnosisStatus": "CONFIRMED",
+    "rootCause": "git add --all returns non-zero for deleted tracked paths below ignored directories even though the deletion is staged",
+    "implementation": "split tracked updates/deletions from additions and use NUL-separated literal pathspecs",
+    "ignoredNewFilePolicy": "REJECTED_WITHOUT_FORCE",
+    "producerRegression": {
+      "mixedTrackedDeletionModificationAddition": "PASS",
+      "ignoredAdditionRejected": "PASS",
+      "largePathSetCount": 1700,
+      "fullPatchDryRun": "DRY_RUN_SUCCEEDED"
+    },
+    "postAcceptExport": "REQUIRED"
   }
 }

@@ -62,6 +62,66 @@ git -C "${FIXTURE}" config user.name codex-pilot-ready-it
 git -C "${FIXTURE}" add .
 git -C "${FIXTURE}" commit -q -m fixture
 
+CURRENT_STEP=version-closure-project-env
+ENV_DRIFT="${TMP_ROOT}/env-drift"
+cp -a "${FIXTURE}" "${ENV_DRIFT}"
+sed -i 's/^CPATCH_TOOLKIT_VERSION=.*/CPATCH_TOOLKIT_VERSION=9.9.9/' "${ENV_DRIFT}/.cocondo/tooling/project.env"
+set +e
+"${ENV_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${ENV_DRIFT}" project --candidate --check --skip-self-tests \
+  --out-json "${TMP_ROOT}/env-drift.json" >/dev/null
+RC=$?
+set -e
+test "${RC}" -eq 1
+python3 - "${TMP_ROOT}/env-drift.json" <<'PYCHECK'
+import json, sys
+from pathlib import Path
+value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+item=next(x for x in value['findings'] if x['code']=='CPATCH_CONFIG_INVALID' and x.get('details',{}).get('key')=='CPATCH_TOOLKIT_VERSION')
+assert item['details']['expected']=='1.1.2', item
+assert item['details']['actual']=='9.9.9', item
+PYCHECK
+
+CURRENT_STEP=version-closure-lock
+LOCK_DRIFT="${TMP_ROOT}/lock-drift"
+cp -a "${FIXTURE}" "${LOCK_DRIFT}"
+python3 - "${LOCK_DRIFT}/.cocondo/tooling/tooling.lock.json" <<'PYCHECK'
+import json, sys
+from pathlib import Path
+path=Path(sys.argv[1])
+value=json.loads(path.read_text(encoding='utf-8'))
+value['toolkitVersion']='9.9.9'
+path.write_text(json.dumps(value,indent=2)+"\n",encoding='utf-8')
+PYCHECK
+set +e
+"${LOCK_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${LOCK_DRIFT}" project --candidate --check --skip-self-tests \
+  --out-json "${TMP_ROOT}/lock-drift.json" >/dev/null
+RC=$?
+set -e
+test "${RC}" -eq 1
+python3 - "${TMP_ROOT}/lock-drift.json" <<'PYCHECK'
+import json, sys
+from pathlib import Path
+value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+assert any(x['code']=='CPATCH_VERSION_CLOSURE_INVALID' and x.get('details',{}).get('source')=='.cocondo/tooling/tooling.lock.json' for x in value['findings']), value
+PYCHECK
+
+CURRENT_STEP=version-closure-runtime
+RUNTIME_DRIFT="${TMP_ROOT}/runtime-drift"
+cp -a "${FIXTURE}" "${RUNTIME_DRIFT}"
+printf 'drift' >> "${RUNTIME_DRIFT}/.cocondo/tooling/cocondo-toolkit.pyz"
+set +e
+"${RUNTIME_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${RUNTIME_DRIFT}" project --candidate --check --skip-self-tests \
+  --out-json "${TMP_ROOT}/runtime-drift.json" >/dev/null
+RC=$?
+set -e
+test "${RC}" -eq 1
+python3 - "${TMP_ROOT}/runtime-drift.json" <<'PYCHECK'
+import json, sys
+from pathlib import Path
+value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+assert any(x['code']=='CPATCH_VERSION_CLOSURE_INVALID' and x.get('details',{}).get('source')=='.cocondo/tooling/cocondo-toolkit.pyz' for x in value['findings']), value
+PYCHECK
+
 CURRENT_STEP=missing-source-finding
 MISSING="${TMP_ROOT}/missing"
 cp -a "${FIXTURE}" "${MISSING}"

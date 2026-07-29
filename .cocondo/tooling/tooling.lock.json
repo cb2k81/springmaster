@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cocondo.tooling-lock.v1",
-  "toolkitVersion": "1.1.1",
+  "toolkitVersion": "1.1.2",
   "runtimeFile": "cocondo-toolkit.pyz",
-  "sha256": "c1bc3a77e557d1e45d2960be922d4bb8d1c12b65fe8fcd5cb093650246f43684"
+  "sha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155"
 }
