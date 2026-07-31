@@ -1,562 +1,675 @@
-# Finale Konsistenz- und Vollständigkeitsprüfung
-
-## Cross-App Backend and GWC Target Architecture
-
-## SPRINGMASTER-SPRINT-003
-
-**Prüfergebnis:** `PASS_AFTER_MANDATORY_AMENDMENT`
-**Architektonischer Grundkonflikt:** keiner
-**Unverändert repository-fähig:** nein
-**Nach den nachfolgenden Korrekturen repository-fähig:** ja
-
+---
+documentId: SPRINGMASTER-SPRINT-003-PLAN
+title: Cross-App Backend Contract Foundation and GWC Readiness – Solution Plan
+documentType: plan
+status: review
+authority: directive
+scopeLevel: project
+scopePaths:
+  - springmaster/sprints
+appliesTo:
+  - springmaster
+owner: springmaster-maintainers
+createdAt: 2026-07-30
+validFrom: null
+lastReviewedAt: 2026-07-31
+reviewBy: 2026-08-31
+supersedes: []
+supersededBy: null
+temporary: true
+sprintId: SPRINGMASTER-SPRINT-003
 ---
 
-# 1. Gesamtbewertung
+# Cross-App Backend Contract Foundation and GWC Readiness – Solution Plan
 
-Das Konzept unterstützt die beiden übergeordneten Ziele grundsätzlich korrekt:
+## Lösungsoptionen und Auswahl
 
-1. Springmaster zentralisiert fachneutralen Core, Tools, Patterns, Verträge, Governance und kontrollierte Managed-Project-Updates.
-2. Backend-APIs werden so standardisiert, dass GWC sie über UI Specs und generierte Anwendungen deterministisch konsumieren kann.
+### Gewählte Lösung
 
-Dabei wird richtigerweise nicht verlangt, dass alle Anwendungen dasselbe interne Fachmodell besitzen. Standardisiert werden:
+SPRINGMASTER-SPRINT-003 realisiert eine contract-first Cross-App-Grundlage. Der Sprint hebt nur ausreichend verstandene Fähigkeiten bis zur Referenzimplementierung an und hält komplexe Runtime-Fähigkeiten bewusst auf `CONTRACTED` oder `DEFINED`.
 
-* technische und fachliche Grenzen;
-* API-Verträge;
-* Security;
-* Capabilities;
-* Preconditions;
-* Qualitätsanforderungen;
-* Evidence;
-* Contract-Handoffs;
-* Generator- und GWC-Bindungen.
+Die gewählte Lösung besteht aus:
 
-Die Fachlogik, Historisierung, Projektionsmodelle und notwendigen Transaktionsgrenzen verbleiben in den Anwendungen.
+1. dauerhafter Zielbild- und Capability-Bindung;
+2. ADRs und additiven Standards;
+3. versionierten maschinenlesbaren Profilen;
+4. positiven und negativen Cross-App-Fixtures;
+5. Validator, Operation Catalog und reproduzierbarem Contract-Handoff;
+6. minimaler opt-in OpenAPI-Runtime;
+7. einfachem Relation-/Candidate-Referenzslice;
+8. read-only Qualification gegen IDM, Personnel, Contacts und GWC;
+9. qualifiziertem Handoff an Folgesprints.
 
-## Dies entspricht auch der ursprünglichen Empfehlung: Nicht ein vollständiger Backendumbau, sondern ein anwendungsübergreifendes API-Profil soll bestehende gute Strukturen vereinheitlichen und fehlende Semantik ergänzen.
+### Verworfene Optionen
 
-# 2. Weiterhin gültige Architekturentscheidungen
+#### Vollständige Runtime in einem Sprint
 
-Folgende Entscheidungen sind konsistent und bleiben bestehen:
+Verworfen, weil komplexe Aggregate Graphs, gemischte Concurrency, Bulk-Orchestrierung und Workspace Runtime unterschiedliche Oracles und Failure Modes besitzen. Eine gemeinsame Umsetzung würde Reviewbarkeit, Cross-App-Evidence und deterministische Qualification schwächen.
 
-* `operationKey` ist die stabile fachliche und generatorrelevante Identität.
-* `operationId` bleibt eine technische OpenAPI-Identität.
-* `operationKind` und `operationRoles[]` werden getrennt.
-* Standard Pages und Workspaces bleiben verschiedene Patternfamilien.
-* Backend Effects und UI- beziehungsweise Workspace-Reloads bleiben getrennte Verantwortungen.
-* Public Preconditions und interne Locking-Verfahren werden getrennt.
-* Optimistische, pessimistische und gemischte Konsistenzverfahren sind grundsätzlich zulässig.
-* History, Snapshots, append-only Strukturen, Ledger, Read Models und Projections sind eigenständige Semantiken.
-* Bulk Commands werden von Composite Commands und Background Jobs unterschieden.
-* Capabilities steuern die UI-Projektion, ersetzen aber keine serverseitige Autorisierung.
-* Cross-App-Fixtures schützen gegen eine unzulässige Vereinfachung auf IDM- oder CRUD-Niveau.
-* Neue Gates starten `report-only`.
-* Managed Projects werden in diesem Sprint nur read-only untersucht.
+#### Neuer paralleler API-Standard
 
-Die Workspace-Abgrenzung ist korrekt: Ein Workspace besitzt eigenen Kontext, Areas, Resource Store, Reload Graph, Mutation Coordinator und Dirty-State-Registry. Er ist keine vergrößerte Detailseite.
+Verworfen, weil Springmaster bereits ausreichende CRUD-, Query-, Command-, Relationship-, Precheck-, Error- und Security-Verträge besitzt. Das neue Profil ergänzt nur fehlende maschinenlesbare Semantik.
 
-Ebenso richtig ist, Workspace-Specs nicht über den Standard-Page-Generator zu erzwingen. Sie benötigen eine eigene Canonical IR und müssen bei unvollständiger Semantik fail-closed bleiben.
+#### App-spezifische Übernahme aus IDM, Personnel oder Contacts
 
----
+Verworfen. Bewährte Patterns werden fachneutral abstrahiert; Fachlogik, Entity-Namen, Tabellenmodelle und Sperrreihenfolgen bleiben Anwendungseigentum.
 
-# 3. Verbindliche Korrekturen am Konzept
+#### Automatischer Managed-Project-Umbau
 
-## 3.1 Geltungsbereich präzisieren
+Verworfen. Sprint 003 arbeitet gegenüber IDM, Personnel, Contacts und GWC ausschließlich read-only. Adoption und Migration erfolgen später kontrolliert und sliceweise.
 
-Das Konzept ist das vollständige Zielbild für den Bereich:
+### Aktivierungsvoraussetzung
 
-```text
-Backend-Architekturverträge
-+ API-Standardisierung
-+ GWC-Integration
-+ Cross-App-Kompatibilität
-```
+Sprint 003 darf erst `active` werden, wenn genau eine der folgenden Bedingungen erfüllt ist:
 
-Es ist jedoch nicht die alleinige Gesamtarchitektur für sämtliche Springmaster-Aufgaben.
+- SPRINGMASTER-SPRINT-002 ist qualifiziert abgeschlossen und archiviert; oder
+- ein akzeptiertes Sprint-002-Amendment definiert disjunkte Dateiscopes, Contract-Ownership und Evidence.
 
-Die übergeordnete kanonische Zielquelle bleibt:
+Bis dahin bleibt dieses Dokument `status: review`.
 
-```text
-PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md
-```
+## Architektur- und Contract-Auswirkungen
 
-Das Konzept muss deshalb ausdrücklich formulieren:
+### Zielbildbindung
 
-> Dieses Konzept operationalisiert die Springmaster-Projektziele für Backend-Patterns, API-Verträge und GWC-Integration. Es ersetzt nicht die übergeordneten Ziel- und Governance-Verträge für zentrale Core-Entwicklung, Tooling-Distribution, Project-New und Managed-Project-Updates.
-
-Der Capability Catalog darf folglich nicht als Katalog aller Springmaster-Fähigkeiten bezeichnet werden, sondern als:
-
-```text
-Cross-App Backend and GWC Capability Catalog
-```
-
-## 3.2 Repository-Pfade korrigieren
-
-Die bisher vorgeschlagenen Pfade widersprechen teilweise der bestehenden Springmaster-Struktur.
-
-Korrekt sind:
+Kanonisches Zielbild:
 
 ```text
 PROJECT_DOCS/CONCEPT/CROSS_APP_BACKEND_GWC_TARGET_ARCHITECTURE_CONCEPT.md
 ```
 
-nicht:
+Kanonische übergeordnete Zielquelle:
 
 ```text
-PROJECT_DOCS/CONCEPTS/...
+PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md
 ```
 
-Der Sprint liegt nach Aktivierung unter:
+Der Sprint darf keine Capability entfernen, umbenennen oder durch einen einfacheren Spezialfall ersetzen.
 
-```text
-PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/
-```
+### Geplante Capability-Reifegrade
 
-nicht unter:
+Die Ist-Reifegrade werden zu Sprintbeginn gegen die Live-Baseline verifiziert.
 
-```text
-PROJECT_DOCS/OPERATIONAL/SPRINTS/...
-```
+| Capability-ID | Ziel nach Sprint 003 |
+|---|---|
+| `CAP-API-001` | `REFERENCE_IMPLEMENTED` |
+| `CAP-API-002` | bestehende Reife erhalten und regressionssichern |
+| `CAP-API-003` | `REFERENCE_IMPLEMENTED` |
+| `CAP-API-004` | `REFERENCE_IMPLEMENTED` |
+| `CAP-CONC-001` | `CONTRACTED` |
+| `CAP-CONC-002` | `CONTRACTED` |
+| `CAP-CONC-003` | `CONTRACTED` |
+| `CAP-HIST-001` | `CONTRACTED` |
+| `CAP-HIST-002` | `CONTRACTED` |
+| `CAP-PROJ-001` | `CONTRACTED` |
+| `CAP-BULK-001` | `CONTRACTED` |
+| `CAP-BULK-002` | `CONTRACTED` |
+| `CAP-BULK-003` | `CONTRACTED` |
+| `CAP-JOB-001` | `DEFINED` |
+| `CAP-EXPORT-001` | `DEFINED` |
+| `CAP-QUERY-003` | `DEFINED` |
+| `CAP-AGG-001` | `DEFINED` |
+| `CAP-GWC-001` | `CONTRACTED` |
+| `CAP-GWC-002` | bestehende Reife erhalten |
+| `CAP-GWC-003` | `CONTRACTED` |
+| `CAP-WS-001` | `DEFINED`, Kompatibilität nachgewiesen |
+| `CAP-WS-002` | `DEFINED`, Schnittstellen vorbereitet |
+| `CAP-WS-003` | `DEFINED`, Schnittstellen vorbereitet |
+| `CAP-TOOL-001` | `REFERENCE_IMPLEMENTED` |
+| `CAP-TOOL-002` | `REFERENCE_IMPLEMENTED` |
+| `CAP-QUAL-001` | `REFERENCE_IMPLEMENTED` |
+| `CAP-MIG-001` | `DEFINED`, nicht umgesetzt |
 
-Der Transaktions- und Konsistenzstandard soll die bestehende Struktur nutzen:
+### Sprintanforderungen
 
-```text
-PROJECT_DOCS/STANDARDS/ARCHITECTURE/
-```
+| Requirement-ID | Anforderung |
+|---|---|
+| `S003-REQ-001` | Zielbild und Sprintscope sind kanonisch, indexiert und über Capability-IDs verbunden. |
+| `S003-REQ-002` | Ein JSON-basierter Cross-App Backend and GWC Capability Catalog bildet Ziel-, Ist- und geplante Reifegrade ab. |
+| `S003-REQ-003` | `operationKey` ist die einzige stabile fachliche Operationsidentität; `operationId` bleibt technisch. |
+| `S003-REQ-004` | `operationKind` und `operationRoles[]` sind getrennt und mehrfach kombinierbar. |
+| `S003-REQ-005` | Bestehende Paging-, Filter-, Sortier-, Command-, Relationship- und Error-Verträge bleiben kompatibel. |
+| `S003-REQ-006` | Relation-, Candidate-, Security- und Capability-Semantik ist fachneutral und maschinenlesbar. |
+| `S003-REQ-007` | Resource Roles, History Models, Temporal Context und Projections können Personnel- und Contacts-Strukturen darstellen. |
+| `S003-REQ-008` | Preconditions unterstützen `NONE`, `EXPECTED_VERSION`, `EXPECTED_VERSION_SET`, `SNAPSHOT_TOKEN` und `ETAG`. |
+| `S003-REQ-009` | Die bestehende Optimistic-Locking-Baseline bleibt erhalten; pessimistische und gemischte Verfahren sind additive Use-Case-Strategien. |
+| `S003-REQ-010` | Transaction Scope unterstützt Single Aggregate, Aggregate Graph und Multi Aggregate. |
+| `S003-REQ-011` | Synchroner und asynchroner Backend Bulk Command sind vollständig normativ beschrieben. |
+| `S003-REQ-012` | Bulk Selection, Atomicity, Autorisierung, Non-Disclosure, Preconditions, Idempotenz, Limits, Outcomes und Result Delivery sind maschinenlesbar. |
+| `S003-REQ-013` | Backend Bulk Command, GWC Batch Runtime, Composite Command und Background Job sind eindeutig getrennt und gemappt. |
+| `S003-REQ-014` | Export, Aggregation, Cursor/Delta und Background Jobs bleiben als definierte Zielkapazitäten sichtbar. |
+| `S003-REQ-015` | Backend Effects und GWC Refresh-/Workspace-Reload-Verantwortung bleiben getrennt. |
+| `S003-REQ-016` | Workspace bleibt eigene GWC-Patternfamilie und wird nicht als Standard Page materialisiert. |
+| `S003-REQ-017` | Application UI Spec v1.1 bleibt kompatibel; `operationKey` wird versioniert in vNext eingeführt. |
+| `S003-REQ-018` | OpenAPI, Operation Catalog, Resource Semantics, UI Spec und Canonical IR besitzen eine eindeutige Authority Matrix. |
+| `S003-REQ-019` | Ein deterministischer Operation Catalog und ein reproduzierbares Contract-Bundle werden erzeugt. |
+| `S003-REQ-020` | Eine minimale allgemeine OpenAPI-Runtime bleibt opt-in und verändert keine unprofilierte API. |
+| `S003-REQ-021` | Ein Team-Membership-Referenzslice demonstriert die stabilen Relation-, Candidate- und Capability-Patterns. |
+| `S003-REQ-022` | IDM, Personnel, Contacts, Generic Bulk, GWC Standard Page und GWC Workspace werden read-only durch Fixtures qualifiziert. |
+| `S003-REQ-023` | Keine allgemeine Regel erzwingt Änderungen an Fachlogik, Entity-Struktur, Tabellenmodell oder fachlicher Sperrreihenfolge. |
+| `S003-REQ-024` | Jede normative Regel besitzt positive und negative automatisierte Evidence. |
+| `S003-REQ-025` | Dokument-, Contract- und Sprintpfade entsprechen der bestehenden Springmaster-Governance. |
+| `S003-REQ-026` | Ein Cross-App Non-Contradiction Report enthält keine Findings mit Status `CONTRADICTORY`. |
+| `S003-REQ-027` | Der Capability Catalog schützt Deferrals gegen stilles Entfernen. |
+| `S003-REQ-028` | Der Folgesprint erhält vollständige Eingangsverträge für komplexe Aggregate, Concurrency und Workspaces. |
+| `S003-REQ-029` | Agentenbasierte Umsetzung erfolgt nur in kleinen, immutable, scopebegrenzten Tasks mit unabhängigen Oracles und menschlicher Integration. |
+| `S003-REQ-030` | Normative Entscheidungen, Oracle-Freigabe, Gate-Promotion, Integration und Versionierungsentscheidung bleiben menschlich kontrolliert. |
+| `S003-REQ-031` | Alle neuen Gates beginnen `report-only`; eine Strict-Promotion erfolgt separat. |
+| `S003-REQ-032` | Generated Slice V1 und bestehende GWC-/OpenAPI-Verträge bleiben rückwärtskompatibel. |
 
-Es soll nicht ohne Not ein neuer Bereich `STANDARDS/PERSISTENCE/` eingeführt werden.
+### Geplante Contract-Familien
 
-## 3.3 Maschinenlesbare Contract-Pfade korrigieren
-
-Der Springmaster-Verzeichnisvertrag erlaubt unter `contracts/**` derzeit JSON-Artefakte.
-
-Der Capability Catalog muss daher beispielsweise lauten:
+Vorgesehen sind versionierte JSON-Schemas und Catalogs, beispielsweise:
 
 ```text
 contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json
+contracts/api/schemas/backend-operation-profile.schema.v1.json
+contracts/api/schemas/backend-resource-semantics.schema.v1.json
+contracts/api/schemas/backend-precondition-profile.schema.v1.json
+contracts/api/schemas/backend-bulk-operation-profile.schema.v1.json
+contracts/api/schemas/backend-implementation-evidence.schema.v1.json
+contracts/api/schemas/operation-catalog.schema.v1.json
+contracts/api/schemas/contract-manifest.schema.v1.json
 ```
 
-nicht:
+Die endgültige Aufteilung wird in der Contract-ADR entschieden. Neue technische Artefakte werden nicht unter `PROJECT_DOCS/**` abgelegt.
+
+### Normative Dokumente
+
+Voraussichtlich erforderlich:
 
 ```text
-...capabilities.v1.yaml
+PROJECT_DOCS/ADR/ADR-0016-backend-operation-semantics-and-gwc-profile.md
+PROJECT_DOCS/ADR/ADR-0017-mutation-precondition-concurrency-and-bulk-boundary.md
+PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md
+PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md
+PROJECT_DOCS/STANDARDS/API/MUTATION_PRECONDITION_STANDARD.md
+PROJECT_DOCS/STANDARDS/ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md
+PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md
 ```
 
-Alternativ kann er unter einem ausdrücklich begründeten Governance-Unterpfad liegen. Entscheidend sind JSON-Format und eindeutige Ownership.
+Die ADR-Nummern werden erst gegen die Live-Baseline vergeben.
 
-## 3.4 Dokumentmetadaten ergänzen
+## Slices und Reihenfolge
 
-Konzept und Sprintdokumente benötigen die bestehende YAML-Frontmatter.
+### Slice 0: Aktivierung, Baseline und Anti-Drift
 
-Das Konzept beginnt beispielsweise mit:
+- Sprint-2-Abschluss oder akzeptiertes Amendment verifizieren;
+- Live-Commit, Versionen, Export und Gates erfassen;
+- Zielbild, Sprint Brief, Solution Plan, Status und Completion Skeleton qualifizieren;
+- Capability Catalog initialisieren;
+- Cross-App Pattern Compatibility Matrix und Naming Matrix erstellen;
+- Requirements-to-Capability- und Requirements-to-Test-Matrix anlegen;
+- alle relevanten Bestandsverträge als `KEEP`, `CLARIFY`, `GENERALIZE`, `EXTEND` oder `DEFER` klassifizieren.
 
-```yaml
----
-documentId: DOC-CONCEPT-CROSS-APP-BACKEND-GWC-0001
-title: Cross-App Backend and GWC Target Architecture
-documentType: architecture-concept
-status: review
-authority: directive
-scopeLevel: ecosystem
-scopePaths:
-  - springmaster/backend-contracts
-  - managed-projects/backend
-  - gwc/backend-bindings
-appliesTo:
-  - springmaster
-  - project-new
-  - generated-projects
-  - managed-projects
-  - gwc
-owner: springmaster-maintainers
-createdAt: 2026-07-30
-validFrom: null
-lastReviewedAt: 2026-07-30
-reviewBy: 2026-08-30
-supersedes: []
-supersededBy: null
-temporary: false
-sprintId: null
----
-```
+**Exit:** keine Code- oder Schemaänderung vor akzeptierter Baseline, Terminologie und Dateiscope-Abgrenzung.
 
-`Proposed` ist für den Dokumenttyp kein gültiger Status. Vor Annahme gilt `review`, danach `active`.
+### Slice 1: ADRs und Standards
 
-Der Solution Plan benötigt analog:
+- Operationsidentität, Operation Kind und Roles entscheiden;
+- Contract-Source-Authority festlegen;
+- Resource Roles, History, Temporal und Projection Semantik entscheiden;
+- Precondition-, Transaction-Scope- und Consistency-Klassifikation entscheiden;
+- Bulk-, Background-Job- und GWC-Batch-Abgrenzung entscheiden;
+- Backend Effects gegen GWC Refresh und Workspace Reload abgrenzen;
+- Application UI Spec v1.1 zu vNext migrierbar definieren.
 
-```yaml
-documentType: plan
-status: review
-authority: directive
-temporary: true
-sprintId: SPRINGMASTER-SPRINT-003
-```
+**Exit:** jeder schema- oder runtimewirksame Begriff besitzt genau eine akzeptierte Definition.
 
-## 3.5 Bestehende Optimistic-Locking-Baseline erhalten
+### Slice 2: Maschinenlesbare Schemas und Oracles
 
-Springmaster besitzt bereits eine akzeptierte Persistence-Baseline mit `DomainEntity.persistenceVersion` als kanonischem optimistischem Versionsfeld für Standard-Aggregate.
+- JSON-Schemas implementieren;
+- Capability Catalog Contract implementieren;
+- positive Fixtures für einfache API, History, Projection, Preconditions, Bulk und GWC-Bindings erstellen;
+- negative Fixtures vor dem Validator implementieren;
+- stabile Diagnosecodes definieren.
 
-Das neue Konzept darf diese Entscheidung nicht indirekt aufheben.
+Pflicht-Negativfälle umfassen mindestens:
 
-Die korrekte Formulierung lautet:
+- doppelte Operationsidentitäten;
+- unbekannte Kind-/Role-Werte;
+- Candidate ohne Target Context;
+- Temporal Read ohne Kontext;
+- Projection ohne Response Schema;
+- Ledger oder append-only Ressource mit unzulässiger Standardmutation;
+- Snapshot Token ohne Producer;
+- UI-Reload-Graph im Backendprofil;
+- `WORKSPACE` als Backendoperation;
+- Bulk ohne Atomicity, Limits oder Outcome-Semantik;
+- asynchrones Bulk ohne Status-/Ergebnisvertrag;
+- nicht eingefrorene irreversible Query-Auswahl;
+- Non-Disclosure-Verstoß;
+- v1.1-Spec wird brechend auf `operationKey` umgestellt;
+- pessimistische Strategie entfernt den erforderlichen Versionstoken.
 
-> Optimistic Locking bleibt die kanonische Baseline für reguläre Springmaster-Aggregate, soweit ADR-0004 und der Domain-Entity-Persistence-Standard gelten. Pessimistische oder gemischte Verfahren dürfen use-case-bezogen zusätzlich eingesetzt werden, wenn Aggregate Graphs, mehrere beteiligte Roots oder fachliche Invarianten dies erfordern.
+**Exit:** alle Pflicht-Negativfixtures liegen vor und scheitern deterministisch.
 
-Damit gilt:
+### Slice 3: Validator, Operation Catalog und Handoff
+
+Ein fachneutraler CLI-Vertrag wird bevorzugt als ein Tool mit Subcommands umgesetzt:
 
 ```text
-optimistic baseline
-+ optional pessimistic synchronization
-= MIXED consistency strategy
+bin/backend-contract.py validate
+bin/backend-contract.py catalog
+bin/backend-contract.py verify
+bin/backend-contract.py export
 ```
 
-Pessimistisches Locking ist also keine konkurrierende globale Persistence-Strategie, sondern kann eine zusätzliche Synchronisationsmaßnahme innerhalb eines Use Cases sein.
+Pflichtfunktionen:
 
-`resourceRole: AGGREGATE_ROOT` darf weder eine konkrete Basisklasse noch eine bestimmte Locking-Strategie implizieren.
+- Schema-, OpenAPI- und Profilvalidierung;
+- Operations- und Capability-Eindeutigkeit;
+- Method-/Path-/Operation-Bindung;
+- Security-, Precondition- und Bulk-Prüfung;
+- deterministischer Catalog;
+- Manifest, Provenance und Hashes;
+- reproduzierbares ZIP;
+- Driftprüfung;
+- fail-closed Diagnose.
 
----
+**Exit:** identische Inputs erzeugen byteidentische Catalogs, Manifeste, Hashdateien und ZIPs.
 
-# 4. Verbindliche Korrekturen an der GWC-Bindung
+### Slice 4: Minimale OpenAPI-Runtime
 
-## 4.1 Versionierter Übergang zu `operationKey`
-
-Im aktuellen GWC-Zielmodell ist `operationKey` bereits als stabile Generatoridentität angelegt. Teile der bestehenden Application-UI-Spec-v1.1-Verträge arbeiten jedoch noch primär mit `operationId`, Methode und Pfad.
-
-Deshalb ist ein versionierter Übergang erforderlich:
+Fachneutrale Typen und Registry unterstützen ausschließlich stabile Profilsemantik:
 
 ```text
-Application UI Spec v1.1:
-  operationId + method + path bleiben gültig
-
-Application UI Spec vNext:
-  operationKey wird primäre fachliche Referenz
-  operationId + method + path bleiben Verification Tuple
+ApiOperationContract
+ApiOperationContractRegistry
+ApiOperationKind
+ApiOperationRole
+ApiSecurityContract
+ApiPreconditionContract
+ApiResourceSemantics
+ApiOperationEffects
+ApiOperationContractCustomizer
 ```
 
-Verbindliche Regeln:
+Die Typzahl wird minimiert. Die Runtime darf keine Locking-Orchestrierung, History-Persistenz, Bulk-Ausführung oder Workspace-Steuerung implementieren.
 
-* v1.1 wird nicht brechend verändert;
-* `operationKey` wird über eine neue Spec-Version oder vollständig rückwärtskompatible Erweiterung eingeführt;
-* eine Änderung der `operationId` benötigt eine explizite Alias- oder Migrationsentscheidung;
-* Methode, Pfad und `operationId` bleiben technische Verifikationsmerkmale;
-* bestehende IDM- und Personnel-Specs erhalten eine deterministische Migration.
+**Exit:** vollständige Registry startet; unvollständige profilierte Operationen scheitern fail-closed; unprofilierte Bestandsendpunkte bleiben unverändert.
 
-## 4.2 Contract-Source-Ownership festlegen
+### Slice 5: Team-Membership-Referenzslice
 
-Ohne diese Entscheidung könnten Java Registry, OpenAPI, Operation Catalog und UI Spec zu vier konkurrierenden Wahrheiten werden.
+Der einfache Referenzslice demonstriert:
 
-Die Authority Matrix muss lauten:
+- Listen-, Detail-, Relation-, Candidate- und Overview-Reads;
+- getrennte Read-, Assign- und Unassign-Capabilities;
+- target-aware Security und Visibility;
+- erneute Mutation Authorization;
+- stabile Row Identity und Sortierung;
+- Operation Keys und Effects;
+- bestehendes Fehler- und Command-Verhalten.
 
-| Artefakt                      | Autorität                                                                   |
-| ----------------------------- | --------------------------------------------------------------------------- |
-| Java Registry oder Annotation | Implementierungs- und Authoringmechanismus                                  |
-| generiertes OpenAPI           | kanonischer öffentlicher API-Boundary-Vertrag                               |
-| Operation Catalog             | deterministisch aus dem OpenAPI-Profil abgeleitet                           |
-| Resource Semantics            | Quelle nur für nicht vollständig in OpenAPI ausdrückbare Ressourcensemantik |
-| Application UI Spec           | fachliche und UI-semantische Konsumabsicht                                  |
-| Canonical IR                  | normalisierte Generatorprojektion                                           |
-| Generated App                 | Ergebnis, niemals manuelle Primärquelle                                     |
+Er demonstriert ausdrücklich nicht Workspace Runtime, komplexe Historie, Multi-Aggregate-Locking oder Bulk Runtime.
 
-Der Operation Catalog darf nicht unabhängig manuell gepflegt werden.
+**Exit:** der Slice ist als `candidate-reference-slice` qualifiziert und erzeugt keine unbelegte Canonicalization.
 
-Wenn Resource Semantics öffentliche API-Felder wiederholt, müssen die Werte Referenzen oder exakt konsistenzgeprüfte Duplikate sein.
+### Slice 6: Cross-App-Fixtures
 
-## 4.3 Mapping statt identischer Enums
+- **IDM Scoped Relation:** servergefilterte Liste, Candidate, Assign/Unassign, target-aware Capabilities;
+- **Personnel Temporal Aggregate Graph:** Root, Member, Root Version, Snapshot, append-only Relation, Ledger, Projection, Temporal Read, Expected Version Set, gemischte Konsistenz;
+- **Contacts Lifecycle and Snapshot Token:** Soft Delete, Restore, Hard Delete, Preview, Snapshot Token, erneute Prüfung, atomare Mutation;
+- **Generic Bulk Command:** alle Selection-, Atomicity- und Execution-Modi, Preconditions, Idempotenz, Non-Disclosure, Result Delivery;
+- **GWC Standard Page Binding:** Operation Keys, Relation, History, Projection, Bulk Action und `refreshAfterSuccess`;
+- **GWC Workspace Binding:** Root Context, Areas, Resource Keys, Temporal Context, Effects und spätere Reload-Graph-Zuordnung ohne Runtime-Vortäuschung.
 
-Springmaster-Backendprofile und GWC-UI-Verträge dürfen unterschiedliche technische Repräsentationen besitzen.
-
-Beispiel:
+Qualification-Statuswerte:
 
 ```text
-Backend:
-ROOT_VERSION
-
-GWC:
-rootVersion
+SUPPORTED
+SUPPORTED_WITH_MAPPING
+DEFERRED_TO_NEXT_SPRINT
+BLOCKED
+CONTRADICTORY
 ```
 
-oder:
+**Exit:** kein Finding hat Status `CONTRADICTORY`.
+
+### Slice 7: GWC- und Generator-Kompatibilität
+
+- v1.1-Kompatibilitätsfixture;
+- vNext-`operationKey`-Migration;
+- Mappingtabellen zwischen Backend- und GWC-Semantik;
+- GWC Batch Runtime zu Backend Bulk Mapping;
+- Standard-Page- und Workspace-Abgrenzung;
+- Generated Slice V1 Regression;
+- neue Generatorfähigkeit nur als versionierte Extension oder Folgevertrag vorbereiten.
+
+**Exit:** ein Folgesprint kann Workspace Canonical IR einführen, ohne Operations- oder Backendbegriffe erneut zu ändern.
+
+### Slice 8: Qualification und Closure
+
+- vollständige Regression;
+- Cross-App Non-Contradiction Report;
+- Anti-Drift Report;
+- Compatibility Reports;
+- Capability-Reifegrade aktualisieren;
+- Deferrals mit Owner, geplantem Sprint und Evidence-Bedarf festhalten;
+- Versionsauswirkungen bewerten;
+- qualifizierten Handoff an Sprint 004 erstellen.
+
+**Exit:** `CONTRADICTORY_FINDINGS=0`, `UNKNOWN_REQUIREMENTS=0`, `UNMAPPED_CAPABILITIES=0`, `UNTESTED_NORMATIVE_RULES=0`, `NONDETERMINISTIC_ARTIFACTS=0`.
+
+## Teststrategie und Zwischenverifikationen
+
+### Grundregel
+
+Jede normative Regel benötigt mindestens:
 
 ```text
-Backend:
-LEDGER_ENTRY
-
-GWC:
-auditLedger
+1 positiven Test
+1 negativen Test
+1 Schema- oder Contract-Test
+1 Capability-Zuordnung
+1 Evidence-Artefakt
 ```
 
-Erforderlich ist eine versionierte Mappingtabelle, keine erzwungene identische Schreibweise.
+Zusätzlich:
 
-Dasselbe gilt für:
+- Security-Regel: Boundary-Test;
+- Concurrency-Regel: Konflikt- oder Repräsentierbarkeitstest;
+- Bulk-Regel: Partial-, Rollback- oder Async-Lifecycle-Test;
+- Determinismusregel: wiederholte byteidentische Läufe;
+- Cross-App-Regel: mindestens zwei strukturell unterschiedliche Fixtures.
 
-* `operationRoles`;
-* GWC-`mappingUse`;
-* History Models;
-* Temporal Context;
-* Bulk- und Batch-Begriffe.
+### Testebenen
 
----
+| Ebene | Zweck |
+|---|---|
+| Unit | Value Objects, Enums, Grammatik, Invarianten |
+| Schema | Maschinenlesbare Vertragsstruktur |
+| Negative Fixture | Fail-closed-Verhalten |
+| Tooling | Validator, Catalog und Export |
+| Spring Context | Registry- und Startup-Invarianten |
+| OpenAPI | Extensions, Statuscodes und Bindings |
+| Controller | HTTP-Vertrag |
+| Service | Security, Capability und Mutation |
+| Repository | Paging, stabile Sortierung und Visibility |
+| Golden | Catalogs, Manifest, Reports und IR |
+| Cross-App | IDM, Personnel, Contacts und GWC |
+| Regression | Schutz bestehender Springmaster-Verträge |
 
-# 5. Bulk-, Batch- und Background-Job-Abgrenzung
+### Bulk-Testmatrix
 
-## 5.1 Drei verschiedene Konzepte
+Mindestens abzudecken:
 
-Das Zielbild muss drei Fähigkeiten trennen:
+| Dimension | Werte |
+|---|---|
+| Selection | explicit, query snapshot, selection token |
+| Atomicity | all-or-nothing, per-target, per-chunk |
+| Execution | synchronous, asynchronous |
+| Authorization | all allowed, mixed, none |
+| Preconditions | none, version, version set, snapshot, ETag |
+| Outcomes | success, partial, total conflict, non-disclosed |
+| Idempotency | new, repeated, payload mismatch |
+| Limits | empty, one, max, exceeded |
+| Result Delivery | inline, paged, artifact |
+| Lifecycle | accepted, running, completed, failed, expired |
 
-### Backend Bulk Command
+### Referenzslice-Tests
 
-Ein fachlich einheitlicher Command auf mehreren Zielen.
+- leere, erste, mittlere und letzte Seite;
+- maximale und ungültige Seitengröße;
+- erlaubte und abgelehnte Sortierung;
+- stabiler Tie-Breaker;
+- identische List-/Count-Visibility;
+- sichtbarer, unbekannter und nicht sichtbarer Detailresolver;
+- Candidate sichtbar, auswählbar, bereits zugeordnet oder außerhalb des Scope;
+- Statusänderung zwischen Candidate Read und Mutation;
+- Assign, Duplicate Assign, Unassign, Konflikt und fehlende Permission;
+- getrennte Capability-Personas;
+- `401`, `403`, nicht offenbarendes `404`, `409` und nur bei realem Ausfall `503`.
 
-### GWC Batch Runtime
+### Determinismus
 
-Eine clientseitige Ausführungs- und Koordinationsruntime, die Einzeloperationen oder eine Backend-Bulk-Operation aufrufen kann.
+Bei identischem Input byteidentisch:
 
-### Backend Background Job
+- Capability Catalog;
+- Operation Catalog;
+- Contract Manifest;
+- Compatibility Reports;
+- Qualification Reports;
+- ZIP und SHA-256-Sidecars.
 
-Eine eigenständige länger laufende Verarbeitung mit Jobstatus, Fortschritt, Ergebnis und gegebenenfalls Cancellation.
+Variiert werden Locale, Zeitzone, Dateisystemreihenfolge, temporäres Arbeitsverzeichnis, wiederholte Ausführung und zulässige Zeilenendennormalisierung.
 
-Die vorhandene GWC Batch Runtime darf nicht durch eine zweite Bulk Runtime ersetzt werden. Sie erhält später eine Bindung an den standardisierten Backend-Bulk-Vertrag.
+### Agentenbasierte Umsetzung
 
-Dafür ist eine zusätzliche Zielkapazität erforderlich:
+Codex-Aufgaben werden klein, immutable und baselinegebunden geschnitten. Ein Task darf nicht gleichzeitig normative Regel, Oracle, Runtime und Golden Output eigenständig verändern. Tests dürfen nur bei expliziter Capability geändert werden. Integration, ADR-Akzeptanz, Oracle-Freigabe und Gate-Promotion bleiben menschliche Entscheidungen.
+
+## Messkriterien
+
+Der Sprint ist messbar erfolgreich, wenn:
+
+- alle 32 Anforderungen bewertet und traceable sind;
+- alle Zielbild-Capabilities im Catalog erhalten bleiben;
+- alle `CONTRACTED`-Fähigkeiten akzeptierte Standards und positive/negative Fixtures besitzen;
+- alle `REFERENCE_IMPLEMENTED`-Fähigkeiten ausführbare Evidence besitzen;
+- der Team-Membership-Slice seine Acceptance vollständig erfüllt;
+- IDM-, Personnel-, Contacts-, Bulk- und GWC-Fixtures validieren;
+- kein Cross-App-Finding `CONTRADICTORY` ist;
+- alle Contract-Artefakte reproduzierbar sind;
+- bestehende CRUD-, Query-, Error-, Command-, Relationship-, Generated-Slice-V1- und GWC-v1.1-Regressionen grün bleiben;
+- keine app-spezifische Fachlogik im Core entsteht;
+- alle neuen Gates `report-only` bleiben;
+- jeder Deferral einen Owner, geplanten Sprint und Evidence-Bedarf besitzt.
+
+Für agentenbasierte Tasks werden zusätzlich Zeit bis reviewfähigem Diff, First-Pass-Qualification, Reviewkorrekturen und manuelle Transfer-Schritte erfasst. Die Messung dient der Prozessverbesserung, nicht der automatischen Promotion.
+
+## Migration und Rollback
+
+### Repositoryänderungen
+
+Jeder Änderungsschnitt ist baselinegebunden, klein und separat qualifizierbar. Fehlgeschlagene Dry-runs oder Agentläufe verändern Main nicht. Integration erfolgt nur nach Review und explizitem Accept.
+
+### Contract-Versionierung
+
+- bestehende V1-Verträge werden nicht stillschweigend erweitert;
+- additive Erweiterungen erhalten eine versionierte Extension oder neue Contract-Version;
+- Application UI Spec v1.1 bleibt lauffähig;
+- `operationKey` wird versioniert in vNext eingeführt;
+- eine Änderung öffentlicher Felder benötigt Migration oder Deprecation.
+
+### Managed Projects
+
+IDM, Personnel, Contacts und GWC werden nicht mutiert. Fixtures und Compatibility Reports sind read-only. Eine spätere Migration kann vollständig gestoppt werden, ohne die fachliche Baseline der Apps zu verändern.
+
+### Rollback
+
+- Contract- und Tooling-Slices werden separat zurücknehmbar gehalten;
+- generierte Catalogs und Bundles sind aus unveränderten Inputs reproduzierbar;
+- keine Datenmigration findet in diesem Sprint statt;
+- keine Strict-Promotion ist Bestandteil desselben Implementierungsschnitts.
+
+## Tool- und Gate-Einsatz
+
+Mindestens:
+
+```bash
+python3 bin/documentation-gate.py --root . --check-all
+python3 bin/sprint-gate.py --root . --mode all --check
+./bin/project-directory-gate.sh --check
+mvn -q -Dtest=<gezielte Tests> test
+mvn -q test
+mvn -q -Pspringmaster-gates-report test
+./bin/springmaster-gates.sh report --clean
+./bin/springmaster-gates-selfcheck.sh
+./bin/springmaster-gates-regression.sh
+./bin/tooling-selfcheck.sh --no-export
+git diff --check
+```
+
+Für Python und Shell:
+
+```bash
+python3 -m py_compile <tool.py>
+bash -n <tool.sh>
+```
+
+Für Contract-Handoff:
+
+- Schema-Validation;
+- OpenAPI-/Catalog-Konsistenz;
+- SHA-256-Prüfung;
+- reproduzierbares ZIP;
+- unerwartete Datei blockiert;
+- identischer Zweitlauf.
+
+Neue Gates beginnen `report-only`. Strict-Promotion erfolgt nur in einem separaten, evidence-basierten Schnitt.
+
+## Dokumentations- und Registerauswirkungen
+
+### Dauerhafte Dokumentation
 
 ```text
-CAP-JOB-001 – Background Job Lifecycle and Status Contract
+PROJECT_DOCS/CONCEPT/CROSS_APP_BACKEND_GWC_TARGET_ARCHITECTURE_CONCEPT.md
+PROJECT_DOCS/ADR/<vergebene ADRs>
+PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md
+PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md
+PROJECT_DOCS/STANDARDS/API/MUTATION_PRECONDITION_STANDARD.md
+PROJECT_DOCS/STANDARDS/ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md
+PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md
 ```
 
-Reifeziel in Sprint 003:
+### Sprintdokumente
 
 ```text
-DEFINED
+PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md
+PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md
+PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md
+PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md
 ```
 
-Keine Runtime-Implementierung.
-
-## 5.2 Bulk-HTTP-Semantik korrigieren
-
-Der Bulk-Vertrag darf nicht pauschal `200` für jede synchrone Ausführung verlangen.
-
-Korrekte Regel:
-
-* `200`, wenn ein Ergebnis- oder Outcome-Dokument geliefert wird;
-* `201`, wenn der Bulk-Command eine neue fachliche Ressource erzeugt und der bestehende Command-Standard dies vorsieht;
-* `204`, wenn synchron erfolgreich und bewusst ohne Response Body;
-* `202` bei akzeptierter asynchroner Ausführung;
-* `409` bei fachlichem oder versionsbasiertem Gesamtkonflikt;
-* `412` bei verletzter HTTP-Precondition, insbesondere `If-Match`;
-* `428` kann für eine zwingend erforderliche, aber fehlende HTTP-Precondition verwendet werden.
-
-Springmasters bestehende `409`-Semantik für bodybasierte Expected-Version-Konflikte bleibt bestehen.
-
-## 5.3 Sicherheitsneutrale Item-Korrelation
-
-Ein Bulk-Outcome darf keine nicht sichtbare Target-ID offenlegen.
-
-Statt:
+### Maschinenlesbare Register und Contracts
 
 ```text
-targetKey
+contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json
+contracts/api/schemas/**
+contracts/api/fixtures/**
 ```
 
-soll der Vertrag unterscheiden:
+### Pflichtberichte
 
 ```text
-itemKey
-targetReference
+IDM_COMPATIBILITY_REPORT.md
+PERSONNEL_COMPATIBILITY_REPORT.md
+CONTACTS_COMPATIBILITY_REPORT.md
+GWC_CONTRACT_ALIGNMENT_REPORT.md
+BULK_CONTRACT_QUALIFICATION_REPORT.md
+CROSS_APP_NON_CONTRADICTION_REPORT.md
+ANTI_DRIFT_REPORT.md
+FOLLOW_UP_SPRINT_READINESS_REPORT.md
 ```
 
-Dabei gilt:
+Arbeitsberichte liegen während des Sprints unter dem zulässigen `WORK/`-Teilbaum und werden vor Closure promoviert, aggregiert oder verworfen. `PROJECT_DOCS/index.md` wird für alle dauerhaften oder aktiven Dokumente aktualisiert.
 
-* `itemKey` ist ein vom Client gelieferter oder serverseitig sicher erzeugter Korrelationswert;
-* `targetReference` wird nur ausgegeben, wenn der Actor das Ziel sehen darf;
-* bei nicht sichtbaren Zielen wird ausschließlich ein nicht offenbarender Outcome zurückgegeben.
+## Versionswirkung
 
-## 5.4 Asynchronen Bulk-Lifecycle ergänzen
+Voraussichtliche Auswirkungen:
 
-Der bisherige Vertrag benötigt zusätzlich:
+- `PLATFORM_CORE_VERSION`: `minor`, falls allgemeine Runtime-Typen aufgenommen werden;
+- `PLATFORM_TOOLING_VERSION`: `minor` für Validator, Catalog und Export;
+- `PLATFORM_DEMO_VERSION`: `minor` für den Referenzslice;
+- `PLATFORM_TEMPLATE_VERSION`: nur bei tatsächlicher versionierter Generated-Slice- oder Application-UI-Spec-Erweiterung;
+- Foundation-Version erst bei qualifizierter gemeinsamer Promotion.
+
+Die konkreten Werte werden nach den jeweiligen qualifizierten Slices entschieden. Ein Schemaentwurf ohne aktivierte Runtimewirkung rechtfertigt nicht automatisch eine Plattformversionserhöhung.
+
+## Patch- oder Commitsequenz
+
+Die tatsächlichen Patchnummern werden gegen die Live-Baseline vergeben. Vorgesehene fachliche Schnitte:
+
+| Schnitt | Inhalt |
+|---|---|
+| `S003-01` | Sprint-Harness, Baseline, Zielbild und Scopes |
+| `S003-02` | Capability Catalog, Cross-App- und Naming-Matrix |
+| `S003-03` | Operations-, Authority- und GWC-Binding-ADR |
+| `S003-04` | Preconditions-, Concurrency-, Bulk- und Job-ADR |
+| `S003-05` | normative Standards |
+| `S003-06` | Operation- und Resource-Schemas |
+| `S003-07` | Precondition-, Bulk- und Manifest-Schemas |
+| `S003-08` | positive und negative Fixture-Familien |
+| `S003-09` | Validator und Diagnosecodes |
+| `S003-10` | Operation Catalog, Manifest und Export |
+| `S003-11` | OpenAPI-Runtime-Typen und Registry |
+| `S003-12` | OpenAPI-Customizer und Startup-Gates |
+| `S003-13` | Team-Membership-Read- und Relation-Slice |
+| `S003-14` | Candidate-, Command- und Capability-Slice |
+| `S003-15` | IDM- und Personnel-Fixtures |
+| `S003-16` | Contacts- und Bulk-Fixtures |
+| `S003-17` | GWC v1.1/vNext-, Standard-Page- und Workspace-Bindings |
+| `S003-18` | Cross-App-Qualification und Non-Contradiction Report |
+| `S003-19` | Full Regression, Versionsbewertung und Closure |
+
+Ein Schnitt soll nicht gleichzeitig Normen entscheiden, Schemas ändern, Runtime implementieren, Oracles verändern und Promotion durchführen.
+
+## Unsicherheiten und Entscheidungszeitpunkte
+
+### Vor Sprintaktivierung
+
+- Status und Closure von Sprint 002;
+- tatsächliche Live-Baseline und aktuelle Versionen;
+- zulässige parallele Dateiscopes;
+- Codex Write Readiness für Implementierungstasks.
+
+### Vor Schemaimplementierung
+
+- endgültige ADR-Aufteilung;
+- ein gemeinsames Profil versus mehrere klar getrennte Schemas;
+- genaue Ownership nicht in OpenAPI ausdrückbarer Resource Semantics;
+- v1.1-zu-vNext-Migrationsform.
+
+### Vor Runtimeimplementierung
+
+- minimale Typzahl;
+- Registry versus Annotation als Authoringmechanismus;
+- Startup-Fail-closed-Grenze;
+- Extension-Namen und OpenAPI-Darstellung.
+
+### Vor Bulk- oder Job-Referenzruntime
+
+Nicht Bestandteil dieses Sprints. Vor einem Folgesprint sind zu entscheiden:
+
+- synchrone versus asynchrone Referenz;
+- persistenter Execution Store;
+- Result Retention;
+- Cancellation;
+- Retry- und Deadletter-Semantik;
+- GWC Batch Runtime Integration.
+
+### Vor Workspace-Runtime
+
+Nicht Bestandteil dieses Sprints. Erforderlich sind Workspace Canonical IR, Resource Store, Reload Graph, Mutation Coordinator, Dirty State und mindestens ein zweiter echter Cross-App-Consumer.
+
+### Stopkriterien
+
+Der aktuelle Schnitt stoppt, wenn:
+
+- eine akzeptierte ADR stillschweigend überschrieben werden müsste;
+- ein neuer Primärbegriff ohne Zielbildänderung erforderlich wäre;
+- eine App nur durch Änderung ihrer Fachlogik repräsentierbar wäre;
+- die Optimistic-Locking-Baseline unbegründet aufgehoben würde;
+- Workspace und Standard Page nicht sauber getrennt werden können;
+- Bulk Atomicity, Autorisierung oder Non-Disclosure unklar bleibt;
+- Application UI Spec v1.1 brechen würde;
+- Generated Slice V1 brechen würde;
+- Contract-Handoff nicht deterministisch ist;
+- ein Cross-App-Finding `CONTRADICTORY` ist;
+- ein Gate im selben Schnitt unbegründet `strict` werden müsste;
+- ein Managed Project zur Qualification mutiert werden müsste.
+
+## Lifecycle
+
+1. `review`: Dieses Dokument ist inhaltlich vollständig, aber Sprint 003 noch nicht aktiviert.
+2. `active`: erst nach erfüllter Aktivierungsvoraussetzung, vollständigem Sprint-Harness und bestandenen Documentation-/Sprint-Gates.
+3. `completed`: nach vollständiger Qualification und akzeptiertem Completion Report.
+4. Vor Archivierung wird der Solution Plan gemäß Sprint Governance aggregiert, promoviert, begründet archiviert oder verworfen; er ist standardmäßig kein Archivartefakt.
+
+Geplanter Folgesprint:
 
 ```text
-statusOperationKey
-resultOperationKey
-statusVisibility
-retentionUntil
-resultDelivery
-pollingPolicy
+SPRINGMASTER-SPRINT-004
+Complex Aggregate, Temporal History and Workspace Foundation
 ```
 
-Zulässige Ergebnisformen:
-
-```text
-INLINE
-PAGED
-ARTIFACT
-```
-
-Weitere Regeln:
-
-* Status- und Ergebnisoperationen werden erneut autorisiert;
-* eine `202`-Antwort liefert eine Execution-ID und vorzugsweise eine Status-Location;
-* Status- und Ergebnisdaten besitzen definierte Retention;
-* große Einzeloutcome-Mengen dürfen nicht unbegrenzt inline geliefert werden;
-* Cancellation wird nur deklariert, wenn sie fachlich und technisch sicher unterstützt wird;
-* Selection Tokens und Query Snapshots besitzen Ablaufzeit und Kontextbindung.
-
----
-
-# 6. Fehlende Zielkapazitäten
-
-Das ursprüngliche Empfehlungsdokument nennt für große administrative Anwendungen neben Bulk ausdrücklich Exportoperationen, serverseitige Aggregationen, Cursor- oder Delta-Pagination sowie History- und Auditprojektionen.
-
-History und Projections sind bereits berücksichtigt. Folgende Zielkapazitäten fehlen noch:
-
-| Capability-ID    | Fähigkeit                         | Sprint-003-Ziel |
-| ---------------- | --------------------------------- | --------------- |
-| `CAP-EXPORT-001` | Standardisierte Exportoperationen | `DEFINED`       |
-| `CAP-QUERY-003`  | Cursor- und Delta-Reads           | `DEFINED`       |
-| `CAP-AGG-001`    | Serverseitige Aggregationen       | `DEFINED`       |
-| `CAP-JOB-001`    | Background-Job-Lifecycle          | `DEFINED`       |
-
-Diese Fähigkeiten werden nicht in Sprint 003 implementiert. Sie müssen aber im Zielbild und Capability Catalog sichtbar bleiben.
-
-Target-aware Batch-Capability-Evaluation kann unter `CAP-API-004` geführt werden. Die Empfehlungen verlangen zu Recht, Read- und Mutation-Capabilities getrennt zu halten und objektabhängige Entscheidungen gesammelt auswerten zu können.
-
----
-
-# 7. Ergänzungen am Sprintplan
-
-Folgende Anforderungen sind hinzuzufügen:
-
-| Requirement-ID | Ergänzung                                                                                                                                          |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `S003-REQ-025` | OpenAPI, Operation Catalog, Resource Semantics und UI Spec besitzen eine eindeutige Authority Matrix.                                              |
-| `S003-REQ-026` | Application UI Spec v1.1 bleibt kompatibel; `operationKey` wird versioniert migriert.                                                              |
-| `S003-REQ-027` | Die bestehende Springmaster-Optimistic-Locking-Baseline bleibt erhalten; pessimistische und gemischte Verfahren sind additive Use-Case-Strategien. |
-| `S003-REQ-028` | Backend Bulk Command, GWC Batch Runtime und Background Job werden eindeutig getrennt und gemappt.                                                  |
-| `S003-REQ-029` | Async Bulk besitzt Status-, Ergebnis-, Retention-, Autorisierungs- und Result-Delivery-Verträge.                                                   |
-| `S003-REQ-030` | Bulk-Outcomes verwenden nicht offenbarende Item-Korrelation.                                                                                       |
-| `S003-REQ-031` | Export, Aggregation, Cursor/Delta und Background Jobs bleiben als definierte Zielkapazitäten erhalten.                                             |
-| `S003-REQ-032` | Alle neuen Dokument- und Contract-Pfade entsprechen der bestehenden Springmaster-Verzeichnis- und Dokumentationsgovernance.                        |
-
-## Zusätzliche Fixtures
-
-Erforderlich sind:
-
-```text
-GWC_APPLICATION_UI_SPEC_V1_1_COMPATIBILITY
-GWC_OPERATION_KEY_VNEXT_MIGRATION
-GWC_BATCH_RUNTIME_BACKEND_BULK_MAPPING
-ASYNC_BULK_PAGED_RESULT
-ASYNC_BULK_EXPIRED_RESULT
-ASYNC_BULK_UNAUTHORIZED_STATUS
-BULK_NON_DISCLOSING_OUTCOME
-ETAG_412_PRECONDITION
-MISSING_IF_MATCH_428
-SPRINGMASTER_OPTIMISTIC_BASELINE_WITH_PESSIMISTIC_USE_CASE
-```
-
-## Zusätzliche Negativtests
-
-* Operation Catalog wird unabhängig vom OpenAPI manuell verändert;
-* v1.1-Spec wird ohne Versionserhöhung auf `operationKey` umgestellt;
-* pessimistische Strategie entfernt den erforderlichen Root-Versionstoken;
-* Bulk-Outcome offenbart eine unsichtbare Target-ID;
-* asynchrone Statusoperation ist ohne Actor-Bindung abrufbar;
-* große Outcomes werden unbegrenzt inline materialisiert;
-* GWC Batch Runtime und Backend Background Job werden als identische Fähigkeit klassifiziert;
-* Capability Catalog wird als YAML unter dem aktuellen Springmaster-`contracts`-Pfad abgelegt;
-* Sprintplan liegt außerhalb von `PROJECT_DOCS/SPRINTS/ACTIVE`.
-
----
-
-# 8. Sprintaktivierung
-
-SPRINGMASTER-SPRINT-003 darf nicht einfach parallel zum bereits aktiven Sprint 002 aktiviert werden.
-
-Vor Aktivierung ist zwingend genau eine Entscheidung erforderlich:
-
-```text
-SPRINT-002 abgeschlossen und archiviert
-```
-
-oder:
-
-```text
-akzeptiertes Sprint-002-Amendment
-+ disjunkte Dateiscopes
-+ eindeutige Contract-Ownership
-+ getrennte Evidence
-```
-
-Diese Entscheidung gehört in die Definition of Ready und ist kein optionaler Planungshinweis.
-
----
-
-# 9. Bewertung gegen die beiden Gesamtziele
-
-## Ziel 1: Zentrale Standardisierung aller Backend-Anwendungen
-
-**Bewertung nach Amendment:** erfüllt als tragfähiges Zielmodell.
-
-Begründung:
-
-* gemeinsame Core- und Vertragsgrundlagen bleiben zentral;
-* Anwendungsspezifika werden nicht in den Core gezogen;
-* Abweichungen können sichtbar und qualifiziert bleiben;
-* IDM, Personnel und Contacts können trotz unterschiedlicher Modelle beschrieben werden;
-* Managed-Project-Migration bleibt kontrolliert und nicht automatisch;
-* das Konzept standardisiert Grenzen und Qualitätsanforderungen, nicht die Fachlogik.
-
-Wichtig ist die Scopekorrektur: Das Backend-/GWC-Konzept operationalisiert einen Teil des Springmaster-Gesamtauftrags und ersetzt nicht die übergeordnete Projektzielquelle.
-
-## Ziel 2: Einheitliche GWC-Anbindung über UI Specs und generierte Apps
-
-**Bewertung nach Amendment:** erfüllt als tragfähiges Zielmodell.
-
-Begründung:
-
-* stabile `operationKey`-Bindung;
-* maschinenlesbare Operation Roles;
-* standardisierte Listen, Details, Relations, Candidates und Commands;
-* History-, Projection- und Temporal-Semantik;
-* Preconditions und Conflict UX;
-* synchrone und asynchrone Bulk-Verträge;
-* klare Security- und Capability-Metadaten;
-* eindeutige Contract-Source-Ownership;
-* versionierter Übergang bestehender UI Specs;
-* separate Standard-Page- und Workspace-IR;
-* deterministischer Contract-Handoff.
-
-Die ursprüngliche Anforderung, unterschiedliche Apps nicht über identische Pfade, sondern über ein einheitliches semantisches und technisches API-Konzept anzubinden, bleibt vollständig gewahrt.
-
----
-
-# 10. Finale Entscheidung
-
-```text
-ARCHITECTURAL_DIRECTION=PASS
-CROSS_APP_DOMAIN_COMPATIBILITY=PASS
-GWC_WORKSPACE_COMPATIBILITY=PASS
-BULK_CONTRACT_DIRECTION=PASS_WITH_AMENDMENT
-
-SPRINGMASTER_GOVERNANCE_CONSISTENCY=FAIL_BEFORE_PATH_AND_METADATA_FIX
-SPRINGMASTER_PERSISTENCE_COMPATIBILITY=FAIL_BEFORE_BASELINE_CLARIFICATION
-GWC_V1_1_COMPATIBILITY=FAIL_BEFORE_VERSIONED_MIGRATION
-CONTRACT_SOURCE_OWNERSHIP=INCOMPLETE_BEFORE_AUTHORITY_MATRIX
-ADVANCED_TARGET_CAPABILITIES=INCOMPLETE_BEFORE_CATALOG_EXTENSION
-
-FINAL_STATUS=PASS_AFTER_MANDATORY_AMENDMENT
-FUNDAMENTAL_REDIRECTION_REQUIRED=NO
-APP_DOMAIN_MODEL_CHANGES_REQUIRED=NO
-SPRINT_SCOPE_EXPANSION_TO_NEW_RUNTIME_REQUIRED=NO
-```
-
-Nach Umsetzung dieser Korrekturen bestehen keine bekannten neuen Widersprüche zwischen:
-
-* den Springmaster-Projektzielen;
-* der bestehenden Springmaster-Governance;
-* den aktuellen Persistence-Grundlagen;
-* IDM;
-* Personnel;
-* Contacts;
-* GWC Standard Pages;
-* GWC Workspaces;
-* Backend Bulk Operations;
-* späteren Background-Job-, Export-, Aggregations- und Delta-Read-Fähigkeiten.
+Der Handoff umfasst akzeptierte Precondition-, Concurrency-, History-, Projection- und Workspace-Bindings sowie Personnel-, Contacts- und GWC-Fixtures. Sprint 004 soll daraus komplexe Aggregate Graphs, gemischte Concurrency, deterministische Lock Order, Snapshot-Token-Commands und Workspace Foundation referenzimplementieren.
