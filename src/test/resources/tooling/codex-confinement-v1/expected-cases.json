@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "springmaster.codex-confinement-fixture.v1",
+  "cases": [
+    {"id": "complete-evidence", "expectedExit": 0, "expectedStatus": "PASS"},
+    {"id": "missing-negative-probe", "expectedExit": 1, "expectedFinding": "NEGATIVE_PROBE_MISSING"},
+    {"id": "negative-probe-succeeded", "expectedExit": 1, "expectedFinding": "NEGATIVE_PROBE_FAILED"},
+    {"id": "integration-head-drift", "expectedExit": 1, "expectedFinding": "INTEGRATION_HEAD_DRIFT"},
+    {"id": "automatic-accept", "expectedExit": 1, "expectedFinding": "PATCH_FLOW_INVALID"},
+    {"id": "evidence-hash-mismatch", "expectedExit": 1, "expectedFinding": "EVIDENCE_FILE_HASH_MISMATCH"},
+    {"id": "invalid-evidence-json", "expectedExit": 2, "expectedError": "JSON_INVALID"}
+  ]
+}

@@ -506,3 +506,13 @@ The current hardening candidate keeps `cpatch` as the only patch worker owner an
 External artifact configuration is not authorization. Relative artifact use requires an exact Git-common authorization record bound to the configured canonical directory, device and inode. Delivery preparation itself remains below the Git-common process state and does not require the external root.
 
 Patch and delivery numbering is derived only from typed delivery directories, Toolkit run records and canonical acceptance records. Known historical metadata is counted without reserving an ID; unknown or unsafe inventory entries block. Legacy numeric-only run IDs reserve a number only through exact `cocondo.run-record.v1` patch-command evidence whose UUID and artifact filename reconstruct one canonical full patch ID. Exactly one `cocondo.patch-acceptance.v2` record is the canonical owner of its local number. A differently named terminal failed run under that accepted owner is retained as `IGNORE_AND_COUNT`; a delivery, non-failed run or second accepted owner with a different identity remains blocking. The current delivery exception is exact and single-use. These candidate semantics are not accepted until the complete candidate passes the canonical dry-run and separate accept.
+
+## Terminalschonende Command-Ketten und Codex-Handoff
+
+Ein erfolgreicher Preflight darf im selben fail-fast Block den gebundenen Writer starten und über leichte Statusmarker bis zum terminalen Resultat beobachten. Detailausgaben bleiben in kanonischen Logs. Dry-run und Accept werden niemals automatisch verkettet.
+
+Extern gelieferte Patches und Anwendungsskripte werden vor Ausgabe soweit möglich gegen exakte Source-Hashes, `git apply --check`, Ziel-Hashes, Git-Modi und relevante positive/negative Tests verifiziert. Mehrere Ingress-Dateien sind zulässig, wenn mindestens eine Datei den erwarteten Hash besitzt und alle ausgewählten Bytes identisch sind; die Auswahl erfolgt deterministisch nach Hash und sortiertem Pfad. Gleichnamige Dateien mit widersprüchlichen Hashes blockieren.
+
+Bei regulären Git-Dateien wird der ausführbar/nicht-ausführbar Status gebunden. Eine lokale Abweichung `0644` zu `0664` ist kein Git-Moduskonflikt, sofern Source-Hash und Nicht-Ausführbarkeit stimmen; ein Anwendungspaket darf danach auf den definierten Zielmodus normalisieren.
+
+Codex erzeugt kein kanonisches Patchartefakt. `agent-task handoff` erzeugt nach erfolgreicher Qualification einen unveränderlichen, nicht kanonischen Git-Binary-Diff ohne Patch-ID, Delivery-ID oder Integrationsautorität. Der normale Candidate-, `cpatch create`-, Dry-run- und Accept-Prozess bleibt zwingend.

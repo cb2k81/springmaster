@@ -1,0 +1,3 @@
+Replace the complete content of src/test/resources/tooling/codex-calibration-v1/task-1.txt with exactly:
+CALIBRATION_TASK_1=PASS
+Do not change any other file. Do not commit, accept, push, create worktrees, or access operator paths.

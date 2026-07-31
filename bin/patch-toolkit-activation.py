@@ -221,31 +221,70 @@ def main() -> int:
             findings.append({"code": "QUALIFIED_EXPORT_EVIDENCE_INVALID"})
         hardening = evidence.get("toolingHardeningCandidate")
         hardening_expected = {
-            "status": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+            "status": "ACCEPTED",
             "baselineCommit": "c5c5846176d92c34b19b7a7827d7264c1923805f",
             "patchId": "000201_springmaster_tooling_hardening_cut",
             "deliveryId": "000201-springmaster_tooling_hardening_cut",
-            "workspaceLifecycle": "IMPLEMENTED_IN_CANDIDATE",
-            "artifactRootAuthorization": "IMPLEMENTED_IN_CANDIDATE",
+            "workspaceLifecycle": "IMPLEMENTED_AND_ACCEPTED",
+            "artifactRootAuthorization": "IMPLEMENTED_AND_ACCEPTED",
             "deliveryInventory": "LIVE_RESOLVER_PASS",
             "deliveryInventorySha256": "8af7a592565fff36de2e374e8361ef7ed9b5e0545064fe3b1ade1aa7534ade63",
             "acceptedOwnerCount": 9,
             "historicalFailedAttemptCount": 3,
             "unknownEntryCount": 0,
             "reservedNumberCount": 19,
-            "selfcheckObservability": "IMPLEMENTED_IN_CANDIDATE",
-            "versionClosure": "CLOSED_IN_CANDIDATE",
+            "selfcheckObservability": "IMPLEMENTED_AND_ACCEPTED",
+            "versionClosure": "ACCEPTED",
             "platformVersion": "0.22.0-foundation",
             "toolingVersion": "0.12.0",
             "statePatch": "000201_springmaster_tooling_hardening_cut",
-            "acceptanceStatus": "NOT_ACCEPTED",
+            "acceptanceStatus": "ACCEPTED",
+            "acceptedCommit": "b48743512944e95b39231f685fe172fb93b5a015",
+            "acceptRunId": "run-20260731T073111Z-0e5f6316c4d3",
         }
         if not isinstance(hardening, dict):
-            findings.append({"code": "TOOLING_HARDENING_CANDIDATE_EVIDENCE_MISSING"})
+            findings.append({"code": "TOOLING_HARDENING_EVIDENCE_MISSING"})
         else:
             for key, expected in hardening_expected.items():
                 if hardening.get(key) != expected:
-                    add_mismatch(findings, "TOOLING_HARDENING_CANDIDATE_EVIDENCE_MISMATCH", expected, hardening.get(key), key=key)
+                    add_mismatch(
+                        findings,
+                        "TOOLING_HARDENING_EVIDENCE_MISMATCH",
+                        expected,
+                        hardening.get(key),
+                        key=key,
+                    )
+
+        cutover = evidence.get("codexCutoverFoundationCandidate")
+        cutover_expected = {
+            "status": process_contract.get("codexCutoverFoundationCandidate"),
+            "patchId": closure.get("statePatch"),
+            "deliveryId": str(closure.get("statePatch", "")).replace("_", "-", 1),
+            "platformVersion": closure.get("platformVersion"),
+            "toolingVersion": closure.get("toolingVersion"),
+            "hostQualificationRequired": True,
+            "hostQualificationPortable": False,
+            "mechanicalConfinementRequired": True,
+            "realCodexConfinementRequired": True,
+            "acceptedCalibrationTaskCountRequired": 2,
+            "writableCodexAuthorized": False,
+            "pilotWriteReady": False,
+        }
+        if not isinstance(cutover, dict):
+            findings.append({"code": "CODEX_CUTOVER_FOUNDATION_EVIDENCE_MISSING"})
+        else:
+            for key, expected in cutover_expected.items():
+                if cutover.get(key) != expected:
+                    add_mismatch(
+                        findings,
+                        "CODEX_CUTOVER_FOUNDATION_EVIDENCE_MISMATCH",
+                        expected,
+                        cutover.get(key),
+                        key=key,
+                    )
+            baseline_commit = cutover.get("baselineCommit")
+            if not isinstance(baseline_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", baseline_commit):
+                findings.append({"code": "CODEX_CUTOVER_BASELINE_COMMIT_INVALID"})
     else:
         findings.append({"code": "ACTIVATION_EVIDENCE_MISSING", "path": evidence_rel})
 
@@ -275,7 +314,8 @@ def main() -> int:
         "deliveryInventory": "typed-fail-closed-with-current-delivery-exception",
         "deliveryPreparation": "git-common-state-without-external-artifact-root",
         "selfcheckObservability": "durable-substep-start-result-and-log-evidence",
-        "toolingHardeningCandidate": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+        "toolingHardeningCandidate": "ACCEPTED_000201",
+        "codexCutoverFoundationCandidate": "QUALIFIED_CANDIDATE_PENDING_CANONICAL_DELIVERY",
     }
     for key, expected in expected_hardening_values.items():
         actual = process_operations.get(key)

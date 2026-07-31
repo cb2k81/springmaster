@@ -3,8 +3,9 @@
 
 The harness intentionally has no Codex invocation and no Git integration command.
 It prepares detached worktrees, validates immutable task contracts, performs
-post-state scope checks, runs only predeclared qualification argv arrays and
-removes disposable worktrees after explicit cleanup.
+post-state scope checks, runs only predeclared qualification argv arrays, creates
+a verified non-canonical patch handoff after qualification and removes disposable
+worktrees after explicit cleanup.
 """
 from __future__ import annotations
 
@@ -30,7 +31,7 @@ INVOCATION_RECORD_SCHEMA_VERSION = "springmaster.codex-invocation-record.v1"
 PILOT_ID = "springmaster-codex-pilot-v1"
 REPOSITORY_ID = "springmaster"
 TASK_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
-ACTIVE_STATES = {"PREPARED", "QUALIFYING", "QUALIFIED", "FAILED", "POSTCHECK_PASSED", "POSTCHECK_FAILED"}
+ACTIVE_STATES = {"PREPARED", "QUALIFYING", "QUALIFIED", "HANDED_OFF", "FAILED", "POSTCHECK_PASSED", "POSTCHECK_FAILED"}
 VALID_RUN_STATES = ACTIVE_STATES | {"CLEANED", "CLEANED_INCOMPLETE"}
 FORBIDDEN_COMMAND_PREFIXES: tuple[tuple[str, ...], ...] = (
     ("git", "push"),
@@ -137,6 +138,12 @@ def run(
 
 def git(root: Path, *args: str, check: bool = True) -> str:
     return run(["git", *args], cwd=root, check=check).stdout.strip()
+
+
+
+
+def git_with_env(root: Path, env: dict[str, str], *args: str, check: bool = True) -> str:
+    return run(["git", *args], cwd=root, env=env, check=check).stdout.strip()
 
 
 def discover_root(explicit: str | None) -> Path:
@@ -1019,6 +1026,123 @@ def cmd_qualify(args: argparse.Namespace) -> dict[str, Any]:
     return final
 
 
+def immutable_file(path: Path) -> None:
+    path.chmod(0o444)
+
+
+def cmd_handoff(args: argparse.Namespace) -> dict[str, Any]:
+    context = resolve_context(args.project_root)
+    directory, record = load_run_record(context, args.task_id)
+    require(record.get("status") == "QUALIFIED", "HANDOFF_STATE_INVALID", "Patch handoff requires a qualified task", taskId=args.task_id, status=record.get("status"))
+    final = load_json(directory / "final-result.json")
+    require(final.get("status") == "QUALIFIED", "HANDOFF_FINAL_RESULT_REQUIRED", "Qualified final result is required before handoff", taskId=args.task_id)
+    task = load_json(directory / "task-contract.json")
+    require(task.get("mode") == "implementation", "HANDOFF_MODE_INVALID", "Only implementation tasks may create a patch handoff", mode=task.get("mode"))
+    post = validate_post_state(context, directory, record)
+    require(post.get("findingCount") == 0, "HANDOFF_POSTCHECK_FINDINGS", "Patch handoff is blocked by postcheck findings", findings=post.get("findings"))
+    changed = post.get("changedPaths")
+    require(isinstance(changed, list) and changed, "HANDOFF_EMPTY_DIFF", "Implementation handoff requires at least one changed path")
+    worktree = Path(record["worktreePath"])
+    slug = task_slug(args.task_id)
+    handoff_root = context.artifact_root / "codex-handoffs" / slug
+    require(not handoff_root.exists(), "HANDOFF_ALREADY_EXISTS", "Immutable patch handoff already exists", path=str(handoff_root))
+    handoff_root.mkdir(parents=True, mode=0o700)
+    patch_path = handoff_root / f"{slug}.patch"
+    manifest_path = handoff_root / f"{slug}.handoff.json"
+    index_path = directory / "handoff.index"
+    if index_path.exists():
+        index_path.unlink()
+    env = dict(os.environ)
+    env["GIT_INDEX_FILE"] = str(index_path)
+    try:
+        git_with_env(worktree, env, "read-tree", task["baseCommit"])
+        git_with_env(worktree, env, "add", "-A", "--", *changed)
+        patch = run(
+            ["git", "diff", "--cached", "--binary", "--full-index", "--no-ext-diff", "--no-color", task["baseCommit"], "--"],
+            cwd=worktree,
+            env=env,
+            check=True,
+        ).stdout
+    finally:
+        if index_path.exists():
+            index_path.unlink()
+    require(bool(patch), "HANDOFF_EMPTY_PATCH", "Generated patch handoff is empty")
+    atomic_text(patch_path, patch)
+    patch_sha = sha256_file(patch_path)
+    atomic_text(patch_path.with_suffix(patch_path.suffix + ".sha256"), f"{patch_sha}  {patch_path.name}\n")
+
+    check_root = context.worktree_root / f".{slug}-handoff-check"
+    require(not check_root.exists(), "HANDOFF_CHECK_WORKTREE_EXISTS", "Isolated handoff check worktree already exists", path=str(check_root))
+    isolated_status = "NOT_RUN"
+    try:
+        run(["git", "worktree", "add", "--detach", str(check_root), task["baseCommit"]], cwd=context.integration_root, check=True)
+        run(["git", "apply", "--check", str(patch_path)], cwd=check_root, check=True)
+        run(["git", "apply", str(patch_path)], cwd=check_root, check=True)
+        isolated_changed = parse_changed_paths(check_root)
+        require(isolated_changed == changed, "HANDOFF_APPLY_SCOPE_MISMATCH", "Isolated patch application changed a different path set", expected=changed, actual=isolated_changed)
+        isolated_status = "PASS"
+    finally:
+        if check_root.exists():
+            run(["git", "worktree", "remove", "--force", str(check_root)], cwd=context.integration_root, check=False)
+            git(context.integration_root, "worktree", "prune")
+
+    source_records: list[dict[str, Any]] = []
+    for relative in changed:
+        candidate = worktree / relative
+        source_records.append({
+            "path": relative,
+            "status": "present" if candidate.is_file() else "deleted",
+            "sha256": sha256_file(candidate) if candidate.is_file() else None,
+            "mode": f"{stat.S_IMODE(candidate.stat().st_mode):04o}" if candidate.is_file() else None,
+        })
+    manifest = {
+        "schemaVersion": "springmaster.agent-task-patch-handoff.v1",
+        "status": "VERIFIED",
+        "taskId": task["taskId"],
+        "createdAt": utc_now(),
+        "baseCommit": task["baseCommit"],
+        "changedPaths": changed,
+        "changedPathCount": len(changed),
+        "sourceFiles": source_records,
+        "patch": {"path": patch_path.name, "sha256": patch_sha, "size": patch_path.stat().st_size},
+        "isolatedApplyCheck": isolated_status,
+        "patchId": None,
+        "deliveryId": None,
+        "integrationAuthorized": False,
+        "canonicalPatchArtifact": False,
+        "requiredNextFlow": [
+            "controlled-candidate-apply",
+            "candidate-commit",
+            "cpatch-create",
+            "separate-patch-dry-run",
+            "separate-patch-accept",
+        ],
+    }
+    atomic_json(manifest_path, manifest)
+    manifest_sha = sha256_file(manifest_path)
+    atomic_text(manifest_path.with_suffix(manifest_path.suffix + ".sha256"), f"{manifest_sha}  {manifest_path.name}\n")
+    for item in (patch_path, patch_path.with_suffix(patch_path.suffix + ".sha256"), manifest_path, manifest_path.with_suffix(manifest_path.suffix + ".sha256")):
+        immutable_file(item)
+    handoff_root.chmod(0o555)
+    record = load_json(directory / "run.json")
+    record["status"] = "HANDED_OFF"
+    record["handoffManifest"] = str(manifest_path)
+    record["handoffManifestSha256"] = manifest_sha
+    atomic_json(directory / "run.json", record)
+    return {
+        "status": "HANDED_OFF",
+        "taskId": task["taskId"],
+        "handoffManifest": str(manifest_path),
+        "handoffManifestSha256": manifest_sha,
+        "patchPath": str(patch_path),
+        "patchSha256": patch_sha,
+        "changedPathCount": len(changed),
+        "integrationAuthorized": False,
+        "canonicalPatchArtifact": False,
+        "nextAction": "TRUSTED_OPERATOR_CANDIDATE_APPLY",
+    }
+
+
 def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
     context = resolve_context(args.project_root)
     directory, record = load_run_record(context, args.task_id)
@@ -1030,6 +1154,9 @@ def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
         path = directory / name
         if path.is_file():
             result[name.removesuffix(".json")] = load_json(path)
+    if isinstance(record.get("handoffManifest"), str):
+        result["handoffManifest"] = record["handoffManifest"]
+        result["handoffManifestSha256"] = record.get("handoffManifestSha256")
     return result
 
 
@@ -1097,7 +1224,7 @@ def parser() -> argparse.ArgumentParser:
     record_invocation.add_argument("task_id")
     record_invocation.add_argument("--effect", required=True)
     record_invocation.add_argument("--record", required=True)
-    for command in ("status", "postcheck", "qualify"):
+    for command in ("status", "postcheck", "qualify", "handoff"):
         item = sub.add_parser(command)
         item.add_argument("task_id")
     cleanup = sub.add_parser("cleanup")
@@ -1121,6 +1248,8 @@ def main() -> int:
             value = cmd_postcheck(args)
         elif args.command == "qualify":
             value = cmd_qualify(args)
+        elif args.command == "handoff":
+            value = cmd_handoff(args)
         elif args.command == "cleanup":
             value = cmd_cleanup(args)
         else:
@@ -1129,6 +1258,8 @@ def main() -> int:
         if args.command == "postcheck" and value.get("findingCount", 0):
             return 1
         if args.command == "qualify" and value.get("status") != "QUALIFIED":
+            return 1
+        if args.command == "handoff" and value.get("status") != "HANDED_OFF":
             return 1
         if args.command == "cleanup" and value.get("status") != "CLEANED":
             return 1

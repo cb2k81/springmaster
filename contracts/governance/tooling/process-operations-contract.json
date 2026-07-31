@@ -145,7 +145,7 @@
       "failedFixtureStepRequired": true
     }
   },
-  "contractVersion": "1.2.0",
+  "contractVersion": "1.3.0",
   "operatorWorkspacePolicy": {
     "scope": "one-current-writer-workflow",
     "pathMustBeProjectRelative": true,
@@ -320,5 +320,59 @@
       "differentDeliveryOrNonFailedRun": "BLOCKING_TOOL_ERROR",
       "multipleAcceptedOwners": "BLOCKING_TOOL_ERROR"
     }
+  },
+  "commandChainingPolicy": {
+    "allowedChain": [
+      "preflight",
+      "writer-start",
+      "lightweight-observation",
+      "terminal-result"
+    ],
+    "allTransitionsRequireExitZero": true,
+    "stageEvidenceRequired": true,
+    "stopOnFirstFailure": true,
+    "automaticDryRunToAccept": "forbidden",
+    "automaticDiagnosisToRepair": "forbidden",
+    "automaticFailedRunRetry": "forbidden"
+  },
+  "consoleOutputPolicy": {
+    "defaultFields": [
+      "operationId",
+      "stageId",
+      "status",
+      "phase",
+      "exitCode",
+      "logPath",
+      "reportPath",
+      "evidencePath"
+    ],
+    "fullJsonInventoryDefault": "forbidden",
+    "continuousLogStreamingDefault": "forbidden",
+    "unchangedStatusRepetition": "forbidden",
+    "boundedFailureTail": true,
+    "canonicalDetailStorage": "run-log-report-evidence-files"
+  },
+  "failureRecoveryPolicy": {
+    "blindRetry": "forbidden",
+    "canonicalStateInspectionRequired": true,
+    "existingEvidenceInspectionRequired": true,
+    "diagnoseUnknownTargetStateBeforeRemediation": true,
+    "preserveEvidenceBeforeCleanup": true,
+    "minimumIterations": "required"
+  },
+  "diagnosticHandoffPolicy": {
+    "onlineChatPath": "patches/work/diagnostic-<operation-id>.zip",
+    "onlineChatArchiveCount": 1,
+    "codexUsesOperatorWorkspace": false,
+    "codexEvidenceStorage": "external-run-and-artifact-roots",
+    "cleanupTrigger": "before-each-writer-not-observer"
+  },
+  "artifactIngressPolicy": {
+    "selectionKey": "expected-sha256",
+    "zeroHashMatches": "block",
+    "multipleIdenticalHashMatches": "deterministic-sorted-selection",
+    "conflictingHashes": "block",
+    "regularFileModeBinding": "git-executable-bit",
+    "hostModeNormalizationAfterHashCheck": true
   }
 }

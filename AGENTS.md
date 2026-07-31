@@ -453,3 +453,21 @@ Do not widen `root` for an entire roadmap. Use the narrow built-in scope wheneve
 ### Long-running process singleton rule
 
 Named long-running operations that must not overlap are started through `bin/process-ops.sh run-start --singleton-key <stable-key>`. A descriptive `crun --name` alone is not a lock. Repeated active starts must reuse the canonical run ID; terminal restarts require an explicit flag. Never overwrite a useful run pointer merely because a later duplicate run was created. More than one active run for the same singleton key is an incident and must fail closed.
+
+### Codex-Live-Confinement und Patch-Handoff
+
+- Online-Chat und lokaler Codex-Run sind getrennte Betriebsarten. Der Online-Chat liefert vorverifizierte Patches, Sidecars, Anwendungsskripte und bei unklarem Zielzustand genau ein aktuelles `patches/work/diagnostic-<operation-id>.zip`. Codex liest oder schreibt `patches/work` niemals; seine Evidence liegt ausschließlich unter den explizit provisionierten externen Run- und Artefakt-Roots.
+- Codex darf ausschließlich den vom Harness vorbereiteten detached Task-Worktree verändern. Direkte Writes in den Projekt-/Integrations-Checkout, andere Worktrees, das Git-Common-Verzeichnis, Home, Downloads, Host-Temp sowie externe Run- oder Artefakt-Roots sind verboten und müssen vor dem Cutover durch reale Denial-Probes auf dem DEV-System nachweislich scheitern.
+- Nach erfolgreicher Implementierungsqualifikation erzeugt nur `./bin/agent-task.sh handoff <task-id>` einen unveränderlichen, binären Git-Diff unter dem externen Artefakt-Root. Der Handoff enthält keine Patch-ID oder Delivery-ID, besitzt keine Integrationsautorität und ist noch kein kanonisches `cpatch`-Artefakt.
+- Der weitere Weg ist zwingend: kontrollierte Candidate-Anwendung, Candidate-Commit, `cpatch create`, separater Dry-run, separate Operatorentscheidung und separater Accept. Codex darf weder `patch-accept` auslösen noch diese Grenzen automatisiert verketten.
+- `bin/codex-confinement-check.sh ... --live --check` muss mit realem Codex auf dem tatsächlichen DEV-System `PASS` liefern. Auch danach bleiben `WRITABLE_CODEX_AUTHORIZED=false` und `PILOT_WRITE_READY=false`, bis ein eigener akzeptierter Promotion-Schnitt diese Zustände ändert.
+- Fail-fast-Kommandoblöcke dürfen Preflight, Writer-Start, leichte Beobachtung und terminales Resultat verbinden. Dry-run und Accept, Diagnose und Reparatur sowie fehlgeschlagener Lauf und Retry bleiben getrennte Entscheidungen. Konsolenausgaben bleiben terminalschonend; Detailausgaben und JSON-Inventare liegen in Logs/Evidence.
+
+### Portabler Codex-Hostvertrag und Cutover-Priorität
+
+- Git verteilt nur Harness, Verträge, Probes und Kalibrierungsdefinitionen. Eine Hostfreigabe ist nicht portabel und muss auf jedem Rechner neu erzeugt werden.
+- Die äußere Linux-`bubblewrap`-Grenze ist die maßgebliche Dateisystem- und Prozessgrenze. Die Codex-eigene Sandbox bleibt als zweite Schutzschicht aktiv.
+- Vor jeder schreibenden Codex-Aufgabe müssen Host-Inspection, 20 mechanische Probes und ein realer read-only Codex-Aufruf auf demselben Host und Commit `PASS` sein.
+- Danach sind genau zwei unabhängige Implementierungsaufgaben erforderlich. Jede endet im nicht kanonischen `agent-task handoff` und durchläuft getrennt Candidate, Dry-run und Accept.
+- Alte inaktive Worktrees, alte Diagnosearchive und ein fehlender Komfortexport blockieren den Cutover nicht. Aktive Writer, gehaltene Locks, Pfadüberschneidungen, unklare Baselines oder fehlende Boundary-Evidence blockieren weiterhin fail-closed.
+- Kein Foundation-, Host- oder Kalibrierungs-PASS setzt `WRITABLE_CODEX_AUTHORIZED` oder `PILOT_WRITE_READY` automatisch auf `true`; die Promotion bleibt ein separater akzeptierter Schnitt.

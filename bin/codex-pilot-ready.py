@@ -32,9 +32,10 @@ REQUIRED_RULE_IDS = {
     "AIA-INVENTORY-001",
     "AIA-EXECUTION-001",
     "AIA-TASK-SEMANTICS-001",
+    "AIA-CONFINEMENT-001",
 }
-REQUIRED_TEST_PATHS = {"bin/agent-task-it.sh", "bin/codex-pilot-ready-it.sh"}
-REQUIRED_FIXTURE_ID = "codex-pilot-readiness-v1"
+REQUIRED_TEST_PATHS = {"bin/agent-task-it.sh", "bin/codex-pilot-ready-it.sh", "bin/codex-confinement-check-it.sh", "bin/codex-host-sandbox-it.sh", "bin/codex-calibration-it.sh"}
+REQUIRED_FIXTURE_IDS = {"codex-pilot-readiness-v1", "codex-confinement-v1", "codex-host-qualification-v1", "codex-calibration-v1"}
 REQUIRED_FILES = {
     ACTIVATION_CONTRACT_PATH,
     TOOLING_LOCK_PATH,
@@ -47,6 +48,8 @@ REQUIRED_FILES = {
     "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md",
     "PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md",
     "contracts/governance/agent/codex-pilot-contract.json",
+    "contracts/governance/agent/codex-confinement-contract.json",
+    "contracts/governance/agent/codex-host-qualification-contract.json",
     "contracts/governance/agent/agent-task-contract.schema.json",
     "contracts/governance/agent/operator-command-effect.schema.json",
     "contracts/governance/agent/codex-invocation-record.schema.json",
@@ -57,7 +60,22 @@ REQUIRED_FILES = {
     "bin/codex-pilot-ready.py",
     "bin/codex-pilot-ready.sh",
     "bin/codex-pilot-ready-it.sh",
+    "bin/codex-confinement-check.py",
+    "bin/codex-confinement-check.sh",
+    "bin/codex-confinement-check-it.sh",
+    "bin/codex-host-sandbox.py",
+    "bin/codex-host-sandbox.sh",
+    "bin/codex-host-sandbox-it.sh",
+    "bin/codex-calibration.py",
+    "bin/codex-calibration.sh",
+    "bin/codex-calibration-it.sh",
+    "bin/codex-calibration-fixture-check.py",
     "src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json",
+    "src/test/resources/tooling/codex-confinement-v1/expected-cases.json",
+    "src/test/resources/tooling/codex-host-qualification-v1/expected-cases.json",
+    "src/test/resources/tooling/codex-calibration-v1/expected-cases.json",
+    "src/test/resources/tooling/codex-calibration-v1/task-1.txt",
+    "src/test/resources/tooling/codex-calibration-v1/task-2.txt",
 }
 
 
@@ -251,6 +269,8 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
                 finding(findings, "AIA-PROJECT-001", "DOCUMENT_STATUS_INVALID", "Pilot document has the wrong status", path=relative, expected=expected, actual=actual)
 
     pilot = load_json(root / "contracts/governance/agent/codex-pilot-contract.json")
+    confinement = load_json(root / "contracts/governance/agent/codex-confinement-contract.json")
+    host_qualification = load_json(root / "contracts/governance/agent/codex-host-qualification-contract.json")
     task_schema = load_json(root / "contracts/governance/agent/agent-task-contract.schema.json")
     effect_schema = load_json(root / "contracts/governance/agent/operator-command-effect.schema.json")
     invocation_schema = load_json(root / "contracts/governance/agent/codex-invocation-record.schema.json")
@@ -267,6 +287,65 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     readiness = pilot.get("projectReadiness") if isinstance(pilot.get("projectReadiness"), dict) else {}
     if readiness.get("doesNotAuthorizeWritableCodex") is not True or readiness.get("nextAction") != "CODEX_CALIBRATION":
         finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PROJECT_READY must authorize calibration only", projectReadiness=readiness)
+    calibration = pilot.get("confinementCalibration") if isinstance(pilot.get("confinementCalibration"), dict) else {}
+    handoff = pilot.get("patchHandoff") if isinstance(pilot.get("patchHandoff"), dict) else {}
+    confinement_valid = (
+        confinement.get("schemaVersion") == "springmaster.codex-confinement-contract.v1"
+        and confinement.get("status") == "active"
+        and confinement.get("liveSystemVerificationRequired") is True
+        and confinement.get("realCodexInvocationRequired") is True
+        and confinement.get("agentWriteBoundary") == "prepared-task-worktree-only"
+        and confinement.get("directProjectWrite") == "forbidden"
+        and confinement.get("directIntegrationWrite") == "forbidden"
+        and confinement.get("directGitCommonWrite") == "forbidden"
+        and confinement.get("directPatchAccept") == "forbidden"
+        and confinement.get("patchHandoffRequired") is True
+        and len(confinement.get("requiredNegativeProbes", [])) >= 18
+        and len(confinement.get("requiredPositiveCases", [])) == 4
+        and confinement.get("promotion", {}).get("separateCommittedPromotionRequired") is True
+        and confinement.get("promotion", {}).get("writableCodexAuthorizedBeforeSeparatePromotion") is False
+        and confinement.get("evidenceSchemaVersion") == "springmaster.codex-confinement-evidence.v2"
+        and confinement.get("hostQualification", {}).get("required") is True
+        and confinement.get("calibrationEvidence", {}).get("canonicalAcceptCount") == 2
+    )
+    host_qualification_valid = (
+        host_qualification.get("schemaVersion") == "springmaster.codex-host-qualification-contract.v1"
+        and host_qualification.get("status") == "active"
+        and host_qualification.get("securityBoundary", {}).get("authoritativeLayer") == "outer-linux-bwrap"
+        and host_qualification.get("securityBoundary", {}).get("additionalWritableRoots") == []
+        and len(host_qualification.get("requiredMechanicalProbes", [])) == 20
+        and host_qualification.get("hostEvidence", {}).get("requiresRealCodex") is True
+        and host_qualification.get("cutoverBoundary", {}).get("hostQualificationPortable") is False
+        and host_qualification.get("cutoverBoundary", {}).get("acceptedImplementationCalibrationCount") == 2
+        and host_qualification.get("cutoverBoundary", {}).get("automaticPromotionForbidden") is True
+    )
+    pilot_calibration_valid = (
+        calibration.get("contractPath") == "contracts/governance/agent/codex-confinement-contract.json"
+        and calibration.get("entrypoint") == "bin/codex-confinement-check.sh"
+        and calibration.get("fixtureEntrypoint") == "bin/codex-confinement-check-it.sh"
+        and calibration.get("mustRunOnActualDevSystem") is True
+        and calibration.get("realCodexInvocationRequired") is True
+        and calibration.get("doesNotPromoteAutomatically") is True
+        and calibration.get("writableCodexAuthorized") is False
+        and calibration.get("pilotWriteReady") is False
+        and calibration.get("codexMayReadOrWritePatchesWork") is False
+        and calibration.get("hostQualificationRequired") is True
+        and calibration.get("acceptedImplementationTasksRequired") == 2
+        and calibration.get("evidenceSchemaVersion") == "springmaster.codex-confinement-evidence.v2"
+    )
+    handoff_valid = (
+        handoff.get("operation") == "agent-task handoff"
+        and handoff.get("implementationTasksOnly") is True
+        and handoff.get("isolatedApplyCheckRequired") is True
+        and handoff.get("patchId") is None
+        and handoff.get("deliveryId") is None
+        and handoff.get("integrationAuthorized") is False
+        and handoff.get("canonicalPatchArtifact") is False
+        and handoff.get("requiredNextFlow", [])[-2:] == ["separate-patch-dry-run", "separate-patch-accept"]
+    )
+    if not confinement_valid or not host_qualification_valid or not pilot_calibration_valid or not handoff_valid:
+        finding(findings, "AIA-CONFINEMENT-001", "CONFINEMENT_POLICY_INVALID", "Live Codex confinement, patch handoff or promotion policy is incomplete", confinement=confinement, calibration=calibration, handoff=handoff)
+    details["codexConfinement"] = "LIVE_DEV_PASS_REQUIRED_BEFORE_SEPARATE_PROMOTION"
     if task_schema.get("$id") != "urn:springmaster:schema:agent-task:v2" or task_schema.get("additionalProperties") is not False:
         finding(findings, "AIA-HARNESS-001", "TASK_SCHEMA_INVALID", "Task schema identity or closed-object policy is invalid")
     required_task_fields = set(task_schema.get("required", []))
@@ -418,7 +497,7 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     if not (root / "bin/cpatch").is_file():
         finding(findings, "AIA-PATCH-001", "CPATCH_ENTRYPOINT_MISSING", "Canonical cpatch entrypoint is missing")
 
-    executable_paths = ["bin/agent-task.py", "bin/agent-task.sh", "bin/agent-task-it.sh", "bin/codex-pilot-ready.py", "bin/codex-pilot-ready.sh", "bin/codex-pilot-ready-it.sh"]
+    executable_paths = ["bin/agent-task.py", "bin/agent-task.sh", "bin/agent-task-it.sh", "bin/codex-pilot-ready.py", "bin/codex-pilot-ready.sh", "bin/codex-pilot-ready-it.sh", "bin/codex-confinement-check.py", "bin/codex-confinement-check.sh", "bin/codex-confinement-check-it.sh"]
     for relative in executable_paths:
         path = root / relative
         if path.is_file() and not os.access(path, os.X_OK):
@@ -431,14 +510,14 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     required_harness_markers = [
         'add_parser("record-invocation")', "EXTERNAL_ROOT_MISSING", "TASK_MODE_WRITE_FORBIDDEN",
         "INVOCATION_FLAG_FORBIDDEN", "INVOCATION_ADDITIONAL_WRITE_ROOT_FORBIDDEN",
-        "INVOCATION_HOST_WRITE_SCOPE_FORBIDDEN", "linux-bwrap",
+        "INVOCATION_HOST_WRITE_SCOPE_FORBIDDEN", "linux-bwrap", "def cmd_handoff",
     ]
     missing_harness_markers = [marker for marker in required_harness_markers if marker not in harness_source]
     if missing_harness_markers:
         finding(findings, "AIA-EXECUTION-001", "HARNESS_HARDENING_MISSING", "Agent harness misses invocation, explicit-root, sandbox or mode-enforcement hardening", missing=missing_harness_markers)
 
     agents = (root / "AGENTS.md").read_text(encoding="utf-8") if (root / "AGENTS.md").is_file() else ""
-    if "## AI-Agent- und Codex-Pilot" not in agents or "PROJECT_READY" not in agents or "PILOT_WRITE_READY" not in agents:
+    if "## AI-Agent- und Codex-Pilot" not in agents or "PROJECT_READY" not in agents or "PILOT_WRITE_READY" not in agents or "agent-task.sh handoff" not in agents or "Codex-Live-Confinement" not in agents:
         finding(findings, "AIA-PROJECT-001", "AGENTS_PILOT_RULES_MISSING", "AGENTS.md does not contain the pilot boundary section")
     evidence_policy = pilot.get("evidence", {}) if isinstance(pilot.get("evidence"), dict) else {}
     diagnostic_path = evidence_policy.get("diagnosticUploadPath")
@@ -488,6 +567,9 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         gate = pilot_gates[0]
         if gate.get("lifecycle") != "qualified-report-only" or gate.get("defaultEnforcementMode") != "report-only" or gate.get("entrypoint") != "bin/codex-pilot-ready.sh":
             finding(findings, "AIA-INVENTORY-001", "READINESS_GATE_REGISTRATION_INVALID", "Readiness gate registration is inconsistent with the current registry or points to the wrong entrypoint", gate=gate)
+    confinement_gates = [item for item in gates if isinstance(item, dict) and item.get("gateId") == "codex-confinement-v1"]
+    if len(confinement_gates) != 1 or confinement_gates[0].get("entrypoint") != "bin/codex-confinement-check.sh" or confinement_gates[0].get("ruleIds") != ["AIA-CONFINEMENT-001"]:
+        finding(findings, "AIA-INVENTORY-001", "CONFINEMENT_GATE_REGISTRATION_INVALID", "Codex confinement gate must be registered exactly once and point to the live checker", gates=confinement_gates)
 
     inventory = load_json(root / "contracts/governance/testing/test-inventory-baseline.json")
     test_paths = {item.get("path") for item in inventory.get("toolingTests", []) if isinstance(item, dict)}
@@ -495,8 +577,10 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         finding(findings, "AIA-INVENTORY-001", "PILOT_TESTS_MISSING", "Pilot test scripts are not fully inventoried", missing=sorted(REQUIRED_TEST_PATHS - test_paths))
     fixture_contract = load_json(root / "contracts/governance/testing/test-fixture-contract.json")
     fixture_paths = {item.get("path") for item in fixture_contract.get("fixtureEntries", []) if isinstance(item, dict)}
-    if f"src/test/resources/tooling/{REQUIRED_FIXTURE_ID}/expected-cases.json" not in fixture_paths:
-        finding(findings, "AIA-INVENTORY-001", "PILOT_FIXTURE_MISSING", "Pilot readiness fixture is not registered")
+    required_fixture_paths = {f"src/test/resources/tooling/{fixture_id}/expected-cases.json" for fixture_id in REQUIRED_FIXTURE_IDS}
+    missing_fixture_paths = sorted(required_fixture_paths - fixture_paths)
+    if missing_fixture_paths:
+        finding(findings, "AIA-INVENTORY-001", "PILOT_FIXTURE_MISSING", "Pilot readiness or confinement fixture is not registered", missing=missing_fixture_paths)
 
     if mode == "live":
         branch = git(root, "branch", "--show-current")

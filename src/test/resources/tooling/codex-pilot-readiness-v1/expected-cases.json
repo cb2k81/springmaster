@@ -24,6 +24,18 @@
       "expectedStatus": "FINDINGS",
       "expectedFindingCode": "EXTERNAL_ROOT_UNSET",
       "expectedExit": 1
+    },
+    {
+      "id": "invalid-confinement-policy",
+      "expectedStatus": "FINDINGS",
+      "expectedFindingCode": "CONFINEMENT_POLICY_INVALID",
+      "expectedExit": 1
+    },
+    {
+      "id": "invalid-host-qualification-policy",
+      "expectedStatus": "FINDINGS",
+      "expectedFindingCode": "CONFINEMENT_POLICY_INVALID",
+      "expectedExit": 1
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.quality-rule-catalog.v1",
-  "catalogVersion": "1.4.0",
+  "catalogVersion": "1.5.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "allowedLayers": [
@@ -1097,7 +1097,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/PROJECT_DIRECTORY_GOVERNANCE.md",
-        "section": "11. Temporäre, generierte und lokale Artefakte"
+        "section": "11. Tempor\u00e4re, generierte und lokale Artefakte"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1441,7 +1441,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
-        "section": "4.1 Normative Quelle vor Prüfung"
+        "section": "4.1 Normative Quelle vor Pr\u00fcfung"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1535,7 +1535,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "4. Identitäten, Scope und Zeitraum"
+        "section": "4. Identit\u00e4ten, Scope und Zeitraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1695,7 +1695,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "11.1 Prüfereignisse"
+        "section": "11.1 Pr\u00fcfereignisse"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1791,7 +1791,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/SPRINT_GOVERNANCE.md",
-        "section": "3.1 Problemraum vor Lösungsraum"
+        "section": "3.1 Problemraum vor L\u00f6sungsraum"
       },
       "scopePaths": [
         "springmaster/quality-gates"
@@ -1915,7 +1915,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einführung"
+        "section": "16.3 Migrationsarme Einf\u00fchrung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2125,7 +2125,7 @@
       "owner": "springmaster-maintainers",
       "normativeSource": {
         "path": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
-        "section": "16.3 Migrationsarme Einführung"
+        "section": "16.3 Migrationsarme Einf\u00fchrung"
       },
       "scopePaths": [
         "springmaster/testing"
@@ -2547,6 +2547,39 @@
         "springmaster"
       ],
       "implementationRef": "bin/agent-task.py"
+    },
+    {
+      "ruleId": "AIA-CONFINEMENT-001",
+      "title": "Real Codex execution is host-confined, produces verified patch handoffs, and requires two separately accepted calibration tasks",
+      "owner": "springmaster-maintainers",
+      "normativeSource": {
+        "path": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+        "section": "14. Codex-Live-Confinement und Patch-Handoff"
+      },
+      "scopePaths": [
+        "springmaster/engineering"
+      ],
+      "layer": "G0",
+      "testabilityClass": "automated",
+      "defaultSeverity": "BLOCKER",
+      "lifecycle": "qualified-report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "waivable": false,
+      "evidenceTypes": [
+        "json-report",
+        "text-summary",
+        "immutable-artifact"
+      ],
+      "gateIds": [
+        "codex-pilot-readiness-v1",
+        "codex-confinement-v1"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ],
+      "implementationRef": "bin/codex-host-sandbox.py; bin/codex-calibration.py; bin/codex-confinement-check.py"
     }
   ]
 }

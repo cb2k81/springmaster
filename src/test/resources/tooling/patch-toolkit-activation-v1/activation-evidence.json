@@ -1,12 +1,31 @@
 {
-  "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
-  "projectId": "springmaster",
-  "toolkitVersion": "1.1.2",
-  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
-  "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
+  "canonicalMutatingEntrypoint": "bin/cpatch",
+  "codexCutoverFoundationCandidate": {
+    "acceptedCalibrationTaskCountRequired": 2,
+    "baselineCommit": "c9e6b75d7ae505c1b43e89bddce095f2ef7b91b2",
+    "deliveryId": "000203-springmaster_codex_cutover_foundation",
+    "hostQualificationPortable": false,
+    "hostQualificationRequired": true,
+    "mechanicalConfinementRequired": true,
+    "patchId": "000203_springmaster_codex_cutover_foundation",
+    "pilotWriteReady": false,
+    "platformVersion": "0.23.0-foundation",
+    "realCodexConfinementRequired": true,
+    "status": "QUALIFIED_CANDIDATE_PENDING_CANONICAL_DELIVERY",
+    "toolingVersion": "0.13.0",
+    "writableCodexAuthorized": false
+  },
+  "directoryGovernanceRuntimeAudit": {
+    "baselineCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
+    "candidatePatch": "000196_springmaster_directory_governance_runtime_audit_closure",
+    "cleanupPathCount": 995,
+    "cleanupPathListSha256": "94f751492f04abd0078be59ef867bd5e29b6bd632f30ea3025d6921f543a4081",
+    "deliveryRequirement": "CANONICAL_DRY_RUN_THEN_EXPLICIT_ACCEPT",
+    "emptyArchiveSkeletonPolicy": "IGNORE_EMPTY_ONLY",
+    "nonEmptyArchiveWithoutPatchLog": "BLOCKING"
+  },
   "installationCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
   "installationQualification": {
-    "status": "PASS",
     "stages": [
       "ctool-doctor-production",
       "cpatch-doctor-production",
@@ -16,91 +35,89 @@
       "project-full",
       "project-release",
       "maven-clean-verify"
-    ]
+    ],
+    "status": "PASS"
   },
+  "legacyMutationPolicy": "disabled",
+  "operationalRecovery": {
+    "failedQualificationEvidencePreserved": true,
+    "invalidManualToolkitLockRemoved": true,
+    "productionDoctorAfterRepair": "HEALTHY"
+  },
+  "processOperations": {
+    "acceptRunId": "run-20260727T091140Z-1dd557514153",
+    "acceptedCommit": "ef713cc73518da94419dfa342303df6847120420",
+    "acceptedPatch": "000186_springmaster_patch_workflow_workspace_contract",
+    "contractStatus": "PASS",
+    "dryRunId": "run-20260727T084807Z-336bc56656e9",
+    "duplicateActiveStart": "reuse-existing-run",
+    "gitFixtureIsolation": "PASS",
+    "integrationFixture": "PASS",
+    "liveReadinessRunId": "run-20260727T093113Z-0be8cada4b89",
+    "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
+    "multipleActiveSingleton": "incident-fail-closed",
+    "operatorLogHistoryCompatibility": "FIXED_000187",
+    "operatorWorkspaceAcceptRunId": "run-20260727T120640Z-800d2ab4656d",
+    "operatorWorkspaceDryRunId": "run-20260727T114228Z-ed48eef336de",
+    "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
+    "postAcceptQualification": "PASS_000184_WITH_EXTERNAL_ROOTS",
+    "realSpringmasterPilot": "PASS_000184",
+    "singletonStart": "project-neutral-atomic-reuse",
+    "supersededOperationalPattern": "nested-detached-orchestrator",
+    "terminalRestart": "explicit-only"
+  },
+  "projectId": "springmaster",
   "qualifiedExport": {
     "fileName": "springmaster_export_full_2026-07-23T19-03-30-885456Z.zip",
     "sha256": "13a936462c4d85288a8c5c800338c936c0389759eb4f779ef3d887587ecd7050",
     "sourceCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
     "status": "COMPLETE"
   },
-  "operationalRecovery": {
-    "invalidManualToolkitLockRemoved": true,
-    "productionDoctorAfterRepair": "HEALTHY",
-    "failedQualificationEvidencePreserved": true
-  },
-  "legacyMutationPolicy": "disabled",
-  "canonicalMutatingEntrypoint": "bin/cpatch",
-  "processOperations": {
-    "contractStatus": "PASS",
-    "integrationFixture": "PASS",
-    "realSpringmasterPilot": "PASS_000184",
-    "managedProjectRollout": "BLOCKED_PENDING_SPRINGMASTER_PILOT",
-    "supersededOperationalPattern": "nested-detached-orchestrator",
-    "singletonStart": "project-neutral-atomic-reuse",
-    "duplicateActiveStart": "reuse-existing-run",
-    "terminalRestart": "explicit-only",
-    "multipleActiveSingleton": "incident-fail-closed",
-    "gitFixtureIsolation": "PASS",
-    "postAcceptQualification": "PASS_000184_WITH_EXTERNAL_ROOTS",
-    "acceptedPatch": "000186_springmaster_patch_workflow_workspace_contract",
-    "acceptedCommit": "ef713cc73518da94419dfa342303df6847120420",
-    "dryRunId": "run-20260727T084807Z-336bc56656e9",
-    "acceptRunId": "run-20260727T091140Z-1dd557514153",
-    "liveReadinessRunId": "run-20260727T093113Z-0be8cada4b89",
-    "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
-    "operatorLogHistoryCompatibility": "FIXED_000187",
-    "operatorWorkspaceDryRunId": "run-20260727T114228Z-ed48eef336de",
-    "operatorWorkspaceAcceptRunId": "run-20260727T120640Z-800d2ab4656d"
-  },
+  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
+  "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
+  "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
   "stagingHotfix": {
-    "patchId": "000194_springmaster_patch_toolkit_staging_version_closure",
-    "incidentRunId": "run-20260728T153249Z-5f8dd710bdcc",
     "diagnosisStatus": "CONFIRMED",
-    "rootCause": "git add --all returns non-zero for deleted tracked paths below ignored directories even though the deletion is staged",
-    "implementation": "split tracked updates/deletions from additions and use NUL-separated literal pathspecs",
     "ignoredNewFilePolicy": "REJECTED_WITHOUT_FORCE",
-    "producerRegression": {
-      "mixedTrackedDeletionModificationAddition": "PASS",
-      "ignoredAdditionRejected": "PASS",
-      "largePathSetCount": 1700,
-      "fullPatchDryRun": "DRY_RUN_SUCCEEDED"
-    },
+    "implementation": "split tracked updates/deletions from additions and use NUL-separated literal pathspecs",
+    "incidentRunId": "run-20260728T153249Z-5f8dd710bdcc",
+    "patchId": "000194_springmaster_patch_toolkit_staging_version_closure",
     "postAcceptExport": {
-      "status": "PASS",
       "fileName": "springmaster_export_full_2026-07-29T09-11-00-091826Z.zip",
+      "qualification": "POST_ACCEPT_QUALIFICATION_PASS",
       "sha256": "09576b2ed554f12febc6025f6562015b59ca5fc2cd20f77ef6765b8d9acfc7ec",
       "sourceCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
-      "qualification": "POST_ACCEPT_QUALIFICATION_PASS"
-    }
-  },
-  "directoryGovernanceRuntimeAudit": {
-    "candidatePatch": "000196_springmaster_directory_governance_runtime_audit_closure",
-    "baselineCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
-    "cleanupPathCount": 995,
-    "cleanupPathListSha256": "94f751492f04abd0078be59ef867bd5e29b6bd632f30ea3025d6921f543a4081",
-    "emptyArchiveSkeletonPolicy": "IGNORE_EMPTY_ONLY",
-    "nonEmptyArchiveWithoutPatchLog": "BLOCKING",
-    "deliveryRequirement": "CANONICAL_DRY_RUN_THEN_EXPLICIT_ACCEPT"
+      "status": "PASS"
+    },
+    "producerRegression": {
+      "fullPatchDryRun": "DRY_RUN_SUCCEEDED",
+      "ignoredAdditionRejected": "PASS",
+      "largePathSetCount": 1700,
+      "mixedTrackedDeletionModificationAddition": "PASS"
+    },
+    "rootCause": "git add --all returns non-zero for deleted tracked paths below ignored directories even though the deletion is staged"
   },
   "toolingHardeningCandidate": {
-    "status": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+    "acceptRunId": "run-20260731T073111Z-0e5f6316c4d3",
+    "acceptanceStatus": "ACCEPTED",
+    "acceptedCommit": "b48743512944e95b39231f685fe172fb93b5a015",
+    "acceptedOwnerCount": 9,
+    "artifactRootAuthorization": "IMPLEMENTED_AND_ACCEPTED",
     "baselineCommit": "c5c5846176d92c34b19b7a7827d7264c1923805f",
-    "patchId": "000201_springmaster_tooling_hardening_cut",
     "deliveryId": "000201-springmaster_tooling_hardening_cut",
-    "workspaceLifecycle": "IMPLEMENTED_IN_CANDIDATE",
-    "artifactRootAuthorization": "IMPLEMENTED_IN_CANDIDATE",
     "deliveryInventory": "LIVE_RESOLVER_PASS",
     "deliveryInventorySha256": "8af7a592565fff36de2e374e8361ef7ed9b5e0545064fe3b1ade1aa7534ade63",
-    "acceptedOwnerCount": 9,
     "historicalFailedAttemptCount": 3,
-    "unknownEntryCount": 0,
-    "reservedNumberCount": 19,
-    "selfcheckObservability": "IMPLEMENTED_IN_CANDIDATE",
-    "versionClosure": "CLOSED_IN_CANDIDATE",
+    "patchId": "000201_springmaster_tooling_hardening_cut",
     "platformVersion": "0.22.0-foundation",
-    "toolingVersion": "0.12.0",
+    "reservedNumberCount": 19,
+    "selfcheckObservability": "IMPLEMENTED_AND_ACCEPTED",
     "statePatch": "000201_springmaster_tooling_hardening_cut",
-    "acceptanceStatus": "NOT_ACCEPTED"
-  }
+    "status": "ACCEPTED",
+    "toolingVersion": "0.12.0",
+    "unknownEntryCount": 0,
+    "versionClosure": "ACCEPTED",
+    "workspaceLifecycle": "IMPLEMENTED_AND_ACCEPTED"
+  },
+  "toolkitVersion": "1.1.2"
 }

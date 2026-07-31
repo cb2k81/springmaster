@@ -311,3 +311,27 @@ The candidate based on accepted commit `c5c5846176d92c34b19b7a7827d7264c1923805f
 The typed live inventory resolver completed with `UNKNOWN_ENTRY_COUNT=0` and selected `000201_springmaster_tooling_hardening_cut` as the next canonical patch identity. The candidate closes the compatible minor impact at Platform `0.22.0-foundation`, Tooling `0.12.0` and State Patch `000201_springmaster_tooling_hardening_cut`; Core, Template, Demo and Platform Update versions remain unchanged.
 
 The candidate remains `NOT_ACCEPTED` and is now `VERSION_CLOSED_PENDING_FULL_QUALIFICATION`. The complete regression matrix, broad Tooling Selfcheck and project profiles, canonical dry-run, explicit accept and post-accept export are still required. No payload from attempts `000197` through `000200` is treated as source implementation.
+
+## Codex cutover foundation candidate
+
+The resolver-assigned candidate `000203_springmaster_codex_cutover_foundation` is based on accepted main commit
+`c9e6b75d7ae505c1b43e89bddce095f2ef7b91b2` and closes the repository-side foundation for a portable,
+host-qualified Codex pilot. Platform is versioned as `0.23.0-foundation` and
+Tooling as `0.13.0`.
+
+The candidate distributes contracts, the isolated task-worktree harness,
+outer host sandbox policy, mechanical denial probes, real Codex invocation
+evidence, two calibration tasks and a separate promotion gate. It does not
+transfer a writable Codex authorization between hosts and does not set
+`WRITABLE_CODEX_AUTHORIZED` or `PILOT_WRITE_READY` to true.
+
+Inactive historical worktrees, old diagnostic archives and convenience exports
+are not cutover blockers. Active writers, held locks, path overlap, unauthorized
+host roots, failed confinement evidence or non-canonical integration changes
+remain fail-closed blockers.
+
+## Accepted tooling hardening baseline and current cutover candidate
+
+`000201_springmaster_tooling_hardening_cut` is accepted. The canonical accept run is `run-20260731T073111Z-0e5f6316c4d3`, and the accepted patch commit is `b48743512944e95b39231f685fe172fb93b5a015`. Earlier statements that classify this patch as `NOT_ACCEPTED` are superseded by this section.
+
+`000203_springmaster_codex_cutover_foundation` remains an unaccepted candidate at Platform `0.23.0-foundation` and Tooling `0.13.0`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. Canonical delivery and accept, followed by host-local confinement evidence and two accepted calibration tasks, are still required.

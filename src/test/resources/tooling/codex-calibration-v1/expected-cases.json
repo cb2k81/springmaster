@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "springmaster.codex-calibration-fixture.v1",
+  "cases": [
+    {
+      "id": "materialize-three-tasks",
+      "expectedExit": 0,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "analysis-read-only",
+      "expectedMode": "analysis",
+      "expectedChangedFiles": 0
+    },
+    {
+      "id": "implementation-one-path-1",
+      "expectedMode": "implementation",
+      "expectedAllowedPath": "src/test/resources/tooling/codex-calibration-v1/task-1.txt"
+    },
+    {
+      "id": "implementation-one-path-2",
+      "expectedMode": "implementation",
+      "expectedAllowedPath": "src/test/resources/tooling/codex-calibration-v1/task-2.txt"
+    },
+    {
+      "id": "assemble-requires-two-distinct-acceptances",
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "automatic-promotion-forbidden",
+      "expectedWritableCodexAuthorized": false,
+      "expectedPilotWriteReady": false
+    },
+    {
+      "id": "missing-assembly-evidence",
+      "expectedStatus": "TOOL_ERROR",
+      "expectedExit": 2
+    },
+    {
+      "id": "confinement-finding",
+      "expectedStatus": "FINDINGS",
+      "expectedExit": 1
+    }
+  ]
+}

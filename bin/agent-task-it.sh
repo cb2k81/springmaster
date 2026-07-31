@@ -11,7 +11,10 @@ cleanup() {
   if [[ "${rc}" -ne 0 ]]; then
     printf '%s\n' 'AGENT_TASK_IT=FAILED' "FAILED_STEP=${CURRENT_STEP}" "FIXTURE_ROOT=${TMP_ROOT}" >&2
   fi
-  rm -rf "${TMP_ROOT}"
+  if [[ -d "${TMP_ROOT}" && ! -L "${TMP_ROOT}" ]]; then
+    chmod -R u+rwX -- "${TMP_ROOT}" 2>/dev/null || true
+  fi
+  rm -rf -- "${TMP_ROOT}"
   exit "${rc}"
 }
 trap cleanup EXIT
@@ -208,6 +211,24 @@ record_invocation AGENT-FIXTURE-001 "${WORKTREE1}"
 printf '%s\n' 'changed' > "${WORKTREE1}/README.md"
 "${REPO}/bin/agent-task.sh" --project-root "${REPO}" postcheck AGENT-FIXTURE-001 >/dev/null
 "${REPO}/bin/agent-task.sh" --project-root "${REPO}" qualify AGENT-FIXTURE-001 >/dev/null
+HANDOFF1="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json handoff AGENT-FIXTURE-001)"
+HANDOFF_MANIFEST1="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["handoffManifest"])' <<<"${HANDOFF1}")"
+HANDOFF_PATCH1="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["patchPath"])' <<<"${HANDOFF1}")"
+test -f "${HANDOFF_MANIFEST1}"
+test -f "${HANDOFF_PATCH1}"
+python3 - "${HANDOFF_MANIFEST1}" "${BASE}" <<'PY'
+import json, sys
+from pathlib import Path
+manifest=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert manifest["schemaVersion"] == "springmaster.agent-task-patch-handoff.v1"
+assert manifest["status"] == "VERIFIED"
+assert manifest["baseCommit"] == sys.argv[2]
+assert manifest["changedPaths"] == ["README.md"]
+assert manifest["isolatedApplyCheck"] == "PASS"
+assert manifest["patchId"] is None and manifest["deliveryId"] is None
+assert manifest["integrationAuthorized"] is False
+assert manifest["canonicalPatchArtifact"] is False
+PY
 "${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-001 --discard >/dev/null
 test ! -e "${WORKTREE1}"
 grep -F '"codexInvocation": "RECORDED"' "${COCONDO_AGENT_RUN_ROOT}/agent-fixture-001/final-result.json" >/dev/null
@@ -218,6 +239,12 @@ TASK2="${TMP_ROOT}/task2.json"
 make_task AGENT-FIXTURE-002 implementation low '["fixture"]' README.md forbidden.txt 2 4096 "${DIFF_COMMANDS}" "${TASK2}"
 PREPARE2="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK2}")"
 WORKTREE2="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE2}")"
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" handoff AGENT-FIXTURE-002 > "${TMP_ROOT}/early-handoff.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=HANDOFF_STATE_INVALID' "${TMP_ROOT}/early-handoff.out" >/dev/null
 set +e
 "${REPO}/bin/agent-task.sh" --project-root "${REPO}" qualify AGENT-FIXTURE-002 > "${TMP_ROOT}/missing-invocation.out"
 RC=$?

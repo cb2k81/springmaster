@@ -197,3 +197,35 @@ sprintId: null
 **Recovery:** inspect that deterministic log and fix the exact substep. Do not retry from a generic outer failure and do not hide the diagnostic stream.
 
 **Prevention:** critical substeps use the shared selfcheck-observability library and remain registered in the sealed test inventory.
+
+## Hashgleiche Ingress-Duplikate werden als Namenskonflikt behandelt
+
+**Symptom:** Ein geprüftes Anwendungspaket stoppt, weil Browser oder Downloadmanager eine bytegleiche Kopie mit Suffix erzeugt haben.
+
+**Ursache:** Die Auswahl bindet einen Dateinamensglob statt den erwarteten SHA-256.
+
+**Regel:** Nach Hash selektieren. Mindestens ein Treffer ist erforderlich; mehrere bytegleiche Treffer werden sortiert und deterministisch ausgewählt. Widersprüchliche Hashes blockieren.
+
+## POSIX-Modus wird strenger als Git bewertet
+
+**Symptom:** Eine unveränderte reguläre Datei mit `0664` wird gegen erwartetes `0644` abgelehnt.
+
+**Ursache:** Das Manifest verwechselt den vollständigen Hostmodus mit dem Git-Ausführbarkeitsbit.
+
+**Regel:** Source-Hash und Git-Modus `100644`/`100755` binden. Nach erfolgreicher Prüfung darf auf den definierten Zielmodus normalisiert werden.
+
+## Dekorierte Logmeldung wird als präfixlose Zeile geprüft
+
+**Symptom:** Ein erfolgreicher Selfcheck mit Exit-Code `0` wird abgelehnt, obwohl `[timestamp] [INFO] Tooling selfcheck completed successfully.` vorhanden ist.
+
+**Ursache:** Der Wrapper prüft eine menschliche Logmeldung mit falscher exakter Zeilenform.
+
+**Regel:** Maschinenlesbare Marker oder den dokumentierten Log-Envelope prüfen; zusätzlich Exit-Code und Failure-Marker auswerten.
+
+## Codex-Ergebnis wird als direkte Projektänderung behandelt
+
+**Symptom:** Ein Agenttask soll direkt committed, integriert oder akzeptiert werden.
+
+**Ursache:** Task-Worktree-Schreibrecht wird mit Integrationsautorität verwechselt.
+
+**Regel:** Qualification, `agent-task handoff`, kontrollierte Candidate-Anwendung, Candidate-Commit, `cpatch create`, separater Dry-run und separater Accept sind eigenständige Grenzen. Ein realer Live-Confinement-PASS auf dem DEV-System ist vor jeder Promotion verpflichtend.

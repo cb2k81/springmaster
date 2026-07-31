@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.gate-registry.v1",
-  "registryVersion": "1.4.0",
+  "registryVersion": "1.5.0",
   "status": "report-only",
   "governanceDocument": "PROJECT_DOCS/GOVERNANCE/QUALITY_GATE_GOVERNANCE.md",
   "gates": [
@@ -301,7 +301,7 @@
       "name": "Codex Pilot Project Readiness V1",
       "owner": "springmaster-maintainers",
       "layer": "G0",
-      "purpose": "Strictly verify Springmaster-only governance, contracts, harness, frozen reference input and external-boundary prerequisites before the first Codex calibration",
+      "purpose": "Verify repository governance, portable host-qualification contracts, task harness and calibration prerequisites before real Codex execution",
       "lifecycle": "qualified-report-only",
       "defaultEnforcementMode": "report-only",
       "supportedEnforcementModes": [
@@ -319,7 +319,9 @@
         "contracts/governance/quality/quality-rule-catalog.json",
         "contracts/governance/testing/test-inventory-baseline.json",
         "contracts/governance/agent/operator-command-effect.schema.json",
-        "contracts/governance/agent/codex-invocation-record.schema.json"
+        "contracts/governance/agent/codex-invocation-record.schema.json",
+        "contracts/governance/agent/codex-confinement-contract.json",
+        "contracts/governance/agent/codex-host-qualification-contract.json"
       ],
       "ruleIds": [
         "AIA-PROJECT-001",
@@ -330,11 +332,47 @@
         "AIA-HYGIENE-001",
         "AIA-INVENTORY-001",
         "AIA-EXECUTION-001",
-        "AIA-TASK-SEMANTICS-001"
+        "AIA-TASK-SEMANTICS-001",
+        "AIA-CONFINEMENT-001"
       ],
       "reportSchema": "springmaster.codex-pilot-readiness-report.v1",
       "fixtureEntrypoint": "bin/codex-pilot-ready-it.sh",
       "selfcheckEntrypoint": "bin/codex-pilot-ready-it.sh",
+      "readOnly": true,
+      "sideEffects": [
+        "report-files-only"
+      ],
+      "appliesTo": [
+        "springmaster"
+      ]
+    },
+    {
+      "gateId": "codex-confinement-v1",
+      "name": "Codex Live Confinement V1",
+      "owner": "springmaster-maintainers",
+      "layer": "G0",
+      "purpose": "Verify host-local mechanical probes, real Codex execution, two immutable patch handoffs, two separate dry-runs and two canonical accepts before separate promotion",
+      "lifecycle": "qualified-report-only",
+      "defaultEnforcementMode": "report-only",
+      "supportedEnforcementModes": [
+        "report-only"
+      ],
+      "scopeModes": [
+        "candidate",
+        "live"
+      ],
+      "entrypoint": "bin/codex-confinement-check.sh",
+      "inputContracts": [
+        "contracts/governance/agent/codex-confinement-contract.json",
+        "contracts/governance/agent/codex-pilot-contract.json",
+        "contracts/governance/agent/codex-host-qualification-contract.json"
+      ],
+      "ruleIds": [
+        "AIA-CONFINEMENT-001"
+      ],
+      "reportSchema": "springmaster.codex-confinement-report.v1",
+      "fixtureEntrypoint": "bin/codex-confinement-check-it.sh",
+      "selfcheckEntrypoint": "bin/codex-confinement-check-it.sh",
       "readOnly": true,
       "sideEffects": [
         "report-files-only"

@@ -14,7 +14,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-27
+lastReviewedAt: 2026-07-30
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -246,10 +246,72 @@ This governance has no automatic Project-New or managed-project effect. Later ro
 - disposable target acceptance;
 - explicit authorization for each real target mutation.
 
-## 13. Lifecycle
+## 14. Codex-Live-Confinement und Patch-Handoff
+
+### 14.1 Getrennte Betriebsarten
+
+Der Online-Chat und ein lokaler Codex-Run verwenden dieselbe Patch-Governance, aber unterschiedliche Handoff-Kanäle:
+
+- Der Online-Chat liefert vorverifizierte Patchpakete und kann bei einem unklaren DEV-Zustand genau ein aktuelles Diagnosearchiv unter `patches/work/diagnostic-<operation-id>.zip` anfordern.
+- Codex darf `patches/work` weder lesen noch schreiben. Seine Verträge, Invocation-Records, Logs und Resultate liegen ausschließlich unter den explizit provisionierten externen Run- und Artefakt-Roots.
+
+### 14.2 Technische Schreibgrenze
+
+Codex erhält nur Schreibrechte im vorbereiteten detached Task-Worktree. Folgende Bereiche bleiben hostseitig schreibgeschützt und werden durch reale Negativproben geprüft:
+
+- Projekt- und Integrations-Checkout;
+- andere Worktrees und Repositories;
+- Git-Common-Verzeichnis;
+- `patches/work`, Operator-Home und Downloads;
+- externe Run- und Artefakt-Roots;
+- Host-Temp und Pfade außerhalb des Task-Worktrees.
+
+Ein Promptverbot ist keine ausreichende Kontrolle. Der tatsächliche Versuch muss auf dem DEV-System technisch scheitern oder der gesamte Task muss fail-closed verworfen werden.
+
+### 14.3 Nicht kanonischer Patch-Handoff
+
+Nach `QUALIFIED` darf nur der vertrauenswürdige Harness-Befehl `agent-task handoff` für Implementierungsaufgaben einen binären Git-Diff erzeugen. Der Handoff:
+
+- bindet Task-ID, Base-Commit, Pfadmenge, Datei-Hashes und Patch-SHA-256;
+- besteht einen isolierten Apply-Check;
+- enthält weder Patch-ID noch Delivery-ID;
+- besitzt keine Commit-, Integrations- oder Accept-Autorität;
+- ist kein kanonisches Patchartefakt.
+
+Der Handoff wird anschließend durch einen getrennten Operatorprozess in einen Candidate übernommen. Erst aus committed Candidate-Refs darf `cpatch create` das kanonische Artefakt erzeugen. Dry-run und Accept bleiben getrennte Operatorentscheidungen.
+
+### 14.4 Live-Abnahme und Promotion
+
+Vor jeder Umstellung auf schreibende Codex-Entwicklung muss `codex-confinement-check --live --check` auf dem tatsächlichen DEV-System mit realem Codex bestehen. Die Evidence umfasst alle verpflichtenden Denial-Probes, zwei unabhängige qualifizierte Implementierungsaufgaben mit Patch-Handoff, getrennte Dry-runs sowie unveränderten Integration- und Git-Common-Zustand.
+
+Ein PASS autorisiert keine automatische Promotion. Bis zu einem separaten akzeptierten Promotion-Schnitt bleiben:
+
+```text
+WRITABLE_CODEX_AUTHORIZED=false
+PILOT_WRITE_READY=false
+DIRECT_CODEX_INTEGRATION_WRITE=false
+CODEX_PATCH_ACCEPT_AUTHORIZED=false
+```
+
+
+## 15. Lifecycle
 
 | Date | Previous | New | Reason |
 |---|---|---|---|
 | 2026-07-27 | - | active | Mode-specific Codex sandbox, exact safe invocation shape and unconditional operator-home/Downloads write denial added; handoff remains a separate trusted operator action. |
 | 2026-07-25 | - | active | Springmaster-only pre-cutover governance, strict project-readiness boundary and Codex calibration lifecycle established. |
 | 2026-07-27 | active | active | Task Contract V2, explicit-root behavior, operator-effect declaration, immutable invocation evidence and fail-closed task semantics added. |
+| 2026-07-30 | active | active | Live Codex confinement, immutable patch handoff and separate promotion boundary added. |
+
+## 16. Portabler Hostvertrag und minimaler Cutover-Pfad
+
+Springmaster verteilt über Git die ausführbaren Verträge, nicht die Freigabe eines Rechners. Jeder Host erzeugt eigene, nicht portable Evidence für Betriebssystem, Architektur, Codex-Version, Bubblewrap-Profil, Root-Auflösung und reale Probe-Ergebnisse.
+
+Die technische Grenze ist zweischichtig:
+
+1. `bin/codex-host-sandbox.sh` erzwingt über eine äußere Linux-Bubblewrap-Sandbox ausschließlich den Task-Worktree als modeabhängig schreibbaren Root und blendet beziehungsweise schützt Integration, Git-common, andere Worktrees, Operator-Home, Downloads, `patches/work`, externe Run-/Artefakt-Roots und Host-Temp.
+2. Codex läuft zusätzlich mit `read-only` beziehungsweise `workspace-write`, `--ask-for-approval never` und ohne zusätzliche Write-Roots.
+
+Der minimale Cutover-Pfad besteht aus Host-Inspection, 20 mechanischen Grenzproben, einem realen read-only Codex-Lauf, zwei unabhängigen Implementierungsaufgaben mit unveränderlichem Patch-Handoff, je einem getrennten kanonischen Dry-run und Accept sowie einer nachgelagerten Evidence-Prüfung. Erst ein weiterer akzeptierter Promotion-Schnitt darf die Hostfreigabe aktivieren.
+
+Sekundäre Aufräumarbeiten an inaktiven Worktrees, historischen Diagnosearchiven, Exportkomfort oder Terminaldarstellung liegen außerhalb dieses kritischen Pfads, sofern sie keinen aktiven Writer, Lock, Scope-Konflikt oder Sicherheitsbefund darstellen.

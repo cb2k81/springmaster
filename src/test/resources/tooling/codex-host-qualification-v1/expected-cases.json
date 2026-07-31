@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "springmaster.codex-host-qualification-fixture.v1",
+  "cases": [
+    {
+      "id": "inspect-supported-linux-host",
+      "expectedStatus": "PASS",
+      "expectedExit": 0
+    },
+    {
+      "id": "mechanical-probe-matrix",
+      "expectedProbeCount": 20,
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "real-analysis-invocation",
+      "expectedStatus": "PASS",
+      "expectedMode": "analysis"
+    },
+    {
+      "id": "missing-external-root",
+      "expectedStatus": "TOOL_ERROR",
+      "expectedErrorCode": "EXTERNAL_ROOT_INVALID",
+      "expectedExit": 2
+    },
+    {
+      "id": "host-evidence-nonportable",
+      "expectedPortable": false
+    },
+    {
+      "id": "automatic-promotion-forbidden",
+      "expectedWritableCodexAuthorized": false,
+      "expectedPilotWriteReady": false
+    },
+    {
+      "id": "mechanical-probe-finding",
+      "expectedStatus": "FINDINGS",
+      "expectedExit": 1
+    }
+  ]
+}

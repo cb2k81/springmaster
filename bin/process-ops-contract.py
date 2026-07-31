@@ -115,6 +115,28 @@ def main() -> int:
     if set(writers) != expected_writers:
         findings.append({"code": "PROCESS_WORKSPACE_WRITER_SET_MISMATCH", "expected": sorted(expected_writers), "actual": sorted(writers)})
 
+    chaining = contract.get("commandChainingPolicy") if isinstance(contract.get("commandChainingPolicy"), dict) else {}
+    if chaining.get("allowedChain") != ["preflight", "writer-start", "lightweight-observation", "terminal-result"] or chaining.get("allTransitionsRequireExitZero") is not True or chaining.get("stageEvidenceRequired") is not True or chaining.get("stopOnFirstFailure") is not True:
+        findings.append({"code": "PROCESS_COMMAND_CHAINING_POLICY_MISMATCH"})
+    if chaining.get("automaticDryRunToAccept") != "forbidden" or chaining.get("automaticDiagnosisToRepair") != "forbidden" or chaining.get("automaticFailedRunRetry") != "forbidden":
+        findings.append({"code": "PROCESS_COMMAND_CHAINING_BOUNDARY_MISMATCH"})
+
+    console = contract.get("consoleOutputPolicy") if isinstance(contract.get("consoleOutputPolicy"), dict) else {}
+    if console.get("fullJsonInventoryDefault") != "forbidden" or console.get("continuousLogStreamingDefault") != "forbidden" or console.get("boundedFailureTail") is not True:
+        findings.append({"code": "PROCESS_CONSOLE_OUTPUT_POLICY_MISMATCH"})
+
+    recovery = contract.get("failureRecoveryPolicy") if isinstance(contract.get("failureRecoveryPolicy"), dict) else {}
+    if recovery.get("blindRetry") != "forbidden" or recovery.get("canonicalStateInspectionRequired") is not True or recovery.get("diagnoseUnknownTargetStateBeforeRemediation") is not True or recovery.get("preserveEvidenceBeforeCleanup") is not True:
+        findings.append({"code": "PROCESS_FAILURE_RECOVERY_POLICY_MISMATCH"})
+
+    diagnostic = contract.get("diagnosticHandoffPolicy") if isinstance(contract.get("diagnosticHandoffPolicy"), dict) else {}
+    if diagnostic.get("onlineChatPath") != "patches/work/diagnostic-<operation-id>.zip" or diagnostic.get("onlineChatArchiveCount") != 1 or diagnostic.get("codexUsesOperatorWorkspace") is not False or diagnostic.get("cleanupTrigger") != "before-each-writer-not-observer":
+        findings.append({"code": "PROCESS_DIAGNOSTIC_HANDOFF_POLICY_MISMATCH"})
+
+    ingress = contract.get("artifactIngressPolicy") if isinstance(contract.get("artifactIngressPolicy"), dict) else {}
+    if ingress.get("selectionKey") != "expected-sha256" or ingress.get("multipleIdenticalHashMatches") != "deterministic-sorted-selection" or ingress.get("conflictingHashes") != "block" or ingress.get("regularFileModeBinding") != "git-executable-bit" or ingress.get("hostModeNormalizationAfterHashCheck") is not True:
+        findings.append({"code": "PROCESS_ARTIFACT_INGRESS_POLICY_MISMATCH"})
+
     writer_policy = contract.get("writerPolicy") if isinstance(contract.get("writerPolicy"), dict) else {}
     if set(writer_policy.get("commands", [])) != expected_writers:
         findings.append({"code": "PROCESS_WRITER_POLICY_MISMATCH"})

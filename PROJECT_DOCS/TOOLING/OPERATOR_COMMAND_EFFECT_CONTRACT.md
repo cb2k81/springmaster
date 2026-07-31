@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-27
 validFrom: 2026-07-27
-lastReviewedAt: 2026-07-27
+lastReviewedAt: 2026-07-30
 reviewBy: 2027-01-27
 supersedes: []
 supersededBy: null
@@ -99,3 +99,19 @@ Execution or recording stops when:
 ## 6. Relationship to patch commands
 
 `PATCH_COMMAND_GENERATION_CONTRACT.md` remains the specialized contract for patch operations. This document supplies the general host-effect boundary that also applies to non-patch commands and to instructions generated in chat.
+
+## 7. Verbundene Blocks und Autoritätsgrenzen
+
+Ein Operatorblock darf aufeinanderfolgende Stufen nur verbinden, wenn jede Stufe ihren Exit-Code und eine eindeutige PASS-Evidence liefert. Preflight, Start, Observer und Resultat dürfen eine fail-fast Kette bilden. Dry-run und Accept sowie Diagnose und Reparatur bleiben separate Operatorentscheidungen.
+
+Die Standardkonsole enthält nur Operation-/Stage-ID, Start, Resultat, Exit-Code und Log-/Evidence-Pfad. Vollständige JSON-Inventare oder Logstreams sind nur über explizite Detailoperationen zulässig.
+
+## 8. Online-Chat und Codex
+
+Ein Online-Chat-Anwendungspaket deklariert Patch-, Manifest- und Skript-Hashes und darf bei unklarem Zielzustand ein einzelnes Diagnosearchiv unter `patches/work` erzeugen. Ein Codex-Aufruf erhält keinen Zugriff auf diesen Operatorbereich. Codex schreibt nur in den vorbereiteten Task-Worktree; der nachgelagerte `agent-task handoff` ist eine getrennte vertrauenswürdige Operatorwirkung und besitzt keine Integration- oder Accept-Autorität.
+
+## 9. Äußere Host-Sandbox
+
+Für reale Codex-Aufrufe ist die deklarierte Wirkung zusätzlich an `contracts/governance/agent/codex-host-qualification-contract.json` gebunden. Die äußere Bubblewrap-Sandbox ist die maßgebliche Hostgrenze; Codex' eigene modeabhängige Sandbox ist Defense-in-depth. Ein Operator-Effekt darf weder zusätzliche beschreibbare Roots noch eine portable Hostfreigabe erklären.
+
+Die Hostqualifikation, die zwei Implementierungshandoffs, die getrennten Dry-runs und die getrennten Accepts sind eigenständige Wirkungen. Keine dieser Wirkungen darf die nächste Stufe stillschweigend autorisieren. Eine spätere Promotion ist ein eigener Repository-Change.

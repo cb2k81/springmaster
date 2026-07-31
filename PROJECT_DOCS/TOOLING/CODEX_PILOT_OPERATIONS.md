@@ -149,3 +149,66 @@ Operational reports intended for upload may be written below `patches/logs/valid
 - Preserve the external run directory.
 - Use explicit `cleanup --discard` only after the result is no longer needed.
 - A boundary failure returns the pilot to patch-controlled hardening before another Codex attempt.
+
+## 8. Patch-Handoff nach qualifizierter Implementierung
+
+Eine qualifizierte Implementierungsaufgabe wird nicht direkt integriert. Der Operator erzeugt zunächst den unveränderlichen, nicht kanonischen Handoff:
+
+```bash
+./bin/agent-task.sh handoff <task-id>
+./bin/agent-task.sh status <task-id>
+```
+
+Der Handoff liegt unter `${COCONDO_ARTIFACT_ROOT}/codex-handoffs/<task-id>/`, bindet den Base-Commit und die exakte Pfadmenge und besteht einen isolierten Apply-Check. Er enthält ausdrücklich keine Patch-ID und keine Delivery-ID.
+
+Danach endet die Agentautorität. Der Operator übernimmt den Handoff in einen getrennten Candidate, committed dort den geprüften Scope und verwendet anschließend den normalen `cpatch`-Prozess mit getrenntem Dry-run und Accept.
+
+## 9. Live-Confinement-Abnahme auf dem DEV-System
+
+Vor `PILOT_WRITE_READY` müssen reale Codex-Aufrufe die Evidence nach `contracts/governance/agent/codex-confinement-contract.json` erzeugen. Der Abschluss wird ausschließlich aus einem externen Evidence-Root geprüft:
+
+```bash
+./bin/codex-confinement-check.sh verify \
+  --evidence "${COCONDO_ARTIFACT_ROOT:?}/codex-confinement/<run-id>" \
+  --live \
+  --check
+```
+
+Erwarteter Zustand:
+
+```text
+CODEX_CONFINEMENT_STATUS=PASS
+WRITABLE_CODEX_AUTHORIZED=false
+PILOT_WRITE_READY=false
+NEXT_ACTION=SEPARATE_PROMOTION_REVIEW
+```
+
+Ein Fixture-PASS ersetzt diesen Live-Lauf nicht. Die Negativproben müssen auf dem tatsächlichen DEV-System mit der real installierten Codex-CLI versucht worden sein.
+
+## 10. Terminalschonende verkettete Abläufe
+
+Ein fail-fast Operatorblock darf erfolgreiche Preflights direkt mit Taskvorbereitung, Invocation, Postcheck, Qualification, Handoff und leichter Statusbeobachtung verbinden. Er gibt nur Stage-Start, Stage-Result, IDs sowie Log-/Evidence-Pfade aus. Vollständige Logs und JSON-Inventare werden nicht in das interaktive Terminal gestreamt.
+
+Nicht automatisch verbunden werden:
+
+- Dry-run und Accept;
+- Diagnose und Reparatur;
+- fehlgeschlagener Run und Retry;
+- Codex-Handoff und Candidate-Integration.
+
+## 11. Portabler Host-Bootstrap und Kalibrierung
+
+Die Repository-Foundation stellt folgende kanonische Entrypoints bereit:
+
+```bash
+./bin/codex-host-sandbox.sh inspect --out <inspect.json>
+./bin/codex-host-sandbox.sh probe --task-worktree <prepared-worktree> --out <probe.json>
+./bin/codex-host-sandbox.sh invoke --task-id <analysis-task-id> --prompt <prompt.txt> --model <model> --out <invocation.json>
+./bin/codex-host-sandbox.sh qualify --inspect <inspect.json> --probe <probe.json> --analysis-invocation <invocation.json> --out <host-qualification.json> --check
+./bin/codex-calibration.sh materialize --out <task-pack> --baseline <commit>
+./bin/codex-calibration.sh assemble --manifest <assembly.json> --out <confinement-evidence>
+```
+
+`inspect`, `probe` und `invoke` müssen auf demselben Host und Baseline-Commit laufen. Die Host-Evidence ist nicht portabel. Die zwei Implementierungstasks werden erst nach Host-PASS vorbereitet, jeweils über `agent-task` qualifiziert und als nicht kanonischer Handoff übergeben. Dry-run und Accept bleiben getrennte Operatoraktionen.
+
+Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover-Foundation-Lauf bereinigt und sind kein Readiness-Blocker. Der Harness blockiert weiterhin aktive Runs, Locks, Pfadüberschneidungen und unklare Autorität.

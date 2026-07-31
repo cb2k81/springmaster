@@ -130,6 +130,12 @@ def fixture_findings(c,project:Path):
  for e in fx.get("fixtureEntries",[]):
   p=project/e.get("path","")
   if not p.is_file():continue
+  if e.get("fixtureType")=="golden-text":
+   try:
+    value=p.read_text(encoding="utf-8")
+    if not value:f.append(issue("GOLDEN_TEXT_EMPTY",e.get("path",""),"Golden text fixture must not be empty"))
+   except Exception as exc:f.append(issue("FIXTURE_TEXT_INVALID",e.get("path",""),f"Fixture text cannot be read as UTF-8: {exc}"))
+   continue
   try:data=json.loads(p.read_text(encoding="utf-8"))
   except Exception as exc:f.append(issue("FIXTURE_JSON_INVALID",e.get("path",""),f"Fixture JSON cannot be parsed: {exc}"));continue
   if e.get("fixtureType")=="expected-case-catalog":

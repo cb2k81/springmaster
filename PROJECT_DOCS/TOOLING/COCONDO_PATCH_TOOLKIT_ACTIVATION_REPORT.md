@@ -158,3 +158,11 @@ The activation evidence now marks this state `VERSION_CLOSED_PENDING_FULL_QUALIF
 | Datum | Vorher | Candidate | Grund |
 |---|---|---|---|
 | 2026-07-30 | Platform `0.21.1-foundation`, Tooling `0.11.3`, State Patch `000196_springmaster_directory_governance_runtime_audit_closure` | Platform `0.22.0-foundation`, Tooling `0.12.0`, State Patch `000201_springmaster_tooling_hardening_cut` | Compatible minor Tooling capability and contract extension; resolver-bound provenance closure before full qualification. |
+
+## 13. Accepted tooling hardening and Codex cutover foundation
+
+The canonical accept run `run-20260731T073111Z-0e5f6316c4d3` accepted `000201_springmaster_tooling_hardening_cut`; the accepted patch commit is `b48743512944e95b39231f685fe172fb93b5a015`. Activation evidence therefore classifies the tooling-hardening state as `ACCEPTED` instead of an unaccepted candidate.
+
+Candidate `000203_springmaster_codex_cutover_foundation` closes the repository-side Codex confinement and host-qualification foundation at Platform `0.23.0-foundation` and Tooling `0.13.0`. It remains `NOT_ACCEPTED`; host-local mechanical confinement, a real Codex probe, two accepted calibration tasks and a separate promotion decision remain mandatory. `WRITABLE_CODEX_AUTHORIZED` and `PILOT_WRITE_READY` remain false.
+
+The activation validator derives the current cutover identity and versions from the Activation Contract. Historical accepted-state assertions remain explicit immutable evidence. This removes the stale hardcoded process-state expectation that blocked the candidate after the correct version closure.

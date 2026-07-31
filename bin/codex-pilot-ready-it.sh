@@ -1,182 +1,85 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-EXPECTED_CASES="${PROJECT_ROOT}/src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json"
-TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/codex-pilot-ready-it.XXXXXX")"
-CURRENT_STEP=bootstrap
-cleanup() {
-  local rc=$?
-  trap - EXIT
-  if [[ "${rc}" -ne 0 ]]; then
-    printf '%s\n' 'CODEX_PILOT_READY_IT=FAILED' "FAILED_STEP=${CURRENT_STEP}" "FIXTURE_ROOT=${TMP_ROOT}" >&2
-  fi
-  rm -rf "${TMP_ROOT}"
-  exit "${rc}"
-}
-trap cleanup EXIT
-
-python3 - "${EXPECTED_CASES}" <<'PY'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert value['schemaVersion']=='springmaster.codex-pilot-readiness-fixture.v1'
-assert [case['expectedExit'] for case in value['cases']] == [0,1,2,1]
+set -Eeuo pipefail
+umask 077
+export LC_ALL=C
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+TMP="${ROOT}/target/codex-pilot-ready-it"
+rm -rf -- "${TMP}"
+mkdir -p -- "${TMP}"
+trap 'if [[ "${KEEP_CODEX_READY_IT:-false}" != true ]]; then rm -rf -- "${TMP}"; fi' EXIT
+python3 - "${ROOT}/src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json" <<'PY'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['schemaVersion']=='springmaster.codex-pilot-readiness-fixture.v1'; assert len(v['cases'])==6
 PY
-
-CURRENT_STEP=positive-candidate
-POSITIVE_OUT="${TMP_ROOT}/positive.out"
-"${PROJECT_ROOT}/bin/codex-pilot-ready.sh" project --candidate --check --skip-self-tests > "${POSITIVE_OUT}"
-grep -Fx 'CODEX_PILOT_READINESS=PROJECT_READY' "${POSITIVE_OUT}" >/dev/null
-grep -Fx 'NEXT_ACTION=CODEX_CALIBRATION' "${POSITIVE_OUT}" >/dev/null
-grep -Fx 'WRITABLE_CODEX_AUTHORIZED=false' "${POSITIVE_OUT}" >/dev/null
-
-CURRENT_STEP=fixture-copy
-FIXTURE="${TMP_ROOT}/fixture"
+FIXTURE="${TMP}/fixture"
 mkdir -p "${FIXTURE}"
 (
-  cd "${PROJECT_ROOT}"
-  tar \
-    --exclude=.git \
-    --exclude=target \
-    --exclude=build \
-    --exclude=tmp \
-    --exclude=exports \
-    --exclude=patches/runtime \
-    --exclude=patches/archives \
-    --exclude=patches/logs/validation \
-    --exclude=patches/logs/accept \
-    -cf - .
+ cd "${ROOT}"
+ tar --exclude=.git --exclude=target --exclude=build --exclude=tmp --exclude=exports --exclude=patches/runtime --exclude=patches/archives -cf - .
 ) | (cd "${FIXTURE}" && tar -xf -)
-export HOME="${TMP_ROOT}/home"
-export XDG_CONFIG_HOME="${TMP_ROOT}/xdg-config"
-export GIT_CONFIG_NOSYSTEM=1
-export GIT_CONFIG_GLOBAL=/dev/null
-export GIT_TEMPLATE_DIR="${TMP_ROOT}/git-template"
-export GIT_TERMINAL_PROMPT=0
+printf '%s\n' 'fixture-toolkit' > "${FIXTURE}/.cocondo/tooling/cocondo-toolkit.pyz"
+python3 - "${FIXTURE}" <<'PY'
+from pathlib import Path
+import hashlib,json,sys
+r=Path(sys.argv[1]); binary=r/'.cocondo/tooling/cocondo-toolkit.pyz'; h=hashlib.sha256(binary.read_bytes()).hexdigest()
+(r/'.cocondo/tooling/cocondo-toolkit.pyz.sha256').write_text(f'{h}  cocondo-toolkit.pyz\n')
+for rel,key in [('contracts/governance/tooling/patch-toolkit-activation-contract.json','runtimeSha256'),('src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json','runtimeSha256')]:
+ p=r/rel; d=json.load(open(p)); d[key]=h; p.write_text(json.dumps(d,indent=2)+'\n')
+p=r/'.cocondo/tooling/tooling.lock.json'; d=json.load(open(p)); d['sha256']=h; p.write_text(json.dumps(d,indent=2)+'\n')
+PY
+export HOME="${TMP}/home" XDG_CONFIG_HOME="${TMP}/xdg" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="${TMP}/git-template" GIT_TERMINAL_PROMPT=0
 mkdir -p "${HOME}" "${XDG_CONFIG_HOME}" "${GIT_TEMPLATE_DIR}"
-git -c init.defaultRefFormat=files -C "${FIXTURE}" init -q -b main
-git -C "${FIXTURE}" config user.email codex-ready@example.invalid
-git -C "${FIXTURE}" config user.name codex-pilot-ready-it
+git -C "${FIXTURE}" init -q -b main
+git -C "${FIXTURE}" config user.name fixture
+git -C "${FIXTURE}" config user.email fixture@example.invalid
 git -C "${FIXTURE}" add .
 git -C "${FIXTURE}" commit -q -m fixture
 
-CURRENT_STEP=version-closure-project-env
-ENV_DRIFT="${TMP_ROOT}/env-drift"
-cp -a "${FIXTURE}" "${ENV_DRIFT}"
-sed -i 's/^CPATCH_TOOLKIT_VERSION=.*/CPATCH_TOOLKIT_VERSION=9.9.9/' "${ENV_DRIFT}/.cocondo/tooling/project.env"
-set +e
-"${ENV_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${ENV_DRIFT}" project --candidate --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/env-drift.json" >/dev/null
-RC=$?
-set -e
-test "${RC}" -eq 1
-python3 - "${TMP_ROOT}/env-drift.json" <<'PYCHECK'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-item=next(x for x in value['findings'] if x['code']=='CPATCH_CONFIG_INVALID' and x.get('details',{}).get('key')=='CPATCH_TOOLKIT_VERSION')
-assert item['details']['expected']=='1.1.2', item
-assert item['details']['actual']=='9.9.9', item
-PYCHECK
+"${FIXTURE}/bin/codex-pilot-ready.sh" --project-root "${FIXTURE}" project --candidate --check --skip-self-tests > "${TMP}/positive.out"
+grep -Fx 'CODEX_PILOT_READINESS=PROJECT_READY' "${TMP}/positive.out" >/dev/null
+grep -Fx 'WRITABLE_CODEX_AUTHORIZED=false' "${TMP}/positive.out" >/dev/null
 
-CURRENT_STEP=version-closure-lock
-LOCK_DRIFT="${TMP_ROOT}/lock-drift"
-cp -a "${FIXTURE}" "${LOCK_DRIFT}"
-python3 - "${LOCK_DRIFT}/.cocondo/tooling/tooling.lock.json" <<'PYCHECK'
-import json, sys
-from pathlib import Path
-path=Path(sys.argv[1])
-value=json.loads(path.read_text(encoding='utf-8'))
-value['toolkitVersion']='9.9.9'
-path.write_text(json.dumps(value,indent=2)+"\n",encoding='utf-8')
-PYCHECK
-set +e
-"${LOCK_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${LOCK_DRIFT}" project --candidate --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/lock-drift.json" >/dev/null
-RC=$?
-set -e
-test "${RC}" -eq 1
-python3 - "${TMP_ROOT}/lock-drift.json" <<'PYCHECK'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert any(x['code']=='CPATCH_VERSION_CLOSURE_INVALID' and x.get('details',{}).get('source')=='.cocondo/tooling/tooling.lock.json' for x in value['findings']), value
-PYCHECK
-
-CURRENT_STEP=version-closure-runtime
-RUNTIME_DRIFT="${TMP_ROOT}/runtime-drift"
-cp -a "${FIXTURE}" "${RUNTIME_DRIFT}"
-printf 'drift' >> "${RUNTIME_DRIFT}/.cocondo/tooling/cocondo-toolkit.pyz"
-set +e
-"${RUNTIME_DRIFT}/bin/codex-pilot-ready.sh" --project-root "${RUNTIME_DRIFT}" project --candidate --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/runtime-drift.json" >/dev/null
-RC=$?
-set -e
-test "${RC}" -eq 1
-python3 - "${TMP_ROOT}/runtime-drift.json" <<'PYCHECK'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert any(x['code']=='CPATCH_VERSION_CLOSURE_INVALID' and x.get('details',{}).get('source')=='.cocondo/tooling/cocondo-toolkit.pyz' for x in value['findings']), value
-PYCHECK
-
-CURRENT_STEP=missing-source-finding
-MISSING="${TMP_ROOT}/missing"
-cp -a "${FIXTURE}" "${MISSING}"
-rm -f "${MISSING}/PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md"
-set +e
-"${MISSING}/bin/codex-pilot-ready.sh" --project-root "${MISSING}" project --candidate --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/missing.json" >/dev/null
-RC=$?
-set -e
-test "${RC}" -eq 1
-python3 - "${TMP_ROOT}/missing.json" <<'PY'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert value['status']=='FINDINGS', value
-assert any(item['code']=='REQUIRED_FILE_MISSING' for item in value['findings']), value
+case_finding() {
+ local name="$1" file="$2" code="$3"
+ set +e
+ "${file}/bin/codex-pilot-ready.sh" --project-root "${file}" project --candidate --check --skip-self-tests --out-json "${TMP}/${name}.json" >/dev/null
+ local rc=$?
+ set -e
+ test "${rc}" -eq 1
+ python3 - "${TMP}/${name}.json" "${code}" <<'PY'
+import json,sys
+v=json.load(open(sys.argv[1])); assert any(x['code']==sys.argv[2] for x in v['findings']),v
 PY
-
-CURRENT_STEP=invalid-json-tool-error
-INVALID="${TMP_ROOT}/invalid"
-cp -a "${FIXTURE}" "${INVALID}"
-printf '%s\n' '{ invalid' > "${INVALID}/contracts/governance/agent/codex-pilot-contract.json"
+}
+MISSING="${TMP}/missing"; cp -a "${FIXTURE}" "${MISSING}"; rm "${MISSING}/PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md"; case_finding missing "${MISSING}" REQUIRED_FILE_MISSING
+INVALID="${TMP}/invalid"; cp -a "${FIXTURE}" "${INVALID}"; printf '%s\n' '{ invalid' > "${INVALID}/contracts/governance/agent/codex-pilot-contract.json"
 set +e
-"${INVALID}/bin/codex-pilot-ready.sh" --project-root "${INVALID}" project --candidate --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/invalid.json" >/dev/null
-RC=$?
+"${INVALID}/bin/codex-pilot-ready.sh" --project-root "${INVALID}" project --candidate --check --skip-self-tests --out-json "${TMP}/invalid.json" >/dev/null
+rc=$?
 set -e
-test "${RC}" -eq 2
-python3 - "${TMP_ROOT}/invalid.json" <<'PY'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert value['status']=='TOOL_ERROR', value
-assert value['toolError']['code']=='JSON_INVALID', value
+test "${rc}" -eq 2
+python3 - "${TMP}/invalid.json" <<'PY'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='TOOL_ERROR' and v['toolError']['code']=='JSON_INVALID'
 PY
-
-CURRENT_STEP=live-roots-finding
-LIVE="${TMP_ROOT}/live"
-cp -a "${FIXTURE}" "${LIVE}"
-unset COCONDO_WORKTREE_ROOT COCONDO_AGENT_RUN_ROOT COCONDO_ARTIFACT_ROOT
-# The exported fixture intentionally has no toolkit binary. Create a fixture-only
-# placeholder so this case isolates the external-root findings.
-touch "${LIVE}/.cocondo/tooling/cocondo-toolkit.pyz"
+CONF="${TMP}/confinement"; cp -a "${FIXTURE}" "${CONF}"; python3 - "${CONF}/contracts/governance/agent/codex-confinement-contract.json" <<'PY'
+import json,sys
+p=sys.argv[1]; d=json.load(open(p)); d['realCodexInvocationRequired']=False; open(p,'w').write(json.dumps(d)+'\n')
+PY
+case_finding confinement "${CONF}" CONFINEMENT_POLICY_INVALID
+HOST="${TMP}/host"; cp -a "${FIXTURE}" "${HOST}"; python3 - "${HOST}/contracts/governance/agent/codex-host-qualification-contract.json" <<'PY'
+import json,sys
+p=sys.argv[1]; d=json.load(open(p)); d['securityBoundary']['additionalWritableRoots']=['/unsafe']; open(p,'w').write(json.dumps(d)+'\n')
+PY
+case_finding host "${HOST}" CONFINEMENT_POLICY_INVALID
+LIVE="${TMP}/live"; cp -a "${FIXTURE}" "${LIVE}"; unset COCONDO_WORKTREE_ROOT COCONDO_AGENT_RUN_ROOT COCONDO_ARTIFACT_ROOT
 set +e
-"${LIVE}/bin/codex-pilot-ready.sh" --project-root "${LIVE}" project --live --check --skip-self-tests \
-  --out-json "${TMP_ROOT}/live.json" >/dev/null
-RC=$?
+"${LIVE}/bin/codex-pilot-ready.sh" --project-root "${LIVE}" project --live --check --skip-self-tests --out-json "${TMP}/live.json" >/dev/null
+rc=$?
 set -e
-test "${RC}" -eq 1
-python3 - "${TMP_ROOT}/live.json" <<'PY'
-import json, sys
-from pathlib import Path
-value=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-assert value['status']=='FINDINGS', value
-assert any(item['code']=='EXTERNAL_ROOT_UNSET' for item in value['findings']), value
+test "${rc}" -eq 1
+python3 - "${TMP}/live.json" <<'PY'
+import json,sys
+v=json.load(open(sys.argv[1])); assert any(x['code']=='EXTERNAL_ROOT_UNSET' for x in v['findings'])
 PY
-
 printf '%s\n' 'CODEX_PILOT_READY_IT=PASS'

@@ -215,3 +215,17 @@ Each stage writes its own log and terminal result. A generic outer `FAILED` stat
 ## 11. Tooling-hardening candidate boundary
 
 The implementation described in sections 3.1 through 3.3 is candidate source until canonical dry-run, separate accept and post-accept verification are complete. `PROJECT_READY` and the passing Process Operations Contract do not by themselves authorize Codex calibration or an external artifact write.
+
+## 12. Verbundene fail-fast Abläufe
+
+Preflight, Writer-Start, leichte Beobachtung und terminales Resultat dürfen in einem Block verbunden werden. Jeder Übergang benötigt Exit-Code `0` und eine eindeutige Stage-Evidence. Der Block stoppt am ersten Fehler und startet keinen Folge-Writer.
+
+Dry-run und Accept, Diagnose und Reparatur sowie ein fehlgeschlagener Run und ein Retry bleiben separate Entscheidungen. Vor einem Retry werden der kanonische Runzustand und vorhandene Logs/Evidence ausgewertet; unverändertes blindes Wiederholen ist verboten.
+
+## 13. Terminalschonende Ausgabe
+
+Standardausgaben enthalten nur Operation-/Stage-ID, Status, Phase, Exit-Code und Log-/Report-/Evidence-Pfade. Große JSON-Inventare, vollständige Validator-Logs und unveränderte Statuswiederholungen bleiben in Dateien. Bei einem Fehler wird höchstens ein begrenzter Tail ausgegeben; die vollständige Ursache bleibt über den Logpfad verfügbar.
+
+## 14. Diagnose-Handoff nach Betriebsart
+
+Vor jedem neuen Writer bereinigt der kanonische Workspace-Lifecycle `patches/work`; Observer desselben Workflows bereinigen nicht. Für einen Online-Chat kann bei unklarem Zielzustand genau ein `diagnostic-<operation-id>.zip` erzeugt werden. Codex verwendet `patches/work` nicht und speichert seine Evidence ausschließlich in externen Run-/Artefakt-Roots.

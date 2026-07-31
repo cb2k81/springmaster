@@ -1,75 +1,18 @@
 {
-  "schemaVersion": "springmaster.codex-pilot-contract.v1",
-  "contractVersion": "1.2.0",
-  "status": "active",
-  "ruleSource": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
-  "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
-  "pilot": {
-    "pilotId": "springmaster-codex-pilot-v1",
-    "repositoryId": "springmaster",
-    "integrationBranch": "main",
-    "currentLifecycle": "PROJECT_READY",
-    "projectReadyLifecycle": "PROJECT_READY",
-    "cutoverLifecycle": "CALIBRATION_REQUIRED",
-    "writableLifecycle": "PILOT_WRITE_READY",
-    "preCutoverMutationMechanism": "cocondo-patch-toolkit",
-    "codexExecutionBeforeProjectReady": "forbidden",
-    "managedProjectMutation": "forbidden"
-  },
-  "externalRoots": {
-    "worktreeEnv": "COCONDO_WORKTREE_ROOT",
-    "runEnv": "COCONDO_AGENT_RUN_ROOT",
-    "artifactEnv": "COCONDO_ARTIFACT_ROOT",
-    "mustBeAbsolute": true,
-    "mustExistForLiveReadiness": true,
-    "mustBeOutsideProject": true,
-    "mustBeOutsideGitCommonDirectory": true,
-    "mustBePairwiseDistinct": true,
-    "symlinkRootPolicy": "forbid",
-    "implicitCreation": "forbidden",
-    "mustBeWritable": true
-  },
-  "taskContract": {
-    "schemaPath": "contracts/governance/agent/agent-task-contract.schema.json",
-    "schemaVersion": "springmaster.agent-task.v2",
-    "immutableAfterPrepare": true,
-    "storedOutsideRepository": true,
-    "baseCommitMustEqualIntegrationHeadAtPrepare": true
-  },
-  "worktree": {
-    "mode": "detached",
-    "integrationWorktreeWritableByAgent": false,
-    "mayCommit": false,
-    "mayPush": false,
-    "maySwitchBranch": false,
-    "mayCreateNestedRepository": false,
-    "mayCreateSymlink": false,
-    "maximumActiveTasks": 1
-  },
-  "paths": {
-    "alwaysForbidden": [
-      ".git/**",
-      ".cocondo/tooling/cocondo-toolkit.pyz",
-      ".cocondo/tooling/cocondo-toolkit.pyz.sha256",
-      "patches/archives/**",
-      "patches/runtime/**",
-      "patches/logs/accept/**",
-      "patches/logs/validation/**",
-      "patches/work/**",
-      "exports/**",
-      "target/**",
-      "build/**",
-      "tmp/**"
-    ],
-    "rootWritesRequireExactAllow": true,
-    "undeclaredChangedPathPolicy": "block",
-    "changedSymlinkPolicy": "block"
+  "calibrationWorkflow": {
+    "analysisTaskCount": 1,
+    "assembleOperation": "assemble",
+    "entrypoint": "bin/codex-calibration.sh",
+    "fixtureEntrypoint": "bin/codex-calibration-it.sh",
+    "implementationHandoffRequired": true,
+    "implementationTaskCount": 2,
+    "materializeOperation": "materialize",
+    "separateAcceptRequired": true,
+    "separateDryRunRequired": true,
+    "separatePromotionRequired": true
   },
   "commands": {
-    "qualificationUsesArgumentArrays": true,
-    "shellEvaluation": "forbidden",
     "arbitraryCommandOperation": "forbidden",
-    "networkForAgentShell": "disabled",
     "forbiddenCommandFamilies": [
       "git push",
       "git reset --hard",
@@ -82,9 +25,53 @@
       "scp",
       "curl",
       "wget"
-    ]
+    ],
+    "networkForAgentShell": "disabled",
+    "qualificationUsesArgumentArrays": true,
+    "shellEvaluation": "forbidden"
   },
+  "confinementCalibration": {
+    "acceptedImplementationTasksRequired": 2,
+    "candidateCommand": [
+      "bin/codex-confinement-check.sh",
+      "verify",
+      "--evidence",
+      "<external-evidence-root>",
+      "--candidate",
+      "--check"
+    ],
+    "codexEvidenceStorage": "external-run-and-artifact-roots",
+    "codexMayReadOrWritePatchesWork": false,
+    "contractPath": "contracts/governance/agent/codex-confinement-contract.json",
+    "contractSchemaVersion": "springmaster.codex-confinement-contract.v1",
+    "doesNotPromoteAutomatically": true,
+    "entrypoint": "bin/codex-confinement-check.sh",
+    "evidenceSchemaVersion": "springmaster.codex-confinement-evidence.v2",
+    "fixtureEntrypoint": "bin/codex-confinement-check-it.sh",
+    "hostQualificationRequired": true,
+    "liveCommand": [
+      "bin/codex-confinement-check.sh",
+      "verify",
+      "--evidence",
+      "<external-evidence-root>",
+      "--live",
+      "--check"
+    ],
+    "minimumQualifiedImplementationTasks": 2,
+    "mustRunOnActualDevSystem": true,
+    "onlineChatDiagnosticHandoff": "patches/work/diagnostic-<operation-id>.zip",
+    "pilotWriteReady": false,
+    "realCodexInvocationRequired": true,
+    "requiredStatusBeforePromotion": "PASS",
+    "writableCodexAuthorized": false
+  },
+  "contractVersion": "1.4.0",
+  "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
+    "canonicalStorage": "external-run-root",
+    "diagnosticUploadPath": "patches/work",
+    "operatorLogPath": "patches/logs/validation",
+    "repositoryRootArtifacts": "forbidden",
     "required": [
       "task-contract",
       "task-contract-sha256",
@@ -99,71 +86,57 @@
       "qualification-records",
       "final-result",
       "cleanup-disposition"
-    ],
-    "repositoryRootArtifacts": "forbidden",
-    "canonicalStorage": "external-run-root",
-    "diagnosticUploadPath": "patches/work",
-    "operatorLogPath": "patches/logs/validation"
+    ]
   },
-  "projectReadiness": {
-    "gateId": "codex-pilot-readiness-v1",
-    "entrypoint": "bin/codex-pilot-ready.sh",
-    "candidateCommand": [
-      "bin/codex-pilot-ready.sh",
-      "project",
-      "--candidate",
-      "--check"
-    ],
-    "liveCommand": [
-      "bin/codex-pilot-ready.sh",
-      "project",
-      "--live",
-      "--check"
-    ],
-    "successStatus": "PROJECT_READY",
-    "nextAction": "CODEX_CALIBRATION",
-    "doesNotAuthorizeWritableCodex": true
+  "externalRoots": {
+    "artifactEnv": "COCONDO_ARTIFACT_ROOT",
+    "implicitCreation": "forbidden",
+    "mustBeAbsolute": true,
+    "mustBeOutsideGitCommonDirectory": true,
+    "mustBeOutsideProject": true,
+    "mustBePairwiseDistinct": true,
+    "mustBeWritable": true,
+    "mustExistForLiveReadiness": true,
+    "runEnv": "COCONDO_AGENT_RUN_ROOT",
+    "symlinkRootPolicy": "forbid",
+    "worktreeEnv": "COCONDO_WORKTREE_ROOT"
   },
-  "referenceInput": {
-    "conceptPath": "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
-    "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
-    "conceptVersion": "1.0.0",
-    "status": "frozen-for-pilot",
-    "existingGeneratedSliceGoldenRole": "comparison-fixture-only"
+  "hostQualification": {
+    "contractPath": "contracts/governance/agent/codex-host-qualification-contract.json",
+    "contractSchemaVersion": "springmaster.codex-host-qualification-contract.v1",
+    "doesNotPromoteAutomatically": true,
+    "entrypoint": "bin/codex-host-sandbox.sh",
+    "fixtureEntrypoint": "bin/codex-host-sandbox-it.sh",
+    "hostEvidencePortable": false,
+    "innerSandbox": "mode-specific-read-only-or-workspace-write",
+    "mustPassOnActualHost": true,
+    "outerSandbox": "linux-bwrap"
   },
-  "stopCriteria": [
-    "write-outside-task-worktree",
-    "integration-worktree-drift",
-    "other-repository-mutation",
-    "unauthorized-network-success",
-    "task-contract-mutation",
-    "undeclared-path-change",
-    "missing-evidence",
-    "manual-repository-repair-required",
-    "non-deterministic-clean-rerun",
-    "oracle-self-modification"
-  ],
   "invocation": {
-    "effectSchemaPath": "contracts/governance/agent/operator-command-effect.schema.json",
-    "effectSchemaVersion": "springmaster.operator-command-effect.v1",
-    "recordSchemaPath": "contracts/governance/agent/codex-invocation-record.schema.json",
-    "recordSchemaVersion": "springmaster.codex-invocation-record.v1",
-    "recordOperation": "agent-task record-invocation",
+    "additionalWritableRoots": [],
+    "agentHandoffCapability": "forbidden",
+    "agentHomePolicy": "dedicated-read-only-or-worktree-contained",
     "agentName": "codex",
-    "executableName": "codex",
-    "workingDirectoryPolicy": "prepared-task-worktree",
+    "agentWriteBoundary": "task-worktree-only",
     "allowedReadScopes": [
       "task-worktree",
       "integration-worktree-read-only",
       "external-run-root-read-only",
       "external-artifact-root-read-only"
     ],
-    "requiredReadScopes": [
-      "task-worktree"
+    "alwaysForbiddenAgentWriteScopes": [
+      "operator-home",
+      "operator-downloads",
+      "integration-worktree",
+      "git-common-directory",
+      "external-run-root",
+      "external-artifact-root",
+      "other-repositories",
+      "temporary-directories"
     ],
-    "networkPolicy": "codex-control-plane-only",
     "directoryCreationPolicy": "declared-task-paths-only",
-    "overwritePolicy": "declared-task-paths-only",
+    "effectSchemaPath": "contracts/governance/agent/operator-command-effect.schema.json",
+    "effectSchemaVersion": "springmaster.operator-command-effect.v1",
     "environmentAllowlist": [
       "CODEX_HOME",
       "HOME",
@@ -175,15 +148,18 @@
       "TZ",
       "USER"
     ],
-    "sourceEvidenceRoot": "external-artifact-root",
+    "executableName": "codex",
+    "forbiddenFlags": [
+      "--add-dir",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--yolo",
+      "--full-auto",
+      "--config",
+      "-c",
+      "--profile",
+      "-p"
+    ],
     "immutableAfterRecord": true,
-    "modeWriteScopes": {
-      "analysis": [],
-      "implementation": [
-        "task-worktree"
-      ],
-      "qualification": []
-    },
     "modeRepositoryMutationPolicies": {
       "analysis": "none",
       "implementation": "task-worktree-only",
@@ -203,6 +179,23 @@
         "recordValue": "linux-bwrap-read-only"
       }
     },
+    "modeWriteScopes": {
+      "analysis": [],
+      "implementation": [
+        "task-worktree"
+      ],
+      "qualification": []
+    },
+    "networkPolicy": "codex-control-plane-only",
+    "operatorHandoffPolicy": "separate-trusted-operator-action",
+    "outerSandboxContract": "contracts/governance/agent/codex-host-qualification-contract.json",
+    "outerSandboxEntrypoint": "bin/codex-host-sandbox.sh",
+    "overwritePolicy": "declared-task-paths-only",
+    "platformSandboxImplementation": "linux-bwrap",
+    "recordOperation": "agent-task record-invocation",
+    "recordSchemaPath": "contracts/governance/agent/codex-invocation-record.schema.json",
+    "recordSchemaVersion": "springmaster.codex-invocation-record.v1",
+    "requiredApprovalPolicy": "never",
     "requiredArgvPrefix": [
       "codex",
       "exec"
@@ -213,46 +206,188 @@
       "--ignore-rules",
       "--json"
     ],
+    "requiredReadScopes": [
+      "task-worktree"
+    ],
     "requiredValueFlags": [
       "--model",
       "--sandbox",
       "--ask-for-approval"
     ],
-    "requiredApprovalPolicy": "never",
-    "forbiddenFlags": [
-      "--add-dir",
-      "--dangerously-bypass-approvals-and-sandbox",
-      "--yolo",
-      "--full-auto",
-      "--config",
-      "-c",
-      "--profile",
-      "-p"
+    "sourceEvidenceRoot": "external-artifact-root",
+    "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree",
+    "workingDirectoryPolicy": "prepared-task-worktree"
+  },
+  "patchHandoff": {
+    "allowedAfterTaskStatus": "QUALIFIED",
+    "artifactStorage": "external-artifact-root/codex-handoffs/<task-id>",
+    "canonicalPatchArtifact": false,
+    "deliveryId": null,
+    "format": "verified-git-binary-diff",
+    "implementationTasksOnly": true,
+    "integrationAuthorized": false,
+    "isolatedApplyCheckRequired": true,
+    "operation": "agent-task handoff",
+    "patchId": null,
+    "requiredNextFlow": [
+      "controlled-candidate-apply",
+      "candidate-commit",
+      "cpatch-create",
+      "separate-patch-dry-run",
+      "separate-patch-accept"
     ],
-    "platformSandboxImplementation": "linux-bwrap",
-    "additionalWritableRoots": [],
-    "agentWriteBoundary": "task-worktree-only",
-    "alwaysForbiddenAgentWriteScopes": [
-      "operator-home",
-      "operator-downloads",
-      "integration-worktree",
-      "git-common-directory",
-      "external-run-root",
-      "external-artifact-root",
-      "other-repositories",
-      "temporary-directories"
+    "schemaVersion": "springmaster.agent-task-patch-handoff.v1"
+  },
+  "paths": {
+    "alwaysForbidden": [
+      ".git/**",
+      ".cocondo/tooling/cocondo-toolkit.pyz",
+      ".cocondo/tooling/cocondo-toolkit.pyz.sha256",
+      "patches/archives/**",
+      "patches/runtime/**",
+      "patches/logs/accept/**",
+      "patches/logs/validation/**",
+      "patches/work/**",
+      "exports/**",
+      "target/**",
+      "build/**",
+      "tmp/**"
     ],
-    "operatorHandoffPolicy": "separate-trusted-operator-action",
-    "agentHandoffCapability": "forbidden",
-    "agentHomePolicy": "dedicated-read-only-or-worktree-contained",
-    "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree"
+    "changedSymlinkPolicy": "block",
+    "rootWritesRequireExactAllow": true,
+    "undeclaredChangedPathPolicy": "block"
+  },
+  "pilot": {
+    "codexExecutionBeforeProjectReady": "forbidden",
+    "currentLifecycle": "PROJECT_READY",
+    "cutoverLifecycle": "CALIBRATION_REQUIRED",
+    "integrationBranch": "main",
+    "managedProjectMutation": "forbidden",
+    "pilotId": "springmaster-codex-pilot-v1",
+    "preCutoverMutationMechanism": "cocondo-patch-toolkit",
+    "projectReadyLifecycle": "PROJECT_READY",
+    "repositoryId": "springmaster",
+    "writableLifecycle": "PILOT_WRITE_READY"
+  },
+  "projectReadiness": {
+    "candidateCommand": [
+      "bin/codex-pilot-ready.sh",
+      "project",
+      "--candidate",
+      "--check"
+    ],
+    "doesNotAuthorizeWritableCodex": true,
+    "entrypoint": "bin/codex-pilot-ready.sh",
+    "gateId": "codex-pilot-readiness-v1",
+    "liveCommand": [
+      "bin/codex-pilot-ready.sh",
+      "project",
+      "--live",
+      "--check"
+    ],
+    "nextAction": "CODEX_CALIBRATION",
+    "successStatus": "PROJECT_READY"
+  },
+  "referenceInput": {
+    "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
+    "conceptPath": "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
+    "conceptVersion": "1.0.0",
+    "existingGeneratedSliceGoldenRole": "comparison-fixture-only",
+    "status": "frozen-for-pilot"
+  },
+  "ruleSource": "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
+  "schemaVersion": "springmaster.codex-pilot-contract.v1",
+  "status": "active",
+  "stopCriteria": [
+    "write-outside-task-worktree",
+    "integration-worktree-drift",
+    "other-repository-mutation",
+    "unauthorized-network-success",
+    "task-contract-mutation",
+    "undeclared-path-change",
+    "missing-evidence",
+    "manual-repository-repair-required",
+    "non-deterministic-clean-rerun",
+    "oracle-self-modification",
+    "direct-project-write",
+    "direct-patch-accept",
+    "missing-live-confinement-evidence",
+    "patch-handoff-bypass"
+  ],
+  "taskContract": {
+    "baseCommitMustEqualIntegrationHeadAtPrepare": true,
+    "immutableAfterPrepare": true,
+    "schemaPath": "contracts/governance/agent/agent-task-contract.schema.json",
+    "schemaVersion": "springmaster.agent-task.v2",
+    "storedOutsideRepository": true
   },
   "taskSemantics": {
-    "supportedModes": [
-      "analysis",
-      "implementation",
-      "qualification"
-    ],
+    "capabilityChangeClasses": {
+      "mayModifyContracts": "contract",
+      "mayModifyGovernance": "governance",
+      "mayModifyTests": "test"
+    },
+    "changeClassPolicies": {
+      "analysis": {
+        "requiredQualificationCommandIds": [
+          "diff-check"
+        ]
+      },
+      "build": {
+        "requiredQualificationCommandIds": [
+          "broad-check"
+        ]
+      },
+      "contract": {
+        "requiredQualificationCommandIds": [
+          "contract-check"
+        ]
+      },
+      "documentation": {
+        "requiredQualificationCommandIds": [
+          "documentation-check"
+        ]
+      },
+      "fixture": {
+        "requiredQualificationCommandIds": [
+          "diff-check"
+        ]
+      },
+      "generated-slice": {
+        "requiredQualificationCommandIds": [
+          "generated-slice-check"
+        ]
+      },
+      "governance": {
+        "requiredQualificationCommandIds": [
+          "documentation-check",
+          "governance-check"
+        ]
+      },
+      "java": {
+        "requiredQualificationCommandIds": [
+          "targeted-check",
+          "broad-check"
+        ]
+      },
+      "test": {
+        "requiredQualificationCommandIds": [
+          "targeted-check"
+        ]
+      },
+      "tooling": {
+        "requiredQualificationCommandIds": [
+          "tooling-check"
+        ]
+      }
+    },
+    "completionCriteria": {
+      "allQualificationCommandsPass": true,
+      "explicitCleanupDisposition": true,
+      "invocationRecordRequired": true,
+      "postcheckPass": true,
+      "requiredEvidenceComplete": true
+    },
     "modePolicies": {
       "analysis": {
         "changedPathPolicy": "forbid"
@@ -264,7 +399,45 @@
         "changedPathPolicy": "forbid"
       }
     },
+    "pathClassifications": {
+      "contracts": [
+        "contracts/**"
+      ],
+      "governance": [
+        "PROJECT_DOCS/GOVERNANCE/**",
+        "PROJECT_DOCS/ADR/**"
+      ],
+      "tests": [
+        "src/test/**",
+        "bin/*-it.sh",
+        "platform/update/tests/**"
+      ]
+    },
     "riskPolicies": {
+      "critical": {
+        "allowedModes": [
+          "analysis",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check",
+          "targeted-check",
+          "broad-check",
+          "critical-check"
+        ]
+      },
+      "high": {
+        "allowedModes": [
+          "analysis",
+          "implementation",
+          "qualification"
+        ],
+        "requiredQualificationCommandIds": [
+          "diff-check",
+          "targeted-check",
+          "broad-check"
+        ]
+      },
       "low": {
         "allowedModes": [
           "analysis",
@@ -285,111 +458,22 @@
           "diff-check",
           "targeted-check"
         ]
-      },
-      "high": {
-        "allowedModes": [
-          "analysis",
-          "implementation",
-          "qualification"
-        ],
-        "requiredQualificationCommandIds": [
-          "diff-check",
-          "targeted-check",
-          "broad-check"
-        ]
-      },
-      "critical": {
-        "allowedModes": [
-          "analysis",
-          "qualification"
-        ],
-        "requiredQualificationCommandIds": [
-          "diff-check",
-          "targeted-check",
-          "broad-check",
-          "critical-check"
-        ]
       }
     },
-    "changeClassPolicies": {
-      "analysis": {
-        "requiredQualificationCommandIds": [
-          "diff-check"
-        ]
-      },
-      "documentation": {
-        "requiredQualificationCommandIds": [
-          "documentation-check"
-        ]
-      },
-      "governance": {
-        "requiredQualificationCommandIds": [
-          "documentation-check",
-          "governance-check"
-        ]
-      },
-      "contract": {
-        "requiredQualificationCommandIds": [
-          "contract-check"
-        ]
-      },
-      "tooling": {
-        "requiredQualificationCommandIds": [
-          "tooling-check"
-        ]
-      },
-      "test": {
-        "requiredQualificationCommandIds": [
-          "targeted-check"
-        ]
-      },
-      "java": {
-        "requiredQualificationCommandIds": [
-          "targeted-check",
-          "broad-check"
-        ]
-      },
-      "build": {
-        "requiredQualificationCommandIds": [
-          "broad-check"
-        ]
-      },
-      "generated-slice": {
-        "requiredQualificationCommandIds": [
-          "generated-slice-check"
-        ]
-      },
-      "fixture": {
-        "requiredQualificationCommandIds": [
-          "diff-check"
-        ]
-      }
-    },
-    "capabilityChangeClasses": {
-      "mayModifyTests": "test",
-      "mayModifyGovernance": "governance",
-      "mayModifyContracts": "contract"
-    },
-    "pathClassifications": {
-      "tests": [
-        "src/test/**",
-        "bin/*-it.sh",
-        "platform/update/tests/**"
-      ],
-      "governance": [
-        "PROJECT_DOCS/GOVERNANCE/**",
-        "PROJECT_DOCS/ADR/**"
-      ],
-      "contracts": [
-        "contracts/**"
-      ]
-    },
-    "completionCriteria": {
-      "postcheckPass": true,
-      "allQualificationCommandsPass": true,
-      "requiredEvidenceComplete": true,
-      "invocationRecordRequired": true,
-      "explicitCleanupDisposition": true
-    }
+    "supportedModes": [
+      "analysis",
+      "implementation",
+      "qualification"
+    ]
+  },
+  "worktree": {
+    "integrationWorktreeWritableByAgent": false,
+    "maximumActiveTasks": 1,
+    "mayCommit": false,
+    "mayCreateNestedRepository": false,
+    "mayCreateSymlink": false,
+    "mayPush": false,
+    "maySwitchBranch": false,
+    "mode": "detached"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.4.0",
+  "baselineVersion": "1.6.0",
   "status": "sealed-report-only",
   "generatedAt": "2026-07-23T11:11:07.843888Z",
   "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
@@ -519,6 +519,27 @@
       "mutationClass": "isolated-mutation"
     },
     {
+      "path": "bin/codex-calibration-it.sh",
+      "suiteId": "tooling-agent-pilot-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
+      "path": "bin/codex-confinement-check-it.sh",
+      "suiteId": "tooling-agent-pilot-fixtures",
+      "testLevel": "qualification",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
+      "path": "bin/codex-host-sandbox-it.sh",
+      "suiteId": "tooling-agent-pilot-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-runtime"
+    },
+    {
       "path": "bin/codex-pilot-ready-it.sh",
       "suiteId": "tooling-agent-pilot-fixtures",
       "testLevel": "qualification",
@@ -766,6 +787,74 @@
   ],
   "sourceFixtures": [
     {
+      "path": "src/test/resources/tooling/codex-calibration-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-calibration-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/codex-calibration-v1/task-1.txt",
+      "fixtureType": "golden-text",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-calibration-it.sh",
+        "bin/codex-calibration-fixture-check.py"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "exact-utf8"
+    },
+    {
+      "path": "src/test/resources/tooling/codex-calibration-v1/task-2.txt",
+      "fixtureType": "golden-text",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-calibration-it.sh",
+        "bin/codex-calibration-fixture-check.py"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "exact-utf8"
+    },
+    {
+      "path": "src/test/resources/tooling/codex-confinement-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-confinement-check-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/codex-host-qualification-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-host-sandbox-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
+      "path": "src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-pilot-ready-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
       "path": "src/test/resources/tooling/detail-lookup-contract-report.catalogitem.golden.json",
       "fixtureType": "golden-json",
       "owner": "springmaster-maintainers",
@@ -929,23 +1018,12 @@
       "authority": "contract-evidence",
       "mutationPolicy": "reviewed-contract-change-only",
       "normalization": "canonical-json"
-    },
-    {
-      "path": "src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json",
-      "fixtureType": "expected-case-catalog",
-      "owner": "springmaster-maintainers",
-      "consumers": [
-        "bin/codex-pilot-ready-it.sh"
-      ],
-      "authority": "contract-evidence",
-      "mutationPolicy": "reviewed-contract-change-only",
-      "normalization": "none"
     }
   ],
   "summary": {
     "javaTestClassCount": 49,
-    "toolingEntrypointCount": 36,
-    "sourceFixtureCount": 16,
+    "toolingEntrypointCount": 39,
+    "sourceFixtureCount": 21,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
     "coveragePolicyStatus": "unresolved"
@@ -956,6 +1034,6 @@
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
   ],
-  "lastUpdatedAt": "2026-07-30T00:00:00Z",
-  "lastUpdateReason": "Register deterministic tooling-selfcheck substep observability fixtures for the Tooling hardening candidate."
+  "lastUpdatedAt": "2026-07-30",
+  "lastUpdateReason": "Register portable Codex host qualification and calibration cutover fixtures."
 }
