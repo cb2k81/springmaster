@@ -78,11 +78,21 @@ def main() -> int:
 
     workspace = contract.get("operatorWorkspacePolicy") if isinstance(contract.get("operatorWorkspacePolicy"), dict) else {}
     workspace_expected = {
-        "scope": "one-current-patch-workflow",
+        "scope": "one-current-writer-workflow",
         "pathMustBeProjectRelative": True,
-        "cleanupTrigger": "before-each-new-patch-dry-run-or-accept",
+        "rootMustAlreadyExist": True,
+        "implicitRootCreation": "forbidden",
+        "cleanupTrigger": "before-each-writer",
         "observerMutationForbidden": True,
         "activeWorkflowCleanup": "block",
+        "unresolvedWorkflowCleanup": "block",
+        "trackedContent": "block",
+        "symlinkContent": "block",
+        "nestedRepositoryContent": "block",
+        "specialFileContent": "block",
+        "mountPointContent": "block",
+        "workspaceRootPreserved": True,
+        "workspaceRecordSchema": "cocondo.operator-workspace.v2",
         "diagnosticHandoffCommand": "diagnostic-handoff",
         "diagnosticArchiveCount": 1,
         "agentWritePolicy": "forbidden",
@@ -95,6 +105,93 @@ def main() -> int:
                 "expected": expected,
                 "actual": workspace.get(key),
             })
+
+
+    writers = workspace.get("writers") if isinstance(workspace.get("writers"), list) else []
+    expected_writers = {
+        "workspace-start", "patch-dry-run", "patch-accept", "diagnose",
+        "incident", "diagnostic-handoff", "delivery-prepare",
+    }
+    if set(writers) != expected_writers:
+        findings.append({"code": "PROCESS_WORKSPACE_WRITER_SET_MISMATCH", "expected": sorted(expected_writers), "actual": sorted(writers)})
+
+    writer_policy = contract.get("writerPolicy") if isinstance(contract.get("writerPolicy"), dict) else {}
+    if set(writer_policy.get("commands", [])) != expected_writers:
+        findings.append({"code": "PROCESS_WRITER_POLICY_MISMATCH"})
+    if writer_policy.get("centralFacade") != "bin/process-ops.sh" or writer_policy.get("workspaceStartRequired") is not True:
+        findings.append({"code": "PROCESS_WRITER_FACADE_MISMATCH"})
+    if writer_policy.get("freeChatOrchestration") != "forbidden" or writer_policy.get("workerStartBeforePreflight") != "forbidden":
+        findings.append({"code": "PROCESS_WRITER_BOUNDARY_MISMATCH"})
+
+    artifact_policy = contract.get("artifactRootAuthorizationPolicy") if isinstance(contract.get("artifactRootAuthorizationPolicy"), dict) else {}
+    artifact_expected = {
+        "configurationIsAuthorization": False,
+        "configurationAmbiguity": "BLOCKING_TOOL_ERROR",
+        "rootMustAlreadyExist": True,
+        "implicitRootCreation": "forbidden",
+        "canonicalPathRequired": True,
+        "authorizationRecord": "CPROCESS_ARTIFACT_AUTHORIZATION_RECORD",
+        "recordSchema": "cocondo.artifact-root-authorization.v1",
+        "unauthorizedWorkerStart": "block",
+        "remediationStateRoot": "CPROCESS_DELIVERY_DIRECTORY",
+    }
+    for key, expected in artifact_expected.items():
+        if artifact_policy.get(key) != expected:
+            findings.append({"code": "PROCESS_ARTIFACT_AUTHORIZATION_POLICY_MISMATCH", "key": key, "expected": expected, "actual": artifact_policy.get(key)})
+    required_bindings = {"projectId", "configuredPath", "canonicalPath", "device", "inode"}
+    if set(artifact_policy.get("recordBinding", [])) != required_bindings:
+        findings.append({"code": "PROCESS_ARTIFACT_AUTHORIZATION_BINDING_MISMATCH"})
+
+    inventory_policy = contract.get("deliveryInventoryPolicy") if isinstance(contract.get("deliveryInventoryPolicy"), dict) else {}
+    expected_entry_policies = {
+        "deliveryDirectory": "RESERVE",
+        "knownHistoricalMetadata": "IGNORE_AND_COUNT",
+        "genericRunRecord": "IGNORE_AND_COUNT",
+        "patchRunRecord": "RESERVE",
+        "legacyNumericPatchRunRecord": "RESERVE",
+        "acceptedPatchRecord": "RESERVE",
+        "historicalFailedRunUnderAcceptedOwner": "IGNORE_AND_COUNT",
+        "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",
+        "unknownRegularFile": "BLOCKING_TOOL_ERROR",
+        "symlink": "BLOCKING_TOOL_ERROR",
+        "specialFile": "BLOCKING_TOOL_ERROR",
+        "unreadableOrInconsistentJson": "BLOCKING_TOOL_ERROR",
+        "identityConflict": "BLOCKING_TOOL_ERROR",
+    }
+    if inventory_policy.get("entryPolicies") != expected_entry_policies:
+        findings.append({"code": "PROCESS_DELIVERY_INVENTORY_POLICY_MISMATCH"})
+    patterns = inventory_policy.get("knownMetadataPatterns")
+    if not isinstance(patterns, list) or "*-accept-discovery.env" not in patterns:
+        findings.append({"code": "PROCESS_DELIVERY_METADATA_POLICY_MISSING"})
+    if inventory_policy.get("freeTextNumbersReserveIdentity") is not False or inventory_policy.get("currentDeliveryMatchCount") != 1:
+        findings.append({"code": "PROCESS_DELIVERY_ID_POLICY_MISMATCH"})
+    legacy_expected = {
+        "policy": "RESERVE",
+        "recordSchema": "cocondo.run-record.v1",
+        "commands": ["patch-dry-run", "patch-accept"],
+        "numericPatchIdPattern": "^[0-9]{6}$",
+        "canonicalPatchIdSource": "metadata.artifactFile",
+        "artifactFilePattern": "^[A-Za-z0-9._-]+__(?P<patchId>[0-9]{6}_[A-Za-z0-9][A-Za-z0-9._-]*)__+(?P<artifactToken>[0-9a-fA-F]{8})\\.zip$",
+        "artifactIdPattern": "^urn:uuid:(?P<artifactToken>[0-9a-fA-F]{8})-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+        "requirePatchNumberMatch": True,
+        "requireArtifactTokenMatch": True,
+        "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR",
+    }
+    if inventory_policy.get("legacyNumericPatchRunCompatibility") != legacy_expected:
+        findings.append({"code": "PROCESS_DELIVERY_LEGACY_NUMERIC_POLICY_MISMATCH"})
+    accepted_expected = {
+        "policy": "RESERVE",
+        "recordSchema": "cocondo.patch-acceptance.v2",
+        "artifactIdPattern": "^urn:uuid:(?P<artifactUuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+        "numericPatchIdPattern": "^[0-9]{6}$",
+        "numericResolutionCommand": "patch-accept",
+        "numericResolutionStatus": "SUCCEEDED",
+        "historicalFailedStatuses": ["ABORTED", "FAILED", "INCONSISTENT", "ORPHANED"],
+        "differentDeliveryOrNonFailedRun": "BLOCKING_TOOL_ERROR",
+        "multipleAcceptedOwners": "BLOCKING_TOOL_ERROR",
+    }
+    if inventory_policy.get("acceptedPatchAuthority") != accepted_expected:
+        findings.append({"code": "PROCESS_DELIVERY_ACCEPTED_AUTHORITY_POLICY_MISMATCH"})
 
     operator_logs = contract.get("operatorLogPolicy") if isinstance(contract.get("operatorLogPolicy"), dict) else {}
     if operator_logs.get("canonicalRunStateRemainsInGitCommonDirectory") is not True:
@@ -146,15 +243,34 @@ def main() -> int:
         findings.append({"code": "PROCESS_CONFIG_INVALID", "detail": str(exc)})
         env = {}
     expected_env = {
-        "CPROCESS_CONFIG_VERSION": "2",
+        "CPROCESS_CONFIG_VERSION": "3",
         "CPROCESS_STATE_DIRECTORY": ".git/cocondo-process",
         "CPROCESS_INCIDENT_DIRECTORY": ".git/cocondo-process/incidents",
+        "CPROCESS_DELIVERY_DIRECTORY": ".git/cocondo-process/deliveries",
+        "CPROCESS_ARTIFACT_AUTHORIZATION_RECORD": ".git/cocondo-process/authorizations/artifact-root.json",
         "CPROCESS_OPERATOR_LOG_DIRECTORY": "patches/logs/validation",
         "CPROCESS_WORK_DIRECTORY": "patches/work",
     }
     for key, expected in expected_env.items():
         if env.get(key) != expected:
             findings.append({"code": "PROCESS_CONFIG_MISMATCH", "key": key, "expected": expected, "actual": env.get(key)})
+
+    runtime_dirs = contract.get("runtimeDirectories") if isinstance(contract.get("runtimeDirectories"), dict) else {}
+    runtime_expected = {
+        "processDeliveries": "CPROCESS_DELIVERY_DIRECTORY",
+        "artifactRootAuthorization": "CPROCESS_ARTIFACT_AUTHORIZATION_RECORD",
+        "operatorWorkspace": "CPROCESS_WORK_DIRECTORY",
+    }
+    for key, expected in runtime_expected.items():
+        if runtime_dirs.get(key) != expected:
+            findings.append({"code": "PROCESS_RUNTIME_DIRECTORY_MISMATCH", "key": key, "expected": expected, "actual": runtime_dirs.get(key)})
+
+    process_source = root / "bin/process-ops.py"
+    if process_source.is_file():
+        source_text = process_source.read_text(encoding="utf-8")
+        for command_name in sorted(expected_writers | {"artifact-root-authorize", "artifact-root-status", "delivery-inventory", "delivery-next-id"}):
+            if f'add_parser("{command_name}")' not in source_text:
+                findings.append({"code": "PROCESS_COMMAND_MISSING", "command": command_name})
 
     scanned = [
         "AGENTS.md",

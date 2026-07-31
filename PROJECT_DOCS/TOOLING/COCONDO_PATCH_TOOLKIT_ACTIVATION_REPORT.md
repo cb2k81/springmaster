@@ -138,3 +138,23 @@ The patch removes the exact digest-bound historical runtime inventory and makes 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-29 | Tooling `0.11.2`, State Patch `000194_springmaster_patch_toolkit_staging_version_closure` | Tooling `0.11.3`, State Patch `000196_springmaster_directory_governance_runtime_audit_closure` | Directory-Governance-Cleanup, Runtime-Archive-Audit-Closure und explizite Activation-Version-Closure. |
+
+
+## 12. Tooling-hardening candidate on the 000196 baseline
+
+The candidate does not replace or rebuild Cocondo Patch Toolkit `1.1.2`. It hardens the project-neutral operator layer around the unchanged Toolkit runtime:
+
+- one workspace-start lifecycle before every writer;
+- an explicit canonical artifact-root authorization record under Git-common process state;
+- a typed delivery and Toolkit-run inventory with explicit `RESERVE`, `IGNORE_AND_COUNT`, `CURRENT_DELIVERY_EXCEPTION` and `BLOCKING_TOOL_ERROR` policies;
+- durable selfcheck start, result, exit-code and log evidence for the four critical patch substeps.
+
+The live typed resolver completed with zero unknown entries and selected `000201_springmaster_tooling_hardening_cut` / `000201-springmaster_tooling_hardening_cut`. It classified nine accepted number owners, three terminal failed attempts below accepted owners and nineteen reserved local numbers without weakening unresolved-conflict handling. The inventory JSON SHA-256 is `8af7a592565fff36de2e374e8361ef7ed9b5e0545064fe3b1ade1aa7534ade63`.
+
+The release-closing candidate applies the compatible `minor` impact once: `PLATFORM_TOOLING_VERSION` advances from `0.11.3` to `0.12.0`, the aggregate foundation version advances from `0.21.1-foundation` to `0.22.0-foundation`, Maven is synchronized to `0.22.0-foundation-SNAPSHOT`, and `PLATFORM_STATE_PATCH` is set to `000201_springmaster_tooling_hardening_cut`. Core, Template, Demo and Platform Update versions remain unchanged.
+
+The activation evidence now marks this state `VERSION_CLOSED_PENDING_FULL_QUALIFICATION` and `NOT_ACCEPTED`. Targeted producer and live resolver qualification are complete; the complete regression matrix, broad selfcheck/profile qualification, canonical dry-run, explicit accept and post-accept export remain mandatory. No source statement claims acceptance before that separate transaction succeeds.
+
+| Datum | Vorher | Candidate | Grund |
+|---|---|---|---|
+| 2026-07-30 | Platform `0.21.1-foundation`, Tooling `0.11.3`, State Patch `000196_springmaster_directory_governance_runtime_audit_closure` | Platform `0.22.0-foundation`, Tooling `0.12.0`, State Patch `000201_springmaster_tooling_hardening_cut` | Compatible minor Tooling capability and contract extension; resolver-bound provenance closure before full qualification. |

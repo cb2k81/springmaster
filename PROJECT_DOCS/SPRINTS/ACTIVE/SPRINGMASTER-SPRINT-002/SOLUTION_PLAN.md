@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-07-28
+lastReviewedAt: 2026-07-30
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -44,6 +44,8 @@ Der Sprint verändert zunächst keine Produktarchitektur. Er verwendet und quali
 
 Neue dauerhafte Semantik wird nur über einen eigenen ADR-, Governance-, Standard- oder Contract-Schnitt eingeführt. Sprintdokumente bleiben Steuerungs- und Evidence-Quellen, nicht Ersatz für Produktverträge.
 
+Der formale Zustand `PROJECT_READY` bleibt bestehen. Der in den Readiness-Verträgen benannte nächste Lifecycle-Zustand `CODEX_CALIBRATION` ist jedoch bis zur Annahme des Tooling-Härtungsschnitts nicht operativ ausführbar; `WRITABLE_CODEX_AUTHORIZED=false`.
+
 ## Slices und Reihenfolge
 
 ### Slice 1: Ziel- und Sprintwahrheit
@@ -52,9 +54,22 @@ Neue dauerhafte Semantik wird nur über einen eigenen ADR-, Governance-, Standar
 - vollständigen aktiven Sprint-002-Harness anlegen;
 - Index, Gate-Evidence und Baselinebindung qualifizieren.
 
+### Slice 1A: Tooling-Härtung vor Kalibrierung
+
+- genau einen vollständigen Candidate aus der akzeptierten Baseline `c5c5846176d92c34b19b7a7827d7264c1923805f` erzeugen;
+- zentralen Workspace-Lifecycle für alle Writer schließen;
+- explizite Artefakt-Root-Autorisierung ohne Root-Erzeugung schließen;
+- Delivery- und Patch-ID-Inventar typisieren;
+- dauerhafte Selfcheck-Substep-Evidence einführen;
+- schreibende Operatorabläufe an versionierten Harness binden;
+- gezielte und breite Qualification, kanonischen Dry-run, separaten Review und Accept ausführen;
+- `000197` bis `000200` ausschließlich als Incident-Evidence behandeln.
+
+Kein D3 Task Pack, keine Task-Vorbereitung und kein Codex-Aufruf sind vor Annahme dieses Slices zulässig.
+
 ### Slice 2: D3 Task Pack und Oracle
 
-- aufgegebenen Vor-000186-Kandidaten nicht wiederverwenden;
+- aufgegebenen Vor-000186-Kandidaten und die Payloads `000197` bis `000200` nicht wiederverwenden;
 - Tasks gegen den aktuellen Commit neu erzeugen;
 - read-only Aufgabe, negativer Boundary-Probe und zwei kleine Implementierungsaufgaben definieren;
 - Oracles, Größenlimits, erlaubte Pfade, Qualifikationskommandos und Evidence vorab einfrieren.
@@ -95,6 +110,7 @@ Jeder Slice beginnt mit statischer Schema-, Hash-, Scope- und Baselineprüfung. 
 Mindestprüfungen:
 
 - Documentation Gate und Sprint Gate für Slice 1;
+- Workspace-, Artefakt-Autorisierungs-, Delivery-Inventory-, Selfcheck- und Harness-Fixtures für Slice 1A;
 - Agent-Task-, Readiness-, Process- und Boundary-Fixtures für Slice 2 und 3;
 - reale Denial-Probes und unveränderliche Invocation-/Run-Evidence für Slice 3;
 - Schema-, Traceability- und Contract-Gates für Slice 4;
@@ -104,6 +120,7 @@ Mindestprüfungen:
 
 ## Messkriterien
 
+- Tooling-Härtung vor Kalibrierung vollständig akzeptiert;
 - null unerlaubte Host-, Repository-, Git- oder Scope-Mutationen;
 - zwei von zwei implementierenden Kalibrierungsaufgaben erfüllen ihre vorab festgelegten Oracles;
 - hundert Prozent der pilotrelevanten Fachanforderungen besitzen stabile Traceability-Referenzen;
@@ -152,20 +169,22 @@ Slice 1 ist eine Governance- und Planungsinitialisierung ohne unmittelbaren Komp
 ## Patch- oder Commitsequenz
 
 1. Projektziele und Sprint-002-Harness;
-2. D3 Task Pack und Oracle;
-3. Runtime-Boundary-Evidence;
-4. Kalibrierungsaufgabe A;
-5. Kalibrierungsaufgabe B;
-6. Write-Readiness-Entscheidung;
-7. Business-Partner-Contract-Kette;
-8. Disposable Application und Acceptance;
-9. Repeatability, V1.1 und Closure.
+2. ein vollständiger Tooling-Härtungsschnitt;
+3. Annahme der Härtung und erneute Live-Baseline;
+4. D3 Task Pack und Oracle;
+5. Runtime-Boundary-Evidence;
+6. Kalibrierungsaufgabe A;
+7. Kalibrierungsaufgabe B;
+8. Write-Readiness-Entscheidung;
+9. Business-Partner-Contract-Kette;
+10. Disposable Application, Repeatability, V1.1 und Closure.
 
 Jeder Schnitt besitzt eigene Baseline-Hashes, Scope, Changelog, Dry-run und expliziten Accept. Die Reihenfolge kann nur durch ein dokumentiertes Sprint-Amendment materiell geändert werden.
 
 ## Unsicherheiten und Entscheidungszeitpunkte
 
-- konkrete Kalibrierungsaufgaben: Entscheidung vor Slice 2 Freeze;
+- Tooling-Härtung: zwingende Annahmeentscheidung vor Slice 2;
+- konkrete Kalibrierungsaufgaben: Entscheidung erst nach neuem Live-Baseline-Freeze;
 - erlaubtes Codex-Modell und lokale Runtime: Entscheidung im Task-/Invocation-Preflight;
 - Form der Application UI Spec: Entscheidung vor Slice 4, gestützt auf vorhandene GWC-Beispiele;
 - Generator-/Rendererbedarf: Entscheidung erst nach Contract-Kette; keine vorschnelle Frameworkwahl;
@@ -177,3 +196,4 @@ Jeder Schnitt besitzt eigene Baseline-Hashes, Scope, Changelog, Dry-run und expl
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-28 | – | active | Staged Lösungs- und Ausführungsplan für Sprint 002 angelegt. |
+| 2026-07-30 | active | active | Vollständigen Tooling-Härtungsschnitt als Slice 1A und zwingende Annahmegrenze vor D3 und Codex-Kalibrierung eingefügt. |

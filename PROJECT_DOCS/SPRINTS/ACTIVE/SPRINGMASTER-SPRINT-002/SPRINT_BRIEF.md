@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-07-28
+lastReviewedAt: 2026-07-30
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -26,7 +26,7 @@ targetCompletion: 2026-08-21
 
 ## Sprintziel
 
-Springmaster soll den akzeptierten Zustand `PROJECT_READY` kontrolliert in reale Codex-Kalibrierung überführen und anschließend die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren. Der Sprint prüft zuerst die Sicherheits-, Scope-, Evidence- und Ergebnisqualität des Agenten. Eine schreibende Pilotfreigabe oder End-to-End-Ausführung erfolgt erst nach den jeweils ausdrücklich definierten Promotionskriterien.
+Springmaster soll den akzeptierten Zustand `PROJECT_READY` nach einem vorgeschalteten, vollständig qualifizierten Tooling-Härtungsschnitt kontrolliert in reale Codex-Kalibrierung überführen und anschließend die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren. Der formale Lifecycle bleibt `PROJECT_READY`; `CODEX_CALIBRATION` ist jedoch nicht operativ ausführbar, solange Workspace-Lifecycle, Artefakt-Root-Autorisierung, Delivery-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung nicht gemeinsam akzeptiert geschlossen sind. `WRITABLE_CODEX_AUTHORIZED` bleibt `false`.
 
 Der Sprint ist erfolgreich, wenn Springmaster belastbar entscheiden kann, ob Codex für begrenzte lokale Springmaster-Aufgaben sicher und effizient eingesetzt werden darf und ob die Kette vom Fachkonzept bis zu einer disponiblen GWC-Anwendung deterministisch, traceable und wiederholbar funktioniert.
 
@@ -42,23 +42,24 @@ Kanonische Zielquelle ist `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md
 
 ## Ausgangslage und Baseline
 
-Kanonische Baseline beim Sprintstart:
+Kanonische akzeptierte Baseline für den Härtungsschnitt:
 
-- Git-HEAD des geprüften Full-Exports: `ac090009742845b466f306cd240f0c61c6d935a6`;
+- Git-HEAD des geprüften Full-Exports: `c5c5846176d92c34b19b7a7827d7264c1923805f`;
 - Branch: `main`, Exportstatus: sauber;
-- Export-SHA-256: `869db646bac5d59960cafdafdc07ce9471848f64b81181fe38f805f8f9149885`;
-- File-Manifest-SHA-256: `b85a72c49c2e2ce62ad0230c5590830e769579746a0f085a9e9e995367da6a53`;
+- Export-SHA-256: `01ca13927f5edd8efa2f501b623aa9376ff51921360273875151ebb6acbb1ddc`;
+- File-Manifest-SHA-256: `b1bf29739ee734fa323255dca3b70740019d6a8ade3efca82050fa0941d1ba59`;
 - Plattformversion: `0.21.1-foundation`;
-- Toolingversion: `0.11.1`;
-- State Patch: `000187_springmaster_operator_log_history_compatibility`;
+- Toolingversion: `0.11.3`;
+- State Patch: `000196_springmaster_directory_governance_runtime_audit_closure`;
+- Patch Toolkit: `1.1.2`;
 - akzeptierte Pilotentscheidung: ADR-0015;
-- Readiness: `PROJECT_READY`;
-- nächster erlaubter Zustand: `CODEX_CALIBRATION`;
-- schreibender Codex-Einsatz: nicht autorisiert;
-- Business-Partner-Fachkonzept und Acceptance Contract: vorhanden und eingefroren;
-- Patch- und Prozessausführung: Cocondo Patch Toolkit 1.1.2 mit getrenntem Dry-run und Accept sowie activation-contract-basierter Version Closure.
+- formale Readiness: `PROJECT_READY`;
+- nächster Lifecycle-Zustand: `CODEX_CALIBRATION`;
+- operative Ausführbarkeit dieses Übergangs: blockiert durch `TOOLING_HARDENING`;
+- `WRITABLE_CODEX_AUTHORIZED=false`;
+- Business-Partner-Fachkonzept und Acceptance Contract: vorhanden und eingefroren.
 
-Der frühere D3-Kalibrierungskandidat ist nicht Teil der Repositoryhistorie und muss gegen diese Baseline neu erzeugt werden.
+Die Versuche `000197` bis `000200` sind ausschließlich Incident- und Lern-Evidence. Keiner dieser Versuche wurde akzeptiert; ihre Payloads sind keine Source-Baseline und dürfen nicht als implementiert oder freigegeben verwendet werden. Der frühere D3-Kalibrierungskandidat ist ebenfalls nicht Teil der Repositoryhistorie und muss erst nach akzeptierter Tooling-Härtung gegen den dann tatsächlichen Live-Commit neu erzeugt werden.
 
 ## Problemstellung und Stakeholder
 
@@ -79,6 +80,11 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 | `CAP-REQ-007` | Build, Runtime, API, Validierung, Fehlervertrag, Persistenzentscheidung, Security-Klassifikation, UI-Verhalten und Extension Points MÜSSEN durch angemessene Acceptance-Evidence bewertet werden. |
 | `CAP-REQ-008` | Drei saubere deterministische Wiederholungen und eine kontrollierte Fachkonzeptänderung V1.1 MÜSSEN Ergebnisstabilität, Traceability und den Erhalt manueller Extension Points belegen. |
 | `CAP-REQ-009` | Der Sprint MUSS Safety, Qualität, Effizienz, technische Schulden und eine begründete Rollout- oder Stop-Entscheidung im Completion Report ausweisen. |
+| `CAP-REQ-010` | Vor jeder schreibenden Tooling-Operation MUSS ein zentraler Workspace-Lifecycle mit vollständigem, fail-closed Reset, aktiver-Run-Sperre und deterministischer Cleanup-Evidence verwendet werden. |
+| `CAP-REQ-011` | Ein Artefakt-Root MUSS bereits existieren, kanonisch aufgelöst und durch einen exakten maschinenlesbaren Authorization Record freigegeben sein; Repository, Home, Downloads und temporäre Systempfade sind als Schreibziele verboten. |
+| `CAP-REQ-012` | Delivery- und Patch-ID-Inventar MÜSSEN echte Delivery-Verzeichnisse, bekannte Metadateien, generische und patchbezogene Run Records sowie unbekannte, verlinkte, spezielle oder inkonsistente Einträge typisiert und fail-closed unterscheiden. |
+| `CAP-REQ-013` | Tooling-Selfchecks MÜSSEN dauerhafte Start-/Result-Marker, getrennte Substep-Logs, Exitcodes und eindeutige Fehlerklassifikation liefern. |
+| `CAP-REQ-014` | Schreibende Operatorabläufe MÜSSEN aus versioniertem Harness entstehen; freie Chat-Orchestrierung darf keine Mutations- oder Autorisierungsgrenze ersetzen. |
 
 ## Qualitätsanforderungen
 
@@ -90,11 +96,13 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - Jede erzeugte Spezifikation besitzt stabile IDs und Rückverweise bis zum Fachkonzept.
 - Wiederholungen verwenden identische Eingaben und qualifizierte Umgebungsparameter; nichtdeterministische Unterschiede werden erklärt oder blockieren den Abschluss.
 - Neue dauerhafte Regeln werden in ADRs, Governance, Standards oder Contracts promoviert und nicht nur im Sprintstatus festgehalten.
+- `NEXT_ACTION=CODEX_CALIBRATION` bezeichnet bis zur akzeptierten Härtung nur den nächsten Lifecycle-Zustand und keine ausführbare Operatoraktion.
 
 ## In Scope
 
 - dauerhafte Persistenz der allgemeinen Projektziele und des aktiven Sprintvertrags;
-- Rekonstruktion des D3-Kalibrierungs-Task-Packs gegen die aktuelle Baseline;
+- ein einziger vollständiger Tooling-Härtungsschnitt für Workspace-Lifecycle, Artefakt-Root-Autorisierung, typisiertes Delivery-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung;
+- Rekonstruktion des D3-Kalibrierungs-Task-Packs erst nach Annahme dieses Härtungsschnitts gegen den dann tatsächlichen Live-Commit;
 - read-only und negative Runtime-Boundary-Probes;
 - zwei kleine, begrenzte Codex-Kalibrierungsaufgaben im Springmaster-Repository;
 - separate Bewertung der Promotion zu `PILOT_WRITE_READY`;
@@ -117,7 +125,8 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 ## Constraints und Abhängigkeiten
 
 - ADR-0015 und AI Agent Development Governance bleiben bindend.
-- `PROJECT_READY` erlaubt Kalibrierung, aber keine schreibende Pilotaufgabe ohne explizite Task- und Promotionsevidence.
+- `PROJECT_READY` bleibt der formale Repositoryzustand, autorisiert derzeit aber weder Vorbereitung noch Ausführung von `CODEX_CALIBRATION`.
+- `CODEX_CALIBRATION` darf erst nach akzeptiertem Härtungsschnitt, erneuter Live-Readiness-Prüfung und neu erzeugtem Task-Pack vorbereitet werden.
 - Das Cocondo Patch Toolkit bleibt die kanonische Integrations- und Commitgrenze.
 - Externe Worktree-, Run- und Artifact-Roots müssen vorprovisioniert, getrennt, schreibbar und nicht symlinkbasiert sein.
 - Das Business-Partner-Fachkonzept bleibt für die Baseline-Läufe unverändert; V1.1 wird als separate kontrollierte Eingabe geführt.
@@ -135,6 +144,11 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 | Ergebnisse sind nicht deterministisch | nicht reproduzierbare Lieferung | drei Clean-Runs mit Hash- und Differenzanalyse |
 | Pilot mutiert Referenz- oder Zielprojekte | Scope- und Governance-Verstoß | externe disposable Roots und read-only Guards |
 | gute Demo wird als allgemeine Reife fehlinterpretiert | verfrühter Rollout | gesonderte Abschluss- und Generalisierungsentscheidung |
+| Legacy-Artefaktroot wird aus Konfiguration als Autorisierung missverstanden | Schreiben nach Home oder Downloads | exakter Authorization Record, Canonical-Path-Abgleich und Blockade vor Workerstart |
+| historische Metadatei wird als Delivery klassifiziert | falsche Patch-ID oder fail-closed Abbruch an falscher Stelle | typisiertes Entry-Inventory ohne reine Namensheuristik |
+| Workspace wird nur für einzelne Writer bereinigt | Cross-Run-Kontamination und unklare Evidence | ein zentraler Lifecycle für Patch, Dry-run, Accept, Diagnose, Collector und Handoff |
+| Selfcheck verdeckt den fehlerhaften Substep | unnötige Wiederholung und schwache Forensik | dauerhafte Substep-Marker, Logs und Exitcodes |
+| manuell erzeugtes Operator-Kommando weicht von Governance ab | unbeabsichtigte Hostwirkung | ausschließlich versionierter Harness für schreibende Abläufe |
 
 ## Definition of Ready
 
@@ -144,12 +158,19 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - [x] Die aktuelle Git-, Export-, Versions- und Toolingbaseline ist dokumentiert.
 - [x] Allgemeine Projektziele und Sprintscope sind als kanonische Quellen definiert.
 - [x] Mutationsverbote, externe Roots, Promotionen und Stopbedingungen sind benannt.
-- [ ] Das gegen die aktuelle Baseline neu erzeugte Kalibrierungs-Task-Pack und seine Oracles sind unabhängig reviewed.
+- [ ] `CAP-REQ-010` bis `CAP-REQ-014` sind in einem einzigen Candidate implementiert, zielgerichtet und breit qualifiziert sowie separat akzeptiert.
+- [ ] Die Project Directory Governance bleibt bis zu dieser technischen Closure ausdrücklich `draft`; ihre Geltung ist als Ziel- und Reviewquelle begrenzt.
+- [ ] Das gegen den nach der Härtungsannahme tatsächlichen Live-Commit neu erzeugte Kalibrierungs-Task-Pack und seine Oracles sind unabhängig reviewed.
 - [ ] Die konkrete lokale Codex-Umgebung und alle Runtime-Denial-Probes sind preflight-ready.
 
 ## Definition of Done
 
-- [ ] `CAP-REQ-001` bis `CAP-REQ-009` sind jeweils erfüllt, bewusst deferiert oder mit Blocker bewertet.
+- [ ] `CAP-REQ-001` bis `CAP-REQ-014` sind jeweils erfüllt, bewusst deferiert oder mit Blocker bewertet.
+- [ ] Workspace-Lifecycle, Artefakt-Root-Autorisierung, typisiertes Delivery-/Patch-ID-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung sind gemeinsam in einem einzigen akzeptierten Tooling-Schnitt geschlossen.
+- [ ] Die Incidents `000197`, `000198`, `000199` und `000200` sind als nicht akzeptierte Evidence dokumentiert; keine ihrer Payloads wurde in die Source-Baseline übernommen.
+- [ ] Die Readiness-Evidence unterscheidet konsistent `PROJECT_READY`, den nächsten Lifecycle-Zustand `CODEX_CALIBRATION`, `NEXT_ACTION_EXECUTABLE=false` und `WRITABLE_CODEX_AUTHORIZED=false`.
+- [ ] Die Project Directory Governance ist entweder nach vollständiger Closure evidenzbasiert aktiviert oder bleibt ausdrücklich `draft` mit eindeutig begrenzter Geltung.
+- [ ] Die Kalibrierung wurde erst nach akzeptiertem Härtungsschnitt gegen den neuen Live-Commit neu vorbereitet.
 - [ ] Die fünf allgemeinen Projektziele sind als aktive kanonische Zielquelle indexiert und werden vom Sprint referenziert.
 - [ ] Der aktive Sprint besitzt Brief, Solution Plan, genau eine Statusquelle und einen vorbereiteten Completion Report mit konsistenter Milestone-Abdeckung.
 - [ ] Das immutable Kalibrierungs-Task-Pack enthält read-only Analyse, negativen Boundary-Probe und zwei kleine implementierende Aufgaben mit vorab festgelegten Oracles.
@@ -199,3 +220,4 @@ Keine.
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-28 | – | active | Aktiver Sprint für reale Codex-Kalibrierung und den Business-Partner-End-to-End-Pilot angelegt. |
+| 2026-07-30 | active | active | Tooling-Härtung als zwingende P0-Voraussetzung vor operativer Codex-Kalibrierung in Anforderungen, Risiken, DoR und DoD aufgenommen. |

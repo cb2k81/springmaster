@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-27
+lastReviewedAt: 2026-07-30
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -44,7 +44,7 @@ test -d "${COCONDO_ARTIFACT_ROOT}"
 
 Provisioning those directories is a separate operator action and must state its own effects. The validation command above reads the three configured paths and writes nothing.
 
-## 3. Project readiness
+## 3. Project readiness and operational hold
 
 During patch qualification:
 
@@ -60,18 +60,31 @@ After the accepted patch is committed on the clean integration worktree:
   --out-text patches/logs/validation/codex-pilot/codex-project-readiness.txt
 ```
 
-Expected result before the first Codex invocation:
+The committed readiness contract still reports the formal lifecycle result:
 
 ```text
 CODEX_PILOT_READINESS=PROJECT_READY
 NEXT_ACTION=CODEX_CALIBRATION
+WRITABLE_CODEX_AUTHORIZED=false
 ```
 
-`PROJECT_READY` does not mean `PILOT_WRITE_READY`.
+For the current sprint, `NEXT_ACTION=CODEX_CALIBRATION` names the next lifecycle state; it is not an executable operator authorization. The current operational state is:
+
+```text
+FORMAL_REPOSITORY_READINESS=PROJECT_READY
+NEXT_LIFECYCLE_STATE=CODEX_CALIBRATION
+NEXT_ACTION_EXECUTABLE=false
+NEXT_ACTION_BLOCKER=TOOLING_HARDENING
+WRITABLE_CODEX_AUTHORIZED=false
+```
+
+Calibration remains blocked until one accepted tooling cut jointly closes the central writer-workspace lifecycle, explicit artifact-root authorization, typed delivery and patch-ID inventory, durable selfcheck substep evidence and harness-bound operator execution. Attempts `000197` through `000200` are incident evidence only and are not accepted source changes.
+
+After that cut is accepted and post-accept verification succeeds, live readiness must be rerun with explicitly authorized existing roots. Only then may a fresh calibration task pack be prepared against the actual live commit. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
 
 ## 4. Agent task preparation
 
-A later calibration task is prepared from an immutable Task Contract V2:
+Only after the operational hold above has been lifted, a calibration task is prepared from an immutable Task Contract V2:
 
 ```bash
 ./bin/agent-task.sh validate /absolute/path/to/task.json
@@ -123,7 +136,7 @@ The harness still does not integrate the result.
 
 ## 5. Deliberate stop at cutover
 
-`agent-task` has no `run-codex`, `commit`, `merge`, `push` or `integrate` command. `record-invocation` records an already completed explicit operator action; it does not execute Codex. The first invocation still requires a separate operator decision after reviewing live project-readiness evidence and the declared command effects.
+`agent-task` has no `run-codex`, `commit`, `merge`, `push` or `integrate` command. `record-invocation` records an already completed explicit operator action; it does not execute Codex. The first invocation still requires a separate operator decision after an accepted tooling-hardening cut, fresh live project-readiness evidence, a newly generated task pack and review of the declared command effects.
 
 ## 6. Diagnostics
 

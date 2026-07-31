@@ -29,7 +29,15 @@ for path in \
   bin/cpatch \
   bin/patch.sh \
   bin/patch.py \
-  bin/patch-toolkit-activation.py
+  bin/patch-toolkit-activation.py \
+  .cocondo/process.env \
+  contracts/governance/tooling/process-operations-contract.json \
+  bin/process-ops.sh \
+  bin/process-ops.py \
+  bin/process-ops-it.sh \
+  bin/tooling-selfcheck.sh \
+  bin/tooling-selfcheck-observability-it.sh \
+  bin/lib/core/selfcheck-observability.sh
  do
   mkdir -p "${FIXTURE}/$(dirname "${path}")"
   cp "${PROJECT_ROOT}/${path}" "${FIXTURE}/${path}"

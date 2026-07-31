@@ -166,3 +166,34 @@ sprintId: null
 **Recovery:** query the canonical run directly with `cpatch`, preserve the successful run ID, and apply the compatibility correction. Do not repeat a successful acceptance.
 
 **Prevention:** allow historical tracked sibling evidence below the shared root. Enforce Git-ignore and tracked-content prohibitions only for the exact generated run directory `<operator-log-root>/<patch-id>/<run-id>/`.
+
+
+## Artifact root is configured but unauthorized
+
+**Symptom:** `ARTIFACT_ROOT_UNAUTHORIZED`, `ARTIFACT_ROOT_AUTHORIZATION_MISMATCH` or `ARTIFACT_ROOT_CONFIGURATION_AMBIGUOUS` occurs before a worker start.
+
+**Cause:** configuration was mistaken for authorization, the canonical path changed, the inode changed, or environment and Git configuration select different roots.
+
+**Recovery:** stop the writer, inspect `process-ops resolve`, provision one existing allowed root, then run `process-ops artifact-root-authorize`. Never create or authorize a root below Home, Downloads, the repository, the Git common directory or system temporary paths.
+
+**Prevention:** every external artifact writer verifies the exact Git-common authorization record before use.
+
+## Delivery inventory contains an untyped entry
+
+**Symptom:** `DELIVERY_INVENTORY_*`, `DELIVERY_RUN_*` or `DELIVERY_*_IDENTITY_CONFLICT` blocks ID calculation.
+
+**Cause:** an unknown top-level file, link, special file, unreadable record, noncanonical patch ID or conflicting typed identity exists. Six-digit text is never a fallback identity source. A numeric-only legacy run is accepted only when `cocondo.run-record.v1`, an allowed patch command, the UUID artifact identity and the canonical patch ID embedded in `metadata.artifactFile` agree exactly. One canonical acceptance record may own the number and demote only differently named terminal failed run attempts to `IGNORE_AND_COUNT`; delivery conflicts, non-failed runs, unresolved numeric acceptance records and multiple accepted owners remain blocking.
+
+**Recovery:** preserve the entry as evidence and classify or correct its producing workflow. For a historical numeric-only run, verify the immutable run record and artifact filename rather than rewriting either. Do not rename it merely to obtain the desired next number and do not provide a patch ID manually.
+
+**Prevention:** use `process-ops delivery-inventory`, `delivery-next-id` and `delivery-prepare`; known historical metadata patterns remain explicit in the Process Operations Contract.
+
+## Tooling selfcheck substep fails
+
+**Symptom:** `SELF_CHECK_FAILED_SUBSTEP=<id>` and `SELF_CHECK_SUBSTEP_RESULT=<id>:<exit-code>` are emitted.
+
+**Cause:** the named integration or audit substep failed. Its complete stdout/stderr is retained in the path announced by `SELF_CHECK_SUBSTEP_LOG`.
+
+**Recovery:** inspect that deterministic log and fix the exact substep. Do not retry from a generic outer failure and do not hide the diagnostic stream.
+
+**Prevention:** critical substeps use the shared selfcheck-observability library and remain registered in the sealed test inventory.

@@ -16,7 +16,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-22
 validFrom: null
-lastReviewedAt: null
+lastReviewedAt: 2026-07-30
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -42,6 +42,12 @@ Sie bestimmt:
 - Anforderungen an den maschinenlesbaren Directory Contract und das Directory Gate.
 
 Die Governance schützt den realen Bestand vor Strukturdrift. Sie verlangt keine sofortige Idealstruktur: technisch gekoppelte Bestandsablagen werden zunächst klassifiziert und nur in eigenen qualifizierten Änderungsschnitten migriert.
+
+### 1.1 Draft-Geltungsgrenze
+
+Dieses Dokument bleibt bis zur vollständigen technischen Closure der Runtime-, Workspace-, Artefakt- und Inventory-Regeln ausdrücklich `draft`. Es ist Ziel-, Review- und Ableitungsquelle, aber keine eigenständige Autorisierung für neue Pfade, Writer, Bereinigungen oder externe Schreibziele.
+
+Verbindlich durchsetzbar sind bis zur Aktivierung ausschließlich bereits akzeptierte maschinenlesbare Contracts, aktivierte Gates und das tatsächlich akzeptierte Toolkit-Verhalten. Bei Widersprüchen gilt die aktive technische Quelle; aus diesem Draft darf keine zusätzliche Berechtigung abgeleitet werden. Eine Aktivierung setzt belastbare Candidate-, Dry-run-, Accept- und Post-Accept-Evidence des vollständigen Tooling-Härtungsschnitts voraus.
 
 ## 2. Nicht Gegenstand
 
@@ -629,6 +635,10 @@ Die Project-New-Materialisierung erzeugt zusätzlich ein reduziertes `generated-
 
 Vor einer Aktivierung oder Strict-Promotion bleiben offen:
 
+- vollständiger zentraler Workspace-Lifecycle für alle Writer,
+- explizite maschinenlesbare Autorisierung externer Artefakt-Roots,
+- typisiertes Delivery- und Patch-ID-Inventory,
+- dauerhafte Selfcheck-Substep-Evidence und harnessgebundene Operatorausführung,
 - der Managed-Project-Deviation-Contract und read-only Zielprojektpilot,
 - getrennte Migrationspläne für gekoppelte Legacy-Pfade,
 - Abbau der Directory Transition Baseline,
@@ -641,9 +651,12 @@ Vor einer Aktivierung oder Strict-Promotion bleiben offen:
 | 2026-07-22 | – | draft | Volltext auf Basis des verifizierten Springmaster-Bestands |
 | 2026-07-23 | draft | draft | Report-only Directory Contract, Transition Baseline, Gate und Fixtures technisch abgeleitet; Aktivierung bleibt offen |
 | 2026-07-23 | draft | draft | Project-New-Materialisierung und Fresh-Project-Acceptance für das Profil `generated-project` ergänzt |
+| 2026-07-30 | draft | draft | Geltung bis zur vollständigen Tooling-Härtung ausdrücklich auf Ziel-, Review- und Ableitungsfunktion begrenzt; keine eigenständige Autorisierungswirkung. |
 
 ## Patch workflow runtime areas
 
 `patches/logs/accept/**`, `patches/logs/validation/**`, `patches/runtime/**`, `patches/archives/**` and `patches/work/**` are generated runtime areas and must not be committed as normal source.
 
-`patches/work/**` has the narrower role of a single-current-workflow operator handoff workspace. It is safely cleared before a new patch dry-run or accept, not by observers within the same workflow. It is excluded from exports and duplicate analysis. Symlinks, nested repositories, tracked files, mount points or special files make cleanup fail closed.
+`patches/work/**` has the narrower role of a single-current-workflow operator handoff workspace. In the accepted baseline, safe clearing is proven only for selected patch dry-run and accept paths. Full reset coverage for every writer, including diagnosis, collector and handoff, is a blocking target of the current tooling hardening and must not be assumed from this draft.
+
+The target contract requires one canonical workspace-start operation before every writer, no implicit root creation, an active-run guard and deterministic cleanup evidence. Symlinks, nested repositories, tracked files, mount points or special files must make cleanup fail closed. Until that implementation is accepted, this section grants no additional mutation authority.

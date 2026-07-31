@@ -82,5 +82,25 @@
     "emptyArchiveSkeletonPolicy": "IGNORE_EMPTY_ONLY",
     "nonEmptyArchiveWithoutPatchLog": "BLOCKING",
     "deliveryRequirement": "CANONICAL_DRY_RUN_THEN_EXPLICIT_ACCEPT"
+  },
+  "toolingHardeningCandidate": {
+    "status": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+    "baselineCommit": "c5c5846176d92c34b19b7a7827d7264c1923805f",
+    "patchId": "000201_springmaster_tooling_hardening_cut",
+    "deliveryId": "000201-springmaster_tooling_hardening_cut",
+    "workspaceLifecycle": "IMPLEMENTED_IN_CANDIDATE",
+    "artifactRootAuthorization": "IMPLEMENTED_IN_CANDIDATE",
+    "deliveryInventory": "LIVE_RESOLVER_PASS",
+    "deliveryInventorySha256": "8af7a592565fff36de2e374e8361ef7ed9b5e0545064fe3b1ade1aa7534ade63",
+    "acceptedOwnerCount": 9,
+    "historicalFailedAttemptCount": 3,
+    "unknownEntryCount": 0,
+    "reservedNumberCount": 19,
+    "selfcheckObservability": "IMPLEMENTED_IN_CANDIDATE",
+    "versionClosure": "CLOSED_IN_CANDIDATE",
+    "platformVersion": "0.22.0-foundation",
+    "toolingVersion": "0.12.0",
+    "statePatch": "000201_springmaster_tooling_hardening_cut",
+    "acceptanceStatus": "NOT_ACCEPTED"
   }
 }

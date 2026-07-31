@@ -302,3 +302,12 @@ The facade starts patch workers only through `cpatch` and generic workers only t
 `patches/archives/**`, `patches/logs/accept/**` and `patches/logs/validation/**` are local runtime areas and are not repository source. `patch-state-audit` validates archive directories only when they contain runtime files or symlinks. Empty directory skeletons left after exact tracked-file deletion are ignored. A non-empty archive directory without a readable `patch-log.json` remains a blocking `PATCH_LOG_INVALID` finding.
 
 A change to `PLATFORM_TOOLING_VERSION` or `PLATFORM_STATE_PATCH` must update `contracts/governance/tooling/patch-toolkit-activation-contract.json` in the same candidate. Delivery preparation verifies this closure before the broader project profiles.
+
+
+## Tooling hardening candidate after accepted state 000196
+
+The candidate based on accepted commit `c5c5846176d92c34b19b7a7827d7264c1923805f` introduces four coupled changes without modifying Toolkit `1.1.2`: central workspace lifecycle for every writer, explicit external artifact-root authorization, typed delivery/patch-ID inventory, and durable selfcheck substep evidence.
+
+The typed live inventory resolver completed with `UNKNOWN_ENTRY_COUNT=0` and selected `000201_springmaster_tooling_hardening_cut` as the next canonical patch identity. The candidate closes the compatible minor impact at Platform `0.22.0-foundation`, Tooling `0.12.0` and State Patch `000201_springmaster_tooling_hardening_cut`; Core, Template, Demo and Platform Update versions remain unchanged.
+
+The candidate remains `NOT_ACCEPTED` and is now `VERSION_CLOSED_PENDING_FULL_QUALIFICATION`. The complete regression matrix, broad Tooling Selfcheck and project profiles, canonical dry-run, explicit accept and post-accept export are still required. No payload from attempts `000197` through `000200` is treated as source implementation.

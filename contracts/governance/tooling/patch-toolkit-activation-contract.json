@@ -29,10 +29,10 @@
     "show"
   ],
   "versionClosure": {
-    "platformVersion": "0.21.1-foundation",
-    "mavenVersion": "0.21.1-foundation-SNAPSHOT",
-    "toolingVersion": "0.11.3",
-    "statePatch": "000196_springmaster_directory_governance_runtime_audit_closure"
+    "platformVersion": "0.22.0-foundation",
+    "mavenVersion": "0.22.0-foundation-SNAPSHOT",
+    "toolingVersion": "0.12.0",
+    "statePatch": "000201_springmaster_tooling_hardening_cut"
   },
   "evidenceFile": "src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json",
   "activationReport": "PROJECT_DOCS/TOOLING/COCONDO_PATCH_TOOLKIT_ACTIVATION_REPORT.md",
@@ -50,13 +50,19 @@
     "terminalRestart": "explicit-only",
     "multipleActiveSingleton": "incident-fail-closed",
     "gitFixtureIsolation": "hermetic",
-    "operatorWorkspace": "project-relative-clean-per-patch-workflow",
+    "operatorWorkspace": "project-relative-clean-before-every-writer",
     "operatorLogs": "project-relative-run-scoped",
     "diagnosticHandoff": "single-archive-in-operator-workspace",
     "canonicalPatchStart": "direct-cpatch-run-api",
     "realSpringmasterPilot": "PASS_000184",
     "operatorWorkspacePilot": "PASS_000186_ACCEPTANCE",
-    "operatorLogHistoryCompatibility": "FIXED_000187"
+    "operatorLogHistoryCompatibility": "FIXED_000187",
+    "workspaceRecordSchema": "cocondo.operator-workspace.v2",
+    "artifactRootAuthorization": "explicit-git-common-record-bound-to-canonical-root",
+    "deliveryInventory": "typed-fail-closed-with-current-delivery-exception",
+    "deliveryPreparation": "git-common-state-without-external-artifact-root",
+    "selfcheckObservability": "durable-substep-start-result-and-log-evidence",
+    "toolingHardeningCandidate": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION"
   },
   "stagingModel": {
     "pathInput": "nul-separated-literal-pathspecs",

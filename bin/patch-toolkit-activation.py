@@ -219,6 +219,33 @@ def main() -> int:
         export = evidence.get("qualifiedExport")
         if not isinstance(export, dict) or export.get("status") != "COMPLETE" or not HEX_SHA256.fullmatch(str(export.get("sha256", ""))):
             findings.append({"code": "QUALIFIED_EXPORT_EVIDENCE_INVALID"})
+        hardening = evidence.get("toolingHardeningCandidate")
+        hardening_expected = {
+            "status": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+            "baselineCommit": "c5c5846176d92c34b19b7a7827d7264c1923805f",
+            "patchId": "000201_springmaster_tooling_hardening_cut",
+            "deliveryId": "000201-springmaster_tooling_hardening_cut",
+            "workspaceLifecycle": "IMPLEMENTED_IN_CANDIDATE",
+            "artifactRootAuthorization": "IMPLEMENTED_IN_CANDIDATE",
+            "deliveryInventory": "LIVE_RESOLVER_PASS",
+            "deliveryInventorySha256": "8af7a592565fff36de2e374e8361ef7ed9b5e0545064fe3b1ade1aa7534ade63",
+            "acceptedOwnerCount": 9,
+            "historicalFailedAttemptCount": 3,
+            "unknownEntryCount": 0,
+            "reservedNumberCount": 19,
+            "selfcheckObservability": "IMPLEMENTED_IN_CANDIDATE",
+            "versionClosure": "CLOSED_IN_CANDIDATE",
+            "platformVersion": "0.22.0-foundation",
+            "toolingVersion": "0.12.0",
+            "statePatch": "000201_springmaster_tooling_hardening_cut",
+            "acceptanceStatus": "NOT_ACCEPTED",
+        }
+        if not isinstance(hardening, dict):
+            findings.append({"code": "TOOLING_HARDENING_CANDIDATE_EVIDENCE_MISSING"})
+        else:
+            for key, expected in hardening_expected.items():
+                if hardening.get(key) != expected:
+                    add_mismatch(findings, "TOOLING_HARDENING_CANDIDATE_EVIDENCE_MISMATCH", expected, hardening.get(key), key=key)
     else:
         findings.append({"code": "ACTIVATION_EVIDENCE_MISSING", "path": evidence_rel})
 
@@ -241,10 +268,40 @@ def main() -> int:
         actual = process_operations.get(key)
         if actual != expected:
             add_mismatch(findings, "PROCESS_OPERATIONS_ACTIVATION_MISMATCH", expected, actual, key=key)
+    expected_hardening_values = {
+        "operatorWorkspace": "project-relative-clean-before-every-writer",
+        "workspaceRecordSchema": "cocondo.operator-workspace.v2",
+        "artifactRootAuthorization": "explicit-git-common-record-bound-to-canonical-root",
+        "deliveryInventory": "typed-fail-closed-with-current-delivery-exception",
+        "deliveryPreparation": "git-common-state-without-external-artifact-root",
+        "selfcheckObservability": "durable-substep-start-result-and-log-evidence",
+        "toolingHardeningCandidate": "VERSION_CLOSED_PENDING_FULL_QUALIFICATION",
+    }
+    for key, expected in expected_hardening_values.items():
+        actual = process_operations.get(key)
+        if actual != expected:
+            add_mismatch(findings, "PROCESS_HARDENING_ACTIVATION_MISMATCH", expected, actual, key=key)
     for key in ("contract", "config", "entrypoint", "integrationTest"):
         relative = process_operations.get(key)
         if not isinstance(relative, str) or not (root / relative).is_file():
             findings.append({"code": "PROCESS_OPERATIONS_FILE_MISSING", "key": key, "path": relative})
+
+    selfcheck_path = root / "bin/tooling-selfcheck.sh"
+    observability_it = root / "bin/tooling-selfcheck-observability-it.sh"
+    observability_library = root / "bin/lib/core/selfcheck-observability.sh"
+    if not selfcheck_path.is_file() or not observability_it.is_file() or not observability_library.is_file():
+        findings.append({"code": "SELFCHECK_OBSERVABILITY_FILES_MISSING"})
+    else:
+        selfcheck_text = selfcheck_path.read_text(encoding="utf-8")
+        for substep in (
+            "patch-run-api-it",
+            "patch-transactional-accept-it",
+            "core-persistence-newness-contract-it",
+            "patch-state-audit",
+        ):
+            marker = f"selfcheck_run_substep {substep} "
+            if marker not in selfcheck_text:
+                findings.append({"code": "SELFCHECK_OBSERVABILITY_MARKER_MISSING", "substep": substep})
 
     agents_path = root / "AGENTS.md"
     if agents_path.is_file():

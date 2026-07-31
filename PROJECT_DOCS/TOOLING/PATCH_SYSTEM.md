@@ -497,3 +497,12 @@ A single `git add --all -- <manifest-paths>` call is prohibited. Git may stage a
 ## Runtime archive audit after directory-governance adoption
 
 Patch archives and acceptance/validation logs are local runtime evidence, not committed product source. Exact cleanup patches may remove their formerly tracked files while empty directory skeletons remain temporarily in a worktree. `patch-state-audit` ignores only such empty skeletons. As soon as a directory contains a file or symlink, the normal fail-closed archive contract applies and a missing or unreadable `patch-log.json` is blocking.
+
+
+## Central writer and delivery hardening candidate
+
+The current hardening candidate keeps `cpatch` as the only patch worker owner and extends `process-ops` as the single operator facade. Every patch start and every diagnostic, incident, handoff or delivery-preparation writer executes the same fail-closed workspace-start lifecycle. No writer creates `patches/work` implicitly.
+
+External artifact configuration is not authorization. Relative artifact use requires an exact Git-common authorization record bound to the configured canonical directory, device and inode. Delivery preparation itself remains below the Git-common process state and does not require the external root.
+
+Patch and delivery numbering is derived only from typed delivery directories, Toolkit run records and canonical acceptance records. Known historical metadata is counted without reserving an ID; unknown or unsafe inventory entries block. Legacy numeric-only run IDs reserve a number only through exact `cocondo.run-record.v1` patch-command evidence whose UUID and artifact filename reconstruct one canonical full patch ID. Exactly one `cocondo.patch-acceptance.v2` record is the canonical owner of its local number. A differently named terminal failed run under that accepted owner is retained as `IGNORE_AND_COUNT`; a delivery, non-failed run or second accepted owner with a different identity remains blocking. The current delivery exception is exact and single-use. These candidate semantics are not accepted until the complete candidate passes the canonical dry-run and separate accept.

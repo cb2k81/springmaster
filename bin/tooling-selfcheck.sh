@@ -8,6 +8,8 @@ export PROJECT_DIR
 
 # shellcheck source=/dev/null
 source "${SCRIPT_DIR}/init.env.sh"
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/lib/core/selfcheck-observability.sh"
 
 RUN_EXPORT=true
 
@@ -211,8 +213,8 @@ log_info "Checking DBTool env/status"
 
 "${SCRIPT_DIR}/patch-scope-least-privilege-it.sh" >/dev/null
 log_info "Checking patch run API, idempotency and background lifecycle"
-"${SCRIPT_DIR}/patch-run-api-it.sh" >/dev/null
-"${SCRIPT_DIR}/patch-transactional-accept-it.sh" >/dev/null
-"${SCRIPT_DIR}/core-persistence-newness-contract-it.sh" >/dev/null
-"${SCRIPT_DIR}/patch-state-audit.sh" --check
+selfcheck_run_substep patch-run-api-it "${SCRIPT_DIR}/patch-run-api-it.sh"
+selfcheck_run_substep patch-transactional-accept-it "${SCRIPT_DIR}/patch-transactional-accept-it.sh"
+selfcheck_run_substep core-persistence-newness-contract-it "${SCRIPT_DIR}/core-persistence-newness-contract-it.sh"
+selfcheck_run_substep patch-state-audit "${SCRIPT_DIR}/patch-state-audit.sh" --check
 log_info "Tooling selfcheck completed successfully."

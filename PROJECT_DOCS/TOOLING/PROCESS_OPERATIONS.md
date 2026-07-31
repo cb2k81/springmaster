@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-24
 validFrom: 2026-07-24
-lastReviewedAt: 2026-07-24
+lastReviewedAt: 2026-07-30
 reviewBy: 2027-01-24
 supersedes: []
 supersededBy: null
@@ -40,7 +40,7 @@ The tool derives:
 - Git common directory from `git rev-parse --path-format=absolute --git-common-dir`;
 - integration worktree from `git worktree list --porcelain` and `CPATCH_INTEGRATION_BRANCH`;
 - Toolkit run, lock and acceptance roots from project configuration;
-- process operation, incident, operator-log and operator-workspace paths from `.cocondo/process.env` (`CPROCESS_STATE_DIRECTORY`, `CPROCESS_INCIDENT_DIRECTORY`, `CPROCESS_OPERATOR_LOG_DIRECTORY` and `CPROCESS_WORK_DIRECTORY`).
+- process operation, incident, delivery, artifact-authorization, operator-log and operator-workspace paths from `.cocondo/process.env`; all Git-relative process paths resolve through the Git common directory.
 
 Artifact and detached Git-worktree roots are intentionally environmental. They are unrelated to the project-local operator workspace:
 
@@ -86,29 +86,55 @@ After an explicitly reviewed `DRY_RUN_SUCCEEDED`, start accept as a separate dec
 Never wrap these commands in an additional detached orchestrator and never chain dry-run and accept automatically.
 
 
-## 3.1 Project-local operator workspace
+## 3.1 Central writer workspace lifecycle
 
-Every new `patch-dry-run` and `patch-accept` starts a new patch workflow. Before the canonical `cpatch` worker is started, `process-ops` safely prepares the configured project-relative operator workspace (Springmaster default: `patches/work/`).
+The operator workspace is prepared by one canonical operation before every writer: `patch-dry-run`, `patch-accept`, `diagnose`, `incident`, `diagnostic-handoff` and `delivery-prepare`. The root must already exist; `process-ops` never creates it implicitly.
 
 Preparation is fail-closed:
 
-- an active prior workflow blocks cleanup;
-- tracked files, symlinks, nested repositories, mount points and special files block cleanup;
-- safe untracked content from a terminal prior workflow is removed;
-- observers (`status`, `watch`, `wait`, `result`, `resume`) never clean or mutate the workspace;
-- a `WORKSPACE.json` record binds the current workspace to operation, artifact and canonical run ID.
+- an active or unresolvable prior workflow blocks cleanup;
+- tracked content, root or content symlinks, nested repositories, mount points and special files block cleanup;
+- only safe regular files and directories from a terminal prior workflow are removed;
+- the root remains present;
+- `WORKSPACE.json` records operation ID, writer, subject, removed top-level entry count and the SHA-256 of the deterministic removal list;
+- observers (`status`, `watch`, `wait`, `result`, `resume`) never mutate the workspace.
 
-The workspace is only a current operator handoff area. Canonical run state, locks and acceptance evidence remain below the Git common directory. Durable local operator summaries are written below `CPROCESS_OPERATOR_LOG_DIRECTORY` (Springmaster default: `patches/logs/validation/`).
+A direct preflight can be requested through the same facade:
 
-Operator logs are isolated per canonical run under `<operator-log-root>/<patch-id>/<run-id>/`. Historical tracked evidence elsewhere below the shared operator-log root is compatible and remains untouched. Only the exact current run directory must be Git-ignored and free of tracked content; a collision with tracked content in that directory fails closed.
+```bash
+./bin/process-ops.sh workspace-start --operation diagnose --subject <run-id>
+```
 
-A terminal run can be packaged for upload as exactly one deterministic ZIP:
+A terminal run can be packaged as exactly one deterministic ZIP:
 
 ```bash
 ./bin/process-ops.sh diagnostic-handoff <run-id>
 ```
 
-The command reads canonical Toolkit evidence and the project-local operator logs, writes one archive below `CPROCESS_WORK_DIRECTORY`, and does not alter tracked source, commit, push or start another worker.
+The next writer removes that handoff. Canonical run state, locks, deliveries and authorization records remain below the Git common directory.
+
+## 3.2 Explicit artifact-root authorization
+
+Configuration selects a candidate path but grants no write authority. The external root must already exist, be a canonical non-symlink directory, remain outside repository, Git common directory, operator home, Downloads and system temporary locations, and expose explicit write/search permissions.
+
+```bash
+./bin/process-ops.sh artifact-root-authorize
+./bin/process-ops.sh artifact-root-status
+```
+
+Authorization writes only the configured Git-common record. It never creates the external root. The record binds project ID, configured path, canonical path, device and inode. A missing, damaged, ambiguous or mismatching record blocks relative artifact resolution before a worker starts.
+
+## 3.3 Typed delivery inventory and preparation
+
+The resolver reads only typed delivery directories, canonical Toolkit run records and canonical acceptance records. Known historical top-level metadata is explicitly classified as `IGNORE_AND_COUNT`; unknown files, links, special entries and invalid JSON are blocking tool errors. A numeric-only `patchId` from the legacy `cocondo.run-record.v1` format reserves its number only when an allowed patch command, a UUID artifact identity and the canonical full patch ID embedded in the artifact filename agree exactly. Exactly one `cocondo.patch-acceptance.v2` record establishes the canonical owner of a local number. Differently named terminal failed run attempts under that owner are retained as `IGNORE_AND_COUNT` while the accepted record reserves the number. Different delivery identities, non-failed runs, unresolved numeric acceptance records and multiple accepted owners remain blocking errors.
+
+```bash
+./bin/process-ops.sh delivery-inventory
+./bin/process-ops.sh delivery-next-id --name <canonical-name>
+./bin/process-ops.sh delivery-prepare --name <canonical-name> --revision <immutable-revision>
+```
+
+`delivery-prepare` stores the immutable preparation record below the Git-common delivery state and invokes the central workspace lifecycle. It does not publish an artifact and does not use an external artifact root. A current delivery can exclude itself exactly once through the explicit `--current-delivery` contract.
 
 ## 4. Generic long-running command
 
@@ -184,3 +210,8 @@ A process-tooling change is qualified in this order:
 6. explicit review and accept.
 
 Each stage writes its own log and terminal result. A generic outer `FAILED` state without the failed stage and log reference is insufficient evidence for retry or recovery.
+
+
+## 11. Tooling-hardening candidate boundary
+
+The implementation described in sections 3.1 through 3.3 is candidate source until canonical dry-run, separate accept and post-accept verification are complete. `PROJECT_READY` and the passing Process Operations Contract do not by themselves authorize Codex calibration or an external artifact write.

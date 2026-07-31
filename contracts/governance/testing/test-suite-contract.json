@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-suite-contract.v1",
-  "contractVersion": "1.2.0",
+  "contractVersion": "1.3.0",
   "status": "report-only",
   "ruleSource": "PROJECT_DOCS/GOVERNANCE/TEST_GOVERNANCE.md",
   "profileSources": {
@@ -259,7 +259,8 @@
         "bin/observability-contract-it.sh",
         "bin/patch-toolkit-activation-it.sh",
         "bin/process-ops-it.sh",
-        "bin/release-manifest-it.sh"
+        "bin/release-manifest-it.sh",
+        "bin/tooling-selfcheck-observability-it.sh"
       ],
       "engineeringProfiles": [
         "qualification",

@@ -24,7 +24,9 @@
     "gitRelativePathsUseCommonDirectory": true,
     "trackedWorkingTreeMutationForbidden": true,
     "operatorLogs": "CPROCESS_OPERATOR_LOG_DIRECTORY",
-    "operatorWorkspace": "CPROCESS_WORK_DIRECTORY"
+    "operatorWorkspace": "CPROCESS_WORK_DIRECTORY",
+    "processDeliveries": "CPROCESS_DELIVERY_DIRECTORY",
+    "artifactRootAuthorization": "CPROCESS_ARTIFACT_AUTHORIZATION_RECORD"
   },
   "workingTreePolicy": {
     "mutatingPatchRunsRequireCleanIntegrationWorktree": true,
@@ -52,9 +54,7 @@
       "resume",
       "watch",
       "wait",
-      "result",
-      "diagnose",
-      "incident"
+      "result"
     ],
     "defaultTerminalSafeExit": true,
     "strictExitMustBeExplicit": true,
@@ -89,7 +89,28 @@
       "workspace-export-excluded",
       "agent-workspace-write-forbidden",
       "operator-log-historical-tracked-sibling-compatible",
-      "operator-log-current-run-tracked-content-blocked"
+      "operator-log-current-run-tracked-content-blocked",
+      "workspace-before-every-writer",
+      "workspace-missing-root-blocked",
+      "workspace-mount-blocked",
+      "workspace-special-file-blocked",
+      "workspace-nested-repository-blocked",
+      "workspace-unresolved-run-blocked",
+      "artifact-root-explicit-authorization",
+      "artifact-root-config-only-blocked",
+      "artifact-root-canonical-binding",
+      "artifact-root-forbidden-locations",
+      "artifact-root-no-implicit-create",
+      "typed-delivery-inventory",
+      "known-historical-metadata-classified",
+      "generic-run-id-ignored",
+      "patch-run-id-reserved",
+      "legacy-numeric-patch-run-evidence-reserved",
+      "current-delivery-exact-once",
+      "unknown-delivery-entry-blocked",
+      "delivery-identity-conflict-blocked",
+      "selfcheck-substep-start-result-evidence",
+      "selfcheck-failed-substep-visible"
     ]
   },
   "implementation": {
@@ -124,21 +145,43 @@
       "failedFixtureStepRequired": true
     }
   },
-  "contractVersion": "1.1.1",
+  "contractVersion": "1.2.0",
   "operatorWorkspacePolicy": {
-    "scope": "one-current-patch-workflow",
+    "scope": "one-current-writer-workflow",
     "pathMustBeProjectRelative": true,
     "defaultDirectory": "patches/work",
-    "cleanupTrigger": "before-each-new-patch-dry-run-or-accept",
+    "rootMustAlreadyExist": true,
+    "implicitRootCreation": "forbidden",
+    "cleanupTrigger": "before-each-writer",
+    "writers": [
+      "workspace-start",
+      "patch-dry-run",
+      "patch-accept",
+      "diagnose",
+      "incident",
+      "diagnostic-handoff",
+      "delivery-prepare"
+    ],
     "observerMutationForbidden": true,
     "activeWorkflowCleanup": "block",
+    "unresolvedWorkflowCleanup": "block",
     "trackedContent": "block",
     "symlinkContent": "block",
     "nestedRepositoryContent": "block",
     "specialFileContent": "block",
     "mountPointContent": "block",
     "safeUntrackedTerminalWorkflowContent": "remove",
+    "workspaceRootPreserved": true,
+    "cleanupEvidenceFields": [
+      "operationId",
+      "operation",
+      "subject",
+      "removedEntryCount",
+      "removedEntryListSha256",
+      "preparedAt"
+    ],
     "workspaceRecord": "WORKSPACE.json",
+    "workspaceRecordSchema": "cocondo.operator-workspace.v2",
     "diagnosticHandoffCommand": "diagnostic-handoff",
     "diagnosticArchiveCount": 1,
     "agentWritePolicy": "forbidden"
@@ -156,5 +199,126 @@
     "currentRunDirectoryTrackedContent": "block",
     "currentRunDirectoryIgnored": "required",
     "runDirectoryPattern": "<operator-log-root>/<patch-id>/<run-id>"
+  },
+  "writerPolicy": {
+    "commands": [
+      "workspace-start",
+      "patch-dry-run",
+      "patch-accept",
+      "diagnose",
+      "incident",
+      "diagnostic-handoff",
+      "delivery-prepare"
+    ],
+    "centralFacade": "bin/process-ops.sh",
+    "workspaceStartRequired": true,
+    "freeChatOrchestration": "forbidden",
+    "workerStartBeforePreflight": "forbidden"
+  },
+  "artifactRootAuthorizationPolicy": {
+    "configurationIsAuthorization": false,
+    "configurationSources": [
+      "COCONDO_ARTIFACT_ROOT",
+      "git-config:cocondo.artifactRoot"
+    ],
+    "configurationAmbiguity": "BLOCKING_TOOL_ERROR",
+    "rootMustAlreadyExist": true,
+    "implicitRootCreation": "forbidden",
+    "canonicalPathRequired": true,
+    "authorizationRecord": "CPROCESS_ARTIFACT_AUTHORIZATION_RECORD",
+    "recordSchema": "cocondo.artifact-root-authorization.v1",
+    "recordBinding": [
+      "projectId",
+      "configuredPath",
+      "canonicalPath",
+      "device",
+      "inode"
+    ],
+    "forbiddenLocations": [
+      "repository",
+      "git-common-directory",
+      "operator-home",
+      "downloads",
+      "system-temporary-directories"
+    ],
+    "unauthorizedWorkerStart": "block",
+    "remediationStateRoot": "CPROCESS_DELIVERY_DIRECTORY"
+  },
+  "deliveryInventoryPolicy": {
+    "deliveryRoot": "CPROCESS_DELIVERY_DIRECTORY",
+    "runRoot": "CPATCH_RUN_DIRECTORY",
+    "entryPolicies": {
+      "deliveryDirectory": "RESERVE",
+      "knownHistoricalMetadata": "IGNORE_AND_COUNT",
+      "genericRunRecord": "IGNORE_AND_COUNT",
+      "patchRunRecord": "RESERVE",
+      "legacyNumericPatchRunRecord": "RESERVE",
+      "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",
+      "unknownRegularFile": "BLOCKING_TOOL_ERROR",
+      "symlink": "BLOCKING_TOOL_ERROR",
+      "specialFile": "BLOCKING_TOOL_ERROR",
+      "unreadableOrInconsistentJson": "BLOCKING_TOOL_ERROR",
+      "identityConflict": "BLOCKING_TOOL_ERROR",
+      "acceptedPatchRecord": "RESERVE",
+      "historicalFailedRunUnderAcceptedOwner": "IGNORE_AND_COUNT"
+    },
+    "knownMetadataPatterns": [
+      "*-accept-discovery.env",
+      "*-accept-run-*-result.env",
+      "*-accept-run-*-start.json",
+      "*-dry-run-result.json",
+      "*-dry-run-run-*-start.json",
+      "*-post-accept-result.json",
+      "*-artifact-zip-test.log",
+      "*-process-operations-revision*.env",
+      "*-process-operations-revision*.json",
+      "*-process-ops-resolve.env",
+      "*-revision-prepare.run-id",
+      "*-final.env",
+      "*-process-ops-git-fixture-hermeticity.env",
+      "*-workspace-check.json",
+      "*-workspace-init.json"
+    ],
+    "patchScopeFields": [
+      "artifactId",
+      "operation",
+      "workflow"
+    ],
+    "patchIdPattern": "^[0-9]{6}_[A-Za-z0-9][A-Za-z0-9._-]*$",
+    "deliveryIdPattern": "^[0-9]{6}-[A-Za-z0-9][A-Za-z0-9._-]*$",
+    "freeTextNumbersReserveIdentity": false,
+    "currentDeliveryMatchCount": 1,
+    "nextIdSource": "typed-reserved-identities-only",
+    "legacyNumericPatchRunCompatibility": {
+      "policy": "RESERVE",
+      "recordSchema": "cocondo.run-record.v1",
+      "commands": [
+        "patch-dry-run",
+        "patch-accept"
+      ],
+      "numericPatchIdPattern": "^[0-9]{6}$",
+      "canonicalPatchIdSource": "metadata.artifactFile",
+      "artifactFilePattern": "^[A-Za-z0-9._-]+__(?P<patchId>[0-9]{6}_[A-Za-z0-9][A-Za-z0-9._-]*)__+(?P<artifactToken>[0-9a-fA-F]{8})\\.zip$",
+      "artifactIdPattern": "^urn:uuid:(?P<artifactToken>[0-9a-fA-F]{8})-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "requirePatchNumberMatch": true,
+      "requireArtifactTokenMatch": true,
+      "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR"
+    },
+    "acceptedPatchAuthority": {
+      "policy": "RESERVE",
+      "recordSchema": "cocondo.patch-acceptance.v2",
+      "artifactIdPattern": "^urn:uuid:(?P<artifactUuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+      "numericPatchIdPattern": "^[0-9]{6}$",
+      "numericResolutionCommand": "patch-accept",
+      "numericResolutionStatus": "SUCCEEDED",
+      "historicalFailedStatuses": [
+        "ABORTED",
+        "FAILED",
+        "INCONSISTENT",
+        "ORPHANED"
+      ],
+      "differentDeliveryOrNonFailedRun": "BLOCKING_TOOL_ERROR",
+      "multipleAcceptedOwners": "BLOCKING_TOOL_ERROR"
+    }
   }
 }
