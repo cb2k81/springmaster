@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-07-28
+lastReviewedAt: 2026-07-31
 reviewBy: 2026-10-22
 supersedes: []
 supersededBy: null
@@ -48,6 +48,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/ADR/README.md`
 ## CONCEPT
 
+- `PROJECT_DOCS/CONCEPT/CROSS_APP_BACKEND_GWC_TARGET_ARCHITECTURE_CONCEPT.md` — review target architecture for cross-app backend standardization and deterministic GWC integration
 - `PROJECT_DOCS/CONCEPT/PLATFORM_VERSION_TRUTH.md`
 - `PROJECT_DOCS/CONCEPT/PATCH_ARCHIVE_AND_ROLLBACK_POLICY.md`
 - `PROJECT_DOCS/CONCEPT/SPRINGMASTER_BOOTSTRAP.md`
@@ -177,6 +178,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/STATUS.md` — single current status source for the active pilot sprint
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/COMPLETION_REPORT.md` — durable draft qualification and closure report
 
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — review solution and execution plan for the cross-app backend contract foundation and GWC readiness sprint
+
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
 
@@ -262,3 +265,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |
 | 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |
 | 2026-07-28 | active | active | Canonical project goals and complete active Sprint 002 harness indexed |
+| 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |
