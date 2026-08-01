@@ -248,7 +248,7 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         "bubblewrapSmoke": [str(bwrap), "--ro-bind", "/", "/", "--proc", "/proc", "--dev", "/dev", "--unshare-pid", "--die-with-parent", "/usr/bin/true"],
         "codexVersion": [str(codex), "--version"],
         "codexExecHelp": [str(codex), "exec", "--help"],
-        "codexInnerSandboxSmoke": [str(codex), "sandbox", "linux", "--", "/usr/bin/true"],
+        "codexInnerSandboxSmoke": [str(codex), "sandbox", "--", "/usr/bin/true"],
         "gitVersion": ["git", "--version"],
         "pythonVersion": [sys.executable, "--version"],
     }.items():
@@ -335,11 +335,11 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
         results.append({"id": "background-writer", "expectedOutcome": "DENIED", "outcome": "DENIED" if not background.exists() else "PASS", "exitCode": completed.returncode})
         background.unlink(missing_ok=True)
         inner_cases = [
-            ("inner-sandbox-smoke", "PASS", [str(codex), "sandbox", "linux", "--", "/usr/bin/true"]),
-            ("inner-worktree-write", "PASS", [str(codex), "sandbox", "linux", "--", "/bin/sh", "-eu", "-c", f"printf PASS > {json.dumps(str(task / '.codex-inner-write'))}"]),
-            ("inner-auth-read", "DENIED", [str(codex), "sandbox", "linux", "--", "/bin/cat", "/run/codex-home/auth.json"]),
-            ("inner-network-egress", "DENIED", [str(codex), "sandbox", "linux", "--", "/bin/sh", "-eu", "-c", "exec 3<>/dev/tcp/1.1.1.1/53"]),
-            ("inner-git-common-write", "DENIED", [str(codex), "sandbox", "linux", "--", "/bin/sh", "-eu", "-c", f"printf X > {json.dumps(str(ctx['gitCommon'] / '.codex-inner-denied'))}"]),
+            ("inner-sandbox-smoke", "PASS", [str(codex), "sandbox", "--", "/usr/bin/true"]),
+            ("inner-worktree-write", "PASS", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", f"printf PASS > {json.dumps(str(task / '.codex-inner-write'))}"]),
+            ("inner-auth-read", "DENIED", [str(codex), "sandbox", "--", "/bin/cat", "/run/codex-home/auth.json"]),
+            ("inner-network-egress", "DENIED", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", "exec 3<>/dev/tcp/1.1.1.1/53"]),
+            ("inner-git-common-write", "DENIED", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", f"printf X > {json.dumps(str(ctx['gitCommon'] / '.codex-inner-denied'))}"]),
         ]
         for probe_id, expected, argv in inner_cases:
             completed = run(prefix_rw + argv, timeout=30)

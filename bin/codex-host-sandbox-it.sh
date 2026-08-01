@@ -82,8 +82,10 @@ if args==['--version']:
  print('codex-cli fixture-1'); raise SystemExit(0)
 if args[:2]==['exec','--help']:
  print('fixture exec help'); raise SystemExit(0)
-if args[:2]==['sandbox','linux']:
- cmd=args[3:] if len(args)>2 and args[2]=='--' else args[2:]
+if args and args[0]=='sandbox':
+ if len(args)<3 or args[1]!='--' or args[2]=='linux':
+  raise SystemExit(92)
+ cmd=args[2:]
  joined=' '.join(cmd)
  if cmd==['/usr/bin/true']:
   raise SystemExit(0)
