@@ -11,6 +11,23 @@
     "separateDryRunRequired": true,
     "separatePromotionRequired": true
   },
+  "changeBundle": {
+    "entrypoint": "bin/codex-change-bundle.sh",
+    "mayAccept": false,
+    "mayCommit": false,
+    "mayCreateCanonicalPatch": false,
+    "mayDryRun": false,
+    "requiresExactBaseCommit": true,
+    "requiresExactSourceAndTargetHashes": true,
+    "requiresImplementationTask": true,
+    "requiresTaskAllowedPathSubset": true,
+    "schemaPath": "contracts/governance/agent/codex-change-bundle.schema.json",
+    "schemaVersion": "springmaster.codex-change-bundle.v1",
+    "storage": "external-artifact-root-read-only",
+    "supportsDeliveryId": false,
+    "supportsPatchId": false,
+    "writeBoundary": "prepared-task-worktree-only"
+  },
   "commands": {
     "arbitraryCommandOperation": "forbidden",
     "forbiddenCommandFamilies": [
@@ -65,7 +82,7 @@
     "requiredStatusBeforePromotion": "PASS",
     "writableCodexAuthorized": false
   },
-  "contractVersion": "1.4.0",
+  "contractVersion": "1.5.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -144,6 +161,9 @@
       "LC_ALL",
       "LOGNAME",
       "PATH",
+      "SPRINGMASTER_AGENT_TASK_CONTRACT",
+      "SPRINGMASTER_AGENT_TASK_ID",
+      "SPRINGMASTER_CODEX_CHANGE_BUNDLE",
       "TMPDIR",
       "TZ",
       "USER"
@@ -314,6 +334,18 @@
     "missing-live-confinement-evidence",
     "patch-handoff-bypass"
   ],
+  "taskAuthorization": {
+    "calibrationPlanFileName": "calibration-plan.json",
+    "calibrationPlanSchemaVersion": "springmaster.codex-calibration-plan.v1",
+    "calibrationPlanStatus": "MATERIALIZED",
+    "failClosedOnUnknownLifecycle": true,
+    "postPromotionLifecycles": [
+      "PILOT_WRITE_READY",
+      "PILOT_COMPLETED"
+    ],
+    "prePromotionLifecycle": "PROJECT_READY",
+    "prePromotionTaskSource": "sibling-calibration-plan"
+  },
   "taskContract": {
     "baseCommitMustEqualIntegrationHeadAtPrepare": true,
     "immutableAfterPrepare": true,

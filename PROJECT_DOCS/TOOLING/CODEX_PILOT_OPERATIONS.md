@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-01
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -68,23 +68,25 @@ NEXT_ACTION=CODEX_CALIBRATION
 WRITABLE_CODEX_AUTHORIZED=false
 ```
 
-For the current sprint, `NEXT_ACTION=CODEX_CALIBRATION` names the next lifecycle state; it is not an executable operator authorization. The current operational state is:
+For the current sprint, `NEXT_ACTION=CODEX_CALIBRATION` names the next lifecycle state; it is not an executable operator authorization. Tooling hardening `000201_springmaster_tooling_hardening_cut` is accepted. The current operational state is:
 
 ```text
 FORMAL_REPOSITORY_READINESS=PROJECT_READY
 NEXT_LIFECYCLE_STATE=CODEX_CALIBRATION
-NEXT_ACTION_EXECUTABLE=false
-NEXT_ACTION_BLOCKER=TOOLING_HARDENING
+NEXT_ACTION=POST_ACCEPT_LIVE_READINESS_AND_HOST_QUALIFICATION
+NEXT_ACTION_EXECUTABLE=true
+NEXT_ACTION_BLOCKER=NONE
 WRITABLE_CODEX_AUTHORIZED=false
+PILOT_WRITE_READY=false
 ```
 
-Calibration remains blocked until one accepted tooling cut jointly closes the central writer-workspace lifecycle, explicit artifact-root authorization, typed delivery and patch-ID inventory, durable selfcheck substep evidence and harness-bound operator execution. Attempts `000197` through `000200` are incident evidence only and are not accepted source changes.
+`000203_springmaster_codex_cutover_foundation` is canonically accepted and provides the repository-side confinement, host-qualification and calibration foundation at Platform `0.23.0-foundation` and Tooling `0.13.0`. Attempts `000197` through `000200` remain incident evidence only.
 
-After that cut is accepted and post-accept verification succeeds, live readiness must be rerun with explicitly authorized existing roots. Only then may a fresh calibration task pack be prepared against the actual live commit. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
+Live readiness must now be rerun with explicitly authorized existing roots against accepted commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Host inspection and mechanical probes must then pass on the actual DEV system before the calibration task pack is materialized. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
 
 ## 4. Agent task preparation
 
-Only after the operational hold above has been lifted, a calibration task is prepared from an immutable Task Contract V2:
+Only after the operational hold above has been lifted, a calibration task is prepared from an immutable Task Contract V2. While the committed lifecycle is `PROJECT_READY`, `agent-task prepare` accepts only task files whose exact path and SHA-256 are registered in the sibling materialized `calibration-plan.json`:
 
 ```bash
 ./bin/agent-task.sh validate /absolute/path/to/task.json
@@ -165,6 +167,8 @@ Danach endet die Agentautorität. Der Operator übernimmt den Handoff in einen g
 
 ## 9. Live-Confinement-Abnahme auf dem DEV-System
 
+Die äußere Sandbox verwirft die geerbte Umgebung. Ihr `PATH` ist fest auf `/usr/local/bin:/usr/bin:/bin` gesetzt; der Operator- beziehungsweise Host-`PATH` wird nicht übernommen.
+
 Vor `PILOT_WRITE_READY` müssen reale Codex-Aufrufe die Evidence nach `contracts/governance/agent/codex-confinement-contract.json` erzeugen. Der Abschluss wird ausschließlich aus einem externen Evidence-Root geprüft:
 
 ```bash
@@ -212,3 +216,39 @@ Die Repository-Foundation stellt folgende kanonische Entrypoints bereit:
 `inspect`, `probe` und `invoke` müssen auf demselben Host und Baseline-Commit laufen. Die Host-Evidence ist nicht portabel. Die zwei Implementierungstasks werden erst nach Host-PASS vorbereitet, jeweils über `agent-task` qualifiziert und als nicht kanonischer Handoff übergeben. Dry-run und Accept bleiben getrennte Operatoraktionen.
 
 Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover-Foundation-Lauf bereinigt und sind kein Readiness-Blocker. Der Harness blockiert weiterhin aktive Runs, Locks, Pfadüberschneidungen und unklare Autorität.
+
+## Lifecycle
+
+| Date | Change |
+|---|---|
+| 2026-08-01 | Acceptance of `000203` reflected; next operator stage set to Post-Accept Live Readiness, host qualification and plan-bound calibration. |
+
+## 12. Patch-ID-freies Change Bundle im Task-Worktree
+
+Für eine ausdrücklich autorisierte Implementierungsaufgabe kann der Operator ein unveränderliches Bundle unter dem externen Artefakt-Root bereitstellen und beim realen Codex-Aufruf binden:
+
+```bash
+./bin/codex-host-sandbox.sh invoke \
+  --task-id <task-id> \
+  --prompt <prompt.txt> \
+  --model <model> \
+  --change-bundle "${COCONDO_ARTIFACT_ROOT:?}/codex-change-bundles/<bundle>.zip" \
+  --out <invocation.json>
+```
+
+Der Prompt darf Codex anschließend ausschließlich zum folgenden Befehl anweisen:
+
+```bash
+./bin/codex-change-bundle.sh apply
+```
+
+Die Schnittstelle prüft den vorbereiteten Task Contract, den detached Base-Commit, den externen Artefakt-Root, alle Pfade, Source-/Target-Hashes und Modi, bevor sie Bytes im Task-Worktree ändert. Eine erneute Ausführung ist nur bei vollständig erreichtem Zielzustand idempotent. Gemischte oder gedriftete Zustände blockieren.
+
+Das Bundle ersetzt weder Qualification noch Handoff. Insbesondere sind folgende Fähigkeiten nicht enthalten:
+
+- Commit oder Branchänderung;
+- Candidate- oder Integrationsmutation;
+- Patch-/Delivery-ID-Vergabe;
+- `cpatch create`;
+- Patch-Dry-run;
+- Patch-Accept.

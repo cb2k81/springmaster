@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-01
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -21,7 +21,7 @@ sprintId: SPRINGMASTER-SPRINT-002
 sprintPhase: execution
 overallStatus: blocked
 lastDriftResult: stop-and-replan
-lastDriftAt: 2026-07-30
+lastDriftAt: 2026-08-01
 expectedVersionImpact: minor
 ---
 
@@ -29,41 +29,43 @@ expectedVersionImpact: minor
 
 ## Aktueller Stand
 
-Die dauerhafte Zielquelle und der vollständige aktive Sprintvertrag sind angelegt. Akzeptierte Source-Baseline ist `c5c5846176d92c34b19b7a7827d7264c1923805f` mit Plattform `0.21.1-foundation`, Tooling `0.11.3`, Patch Toolkit `1.1.2` und State Patch `000196_springmaster_directory_governance_runtime_audit_closure`.
+Die Tooling-Härtung `000201_springmaster_tooling_hardening_cut` und die Codex-Cutover-Foundation `000203_springmaster_codex_cutover_foundation` sind kanonisch akzeptiert. Der saubere Integrationsstand ist `93ab563cc1e82bc801907399602fe04e6d37e2f7` mit Platform `0.23.0-foundation`, Tooling `0.13.0` und State Patch `000203_springmaster_codex_cutover_foundation`.
+
+Die vorliegende Stabilisierung bindet `agent-task prepare` unter `PROJECT_READY` fail-closed an den materialisierten Calibration Plan, erzeugt gültige Calibration Tasks und verhindert die Übernahme eines Host-`PATH` in die äußere Codex-Sandbox. Sie autorisiert weder reguläre Feature-Tasks noch schreibende Codex-Nutzung.
 
 ```text
 FORMAL_REPOSITORY_READINESS=PROJECT_READY
 NEXT_LIFECYCLE_STATE=CODEX_CALIBRATION
-NEXT_ACTION_EXECUTABLE=false
-NEXT_ACTION_BLOCKER=TOOLING_HARDENING
+NEXT_ACTION=POST_ACCEPT_LIVE_READINESS_AND_HOST_QUALIFICATION
+NEXT_ACTION_EXECUTABLE=true
+NEXT_ACTION_BLOCKER=NONE
 WRITABLE_CODEX_AUTHORIZED=false
+PILOT_WRITE_READY=false
 ```
 
-`PROJECT_READY` bleibt der formale Repositoryzustand. Die tatsächliche Vorbereitung oder Ausführung von `CODEX_CALIBRATION` ist wegen neu erkannter Tooling-Blocker ausgesetzt. Der frühere D3-Kandidat und die Payloads der Versuche `000197` bis `000200` werden nicht weiterverwendet. Kalibrierungs-Tasks und Oracles dürfen erst nach akzeptierter Härtung gegen den dann tatsächlichen Live-Commit neu erzeugt werden.
-
-Der vollständige Tooling-Härtungscandidate ist inzwischen implementiert und der Live-Resolver hat `000201_springmaster_tooling_hardening_cut` mit `UNKNOWN_ENTRY_COUNT=0` bestimmt. Der Candidate schließt die Versionen auf Platform `0.22.0-foundation` und Tooling `0.12.0`; er bleibt `NOT_ACCEPTED`. Der operative Blocker besteht jetzt aus vollständiger Regression, breiter Qualification, kanonischem Dry-run, separatem Accept und Post-Accept-Verifikation, nicht mehr aus fehlender Implementierung oder Patch-ID-Auflösung.
+`PROJECT_READY` bleibt der formale Repositoryzustand. Der nächste zulässige Operatorabschnitt umfasst Post-Accept-Live-Readiness, hostgebundene Bubblewrap-Qualification und die Materialisierung des Calibration Task Packs gegen den akzeptierten Live-Commit. Reale Codex-Aufrufe bleiben auf die kanonische Kalibrierung begrenzt. Die Versuche `000197` bis `000200` bleiben ausschließlich Incident-Evidence und werden nicht wiederverwendet.
 
 ## Teilziele
 
 | ID | Status | Evidence oder Blocker |
 |---|---|---|
 | M-001 | completed | Kanonische Zielquelle, vier aktive Sprintdokumente und Indexeinträge; Qualification durch Documentation Gate, Sprint Gate, Payload- und Patch-Preflight. |
-| M-002 | blocked | Neuer Task-/Oracle-Schnitt erst nach akzeptierter Tooling-Härtung gegen die dann aktuelle Live-Baseline zulässig. |
-| M-003 | planned | Keine Codex-Ausführung und keine Write-Promotion im Initialisierungsschnitt. |
+| M-002 | in-progress | Materializer, Host-Sandbox und Calibration-Harness sind vorhanden; das autoritative Task-Pack wird nach bestandener Post-Accept-Live-Readiness und Host-Qualification gegen den akzeptierten Live-Commit materialisiert. |
+| M-003 | blocked | Reale Host-Qualification, zwei akzeptierte Kalibrierungsaufgaben und separate Write-Promotion stehen aus. |
 | M-004 | planned | Business-Partner-Fachkonzept und Acceptance Contract sind vorhanden; Contract-Kette und disposable App noch nicht ausgeführt. |
 | M-005 | planned | Repeatability-, V1.1-, Effizienz- und Closure-Evidence stehen aus. |
 
 ## Blocker und Erkenntnisse
 
-Der frühere Status „kein Projekt-Readiness-Blocker“ vom 28. Juli 2026 ist fachlich überholt. Formal bleibt das Repository `PROJECT_READY`; operativ blockiert `TOOLING_HARDENING` den Übergang zu `CODEX_CALIBRATION`.
+Die früheren Blocker `TOOLING_HARDENING` und `CODEX_CUTOVER_FOUNDATION_ACCEPTANCE` sind durch die kanonischen Acceptances von `000201` und `000203` geschlossen. Formal bleibt das Repository `PROJECT_READY`; der nächste kontrollierte Abschnitt ist operativ ausführbar, ohne dadurch schreibende Codex-Nutzung zu autorisieren.
 
 Aktuelle P0-/P1-Blocker:
 
-- die implementierte zentrale Workspace-Lifecycle-, Artefakt-Root-Autorisierungs-, Inventory- und Selfcheck-Lösung muss noch die vollständige positive und negative Regressionsmatrix bestehen;
-- der breite Tooling-Selfcheck und die risikogerechten Projektprofile einschließlich der vier kritischen sichtbaren Selfcheck-Result-Marker stehen noch aus;
-- der Candidate ist noch nicht durch kanonischen Dry-run, separates Review, expliziten Accept und Post-Accept-Export in `main` integriert;
-- der Legacy-Pfad unter `/home/cb/Downloads/cocondo-artifacts` bleibt ohne exakten Git-common Authorization Record unzulässig und wird vom Candidate fail-closed vor Workerstart blockiert;
-- bis zur akzeptierten Closure bleiben `NEXT_ACTION_EXECUTABLE=false` und `WRITABLE_CODEX_AUTHORIZED=false`.
+- die Live-Readiness muss gegen den akzeptierten Commit und explizit autorisierte externe Roots erneut ausgeführt werden;
+- Host-Inspection und alle mechanischen Confinement-Probes müssen auf dem realen DEV-System bestehen;
+- das Calibration Task Pack muss gegen den akzeptierten Commit materialisiert werden; unter `PROJECT_READY` dürfen nur dessen bytegenau registrierte Tasks vorbereitet werden;
+- zwei implementierende Kalibrierungsaufgaben müssen über Handoff, Candidate, `cpatch create`, separaten Dry-run und separaten Accept qualifiziert werden;
+- die Promotion zu `PILOT_WRITE_READY` bleibt eine eigene committed Entscheidung; bis dahin gelten `WRITABLE_CODEX_AUTHORIZED=false` und `PILOT_WRITE_READY=false`.
 
 Die Versuche `000197` bis `000200` sind keine akzeptierten Source-Änderungen:
 
@@ -78,26 +80,23 @@ Keine Payload dieser Versuche darf als implementierte Funktion, Candidate-Quelle
 
 ## Drift-Bewertung
 
-Ergebnis: `stop-and-replan`.
+Ergebnis: `controlled-resume`.
 
-Der Lifecycle-Vertrag `PROJECT_READY -> CODEX_CALIBRATION` bleibt formal konsistent. Die operative Ausführung war jedoch gegenüber dem tatsächlichen Host- und Toolingzustand zu optimistisch dokumentiert. Sprint Brief, Solution Plan, Completion Report, Codex Operations Guide und Project Directory Governance werden deshalb auf denselben Hardening-Blocker ausgerichtet. Vor Candidate-Dry-run, Accept, Kalibrierung, Write-Promotion, Qualification und Closure ist jeweils eine erneute Driftprüfung erforderlich.
+Der Lifecycle-Vertrag `PROJECT_READY -> CODEX_CALIBRATION` ist formal und technisch konsistent. Die Acceptances von `000201` und `000203` erlauben die kontrollierte Wiederaufnahme mit Post-Accept-Live-Readiness und Host-Qualification. Vor Kalibrierung, Write-Promotion, Business-Partner-Pilot, Qualification und Closure bleibt jeweils eine erneute Driftprüfung erforderlich.
 
 ## Risiken und technische Schulden
 
-- Legacy-Read-only-Patchvalidatoren und die kanonische Toolkit-Scope-Registry verwenden unterschiedliche Konfigurationsquellen; der Härtungsschnitt muss die kanonische Quelle beibehalten, ohne Scopegrenzen zu erweitern.
-- Der vollständige P0-Schnitt muss Workspace-Lifecycle, Artefakt-Autorisierung, typisiertes Inventory und harnessgebundene Ausführung gemeinsam schließen; Selfcheck-Observability ist Bestandteil derselben Qualification.
-- Die Project Directory Governance bleibt bis zur belastbaren technischen Closure `draft` und darf keine eigenständige neue Schreibberechtigung begründen.
 - Die reale Codex-Runtime und deren Denial-Probes sind noch nicht als aktuelle Acceptance-Evidence vorhanden.
 - Application UI Spec und GWC Implementation Manifest besitzen noch keinen in diesem Sprint qualifizierten End-to-End-Nachweis.
 - Der Sprintzeitraum ist eine Steuerungsannahme; bei Überschreitung ist eine aktuelle Driftbewertung zwingend.
 
 ## Versionswirkung
 
-Der Tooling-Härtungscandidate ist als kompatibler `minor`-Impact klassifiziert. Der final zusammenhängende Candidate setzt Platform `0.22.0-foundation`, Tooling `0.12.0` und `PLATFORM_STATE_PATCH=000201_springmaster_tooling_hardening_cut`. Diese Werte sind noch kein akzeptierter Releasezustand; sie werden erst durch den separaten kanonischen Accept zur Live-Wahrheit.
+`000201_springmaster_tooling_hardening_cut` und `000203_springmaster_codex_cutover_foundation` sind akzeptiert. Die aktuelle Versionswahrheit bleibt Platform `0.23.0-foundation`, Tooling `0.13.0` und `PLATFORM_STATE_PATCH=000203_springmaster_codex_cutover_foundation`. Die Stabilisierung ist ein kompatibler Tooling-Patch innerhalb dieser Foundation und führt keine Release- oder Write-Promotion durch.
 
 ## Nächster kontrollierter Schritt
 
-Der version- und resolvergeschlossene Candidate `000201_springmaster_tooling_hardening_cut` wird jetzt gegen die vollständige positive und negative Regressionsmatrix sowie den breiten Tooling-Selfcheck und die risikogerechten Projektprofile qualifiziert. Erst danach folgen kanonischer Dry-run, separates Review, expliziter Accept, Post-Accept-Verifikation und erneute Live-Readiness. Vorher erfolgt kein Codex-Aufruf.
+Als Nächstes werden Post-Accept-Live-Readiness und reale Host-Qualification gegen `93ab563cc1e82bc801907399602fe04e6d37e2f7` ausgeführt. Danach wird das Calibration Task Pack materialisiert und geprüft. Vor erfolgreicher Host-Qualification erfolgt kein realer Codex-Aufruf; vor separater Promotion erfolgt keine reguläre schreibende Codex-Nutzung.
 
 ## Lifecycle
 
@@ -106,3 +105,5 @@ Der version- und resolvergeschlossene Candidate `000201_springmaster_tooling_har
 | 2026-07-28 | – | active | Erste kanonische Statusquelle für Sprint 002 angelegt; M-001 abgeschlossen, Kalibrierung noch nicht gestartet. |
 | 2026-07-30 | active | blocked | Status auf Tooling-Härtung vor Kalibrierung korrigiert; `000197` bis `000200` als nicht akzeptierte Incident-Evidence klassifiziert. |
 | 2026-07-30 | blocked | blocked | Candidate `000201` implementiert, Live-Inventory konfliktfrei aufgelöst und Version Closure auf `0.22.0-foundation` / `0.12.0` gesetzt; vollständige Qualification und Acceptance bleiben offen. |
+| 2026-07-31 | blocked | blocked | Acceptance von `000201` nachvollzogen; aktueller Blocker auf kanonische Acceptance von `000203`, reale Host-Qualification und Kalibrierung fortgeschrieben. |
+| 2026-08-01 | blocked | blocked | Acceptance von `000203` aus dem kanonischen Delivery-Inventory bestätigt; nächster Abschnitt auf Post-Accept-Live-Readiness, Host-Qualification und plan-gebundene Kalibrierung fortgeschrieben. |

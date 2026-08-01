@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "status": "active",
   "supportedHost": {
     "operatingSystem": "Linux",
@@ -25,6 +25,8 @@
     "sandboxPrivateTmp": "ephemeral-tmpfs",
     "sandboxPrivateCodexHome": "ephemeral-host-directory-destroyed-after-invocation",
     "environment": "cleared-and-allowlisted",
+    "hostPathInheritance": "forbidden",
+    "sandboxPath": "/usr/local/bin:/usr/bin:/bin",
     "additionalWritableRoots": []
   },
   "portableRoles": [

@@ -90,7 +90,7 @@ def task(task_id: str, mode: str, baseline: str, allowed: list[str], classes: li
             ".git/**", ".cocondo/**", "patches/**", "exports/**", "target/**", "build/**", "tmp/**",
             "platform/versions/**", "pom.xml"
         ],
-        "limits": {"maxChangedFiles": 1 if mode == "implementation" else 0, "maxNetAddedBytes": 4096},
+        "limits": {"maxChangedFiles": 1 if mode == "implementation" else 0, "maxNetAddedBytes": 4096 if mode == "implementation" else 0},
         "capabilities": {
             "mayModifyTests": mode == "implementation",
             "mayModifyGovernance": False,
@@ -120,21 +120,23 @@ def materialize(project: Path, output: Path, baseline: str) -> dict[str, Any]:
     require(HEX40.fullmatch(baseline) is not None, "BASELINE_INVALID", "Baseline commit must be a 40-character lowercase Git hash", baseline=baseline)
     require(not output.exists(), "OUTPUT_EXISTS", "Calibration output directory already exists", path=str(output))
     fixtures = project / "src/test/resources/tooling/codex-calibration-v1"
-    task1 = (fixtures / "task-1.txt").read_text(encoding="utf-8")
-    task2 = (fixtures / "task-2.txt").read_text(encoding="utf-8")
+    (fixtures / "task-1.txt").read_text(encoding="utf-8")
+    (fixtures / "task-2.txt").read_text(encoding="utf-8")
     output.mkdir(parents=True, mode=0o700)
     diff_check = {"id": "diff-check", "argv": ["git", "diff", "--check"], "timeoutSeconds": 30}
-    fixture_check = {"id": "fixture-check", "argv": ["python3", "bin/codex-calibration-fixture-check.py"], "timeoutSeconds": 30}
+    fixture_check = {"id": "targeted-check", "argv": ["python3", "bin/codex-calibration-fixture-check.py"], "timeoutSeconds": 30}
     tasks = [
         (
-            "CODEX-CALIBRATION-ANALYSIS-001", "analysis", [], ["test"], [],
+            "CODEX-CALIBRATION-ANALYSIS-001", "analysis", ["src/test/resources/tooling/codex-calibration-v1/**"], ["analysis"], [diff_check],
             "Read-only analysis. Do not modify any file. Identify the two calibration fixture tasks and report the exact paths only."
         ),
         (
-            "CODEX-CALIBRATION-IMPLEMENTATION-001", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-1.txt"], ["fixture", "test"], [diff_check, fixture_check], task1
+            "CODEX-CALIBRATION-IMPLEMENTATION-001", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-1.txt"], ["fixture", "test"], [diff_check, fixture_check],
+            "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
         ),
         (
-            "CODEX-CALIBRATION-IMPLEMENTATION-002", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-2.txt"], ["fixture", "test"], [diff_check, fixture_check], task2
+            "CODEX-CALIBRATION-IMPLEMENTATION-002", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-2.txt"], ["fixture", "test"], [diff_check, fixture_check],
+            "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
         ),
     ]
     entries = []

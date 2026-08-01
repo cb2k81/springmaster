@@ -471,3 +471,10 @@ Named long-running operations that must not overlap are started through `bin/pro
 - Danach sind genau zwei unabhängige Implementierungsaufgaben erforderlich. Jede endet im nicht kanonischen `agent-task handoff` und durchläuft getrennt Candidate, Dry-run und Accept.
 - Alte inaktive Worktrees, alte Diagnosearchive und ein fehlender Komfortexport blockieren den Cutover nicht. Aktive Writer, gehaltene Locks, Pfadüberschneidungen, unklare Baselines oder fehlende Boundary-Evidence blockieren weiterhin fail-closed.
 - Kein Foundation-, Host- oder Kalibrierungs-PASS setzt `WRITABLE_CODEX_AUTHORIZED` oder `PILOT_WRITE_READY` automatisch auf `true`; die Promotion bleibt ein separater akzeptierter Schnitt.
+
+### Codex Change Bundle
+
+- Ein lokaler Codex-Lauf darf deklarative Änderungsbytes nur über `bin/codex-change-bundle.sh apply` in seinem vorbereiteten detached Task-Worktree materialisieren.
+- Das Bundle liegt read-only unter dem externen Artefakt-Root und bindet Task-ID, Base-Commit, exakte Pfade, Source-/Target-SHA-256 und Modi. Bundle und Task Contract müssen exakt zusammenpassen.
+- Change Bundles enthalten keine Patch-ID, Delivery-ID, Kommandos oder Integrationsautorität. `agent-task handoff`, kontrollierte Candidate-Anwendung, `cpatch create`, Dry-run und Accept bleiben getrennte vertrauenswürdige Operatorgrenzen.
+- Vor `PILOT_WRITE_READY` dürfen nur die freigegebenen Kalibrierungsbundles verwendet werden.

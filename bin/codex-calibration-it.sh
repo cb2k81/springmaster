@@ -18,9 +18,18 @@ p=json.load(open(root/'calibration-plan.json'))
 assert p['status']=='MATERIALIZED' and p['taskCount']==3 and p['implementationTaskCount']==2 and p['baselineCommit']==base
 modes=[json.load(open(root/x['task']['path']))['mode'] for x in p['tasks']]
 assert modes==['analysis','implementation','implementation']
+analysis=json.load(open(root/p['tasks'][0]['task']['path']))
+assert analysis['allowedPaths']==['src/test/resources/tooling/codex-calibration-v1/**']
+assert analysis['limits']=={'maxChangedFiles':0,'maxNetAddedBytes':0}
+assert [x['id'] for x in analysis['qualificationCommands']]==['diff-check']
 assert json.load(open(root/p['tasks'][1]['task']['path']))['allowedPaths']==['src/test/resources/tooling/codex-calibration-v1/task-1.txt']
 assert json.load(open(root/p['tasks'][2]['task']['path']))['allowedPaths']==['src/test/resources/tooling/codex-calibration-v1/task-2.txt']
+assert (root/p['tasks'][1]['prompt']['path']).read_text().startswith('Run exactly ./bin/codex-change-bundle.sh apply.')
+assert (root/p['tasks'][2]['prompt']['path']).read_text().startswith('Run exactly ./bin/codex-change-bundle.sh apply.')
 PY
+for task in "${PLAN}"/codex-calibration-*.json; do
+  "${ROOT}/bin/agent-task.sh" validate "${task}" >/dev/null
+done
 
 python3 - "${TMP}/source" "${BASE}" <<'PY'
 from pathlib import Path

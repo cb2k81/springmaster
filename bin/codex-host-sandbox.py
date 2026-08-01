@@ -19,6 +19,7 @@ from typing import Any
 HOST_SCHEMA = "springmaster.codex-host-qualification-contract.v1"
 REPORT_SCHEMA = "springmaster.codex-host-qualification-report.v1"
 EVIDENCE_SCHEMA = "springmaster.codex-host-qualification-evidence.v1"
+SANDBOX_PATH = "/usr/local/bin:/usr/bin:/bin"
 
 
 class HostError(RuntimeError):
@@ -175,18 +176,21 @@ def resolve_codex_home() -> Path:
     return path.resolve()
 
 
-def sanitized_env(private_home: Path) -> dict[str, str]:
-    return {
+def sanitized_env(private_home: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
+    value = {
         "HOME": str(private_home),
         "CODEX_HOME": str(private_home),
         "LANG": os.environ.get("LANG", "C.UTF-8"),
         "LC_ALL": "C.UTF-8",
-        "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
+        "PATH": SANDBOX_PATH,
         "TMPDIR": "/tmp",
         "TZ": os.environ.get("TZ", "UTC"),
         "USER": "codex",
         "LOGNAME": "codex",
     }
+    if extra:
+        value.update(extra)
+    return value
 
 
 def copy_codex_auth(source_home: Path, private_home: Path) -> dict[str, Any]:
@@ -203,7 +207,7 @@ def copy_codex_auth(source_home: Path, private_home: Path) -> dict[str, Any]:
     return {"sourceSize": size, "copiedSha256": sha256_file(target), "secretValueRecorded": False}
 
 
-def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, writable_task: bool) -> list[str]:
+def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, writable_task: bool, extra_env: dict[str, str] | None = None) -> list[str]:
     require(task.is_dir() and not task.is_symlink(), "TASK_WORKTREE_INVALID", "Task worktree must be an existing non-symlink directory", path=str(task))
     task = task.resolve()
     require(contains(ctx["worktreeRoot"], task), "TASK_WORKTREE_OUTSIDE_ROOT", "Task worktree is outside the configured worktree root", path=str(task), root=str(ctx["worktreeRoot"]))
@@ -218,7 +222,7 @@ def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home:
     else:
         args += ["--ro-bind", str(task), str(task)]
     args += ["--clearenv"]
-    for key, value in sorted(sanitized_env(Path("/run/codex-home")).items()):
+    for key, value in sorted(sanitized_env(Path("/run/codex-home"), extra_env).items()):
         args += ["--setenv", key, value]
     args += ["--chdir", str(task), "--"]
     return args
@@ -378,7 +382,7 @@ def status_json(root: Path, task_id: str) -> dict[str, Any]:
     return value
 
 
-def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path, model: str) -> dict[str, Any]:
+def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path, model: str, change_bundle: Path | None = None) -> dict[str, Any]:
     ctx = context(root)
     state = status_json(root, task_id)
     task = Path(state["worktreePath"]).resolve()
@@ -387,6 +391,18 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
     mode = task_contract.get("mode")
     require(mode in {"analysis", "implementation", "qualification"}, "TASK_MODE_INVALID", "Unsupported task mode", mode=mode)
     require(prompt_file.is_file() and not prompt_file.is_symlink(), "PROMPT_INVALID", "Prompt file is missing or unsafe", path=str(prompt_file))
+    extra_env = {
+        "SPRINGMASTER_AGENT_TASK_ID": task_id,
+        "SPRINGMASTER_AGENT_TASK_CONTRACT": str(run_dir / "task-contract.json"),
+    }
+    reads = ["task-worktree"]
+    if change_bundle is not None:
+        require(mode == "implementation", "CHANGE_BUNDLE_MODE_INVALID", "Change bundles require an implementation task", mode=mode)
+        resolved_bundle = change_bundle.expanduser().resolve()
+        require(resolved_bundle.is_file() and not resolved_bundle.is_symlink(), "CHANGE_BUNDLE_INVALID", "Change bundle is missing or unsafe", path=str(resolved_bundle))
+        require(contains(ctx["artifactRoot"], resolved_bundle), "CHANGE_BUNDLE_OUTSIDE_ARTIFACT_ROOT", "Change bundle must be below the external artifact root", path=str(resolved_bundle), root=str(ctx["artifactRoot"]))
+        extra_env["SPRINGMASTER_CODEX_CHANGE_BUNDLE"] = str(resolved_bundle)
+        reads.append("external-artifact-root")
     source_home = resolve_codex_home()
     evidence_dir = ctx["artifactRoot"] / "codex-host-qualification" / host_id() / git(root, "rev-parse", "HEAD") / task_id.lower()
     require(not evidence_dir.exists(), "EVIDENCE_DIRECTORY_EXISTS", "Invocation evidence directory already exists", path=str(evidence_dir))
@@ -397,7 +413,7 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         cli_sandbox = "workspace-write" if mode == "implementation" else "read-only"
         record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
         codex_argv = [str(codex), "exec", "--ephemeral", "--ignore-user-config", "--ignore-rules", "--json", "--model", model, "--sandbox", cli_sandbox, "--ask-for-approval", "never", "--cd", str(task), "-"]
-        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=mode == "implementation")
+        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=mode == "implementation", extra_env=extra_env)
         prompt = prompt_file.read_text(encoding="utf-8")
         started_at = utc_now()
         completed = run(outer + codex_argv, input_text=prompt, timeout=1800)
@@ -413,14 +429,14 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
             "purpose": "Host-confined Springmaster Codex calibration",
             "argv": ["codex" if item == str(codex) else item for item in codex_argv],
             "workingDirectory": str(task),
-            "reads": ["task-worktree"],
+            "reads": reads,
             "writes": writes,
             "network": "codex-control-plane-only",
             "repositoryMutation": mutation,
             "destructiveActions": [],
             "directoryCreationPolicy": "declared-task-paths-only",
             "overwritePolicy": "declared-task-paths-only",
-            "environmentInputs": sorted(sanitized_env(Path("/run/codex-home")).keys()),
+            "environmentInputs": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
         }
         invocation = {
             "schemaVersion": "springmaster.codex-invocation-record.v1",
@@ -445,7 +461,7 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
                     "externalArtifactRootWritable": False,
                     "temporaryDirectoriesWritable": False,
                 },
-                "environmentKeys": sorted(sanitized_env(Path("/run/codex-home")).keys()),
+                "environmentKeys": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
                 "startedAt": started_at,
                 "finishedAt": finished_at,
                 "status": "COMPLETED" if completed.returncode == 0 else "FAILED",
@@ -534,7 +550,7 @@ def parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     i = sub.add_parser("inspect"); i.add_argument("--out", type=Path)
     q = sub.add_parser("probe"); q.add_argument("--task-worktree", required=True, type=Path); q.add_argument("--out", type=Path)
-    v = sub.add_parser("invoke"); v.add_argument("--task-id", required=True); v.add_argument("--prompt", required=True, type=Path); v.add_argument("--model", required=True); v.add_argument("--out", type=Path)
+    v = sub.add_parser("invoke"); v.add_argument("--task-id", required=True); v.add_argument("--prompt", required=True, type=Path); v.add_argument("--model", required=True); v.add_argument("--change-bundle", type=Path); v.add_argument("--out", type=Path)
     z = sub.add_parser("qualify"); z.add_argument("--inspect", required=True, type=Path); z.add_argument("--probe", required=True, type=Path); z.add_argument("--analysis-invocation", required=True, type=Path); z.add_argument("--out", required=True, type=Path); z.add_argument("--check", action="store_true")
     return p
 
@@ -547,7 +563,7 @@ def main() -> int:
         codex = executable("codex", args.codex)
         if args.command == "inspect": report = inspect(root, bwrap, codex)
         elif args.command == "probe": report = probes(root, bwrap, codex, args.task_worktree.resolve())
-        elif args.command == "invoke": report = invoke(root, bwrap, codex, args.task_id, args.prompt.resolve(), args.model)
+        elif args.command == "invoke": report = invoke(root, bwrap, codex, args.task_id, args.prompt.resolve(), args.model, args.change_bundle)
         else: report = qualify(root, args.inspect.resolve(), args.probe.resolve(), args.analysis_invocation.resolve())
         if getattr(args, "out", None): atomic_json(args.out, report)
         sys.stdout.write(render(report, args.format))

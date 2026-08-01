@@ -269,6 +269,9 @@ def main() -> int:
             "acceptedCalibrationTaskCountRequired": 2,
             "writableCodexAuthorized": False,
             "pilotWriteReady": False,
+            "acceptanceStatus": "ACCEPTED",
+            "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
+            "acceptanceEvidenceSource": "live-delivery-inventory",
         }
         if not isinstance(cutover, dict):
             findings.append({"code": "CODEX_CUTOVER_FOUNDATION_EVIDENCE_MISSING"})
@@ -315,7 +318,7 @@ def main() -> int:
         "deliveryPreparation": "git-common-state-without-external-artifact-root",
         "selfcheckObservability": "durable-substep-start-result-and-log-evidence",
         "toolingHardeningCandidate": "ACCEPTED_000201",
-        "codexCutoverFoundationCandidate": "QUALIFIED_CANDIDATE_PENDING_CANONICAL_DELIVERY",
+        "codexCutoverFoundationCandidate": "ACCEPTED_000203",
     }
     for key, expected in expected_hardening_values.items():
         actual = process_operations.get(key)

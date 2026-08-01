@@ -526,6 +526,13 @@
       "mutationClass": "isolated-runtime"
     },
     {
+      "path": "bin/codex-change-bundle-it.sh",
+      "suiteId": "tooling-agent-pilot-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
       "path": "bin/codex-confinement-check-it.sh",
       "suiteId": "tooling-agent-pilot-fixtures",
       "testLevel": "qualification",
@@ -1022,7 +1029,7 @@
   ],
   "summary": {
     "javaTestClassCount": 49,
-    "toolingEntrypointCount": 39,
+    "toolingEntrypointCount": 40,
     "sourceFixtureCount": 21,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
@@ -1034,6 +1041,6 @@
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
   ],
-  "lastUpdatedAt": "2026-07-30",
-  "lastUpdateReason": "Register portable Codex host qualification and calibration cutover fixtures."
+  "lastUpdatedAt": "2026-08-01",
+  "lastUpdateReason": "Register Codex change-bundle integration coverage."
 }

@@ -415,6 +415,66 @@ def validate_task(task: dict[str, Any], policy: dict[str, Any]) -> None:
     require(required_ids <= command_ids, "TASK_QUALIFICATION_INCOMPLETE", "Qualification commands do not satisfy risk and change-class policy", missing=sorted(required_ids - command_ids))
 
 
+def validate_prepare_authorization(task_path: Path, task: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
+    authorization = policy.get("taskAuthorization")
+    pilot = policy.get("pilot") if isinstance(policy.get("pilot"), dict) else {}
+    lifecycle = pilot.get("currentLifecycle")
+    if not isinstance(authorization, dict):
+        require(policy.get("contractVersion") == "1.4.0", "TASK_AUTHORIZATION_POLICY_MISSING", "Pilot task authorization policy is missing")
+        return {
+            "lifecycle": lifecycle,
+            "source": "legacy-pilot-contract-1.4",
+            "nextAction": "EXPLICIT_CODEX_CALIBRATION_ONLY" if lifecycle == "PROJECT_READY" else "EXPLICIT_CODEX_PILOT_TASK_ONLY",
+        }
+    pre_promotion = authorization.get("prePromotionLifecycle")
+    post_promotion = authorization.get("postPromotionLifecycles")
+    require(isinstance(post_promotion, list) and all(isinstance(item, str) and item for item in post_promotion), "TASK_AUTHORIZATION_POLICY_INVALID", "Post-promotion lifecycle policy is invalid")
+
+    if lifecycle == pre_promotion:
+        require(authorization.get("prePromotionTaskSource") == "sibling-calibration-plan", "TASK_AUTHORIZATION_POLICY_INVALID", "Unsupported pre-promotion task source")
+        plan_name = authorization.get("calibrationPlanFileName")
+        require(isinstance(plan_name, str) and plan_name and "/" not in plan_name and "\\" not in plan_name, "TASK_AUTHORIZATION_POLICY_INVALID", "Calibration plan filename is invalid")
+        plan_path = task_path.parent / plan_name
+        require(plan_path.is_file() and not plan_path.is_symlink(), "TASK_AUTHORIZATION_PLAN_MISSING", "PROJECT_READY tasks require a sibling immutable calibration plan", path=str(plan_path))
+        plan = load_json(plan_path)
+        require(plan.get("schemaVersion") == authorization.get("calibrationPlanSchemaVersion"), "TASK_AUTHORIZATION_PLAN_SCHEMA_INVALID", "Calibration plan schema is invalid", actual=plan.get("schemaVersion"))
+        require(plan.get("status") == authorization.get("calibrationPlanStatus"), "TASK_AUTHORIZATION_PLAN_STATUS_INVALID", "Calibration plan status is invalid", actual=plan.get("status"))
+        require(plan.get("baselineCommit") == task.get("baseCommit"), "TASK_AUTHORIZATION_BASELINE_MISMATCH", "Calibration plan baseline differs from the task base", planBaseline=plan.get("baselineCommit"), taskBase=task.get("baseCommit"))
+        entries = plan.get("tasks")
+        require(isinstance(entries, list), "TASK_AUTHORIZATION_PLAN_INVALID", "Calibration plan tasks are missing")
+        matching = [entry for entry in entries if isinstance(entry, dict) and entry.get("taskId") == task.get("taskId")]
+        require(len(matching) == 1, "TASK_NOT_AUTHORIZED_FOR_LIFECYCLE", "Task is not uniquely authorized by the calibration plan", taskId=task.get("taskId"), lifecycle=lifecycle)
+        entry = matching[0]
+        require(entry.get("mode") == task.get("mode"), "TASK_AUTHORIZATION_MODE_MISMATCH", "Calibration plan mode differs from the task", expected=entry.get("mode"), actual=task.get("mode"))
+        task_record = entry.get("task") if isinstance(entry.get("task"), dict) else {}
+        relative = task_record.get("path")
+        expected_hash = task_record.get("sha256")
+        require(isinstance(relative, str) and relative and not Path(relative).is_absolute() and ".." not in PurePosixPath(relative).parts, "TASK_AUTHORIZATION_PLAN_PATH_INVALID", "Calibration plan task path is invalid", path=relative)
+        expected_task_path = (plan_path.parent / relative).resolve()
+        require(expected_task_path == task_path, "TASK_AUTHORIZATION_PLAN_PATH_MISMATCH", "Calibration plan task path does not identify the prepared task", expected=str(expected_task_path), actual=str(task_path))
+        actual_hash = sha256_file(task_path)
+        require(isinstance(expected_hash, str) and re.fullmatch(r"[0-9a-f]{64}", expected_hash) is not None, "TASK_AUTHORIZATION_PLAN_HASH_INVALID", "Calibration plan task hash is invalid")
+        require(actual_hash == expected_hash, "TASK_AUTHORIZATION_PLAN_HASH_MISMATCH", "Task bytes differ from the calibration plan", expected=expected_hash, actual=actual_hash)
+        return {
+            "lifecycle": lifecycle,
+            "source": "sibling-calibration-plan",
+            "calibrationPlanPath": str(plan_path.resolve()),
+            "calibrationPlanSha256": sha256_file(plan_path),
+            "taskSha256": actual_hash,
+            "nextAction": "EXPLICIT_CODEX_CALIBRATION_ONLY",
+        }
+
+    if lifecycle in post_promotion:
+        return {
+            "lifecycle": lifecycle,
+            "source": "committed-pilot-lifecycle",
+            "nextAction": "EXPLICIT_CODEX_PILOT_TASK_ONLY",
+        }
+
+    require(not authorization.get("failClosedOnUnknownLifecycle", True), "TASK_LIFECYCLE_NOT_AUTHORIZED", "Pilot lifecycle does not authorize task preparation", lifecycle=lifecycle)
+    return {"lifecycle": lifecycle, "source": "unrestricted", "nextAction": "EXPLICIT_OPERATOR_REVIEW"}
+
+
 def integration_state(root: Path) -> dict[str, Any]:
     return {
         "root": str(root),
@@ -713,6 +773,7 @@ def cmd_prepare(args: argparse.Namespace) -> dict[str, Any]:
     task_path = Path(args.task).expanduser().resolve()
     task = load_json(task_path)
     validate_task(task, policy)
+    authorization = validate_prepare_authorization(task_path, task, policy)
     task_id = task["taskId"]
     directory = run_dir(context, task_id)
     worktree = task_worktree(context, task_id)
@@ -752,6 +813,7 @@ def cmd_prepare(args: argparse.Namespace) -> dict[str, Any]:
         "artifactRoot": str(context.artifact_root),
         "baseCommit": task["baseCommit"],
         "taskContractSha256": contract_hash,
+        "taskAuthorization": authorization,
         "codexInvocation": "NOT_RECORDED",
     }
     atomic_json(directory / "prepare-record.json", prepare)
@@ -766,7 +828,7 @@ def cmd_prepare(args: argparse.Namespace) -> dict[str, Any]:
         "codexInvocation": "NOT_RECORDED",
     }
     atomic_json(directory / "run.json", run_record)
-    return {"status": "PREPARED", "taskId": task_id, "worktreePath": str(worktree), "runDirectory": str(directory), "nextAction": "EXPLICIT_CODEX_CALIBRATION_ONLY"}
+    return {"status": "PREPARED", "taskId": task_id, "worktreePath": str(worktree), "runDirectory": str(directory), "nextAction": authorization["nextAction"], "taskAuthorization": authorization}
 
 
 def parse_changed_paths(root: Path) -> list[str]:

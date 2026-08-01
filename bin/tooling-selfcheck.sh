@@ -151,7 +151,8 @@ run_optional_contract_check \
   "${PROJECT_ROOT}/bin/codex-pilot-ready-it.sh" \
   "${PROJECT_ROOT}/bin/codex-confinement-check-it.sh" \
   "${PROJECT_ROOT}/bin/codex-host-sandbox-it.sh" \
-  "${PROJECT_ROOT}/bin/codex-calibration-it.sh"
+  "${PROJECT_ROOT}/bin/codex-calibration-it.sh" \
+  "${PROJECT_ROOT}/bin/codex-change-bundle-it.sh"
 
 run_optional_contract_check \
   "configuration contract" \

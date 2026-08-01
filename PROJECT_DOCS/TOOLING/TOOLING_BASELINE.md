@@ -334,4 +334,4 @@ remain fail-closed blockers.
 
 `000201_springmaster_tooling_hardening_cut` is accepted. The canonical accept run is `run-20260731T073111Z-0e5f6316c4d3`, and the accepted patch commit is `b48743512944e95b39231f685fe172fb93b5a015`. Earlier statements that classify this patch as `NOT_ACCEPTED` are superseded by this section.
 
-`000203_springmaster_codex_cutover_foundation` remains an unaccepted candidate at Platform `0.23.0-foundation` and Tooling `0.13.0`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. Canonical delivery and accept, followed by host-local confinement evidence and two accepted calibration tasks, are still required.
+`000203_springmaster_codex_cutover_foundation` is canonically accepted at clean main commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. Post-accept live readiness, host-local confinement evidence, two accepted calibration tasks and a separate promotion are still required.

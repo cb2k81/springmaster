@@ -11,9 +11,12 @@
     "pilotWriteReady": false,
     "platformVersion": "0.23.0-foundation",
     "realCodexConfinementRequired": true,
-    "status": "QUALIFIED_CANDIDATE_PENDING_CANONICAL_DELIVERY",
+    "status": "ACCEPTED_000203",
     "toolingVersion": "0.13.0",
-    "writableCodexAuthorized": false
+    "writableCodexAuthorized": false,
+    "acceptanceStatus": "ACCEPTED",
+    "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
+    "acceptanceEvidenceSource": "live-delivery-inventory"
   },
   "directoryGovernanceRuntimeAudit": {
     "baselineCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",

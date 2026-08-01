@@ -14,7 +14,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-01
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -280,7 +280,13 @@ Nach `QUALIFIED` darf nur der vertrauenswürdige Harness-Befehl `agent-task hand
 
 Der Handoff wird anschließend durch einen getrennten Operatorprozess in einen Candidate übernommen. Erst aus committed Candidate-Refs darf `cpatch create` das kanonische Artefakt erzeugen. Dry-run und Accept bleiben getrennte Operatorentscheidungen.
 
-### 14.4 Live-Abnahme und Promotion
+### 14.4 Prepare-Autorisierung vor der Promotion
+
+Solange der committed Pilot-Lifecycle `PROJECT_READY` ist, darf `agent-task prepare` ausschließlich Taskverträge akzeptieren, die bytegenau in einem unmittelbar benachbarten, materialisierten `calibration-plan.json` registriert sind. Task-ID, Modus, Baseline, relativer Dateipfad und SHA-256 müssen übereinstimmen. Ein beliebiger formal gültiger Task Contract ohne diese Bindung wird fail-closed abgelehnt.
+
+Nach einer separaten committed Promotion zu `PILOT_WRITE_READY` darf der Harness reguläre Pilot-Tasks gemäß Task Contract, Scope- und Qualification-Regeln vorbereiten. Ein unbekannter Lifecycle autorisiert keine Taskvorbereitung. Die reine Operation `agent-task validate` bleibt eine statische Vertragsprüfung und ist keine Ausführungsfreigabe.
+
+### 14.5 Live-Abnahme und Promotion
 
 Vor jeder Umstellung auf schreibende Codex-Entwicklung muss `codex-confinement-check --live --check` auf dem tatsächlichen DEV-System mit realem Codex bestehen. Die Evidence umfasst alle verpflichtenden Denial-Probes, zwei unabhängige qualifizierte Implementierungsaufgaben mit Patch-Handoff, getrennte Dry-runs sowie unveränderten Integration- und Git-Common-Zustand.
 
@@ -302,6 +308,8 @@ CODEX_PATCH_ACCEPT_AUTHORIZED=false
 | 2026-07-25 | - | active | Springmaster-only pre-cutover governance, strict project-readiness boundary and Codex calibration lifecycle established. |
 | 2026-07-27 | active | active | Task Contract V2, explicit-root behavior, operator-effect declaration, immutable invocation evidence and fail-closed task semantics added. |
 | 2026-07-30 | active | active | Live Codex confinement, immutable patch handoff and separate promotion boundary added. |
+| 2026-07-31 | active | active | `agent-task prepare` vor `PILOT_WRITE_READY` an den materialisierten Calibration Plan gebunden. |
+| 2026-08-01 | active | active | Acceptance von `000203` reflektiert; plan-gebundene Kalibrierung bleibt von regulärer Write-Promotion getrennt. |
 
 ## 16. Portabler Hostvertrag und minimaler Cutover-Pfad
 
@@ -315,3 +323,20 @@ Die technische Grenze ist zweischichtig:
 Der minimale Cutover-Pfad besteht aus Host-Inspection, 20 mechanischen Grenzproben, einem realen read-only Codex-Lauf, zwei unabhängigen Implementierungsaufgaben mit unveränderlichem Patch-Handoff, je einem getrennten kanonischen Dry-run und Accept sowie einer nachgelagerten Evidence-Prüfung. Erst ein weiterer akzeptierter Promotion-Schnitt darf die Hostfreigabe aktivieren.
 
 Sekundäre Aufräumarbeiten an inaktiven Worktrees, historischen Diagnosearchiven, Exportkomfort oder Terminaldarstellung liegen außerhalb dieses kritischen Pfads, sofern sie keinen aktiven Writer, Lock, Scope-Konflikt oder Sicherheitsbefund darstellen.
+
+## 17. Unveränderliche Codex Change Bundles
+
+Ein Codex Change Bundle ist ein nicht kanonisches, patch-ID-freies Eingabeartefakt für genau eine vorbereitete Implementierungsaufgabe. Es darf ausschließlich über `bin/codex-change-bundle.sh apply` im detached Task-Worktree materialisiert werden.
+
+Das Bundle:
+
+- liegt read-only unter dem externen Artefakt-Root;
+- bindet Task-ID, Repository-ID und exakten Base-Commit;
+- enthält ausschließlich deklarative Dateioperationen mit Source-/Target-SHA-256 und Git-Modus;
+- muss vollständig innerhalb der `allowedPaths` des unveränderlichen Task Contracts liegen;
+- enthält keine Kommandos, Patch-ID, Delivery-ID oder Accept-Autorität;
+- darf weder Integration, Git-common, `patches/work`, andere Worktrees noch externe Evidence verändern.
+
+`codex-host-sandbox invoke --change-bundle <bundle.zip>` stellt ausschließlich die Bundle- und Task-Contract-Pfade als read-only Umgebungswerte bereit. Auch nach erfolgreicher Anwendung bleiben Postcheck, Qualification, `agent-task handoff`, kontrollierte Candidate-Anwendung, `cpatch create`, separater Dry-run und separater Accept zwingend.
+
+Ein Change Bundle autorisiert keine schreibende Codex-Ausführung. Vor `PILOT_WRITE_READY` sind weiterhin nur die ausdrücklich freigegebenen Kalibrierungsaufgaben zulässig.

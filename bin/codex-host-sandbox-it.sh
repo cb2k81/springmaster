@@ -22,6 +22,14 @@ cp -- \
   "${REPO}/contracts/governance/agent/"
 cp -- "${ROOT}/.cocondo/tooling/project.env" "${REPO}/.cocondo/tooling/project.env"
 printf '%s\n' 'host sandbox fixture' > "${REPO}/README.md"
+python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1])
+d=json.loads(p.read_text(encoding="utf-8"))
+d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
 chmod 755 "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh" "${REPO}/bin/codex-host-sandbox.py" "${REPO}/bin/codex-host-sandbox.sh"
 git -c init.defaultRefFormat=files -C "${REPO}" init -q -b main
 git -C "${REPO}" config user.name fixture
@@ -47,6 +55,11 @@ else:
   if a.startswith('/') and a not in {'/','/proc','/dev','/tmp','/var/tmp','/run'} and i>0 and args[i-1] not in {'--ro-bind','--bind','--tmpfs','--dev','--proc','--chdir'}:
    command=args[i:]; break
 if not command: raise SystemExit(2)
+if '--clearenv' in args:
+ values={}
+ for i,a in enumerate(args):
+  if a=='--setenv' and i+2<len(args): values[args[i+1]]=args[i+2]
+ if values.get('PATH')!='/usr/local/bin:/usr/bin:/bin': raise SystemExit(91)
 chdir=os.getcwd()
 if '--chdir' in args:
  chdir=args[args.index('--chdir')+1]
@@ -89,6 +102,8 @@ export COCONDO_WORKTREE_ROOT="${TMP}/worktrees"
 export COCONDO_AGENT_RUN_ROOT="${TMP}/runs"
 export COCONDO_ARTIFACT_ROOT="${TMP}/artifacts"
 export CODEX_HOME="${TMP}/codex-home"
+mkdir -p "${TMP}/hostile-path"
+export PATH="${TMP}/hostile-path:/usr/bin:/bin"
 
 BASE="$(git -C "${REPO}" rev-parse HEAD)"
 TASK_JSON="${TMP}/analysis-task.json"

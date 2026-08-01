@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: null
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-01
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -34,8 +34,8 @@ Der Sprint ist aktiv. Dieses Dokument ist der vorbereitete dauerhafte Qualificat
 | Bezug | Aktueller Zustand | Abschlussnachweis |
 |---|---|---|
 | CAP-REQ-001 / M-001 | erfüllt | Kanonische Zielquelle, aktiver Sprint-Harness, Index und Gate-Evidence |
-| CAP-REQ-010 bis CAP-REQ-014 / Tooling-Härtung | teilweise erfüllt | Candidate `000201_springmaster_tooling_hardening_cut` ist implementiert, zielgerichtet geprüft, live inventarisiert und versiongeschlossen. Vollständige Regressionsmatrix, breite Qualification, kanonischer Dry-run, separater Accept und Post-Accept-Evidence fehlen noch. |
-| CAP-REQ-002 bis CAP-REQ-004 / M-002 bis M-003 | blockiert | Task-/Oracle-, Boundary-, Invocation-, Qualification- und Promotion-Evidence dürfen erst nach akzeptierter Härtung entstehen. |
+| CAP-REQ-010 bis CAP-REQ-014 / Tooling-Härtung | erfüllt | `000201_springmaster_tooling_hardening_cut` wurde mit Acceptance-Run `run-20260731T073111Z-0e5f6316c4d3` akzeptiert; akzeptierter Commit ist `b48743512944e95b39231f685fe172fb93b5a015`. |
+| CAP-REQ-002 bis CAP-REQ-004 / M-002 bis M-003 | in Arbeit | `000203` ist akzeptiert. Post-Accept-Live-Readiness, reale Host-Qualification, zwei akzeptierte Kalibrierungstasks und separate Promotion fehlen. |
 | CAP-REQ-005 bis CAP-REQ-007 / M-004 | ausstehend | Traceable Contract-Kette und Application-Acceptance |
 | CAP-REQ-008 bis CAP-REQ-009 / M-005 | ausstehend | Drei Clean-Runs, V1.1-Evolution, Effizienz-, Debt- und Abschlussbewertung |
 
@@ -43,7 +43,7 @@ Der Sprint ist aktiv. Dieses Dokument ist der vorbereitete dauerhafte Qualificat
 
 Qualification-Status: `pending`.
 
-Vor jeder Kalibrierungs- oder Pilotqualification ist zunächst die Tooling-Härtung abzuschließen. Candidate `000201_springmaster_tooling_hardening_cut` hat Implementierung, zielgerichtete Gates, Live-Inventory mit `UNKNOWN_ENTRY_COUNT=0` und Version Closure erreicht. Die formale Readiness bleibt `PROJECT_READY`; zugleich müssen `NEXT_ACTION_EXECUTABLE=false`, `NEXT_ACTION_BLOCKER=TOOLING_HARDENING` und `WRITABLE_CODEX_AUTHORIZED=false` gelten, bis vollständige Qualification, kanonischer Dry-run, expliziter Accept und Live-Postcheck erfolgreich sind.
+Die Tooling-Härtung `000201_springmaster_tooling_hardening_cut` und die Codex-Cutover-Foundation `000203_springmaster_codex_cutover_foundation` sind abgeschlossen und akzeptiert. Die formale Readiness bleibt `PROJECT_READY`; der nächste kontrollierte Abschnitt ist ausführbar. `WRITABLE_CODEX_AUTHORIZED=false` und `PILOT_WRITE_READY=false` gelten, bis Post-Accept-Live-Readiness, reale Host-Qualification, Kalibrierung und separate Promotion erfolgreich sind.
 
 Die Definition of Done aus dem Sprint Brief wird bei Closure kriteriumsweise mit `erfüllt`, `deferiert` oder `blockiert` bewertet. Ein erfolgreicher Einzelrun, ein Fixture-Test oder eine statische Readiness-Aussage ersetzt keine reale Boundary-, Ergebnis- und Repeatability-Evidence.
 
@@ -55,7 +55,7 @@ Bisher zur Sprintinitialisierung vorgesehen:
 - vollständiger aktiver Sprint-002-Vertrag;
 - aktualisierter Documentation Index.
 
-Weitere akzeptierte Änderungen werden commit-, artifact- und evidencegebunden ergänzt, nicht nur über lokale Patchnummern beschrieben. Die Versuche `000197` bis `000200` sind Incident-Evidence und werden ausdrücklich nicht als akzeptierte Änderungen geführt.
+Weitere akzeptierte Änderungen werden commit-, artifact- und evidencegebunden ergänzt, nicht nur über lokale Patchnummern beschrieben. `000201_springmaster_tooling_hardening_cut` und `000203_springmaster_codex_cutover_foundation` sind akzeptiert. Die Versuche `000197` bis `000200` sind Incident-Evidence und werden ausdrücklich nicht als akzeptierte Änderungen geführt.
 
 ## Dauerhafte Promotionen
 
@@ -69,12 +69,9 @@ Noch offen:
 
 ## Offene Findings, Risiken und Schulden
 
-- zentraler Writer-Workspace-Lifecycle ist noch nicht vollständig qualifiziert;
-- explizite Artefakt-Root-Autorisierung ist noch nicht geschlossen;
-- typisiertes Delivery-/Patch-ID-Inventory ist noch nicht geschlossen;
-- dauerhafte Selfcheck-Substep-Evidence ist noch nicht vollständig;
-- harnessgebundene Operatorausführung ist noch nicht durchgängig erzwungen;
-- reale Runtime-Denial-Probes fehlen;
+- Post-Accept-Live-Readiness gegen den akzeptierten Commit fehlt;
+- reale Host-Inspection und Runtime-Denial-Probes auf dem DEV-System fehlen;
+- Lifecycle-Autorisierung beliebiger Tasks vor `PILOT_WRITE_READY` benötigt weiterhin eine fail-closed Bindung an den materialisierten Calibration Plan;
 - zwei unabhängige implementierende Kalibrierungsnachweise fehlen;
 - End-to-End-Contract-Kette und disposable Application fehlen;
 - Repeatability, V1.1 und Effizienzvergleich fehlen;
@@ -89,11 +86,11 @@ Noch offen:
 
 ## SemVer- und Releasebewertung
 
-Die Tooling-Härtung ist als kompatibler `minor`-Impact klassifiziert. Der zusammenhängende Candidate setzt Platform `0.22.0-foundation`, Tooling `0.12.0` und State Patch `000201_springmaster_tooling_hardening_cut`; Core, Template, Demo und Platform Update bleiben unverändert. Es erfolgt keine Releaseempfehlung und keine Akzeptanzbehauptung, solange vollständige Qualification, Accept und Post-Accept-Closure offen sind.
+Die akzeptierten Schnitte `000201` und `000203` setzen die aktuelle Versionswahrheit auf Platform `0.23.0-foundation`, Tooling `0.13.0` und State Patch `000203_springmaster_codex_cutover_foundation`. Core, Template, Demo und Platform Update bleiben unverändert. Die Stabilisierung führt keine weitere Release- oder Write-Promotion durch.
 
 ## Nicht erreichte Ziele und Folgebedarf
 
-M-002, M-003, M-004 und M-005 sind noch nicht erreicht. Der Tooling-Härtungsschnitt ist als Candidate implementiert und versiongeschlossen; als Nächstes folgen vollständige Regression, breite Qualification, kanonischer Dry-run, expliziter Accept, Post-Accept-Verifikation und erneute Live-Readiness. Vor deren Erfolg werden weder ein Kalibrierungs-Task-Pack vorbereitet noch Codex aufgerufen. Danach wird das Task-Pack gegen den dann tatsächlichen Live-Commit mit unabhängigen Oracles neu erzeugt.
+M-002, M-003, M-004 und M-005 sind noch nicht erreicht. Als Nächstes folgen Post-Accept-Live-Readiness, reale Host-Qualification und die Materialisierung des Calibration Task Packs gegen den akzeptierten Commit. Erst danach werden reale Codex-Aufrufe und die zwei getrennt akzeptierten Implementierungskalibrierungen durchgeführt.
 
 ## Lifecycle
 
@@ -102,3 +99,5 @@ M-002, M-003, M-004 und M-005 sind noch nicht erreicht. Der Tooling-Härtungssch
 | 2026-07-28 | – | draft | Dauerhaften Completion- und Qualification-Nachweis für den aktiven Sprint vorbereitet. |
 | 2026-07-30 | draft | draft | Tooling-Härtung als offene Qualification-Voraussetzung und `000197` bis `000200` als nicht akzeptierte Incident-Evidence ergänzt. |
 | 2026-07-30 | draft | draft | Candidate `000201` als implementiert, live inventarisiert und versiongeschlossen dokumentiert; vollständige Qualification, Accept und Post-Accept-Evidence bleiben offen. |
+| 2026-07-31 | draft | draft | Acceptance von `000201` übernommen; `000203` als qualifizierter Candidate und Host-/Kalibrierungs-Evidence als nächste Abschlussgrenze dokumentiert. |
+| 2026-08-01 | draft | draft | Acceptance von `000203` übernommen; Post-Accept-Live-Readiness, Host-Qualification und plan-gebundene Kalibrierung als nächste Abschlussgrenze dokumentiert. |

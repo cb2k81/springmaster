@@ -383,6 +383,7 @@
       "scopePaths": [
         "bin/agent-task-it.sh",
         "bin/codex-calibration-it.sh",
+        "bin/codex-change-bundle-it.sh",
         "bin/codex-confinement-check-it.sh",
         "bin/codex-host-sandbox-it.sh",
         "bin/codex-pilot-ready-it.sh"

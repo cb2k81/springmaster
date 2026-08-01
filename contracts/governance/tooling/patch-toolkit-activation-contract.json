@@ -26,7 +26,7 @@
   "processOperations": {
     "artifactRootAuthorization": "explicit-git-common-record-bound-to-canonical-root",
     "canonicalPatchStart": "direct-cpatch-run-api",
-    "codexCutoverFoundationCandidate": "QUALIFIED_CANDIDATE_PENDING_CANONICAL_DELIVERY",
+    "codexCutoverFoundationCandidate": "ACCEPTED_000203",
     "config": ".cocondo/process.env",
     "contract": "contracts/governance/tooling/process-operations-contract.json",
     "deliveryInventory": "typed-fail-closed-with-current-delivery-exception",

@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-01
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -26,7 +26,7 @@ targetCompletion: 2026-08-21
 
 ## Sprintziel
 
-Springmaster soll den akzeptierten Zustand `PROJECT_READY` nach einem vorgeschalteten, vollständig qualifizierten Tooling-Härtungsschnitt kontrolliert in reale Codex-Kalibrierung überführen und anschließend die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren. Der formale Lifecycle bleibt `PROJECT_READY`; `CODEX_CALIBRATION` ist jedoch nicht operativ ausführbar, solange Workspace-Lifecycle, Artefakt-Root-Autorisierung, Delivery-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung nicht gemeinsam akzeptiert geschlossen sind. `WRITABLE_CODEX_AUTHORIZED` bleibt `false`.
+Springmaster soll den akzeptierten Zustand `PROJECT_READY` nach den kanonischen Acceptances von `000201` und `000203` kontrolliert über Post-Accept-Live-Readiness und reale Host-Qualification in Codex-Kalibrierung überführen und anschließend die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren. `CODEX_CALIBRATION` ist als nächster kontrollierter Abschnitt ausführbar; reguläre schreibende Codex-Nutzung bleibt bis zur separaten Promotion verboten. `WRITABLE_CODEX_AUTHORIZED` und `PILOT_WRITE_READY` bleiben `false`.
 
 Der Sprint ist erfolgreich, wenn Springmaster belastbar entscheiden kann, ob Codex für begrenzte lokale Springmaster-Aufgaben sicher und effizient eingesetzt werden darf und ob die Kette vom Fachkonzept bis zu einer disponiblen GWC-Anwendung deterministisch, traceable und wiederholbar funktioniert.
 
@@ -55,7 +55,9 @@ Kanonische akzeptierte Baseline für den Härtungsschnitt:
 - akzeptierte Pilotentscheidung: ADR-0015;
 - formale Readiness: `PROJECT_READY`;
 - nächster Lifecycle-Zustand: `CODEX_CALIBRATION`;
-- operative Ausführbarkeit dieses Übergangs: blockiert durch `TOOLING_HARDENING`;
+- Tooling-Härtung `000201_springmaster_tooling_hardening_cut`: akzeptiert;
+- aktueller Cutover-Foundation-Candidate: `000203_springmaster_codex_cutover_foundation`;
+- operative Ausführbarkeit dieses Übergangs: blockiert durch `CODEX_CUTOVER_FOUNDATION_ACCEPTANCE`;
 - `WRITABLE_CODEX_AUTHORIZED=false`;
 - Business-Partner-Fachkonzept und Acceptance Contract: vorhanden und eingefroren.
 
@@ -96,7 +98,7 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - Jede erzeugte Spezifikation besitzt stabile IDs und Rückverweise bis zum Fachkonzept.
 - Wiederholungen verwenden identische Eingaben und qualifizierte Umgebungsparameter; nichtdeterministische Unterschiede werden erklärt oder blockieren den Abschluss.
 - Neue dauerhafte Regeln werden in ADRs, Governance, Standards oder Contracts promoviert und nicht nur im Sprintstatus festgehalten.
-- `NEXT_ACTION=CODEX_CALIBRATION` bezeichnet bis zur akzeptierten Härtung nur den nächsten Lifecycle-Zustand und keine ausführbare Operatoraktion.
+- `NEXT_ACTION=CODEX_CALIBRATION` bezeichnet bis zur akzeptierten Cutover-Foundation, Live-Readiness und Host-Qualification nur den nächsten Lifecycle-Zustand und keine ausführbare Operatoraktion.
 
 ## In Scope
 
@@ -213,7 +215,13 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 
 ## Amendments
 
-Keine.
+### Amendment 2026-07-31 – akzeptierte Tooling-Härtung und Cutover-Foundation
+
+- `000201_springmaster_tooling_hardening_cut` ist akzeptiert; frühere Aussagen `NOT_ACCEPTED` oder `NEXT_ACTION_BLOCKER=TOOLING_HARDENING` sind für den aktuellen Zustand superseded.
+- Die repository-seitige Foundation `000203_springmaster_codex_cutover_foundation` ist ein qualifizierter, noch nicht akzeptierter Candidate.
+- Vor realer Codex-Kalibrierung sind kanonische Acceptance von `000203`, Post-Accept-Live-Readiness und reale Host-Qualification verpflichtend.
+- Vor `PILOT_WRITE_READY` sind zwei akzeptierte Implementierungskalibrierungen und eine separate Promotion erforderlich.
+- Die Incident-Versuche `000197` bis `000200` bleiben historische Evidence und werden nicht als Baseline oder Payload wiederverwendet.
 
 ## Lifecycle
 
@@ -221,3 +229,4 @@ Keine.
 |---|---|---|---|
 | 2026-07-28 | – | active | Aktiver Sprint für reale Codex-Kalibrierung und den Business-Partner-End-to-End-Pilot angelegt. |
 | 2026-07-30 | active | active | Tooling-Härtung als zwingende P0-Voraussetzung vor operativer Codex-Kalibrierung in Anforderungen, Risiken, DoR und DoD aufgenommen. |
+| 2026-07-31 | active | active | Tooling-Härtung `000201` als akzeptiert und `000203` als qualifizierter, noch nicht akzeptierter Cutover-Foundation-Candidate fortgeschrieben. |

@@ -34,6 +34,23 @@ mkdir -p "${REPO}/bin" "${REPO}/.cocondo/tooling" "${REPO}/contracts/governance/
 cp "${PROJECT_ROOT}/bin/agent-task.py" "${REPO}/bin/agent-task.py"
 cp "${PROJECT_ROOT}/bin/agent-task.sh" "${REPO}/bin/agent-task.sh"
 cp "${PROJECT_ROOT}/contracts/governance/agent/codex-pilot-contract.json" "${REPO}/contracts/governance/agent/codex-pilot-contract.json"
+python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1])
+d=json.loads(p.read_text(encoding="utf-8"))
+d.setdefault("taskAuthorization", {
+ "calibrationPlanFileName":"calibration-plan.json",
+ "calibrationPlanSchemaVersion":"springmaster.codex-calibration-plan.v1",
+ "calibrationPlanStatus":"MATERIALIZED",
+ "failClosedOnUnknownLifecycle":True,
+ "postPromotionLifecycles":["PILOT_WRITE_READY","PILOT_COMPLETED"],
+ "prePromotionLifecycle":"PROJECT_READY",
+ "prePromotionTaskSource":"sibling-calibration-plan"
+})
+d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
 chmod +x "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh"
 cat > "${REPO}/.cocondo/tooling/project.env" <<'ENV'
 CPATCH_PROJECT_ID=springmaster
@@ -522,6 +539,84 @@ assert_invalid_invocation AGENT-FIXTURE-013 extra-write-root INVOCATION_ADDITION
 
 CURRENT_STEP=codex-operator-downloads-write-forbidden
 assert_invalid_invocation AGENT-FIXTURE-014 operator-downloads-writable INVOCATION_HOST_WRITE_SCOPE_FORBIDDEN
+
+CURRENT_STEP=project-ready-arbitrary-task-rejected
+python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1])
+d=json.loads(p.read_text(encoding="utf-8"))
+d["pilot"]["currentLifecycle"]="PROJECT_READY"
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
+git -C "${REPO}" add contracts/governance/agent/codex-pilot-contract.json
+git -C "${REPO}" commit -q -m project-ready-authorization-fixture
+BASE="$(git -C "${REPO}" rev-parse HEAD)"
+AUTH_DIR="${TMP_ROOT}/authorized-calibration"
+mkdir -p "${AUTH_DIR}"
+AUTH_TASK="${AUTH_DIR}/codex-calibration-analysis-099.json"
+make_task CODEX-CALIBRATION-ANALYSIS-099 analysis low '["analysis"]' README.md forbidden.txt 0 0 "${DIFF_COMMANDS}" "${AUTH_TASK}"
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" prepare "${AUTH_TASK}" > "${TMP_ROOT}/authorization-missing.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=TASK_AUTHORIZATION_PLAN_MISSING' "${TMP_ROOT}/authorization-missing.out" >/dev/null
+
+CURRENT_STEP=project-ready-calibration-plan-authorized
+python3 - "${AUTH_DIR}/calibration-plan.json" "${AUTH_TASK}" "${BASE}" <<'PY'
+import hashlib,json,sys
+from pathlib import Path
+plan_path=Path(sys.argv[1])
+task_path=Path(sys.argv[2])
+base=sys.argv[3]
+value={
+ "schemaVersion":"springmaster.codex-calibration-plan.v1",
+ "status":"MATERIALIZED",
+ "baselineCommit":base,
+ "taskCount":1,
+ "implementationTaskCount":0,
+ "tasks":[{
+   "taskId":"CODEX-CALIBRATION-ANALYSIS-099",
+   "mode":"analysis",
+   "task":{"path":task_path.name,"sha256":hashlib.sha256(task_path.read_bytes()).hexdigest()},
+   "prompt":{"path":"unused.prompt.txt","sha256":"0"*64}
+ }],
+ "writableCodexAuthorized":False,
+ "pilotWriteReady":False
+}
+plan_path.write_text(json.dumps(value,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
+PREP_AUTH="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json prepare "${AUTH_TASK}")"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="PREPARED"; assert v["taskAuthorization"]["source"]=="sibling-calibration-plan"; assert v["nextAction"]=="EXPLICIT_CODEX_CALIBRATION_ONLY"' <<<"${PREP_AUTH}"
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup CODEX-CALIBRATION-ANALYSIS-099 --discard >/dev/null || true
+
+CURRENT_STEP=project-ready-calibration-task-tamper-rejected
+python3 - "${AUTH_TASK}" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1])
+d=json.loads(p.read_text(encoding="utf-8"))
+d["notes"]="tampered after plan"
+p.write_text(json.dumps(d,indent=2)+"\n",encoding="utf-8")
+PY
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" prepare "${AUTH_TASK}" > "${TMP_ROOT}/authorization-hash.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=TASK_AUTHORIZATION_PLAN_HASH_MISMATCH' "${TMP_ROOT}/authorization-hash.out" >/dev/null
+python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1])
+d=json.loads(p.read_text(encoding="utf-8"))
+d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
+git -C "${REPO}" add contracts/governance/agent/codex-pilot-contract.json
+git -C "${REPO}" commit -q -m pilot-write-ready-authorization-fixture
+BASE="$(git -C "${REPO}" rev-parse HEAD)"
 
 CURRENT_STEP=forbidden-command-contract
 python3 - "${TASK6}" <<'PY'
