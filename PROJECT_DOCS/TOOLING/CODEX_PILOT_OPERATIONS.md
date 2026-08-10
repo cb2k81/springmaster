@@ -82,7 +82,7 @@ PILOT_WRITE_READY=false
 
 `000203_springmaster_codex_cutover_foundation` is canonically accepted and provides the repository-side confinement, host-qualification and calibration foundation at Platform `0.23.0-foundation` and Tooling `0.13.0`. Attempts `000197` through `000200` remain incident evidence only.
 
-Live readiness must now be rerun with explicitly authorized existing roots against accepted commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Host inspection and mechanical probes must then pass on the actual DEV system before the calibration task pack is materialized. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
+Live readiness, host inspection and mechanical probes must always be evaluated against the current clean integration HEAD with the explicitly authorized existing roots. The accepted commit `93ab563cc1e82bc801907399602fe04e6d37e2f7` is immutable historical evidence for `000203_springmaster_codex_cutover_foundation`, not an operational baseline. Before a calibration task pack is materialized or a real Codex invocation is started, those checks must pass for the current HEAD. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
 
 ## 4. Agent task preparation
 
@@ -151,6 +151,26 @@ Operational reports intended for upload may be written below `patches/logs/valid
 - Preserve the external run directory.
 - Use explicit `cleanup --discard` only after the result is no longer needed.
 - A boundary failure returns the pilot to patch-controlled hardening before another Codex attempt.
+
+### 7.1 Prepared task invalidated before Codex invocation
+
+When `main` advances after `prepare`, the old task cannot pass postcheck against its recorded integration pre-state. If no Codex invocation has been recorded and the detached task worktree is still clean, terminalize the task without deleting its Evidence:
+
+```bash
+./bin/agent-task.sh abandon-before-invocation <task-id> \
+  --reason integration-head-advanced
+```
+
+Expected status is `ABANDONED_BEFORE_INVOCATION`. The old task ID and run directory remain immutable. Materialize the replacement plan with a higher explicit attempt number:
+
+```bash
+./bin/codex-calibration.sh materialize \
+  --out "${COCONDO_ARTIFACT_ROOT:?}/codex-calibration/<current-head>/A002" \
+  --baseline "$(git rev-parse HEAD)" \
+  --attempt 2
+```
+
+Do not manually remove or rebase the old worktree, do not reuse its Task ID and do not copy its active run state to another host. Codex still receives write access only to the newly prepared detached task worktree.
 
 ## 8. Patch-Handoff nach qualifizierter Implementierung
 

@@ -9,13 +9,19 @@ mkdir -p -- "${TMP}/source"
 trap 'rm -rf -- "${TMP}"' EXIT
 BASE="$(git -C "${ROOT}" rev-parse HEAD)"
 PLAN="${TMP}/plan"
-"${ROOT}/bin/codex-calibration.sh" materialize --out "${PLAN}" --baseline "${BASE}" >/dev/null
+"${ROOT}/bin/codex-calibration.sh" materialize --out "${PLAN}" --baseline "${BASE}" --attempt 1 >/dev/null
 python3 - "${PLAN}" "${BASE}" <<'PY'
 import json,sys
 from pathlib import Path
 root=Path(sys.argv[1]); base=sys.argv[2]
 p=json.load(open(root/'calibration-plan.json'))
 assert p['status']=='MATERIALIZED' and p['taskCount']==3 and p['implementationTaskCount']==2 and p['baselineCommit']==base
+assert p['attempt']==1 and p['attemptId']=='A001'
+assert [x['taskId'] for x in p['tasks']]==[
+ 'CODEX-CALIBRATION-ANALYSIS-A001',
+ 'CODEX-CALIBRATION-IMPLEMENTATION-1-A001',
+ 'CODEX-CALIBRATION-IMPLEMENTATION-2-A001',
+]
 modes=[json.load(open(root/x['task']['path']))['mode'] for x in p['tasks']]
 assert modes==['analysis','implementation','implementation']
 analysis=json.load(open(root/p['tasks'][0]['task']['path']))
@@ -27,6 +33,28 @@ assert json.load(open(root/p['tasks'][2]['task']['path']))['allowedPaths']==['sr
 assert (root/p['tasks'][1]['prompt']['path']).read_text().startswith('Run exactly ./bin/codex-change-bundle.sh apply.')
 assert (root/p['tasks'][2]['prompt']['path']).read_text().startswith('Run exactly ./bin/codex-change-bundle.sh apply.')
 PY
+
+PLAN2="${TMP}/plan-a002"
+"${ROOT}/bin/codex-calibration.sh" materialize --out "${PLAN2}" --baseline "${BASE}" --attempt 2 >/dev/null
+python3 - "${PLAN2}" <<'PY'
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1])
+plan=json.load(open(root/'calibration-plan.json'))
+assert plan['attempt']==2 and plan['attemptId']=='A002'
+assert [x['taskId'] for x in plan['tasks']]==[
+ 'CODEX-CALIBRATION-ANALYSIS-A002',
+ 'CODEX-CALIBRATION-IMPLEMENTATION-1-A002',
+ 'CODEX-CALIBRATION-IMPLEMENTATION-2-A002',
+]
+PY
+set +e
+"${ROOT}/bin/codex-calibration.sh" materialize --out "${TMP}/invalid-attempt" --baseline "${BASE}" --attempt 0 > "${TMP}/invalid-attempt.out"
+rc=$?
+set -e
+test "${rc}" -eq 2
+grep -F 'ERROR_CODE=ATTEMPT_INVALID' "${TMP}/invalid-attempt.out" >/dev/null
+
 for task in "${PLAN}"/codex-calibration-*.json; do
   "${ROOT}/bin/agent-task.sh" validate "${task}" >/dev/null
 done

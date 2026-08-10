@@ -631,4 +631,85 @@ set -e
 test "${RC}" -eq 2
 grep -F 'errorCode=TASK_COMMAND_FORBIDDEN' "${TMP_ROOT}/command.out" >/dev/null
 
+
+CURRENT_STEP=abandon-before-invocation-base-drift
+TASK15="${TMP_ROOT}/task15.json"
+make_task AGENT-FIXTURE-015 implementation low '["fixture"]' README.md forbidden.txt 2 4096 "${DIFF_COMMANDS}" "${TASK15}"
+PREPARE15="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK15}")"
+WORKTREE15="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE15}")"
+test -d "${WORKTREE15}"
+printf '%s\n' 'integration advanced after prepare' > "${REPO}/advance-15.txt"
+git -C "${REPO}" add advance-15.txt
+git -C "${REPO}" commit -q -m advance-after-prepare-15
+NEW_BASE15="$(git -C "${REPO}" rev-parse HEAD)"
+ABANDON15="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json abandon-before-invocation AGENT-FIXTURE-015 --reason integration-head-advanced)"
+python3 - "${ABANDON15}" "${NEW_BASE15}" <<'PY'
+import json,sys
+value=json.loads(sys.argv[1])
+assert value["status"] == "ABANDONED_BEFORE_INVOCATION"
+assert value["reason"] == "INTEGRATION_HEAD_ADVANCED"
+assert value["integrationHead"] == sys.argv[2]
+assert value["worktreeRemoved"] is True
+assert value["codexInvocation"] == "NOT_RECORDED"
+assert value["newAttemptRequired"] is True
+PY
+test ! -e "${WORKTREE15}"
+test -f "${COCONDO_AGENT_RUN_ROOT}/agent-fixture-015/abandonment-intent.json"
+test -f "${COCONDO_AGENT_RUN_ROOT}/agent-fixture-015/abandonment-record.json"
+STATUS15="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json status AGENT-FIXTURE-015)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="ABANDONED_BEFORE_INVOCATION"; assert v["abandonment-record"]["evidenceRetained"] is True' <<<"${STATUS15}"
+CURRENT_STEP=abandon-before-invocation-crash-recovery
+FINAL15="${COCONDO_AGENT_RUN_ROOT}/agent-fixture-015/abandonment-record.json"
+RUN15="${COCONDO_AGENT_RUN_ROOT}/agent-fixture-015/run.json"
+FINAL15_SHA="$(sha256sum "${FINAL15}" | awk '{print $1}')"
+python3 - "${RUN15}" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]); d=json.loads(p.read_text(encoding="utf-8"))
+d["status"]="PREPARED"
+for key in ("abandonedAt", "abandonmentReason", "abandonmentRecordSha256"):
+    d.pop(key, None)
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY
+RECOVER15="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json abandon-before-invocation AGENT-FIXTURE-015 --reason integration-head-advanced)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="ABANDONED_BEFORE_INVOCATION"; assert v["taskId"]=="AGENT-FIXTURE-015"' <<<"${RECOVER15}"
+test "$(sha256sum "${FINAL15}" | awk '{print $1}')" = "${FINAL15_SHA}"
+STATUS15_RECOVERED="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json status AGENT-FIXTURE-015)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="ABANDONED_BEFORE_INVOCATION"' <<<"${STATUS15_RECOVERED}"
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-015 > "${TMP_ROOT}/abandoned-cleanup.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=ABANDONED_TASK_CLEANUP_FORBIDDEN' "${TMP_ROOT}/abandoned-cleanup.out" >/dev/null
+BASE="${NEW_BASE15}"
+TASK16="${TMP_ROOT}/task16.json"
+make_task AGENT-FIXTURE-016 analysis low '["analysis"]' README.md forbidden.txt 0 0 "${DIFF_COMMANDS}" "${TASK16}"
+PREPARE16="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK16}")"
+WORKTREE16="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE16}")"
+test -d "${WORKTREE16}"
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-016 --discard >/dev/null || true
+
+CURRENT_STEP=abandon-after-invocation-rejected
+TASK17="${TMP_ROOT}/task17.json"
+make_task AGENT-FIXTURE-017 implementation low '["fixture"]' README.md forbidden.txt 2 4096 "${DIFF_COMMANDS}" "${TASK17}"
+PREPARE17="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK17}")"
+WORKTREE17="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE17}")"
+record_invocation AGENT-FIXTURE-017 "${WORKTREE17}"
+printf '%s\n' 'integration advanced after invocation' > "${REPO}/advance-17.txt"
+git -C "${REPO}" add advance-17.txt
+git -C "${REPO}" commit -q -m advance-after-invocation-17
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" abandon-before-invocation AGENT-FIXTURE-017 --reason integration-head-advanced > "${TMP_ROOT}/abandon-invoked.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=ABANDONMENT_INVOCATION_EXISTS' "${TMP_ROOT}/abandon-invoked.out" >/dev/null
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-017 --discard >/dev/null
+RC=$?
+set -e
+test "${RC}" -eq 1
+BASE="$(git -C "${REPO}" rev-parse HEAD)"
+
 printf '%s\n' 'AGENT_TASK_IT=PASS'

@@ -2,14 +2,23 @@
   "calibrationWorkflow": {
     "analysisTaskCount": 1,
     "assembleOperation": "assemble",
+    "attemptIdPattern": "^A[0-9]{3}$",
+    "attemptParameter": "--attempt",
+    "attemptRange": {
+      "maximum": 999,
+      "minimum": 1
+    },
     "entrypoint": "bin/codex-calibration.sh",
     "fixtureEntrypoint": "bin/codex-calibration-it.sh",
     "implementationHandoffRequired": true,
     "implementationTaskCount": 2,
     "materializeOperation": "materialize",
+    "newAttemptRequiredAfterAbandonment": true,
     "separateAcceptRequired": true,
     "separateDryRunRequired": true,
-    "separatePromotionRequired": true
+    "separatePromotionRequired": true,
+    "taskIdReuseAllowed": false,
+    "taskIdsEncodeAttempt": true
   },
   "changeBundle": {
     "entrypoint": "bin/codex-change-bundle.sh",
@@ -352,6 +361,29 @@
     "schemaPath": "contracts/governance/agent/agent-task-contract.schema.json",
     "schemaVersion": "springmaster.agent-task.v2",
     "storedOutsideRepository": true
+  },
+  "taskLifecycle": {
+    "preInvocationAbandonment": {
+      "allowedSourceStatus": "PREPARED",
+      "command": "bin/agent-task.sh abandon-before-invocation <task-id> --reason integration-head-advanced",
+      "forbiddenEvidence": [
+        "operator-command-effect",
+        "invocation-record",
+        "changed-path-report",
+        "qualification-records",
+        "final-result",
+        "cleanup-disposition"
+      ],
+      "intentSchemaPath": "contracts/governance/agent/agent-task-abandonment-intent.schema.json",
+      "recordSchemaPath": "contracts/governance/agent/agent-task-abandonment-record.schema.json",
+      "removesTaskWorktree": true,
+      "requiredCodexInvocation": "NOT_RECORDED",
+      "requiredIntegrationCondition": "HEAD differs from task base and integration worktree is clean",
+      "requiredTaskWorktreeCondition": "clean detached worktree at exact task base",
+      "requiresNewAttempt": true,
+      "retainsEvidence": true,
+      "terminalStatus": "ABANDONED_BEFORE_INVOCATION"
+    }
   },
   "taskSemantics": {
     "capabilityChangeClasses": {

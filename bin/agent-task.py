@@ -31,8 +31,10 @@ INVOCATION_RECORD_SCHEMA_VERSION = "springmaster.codex-invocation-record.v1"
 PILOT_ID = "springmaster-codex-pilot-v1"
 REPOSITORY_ID = "springmaster"
 TASK_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
+COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 ACTIVE_STATES = {"PREPARED", "QUALIFYING", "QUALIFIED", "HANDED_OFF", "FAILED", "POSTCHECK_PASSED", "POSTCHECK_FAILED"}
-VALID_RUN_STATES = ACTIVE_STATES | {"CLEANED", "CLEANED_INCOMPLETE"}
+ABANDONED_BEFORE_INVOCATION = "ABANDONED_BEFORE_INVOCATION"
+VALID_RUN_STATES = ACTIVE_STATES | {"CLEANED", "CLEANED_INCOMPLETE", ABANDONED_BEFORE_INVOCATION}
 FORBIDDEN_COMMAND_PREFIXES: tuple[tuple[str, ...], ...] = (
     ("git", "push"),
     ("git", "reset", "--hard"),
@@ -75,6 +77,8 @@ EVIDENCE_FILES = {
     "changed-path-report": "changed-path-report.json",
     "final-result": "final-result.json",
     "cleanup-disposition": "cleanup-disposition.json",
+    "abandonment-intent": "abandonment-intent.json",
+    "abandonment-record": "abandonment-record.json",
 }
 
 
@@ -757,6 +761,158 @@ def cmd_record_invocation(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+
+def evidence_hashes(directory: Path, names: tuple[str, ...]) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for name in names:
+        path = directory / name
+        if path.is_file():
+            result[name] = sha256_file(path)
+    return result
+
+
+def cmd_abandon_before_invocation(args: argparse.Namespace) -> dict[str, Any]:
+    context = resolve_context(args.project_root)
+    directory, record = load_run_record(context, args.task_id)
+
+    final_path = directory / "abandonment-record.json"
+    intent_path = directory / "abandonment-intent.json"
+    if record.get("status") == ABANDONED_BEFORE_INVOCATION:
+        require(final_path.is_file(), "ABANDONMENT_RECORD_MISSING", "Terminal abandonment status requires immutable abandonment evidence", taskId=args.task_id)
+        return load_json(final_path)
+
+    require(record.get("status") == "PREPARED", "ABANDONMENT_STATE_INVALID", "Only a prepared task may be abandoned before invocation", taskId=args.task_id, status=record.get("status"))
+    require(record.get("codexInvocation") == "NOT_RECORDED", "ABANDONMENT_INVOCATION_EXISTS", "A task with recorded Codex invocation evidence cannot be abandoned through the pre-invocation path", taskId=args.task_id)
+    require(args.reason == "integration-head-advanced", "ABANDONMENT_REASON_INVALID", "Unsupported pre-invocation abandonment reason", reason=args.reason)
+
+    task = load_json(directory / "task-contract.json")
+    policy = load_pilot_contract(context.current_root)
+    validate_task(task, policy)
+    expected_task_hash = (directory / "task-contract.sha256").read_text(encoding="utf-8").split()[0]
+    require(sha256_file(directory / "task-contract.json") == expected_task_hash, "TASK_CONTRACT_MUTATED", "Task contract changed before abandonment")
+
+    forbidden_evidence = (
+        "operator-command-effect.json",
+        "operator-command-effect.sha256",
+        "invocation-record.json",
+        "invocation-record.sha256",
+        "changed-path-report.json",
+        "final-result.json",
+        "cleanup-disposition.json",
+    )
+    present_forbidden = [name for name in forbidden_evidence if (directory / name).exists()]
+    if (directory / "qualification").exists():
+        present_forbidden.append("qualification/")
+    require(not present_forbidden, "ABANDONMENT_EVIDENCE_CONFLICT", "Pre-invocation abandonment is forbidden after invocation or qualification evidence exists", evidence=present_forbidden)
+
+    worktree = Path(record["worktreePath"])
+
+    # Crash recovery: immutable terminal evidence may exist even if run.json was
+    # not updated after the atomic record write. Reconcile only that exact state.
+    if final_path.is_file():
+        require(intent_path.is_file(), "ABANDONMENT_INTENT_MISSING", "Terminal abandonment evidence requires the immutable abandonment intent", taskId=args.task_id)
+        final = load_json(final_path)
+        expected_final = {
+            "schemaVersion": "springmaster.agent-task-abandonment-record.v1",
+            "status": ABANDONED_BEFORE_INVOCATION,
+            "taskId": args.task_id,
+            "reason": "INTEGRATION_HEAD_ADVANCED",
+            "baseCommit": task["baseCommit"],
+            "worktreePath": str(worktree),
+            "worktreeRemoved": True,
+            "codexInvocation": "NOT_RECORDED",
+            "evidenceRetained": True,
+            "newAttemptRequired": True,
+            "abandonmentIntentSha256": sha256_file(intent_path),
+        }
+        for key, value in expected_final.items():
+            require(final.get(key) == value, "ABANDONMENT_RECORD_CONFLICT", "Existing abandonment record differs from the prepared task state", field=key, expected=value, actual=final.get(key))
+        require(isinstance(final.get("abandonedAt"), str) and final["abandonedAt"], "ABANDONMENT_RECORD_CONFLICT", "Existing abandonment record has no abandonment timestamp")
+        require(isinstance(final.get("integrationHead"), str) and COMMIT_PATTERN.fullmatch(final["integrationHead"]) is not None and final["integrationHead"] != task["baseCommit"], "ABANDONMENT_RECORD_CONFLICT", "Existing abandonment record has an invalid integration head")
+        require(not worktree.exists(), "ABANDONMENT_WORKTREE_REMOVE_FAILED", "Terminal abandonment evidence exists while the task worktree still exists", path=str(worktree))
+        record["status"] = ABANDONED_BEFORE_INVOCATION
+        record["abandonedAt"] = final["abandonedAt"]
+        record["abandonmentReason"] = final["reason"]
+        record["abandonmentRecordSha256"] = sha256_file(final_path)
+        atomic_json(directory / "run.json", record)
+        return final
+
+    integration_before = load_json(directory / "integration-pre-state.json")
+    integration_now = integration_state(context.integration_root)
+    require(integration_now["branch"] == context.integration_branch, "INTEGRATION_BRANCH_INVALID", "Integration worktree is not on the configured branch", state=integration_now)
+    require(integration_now["statusPorcelainV1"] == "", "INTEGRATION_TREE_DIRTY", "Integration worktree must be clean before abandonment", state=integration_now)
+    require(integration_before.get("head") == task["baseCommit"] == record.get("baseCommit"), "ABANDONMENT_BASE_EVIDENCE_INVALID", "Task base evidence is inconsistent", integrationPreState=integration_before.get("head"), taskBase=task.get("baseCommit"), runBase=record.get("baseCommit"))
+    require(integration_now["head"] != task["baseCommit"], "ABANDONMENT_HEAD_NOT_ADVANCED", "Integration HEAD must differ from the prepared task base for this abandonment reason", integrationHead=integration_now["head"], taskBase=task["baseCommit"])
+
+    if intent_path.is_file():
+        intent = load_json(intent_path)
+        require(intent.get("schemaVersion") == "springmaster.agent-task-abandonment-intent.v1", "ABANDONMENT_INTENT_INVALID", "Abandonment intent schema is invalid")
+        require(intent.get("taskId") == args.task_id and intent.get("reason") == "INTEGRATION_HEAD_ADVANCED", "ABANDONMENT_INTENT_INVALID", "Abandonment intent identity is invalid")
+        require(intent.get("baseCommit") == task["baseCommit"], "ABANDONMENT_INTENT_STALE", "Existing abandonment intent has a different task base")
+        require(intent.get("integrationBranch") == context.integration_branch, "ABANDONMENT_INTENT_STALE", "Existing abandonment intent has a different integration branch")
+        require(isinstance(intent.get("integrationHead"), str) and COMMIT_PATTERN.fullmatch(intent["integrationHead"]) is not None and intent["integrationHead"] != task["baseCommit"], "ABANDONMENT_INTENT_STALE", "Existing abandonment intent has an invalid integration head")
+        require(intent.get("worktreePath") == str(worktree) and intent.get("runDirectory") == str(directory), "ABANDONMENT_INTENT_INVALID", "Abandonment intent paths do not match the prepared task")
+        require(intent.get("codexInvocation") == "NOT_RECORDED", "ABANDONMENT_INTENT_INVALID", "Abandonment intent records an invalid invocation state")
+    else:
+        require(worktree.is_dir() and not worktree.is_symlink(), "ABANDONMENT_WORKTREE_MISSING", "Prepared task worktree is missing before abandonment", path=str(worktree))
+        state = worktree_state(worktree)
+        require(state["head"] == task["baseCommit"] and state["detached"], "ABANDONMENT_WORKTREE_STATE_INVALID", "Prepared task worktree must remain detached at its base commit", state=state)
+        require(parse_changed_paths(worktree) == [], "ABANDONMENT_WORKTREE_DIRTY", "Prepared task worktree must be clean before abandonment", path=str(worktree))
+        retained = evidence_hashes(directory, (
+            "task-contract.json",
+            "task-contract.sha256",
+            "prepare-record.json",
+            "integration-pre-state.json",
+            "worktree-pre-state.json",
+        ))
+        intent = {
+            "schemaVersion": "springmaster.agent-task-abandonment-intent.v1",
+            "taskId": args.task_id,
+            "reason": "INTEGRATION_HEAD_ADVANCED",
+            "authorizedAt": utc_now(),
+            "baseCommit": task["baseCommit"],
+            "integrationHead": integration_now["head"],
+            "integrationBranch": context.integration_branch,
+            "worktreePath": str(worktree),
+            "runDirectory": str(directory),
+            "codexInvocation": "NOT_RECORDED",
+            "retainedEvidenceSha256": retained,
+        }
+        atomic_json(intent_path, intent)
+
+    if worktree.exists():
+        require(worktree.is_dir() and not worktree.is_symlink(), "ABANDONMENT_WORKTREE_INVALID", "Task worktree path is unsafe", path=str(worktree))
+        state = worktree_state(worktree)
+        require(state["head"] == task["baseCommit"] and state["detached"], "ABANDONMENT_WORKTREE_STATE_INVALID", "Prepared task worktree must remain detached at its base commit", state=state)
+        require(parse_changed_paths(worktree) == [], "ABANDONMENT_WORKTREE_DIRTY", "Prepared task worktree must be clean before abandonment", path=str(worktree))
+        run(["git", "worktree", "remove", str(worktree)], cwd=context.integration_root, check=True)
+        git(context.integration_root, "worktree", "prune")
+    require(not worktree.exists(), "ABANDONMENT_WORKTREE_REMOVE_FAILED", "Task worktree still exists after abandonment", path=str(worktree))
+
+    final = {
+        "schemaVersion": "springmaster.agent-task-abandonment-record.v1",
+        "status": ABANDONED_BEFORE_INVOCATION,
+        "taskId": args.task_id,
+        "reason": "INTEGRATION_HEAD_ADVANCED",
+        "abandonedAt": utc_now(),
+        "baseCommit": task["baseCommit"],
+        "integrationHead": intent["integrationHead"],
+        "worktreePath": str(worktree),
+        "worktreeRemoved": True,
+        "codexInvocation": "NOT_RECORDED",
+        "evidenceRetained": True,
+        "newAttemptRequired": True,
+        "abandonmentIntentSha256": sha256_file(intent_path),
+    }
+    atomic_json(final_path, final)
+    record["status"] = ABANDONED_BEFORE_INVOCATION
+    record["abandonedAt"] = final["abandonedAt"]
+    record["abandonmentReason"] = final["reason"]
+    record["abandonmentRecordSha256"] = sha256_file(final_path)
+    atomic_json(directory / "run.json", record)
+    return final
+
+
 def cmd_validate(args: argparse.Namespace) -> dict[str, Any]:
     root = discover_root(args.project_root)
     policy = load_pilot_contract(root)
@@ -1212,7 +1368,7 @@ def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
     result["runDirectory"] = str(directory)
     task = load_json(directory / "task-contract.json")
     result["requiredEvidence"] = evidence_status(directory, task, include_cleanup=(directory / "cleanup-disposition.json").is_file())
-    for name in ("changed-path-report.json", "final-result.json", "cleanup-disposition.json"):
+    for name in ("changed-path-report.json", "final-result.json", "cleanup-disposition.json", "abandonment-intent.json", "abandonment-record.json"):
         path = directory / name
         if path.is_file():
             result[name.removesuffix(".json")] = load_json(path)
@@ -1225,6 +1381,7 @@ def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
 def cmd_cleanup(args: argparse.Namespace) -> dict[str, Any]:
     context = resolve_context(args.project_root)
     directory, record = load_run_record(context, args.task_id)
+    require(record.get("status") != ABANDONED_BEFORE_INVOCATION, "ABANDONED_TASK_CLEANUP_FORBIDDEN", "An abandoned pre-invocation task has already removed its worktree and retained terminal evidence", taskId=args.task_id)
     worktree = Path(record["worktreePath"])
     dirty = False
     if worktree.is_dir():
@@ -1289,6 +1446,9 @@ def parser() -> argparse.ArgumentParser:
     for command in ("status", "postcheck", "qualify", "handoff"):
         item = sub.add_parser(command)
         item.add_argument("task_id")
+    abandon = sub.add_parser("abandon-before-invocation")
+    abandon.add_argument("task_id")
+    abandon.add_argument("--reason", required=True, choices=("integration-head-advanced",))
     cleanup = sub.add_parser("cleanup")
     cleanup.add_argument("task_id")
     cleanup.add_argument("--discard", action="store_true")
@@ -1312,6 +1472,8 @@ def main() -> int:
             value = cmd_qualify(args)
         elif args.command == "handoff":
             value = cmd_handoff(args)
+        elif args.command == "abandon-before-invocation":
+            value = cmd_abandon_before_invocation(args)
         elif args.command == "cleanup":
             value = cmd_cleanup(args)
         else:

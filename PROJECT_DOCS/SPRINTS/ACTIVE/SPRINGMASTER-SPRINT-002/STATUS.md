@@ -29,7 +29,7 @@ expectedVersionImpact: minor
 
 ## Aktueller Stand
 
-Die Tooling-Härtung `000201_springmaster_tooling_hardening_cut` und die Codex-Cutover-Foundation `000203_springmaster_codex_cutover_foundation` sind kanonisch akzeptiert. Der saubere Integrationsstand ist `93ab563cc1e82bc801907399602fe04e6d37e2f7` mit Platform `0.23.0-foundation`, Tooling `0.13.0` und State Patch `000203_springmaster_codex_cutover_foundation`.
+Die Tooling-Härtung `000201_springmaster_tooling_hardening_cut` und die Codex-Cutover-Foundation `000203_springmaster_codex_cutover_foundation` sind kanonisch akzeptiert. `93ab563cc1e82bc801907399602fe04e6d37e2f7` ist der historische Accept-Commit von `000203_springmaster_codex_cutover_foundation`; der operative Integrationsstand ist immer der aktuell saubere `main`-HEAD und darf nicht aus dieser historischen Evidence abgeleitet werden. Platform `0.23.0-foundation` und Tooling `0.13.0` beschreiben die Foundation-Baseline von `000203`, nicht einen festgeschriebenen aktuellen HEAD.
 
 Die vorliegende Stabilisierung bindet `agent-task prepare` unter `PROJECT_READY` fail-closed an den materialisierten Calibration Plan, erzeugt gültige Calibration Tasks und verhindert die Übernahme eines Host-`PATH` in die äußere Codex-Sandbox. Sie autorisiert weder reguläre Feature-Tasks noch schreibende Codex-Nutzung.
 
@@ -96,7 +96,7 @@ Der Lifecycle-Vertrag `PROJECT_READY -> CODEX_CALIBRATION` ist formal und techni
 
 ## Nächster kontrollierter Schritt
 
-Als Nächstes werden Post-Accept-Live-Readiness und reale Host-Qualification gegen `93ab563cc1e82bc801907399602fe04e6d37e2f7` ausgeführt. Danach wird das Calibration Task Pack materialisiert und geprüft. Vor erfolgreicher Host-Qualification erfolgt kein realer Codex-Aufruf; vor separater Promotion erfolgt keine reguläre schreibende Codex-Nutzung.
+Als nächster kontrollierter Schritt wird das Calibration Task Pack gegen den aktuell sauberen `main`-HEAD materialisiert und geprüft. Unmittelbar vor einer realen Codex-Invocation müssen Live-Readiness, Host-Inspection und mechanische Confinement-Probes für genau diesen aktuellen HEAD erfolgreich sein. `PROJECT_READY` autorisiert keine reguläre schreibende Codex-Nutzung; `PILOT_WRITE_READY` bleibt einer separaten Promotion vorbehalten.
 
 ## Lifecycle
 

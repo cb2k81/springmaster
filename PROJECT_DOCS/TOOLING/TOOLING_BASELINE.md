@@ -330,7 +330,7 @@ remain fail-closed blockers.
 
 `000201_springmaster_tooling_hardening_cut` is accepted. The canonical accept run is `run-20260731T073111Z-0e5f6316c4d3`, and the accepted patch commit is `b48743512944e95b39231f685fe172fb93b5a015`. Earlier statements that classify this patch as `NOT_ACCEPTED` are superseded by this section.
 
-`000203_springmaster_codex_cutover_foundation` is canonically accepted at clean main commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. Post-accept live readiness, host-local confinement evidence, two accepted calibration tasks and a separate promotion are still required.
+`000203_springmaster_codex_cutover_foundation` was canonically accepted at clean main commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. At that acceptance point, post-accept live readiness, host-local confinement evidence, two accepted calibration tasks and a separate promotion were still outstanding. Operational qualification is always evaluated against the current clean integration HEAD; the historical `000203` commit remains acceptance evidence only.
 
 ## Toolkit 1.1.3 accept-qualification compatibility hotfix candidate
 
@@ -339,3 +339,9 @@ remain fail-closed blockers.
 The candidate carries a regression fixture in `bin/patch-toolkit-activation-it.sh`. The failed `000208` accept remains immutable incident evidence; no `000208` payload defect is inferred from that failure. Toolkit self-update acceptance remains a separate explicit operator decision after canonical dry-run.
 
 Historical Codex cutover acceptance is no longer derived from the mutable current Tooling version closure. The Activation Contract carries the immutable `codexCutoverFoundationAcceptance` for `000203`, while `versionClosure` describes the current Springmaster Tooling state. This prevents a later Tooling patch from falsely invalidating accepted cutover foundation evidence. Because this fix introduces a new machine-readable Activation Contract field, Springmaster classifies the Tooling/Platform impact as `minor`: Platform `0.24.0-foundation`, Tooling `0.14.0`, Maven `0.24.0-foundation-SNAPSHOT`; the embedded Toolkit runtime itself remains the compatible patch update `1.1.3`.
+
+## Calibration attempt and abandonment lifecycle
+
+The agent-task harness supports the terminal status `ABANDONED_BEFORE_INVOCATION` for a prepared task whose integration base became stale before any Codex invocation was recorded. The transition is fail-closed, retains immutable external run evidence and removes only a clean detached task worktree at the recorded base commit.
+
+`codex-calibration materialize --attempt <1..999>` emits attempt-qualified task IDs (`A001`, `A002`, ...). Task IDs are immutable and non-reusable. A replacement attempt is always materialized against the current clean integration HEAD. This lifecycle does not grant Codex access to `patches/work`, integration, Git-common, Downloads, external run/artifact roots or any host path outside the prepared task worktree.

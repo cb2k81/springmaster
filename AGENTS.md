@@ -324,6 +324,8 @@ Nach ADR-0015 und der AI Agent Development Governance gilt fuer den Springmaster
 - Commit, Push, Branchwechsel, `.git`-Mutation, Netzwerkzugriff, Symlink-Erzeugung, nicht deklarierte Root-Artefakte und fremde Repositoryaenderungen sind fuer Agent-Tasks verboten.
 - Fachkonzept, Akzeptanzvertrag, Generator und generiertes Ergebnis werden in getrennten Tasks veraendert. Ein Agent darf seinen eigenen Oracle nicht opportunistisch anpassen.
 - Eine echte Grenzverletzung, fehlende Evidence, Integrations-Drift oder nicht deterministische Wiederholung stoppt den Piloten.
+- Ein nur vorbereiteter Task mit `codexInvocation=NOT_RECORDED` darf bei zwischenzeitlich fortgeschrittenem sauberem `main` ausschließlich über `bin/agent-task.sh abandon-before-invocation <task-id> --reason integration-head-advanced` terminalisiert werden. Der Harness entfernt nur den unveränderten detached Task-Worktree, behält die Evidence und setzt `ABANDONED_BEFORE_INVOCATION`; manuelles Löschen, Umbasen oder Wiederverwenden der Task-ID ist verboten.
+- Jede Kalibrierung wird mit einer expliziten Attempt-Nummer materialisiert (`bin/codex-calibration.sh materialize ... --attempt <1..999>`). Task-IDs enthalten `A001`, `A002`, ... und werden niemals wiederverwendet.
 
 ## Patch-, Git- und Export-Governance
 

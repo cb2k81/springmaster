@@ -340,3 +340,26 @@ Das Bundle:
 `codex-host-sandbox invoke --change-bundle <bundle.zip>` stellt ausschließlich die Bundle- und Task-Contract-Pfade als read-only Umgebungswerte bereit. Auch nach erfolgreicher Anwendung bleiben Postcheck, Qualification, `agent-task handoff`, kontrollierte Candidate-Anwendung, `cpatch create`, separater Dry-run und separater Accept zwingend.
 
 Ein Change Bundle autorisiert keine schreibende Codex-Ausführung. Vor `PILOT_WRITE_READY` sind weiterhin nur die ausdrücklich freigegebenen Kalibrierungsaufgaben zulässig.
+
+## 18. Kalibrierungs-Attempts und Pre-Invocation-Abandonment
+
+Jede materialisierte Kalibrierung besitzt eine explizite Attempt-Nummer von `1` bis `999`. Der Generator bildet daraus `A001`, `A002`, ... und kodiert diesen Wert in allen Analysis- und Implementation-Task-IDs. Eine einmal verwendete Task-ID wird weder nach Fehlern noch nach einem Host- oder Baseline-Wechsel erneut verwendet.
+
+Ein Task darf ausschließlich dann terminal als `ABANDONED_BEFORE_INVOCATION` abgeschlossen werden, wenn alle folgenden Bedingungen gleichzeitig erfüllt sind:
+
+- Run-Status ist `PREPARED`;
+- `codexInvocation` ist `NOT_RECORDED`;
+- es existieren keine Operator-Effect-, Invocation-, Changed-Path-, Qualification-, Final-Result- oder Cleanup-Evidence;
+- der detached Task-Worktree ist sauber und steht unverändert auf dem Task-Base-Commit;
+- der Integrations-Checkout ist sauber auf `main`, sein HEAD ist aber seit der Vorbereitung fortgeschritten.
+
+Der einzige zulässige Übergang lautet:
+
+```bash
+./bin/agent-task.sh abandon-before-invocation <task-id> \
+  --reason integration-head-advanced
+```
+
+Der Harness schreibt zuerst eine unveränderliche Abandonment-Intent-Evidence, entfernt anschließend den sauberen Task-Worktree über `git worktree remove`, behält das externe Run-Verzeichnis und schreibt den terminalen Abandonment-Record. Der alte Task darf danach weder bereinigt, umgebased, fortgesetzt noch erneut vorbereitet werden. Eine Fortsetzung erfolgt ausschließlich mit einem höheren Attempt gegen den aktuellen Integrations-HEAD.
+
+Diese Recovery-Grenze erweitert den Codex-Schreibscope nicht. Codex darf weiterhin ausschließlich den vorbereiteten detached Task-Worktree beschreiben. `patches/work`, Integration, Git-common, Downloads, Operator-Home, externe Run-/Artefakt-Roots, andere Worktrees und Host-Temp bleiben für Codex nicht beschreibbar.

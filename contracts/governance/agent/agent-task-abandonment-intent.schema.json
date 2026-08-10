@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:agent-task-abandonment-intent:v1",
+  "title": "Springmaster Agent Task Abandonment Intent V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "reason",
+    "authorizedAt",
+    "baseCommit",
+    "integrationHead",
+    "integrationBranch",
+    "worktreePath",
+    "runDirectory",
+    "codexInvocation",
+    "retainedEvidenceSha256"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "springmaster.agent-task-abandonment-intent.v1"},
+    "taskId": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$"},
+    "reason": {"const": "INTEGRATION_HEAD_ADVANCED"},
+    "authorizedAt": {"type": "string", "format": "date-time"},
+    "baseCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "integrationHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "integrationBranch": {"const": "main"},
+    "worktreePath": {"type": "string", "minLength": 1},
+    "runDirectory": {"type": "string", "minLength": 1},
+    "codexInvocation": {"const": "NOT_RECORDED"},
+    "retainedEvidenceSha256": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "required": [
+        "task-contract.json",
+        "task-contract.sha256",
+        "prepare-record.json",
+        "integration-pre-state.json",
+        "worktree-pre-state.json"
+      ]
+    }
+  }
+}
