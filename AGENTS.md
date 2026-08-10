@@ -327,7 +327,7 @@ Nach ADR-0015 und der AI Agent Development Governance gilt fuer den Springmaster
 
 ## Patch-, Git- und Export-Governance
 
-Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die dauerhafte Repositoryhistorie. Cocondo Patch Toolkit `1.1.2` und `bin/cpatch` sind der kanonische mutierende Patchpfad.
+Nach ADR-0012 ist das Patchsystem ein Transaktionsmechanismus; Git bleibt die dauerhafte Repositoryhistorie. Die im Activation Contract gebundene Cocondo-Patch-Toolkit-Runtime und `bin/cpatch` bilden den kanonischen mutierenden Patchpfad; unabhängige fest codierte aktuelle Toolkit-Versionen sind unzulässig.
 
 - Normale Entwicklung erfolgt Git-nativ in einem dedizierten Worktree und Branch. Ein lieferbares Patchartefakt wird erst aus zwei echten, committed Git-Refs erzeugt.
 - Jeder Feature- oder Chatprozess bindet seinen Worktree vor `create` an einen eindeutigen Workspace und eine feste Scope-Menge:

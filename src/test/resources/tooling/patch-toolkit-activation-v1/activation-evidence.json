@@ -76,7 +76,7 @@
     "sourceCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
     "status": "COMPLETE"
   },
-  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
+  "runtimeSha256": "be07d5d7d4191bbc10bf13a3effa0a1b0838966e41ea475bc6860fc56204267e",
   "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
   "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
   "stagingHotfix": {
@@ -122,5 +122,22 @@
     "versionClosure": "ACCEPTED",
     "workspaceLifecycle": "IMPLEMENTED_AND_ACCEPTED"
   },
-  "toolkitVersion": "1.1.2"
+  "toolkitVersion": "1.1.3",
+  "acceptQualificationCompatibilityHotfix": {
+    "patchId": "000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix",
+    "toolkitVersion": "1.1.3",
+    "semanticImpact": "minor",
+    "incidentRunId": "run-20260808T185737Z-d6cd351a7ae9",
+    "failurePhase": "qualification-commit",
+    "rootCause": "GitRepository.show_check combined git show --check with --no-patch; the qualified DEV-host Git rejects that option combination",
+    "implementation": "GitRepository.show_check invokes git show --check --oneline <commit> without --no-patch",
+    "temporaryRuntimeQualification": "PASS_STEP_05V3",
+    "repositoryMutationDuringTemporaryQualification": false,
+    "bootstrapRequirement": "qualified-1.1.2-compatibility-runtime-only-for-self-update-accept-start",
+    "postCommitObserver": "process-ops",
+    "runtimeSemanticImpact": "patch",
+    "springmasterToolingSemanticImpact": "minor",
+    "platformVersion": "0.24.0-foundation",
+    "toolingVersion": "0.14.0"
+  }
 }

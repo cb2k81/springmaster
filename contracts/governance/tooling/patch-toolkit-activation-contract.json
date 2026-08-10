@@ -56,7 +56,7 @@
   "requireCleanTree": true,
   "requireWorkspaceForCreate": true,
   "requireWorktree": true,
-  "runtimeSha256": "351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155",
+  "runtimeSha256": "be07d5d7d4191bbc10bf13a3effa0a1b0838966e41ea475bc6860fc56204267e",
   "schemaVersion": "springmaster.patch-toolkit-activation-contract.v1",
   "stagingModel": {
     "additions": "git-add-without-force",
@@ -65,11 +65,21 @@
     "stagedPathParity": "manifest-exact",
     "trackedUpdatesAndDeletions": "git-add-u"
   },
-  "toolkitVersion": "1.1.2",
+  "toolkitVersion": "1.1.3",
   "versionClosure": {
-    "mavenVersion": "0.23.0-foundation-SNAPSHOT",
+    "mavenVersion": "0.24.0-foundation-SNAPSHOT",
+    "platformVersion": "0.24.0-foundation",
+    "statePatch": "000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix",
+    "toolingVersion": "0.14.0"
+  },
+  "codexCutoverFoundationAcceptance": {
+    "status": "ACCEPTED_000203",
+    "patchId": "000203_springmaster_codex_cutover_foundation",
+    "deliveryId": "000203-springmaster_codex_cutover_foundation",
     "platformVersion": "0.23.0-foundation",
-    "statePatch": "000203_springmaster_codex_cutover_foundation",
-    "toolingVersion": "0.13.0"
+    "toolingVersion": "0.13.0",
+    "acceptanceStatus": "ACCEPTED",
+    "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
+    "acceptanceEvidenceSource": "live-delivery-inventory"
   }
 }

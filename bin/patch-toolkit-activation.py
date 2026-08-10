@@ -256,23 +256,38 @@ def main() -> int:
                     )
 
         cutover = evidence.get("codexCutoverFoundationCandidate")
-        cutover_expected = {
-            "status": process_contract.get("codexCutoverFoundationCandidate"),
-            "patchId": closure.get("statePatch"),
-            "deliveryId": str(closure.get("statePatch", "")).replace("_", "-", 1),
-            "platformVersion": closure.get("platformVersion"),
-            "toolingVersion": closure.get("toolingVersion"),
-            "hostQualificationRequired": True,
-            "hostQualificationPortable": False,
-            "mechanicalConfinementRequired": True,
-            "realCodexConfinementRequired": True,
-            "acceptedCalibrationTaskCountRequired": 2,
-            "writableCodexAuthorized": False,
-            "pilotWriteReady": False,
-            "acceptanceStatus": "ACCEPTED",
-            "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
-            "acceptanceEvidenceSource": "live-delivery-inventory",
-        }
+        cutover_contract = contract.get("codexCutoverFoundationAcceptance")
+        if not isinstance(cutover_contract, dict):
+            findings.append({"code": "CODEX_CUTOVER_FOUNDATION_CONTRACT_MISSING"})
+            cutover_expected = {}
+        else:
+            contract_status = cutover_contract.get("status")
+            process_status = process_contract.get("codexCutoverFoundationCandidate")
+            if contract_status != process_status:
+                add_mismatch(
+                    findings,
+                    "CODEX_CUTOVER_FOUNDATION_CONTRACT_MISMATCH",
+                    process_status,
+                    contract_status,
+                    key="status",
+                )
+            cutover_expected = {
+                "status": contract_status,
+                "patchId": cutover_contract.get("patchId"),
+                "deliveryId": cutover_contract.get("deliveryId"),
+                "platformVersion": cutover_contract.get("platformVersion"),
+                "toolingVersion": cutover_contract.get("toolingVersion"),
+                "hostQualificationRequired": True,
+                "hostQualificationPortable": False,
+                "mechanicalConfinementRequired": True,
+                "realCodexConfinementRequired": True,
+                "acceptedCalibrationTaskCountRequired": 2,
+                "writableCodexAuthorized": False,
+                "pilotWriteReady": False,
+                "acceptanceStatus": cutover_contract.get("acceptanceStatus"),
+                "acceptedCommit": cutover_contract.get("acceptedCommit"),
+                "acceptanceEvidenceSource": cutover_contract.get("acceptanceEvidenceSource"),
+            }
         if not isinstance(cutover, dict):
             findings.append({"code": "CODEX_CUTOVER_FOUNDATION_EVIDENCE_MISSING"})
         else:

@@ -281,11 +281,7 @@ Damit bleibt die nächste Arbeit auf das sichere Generieren und Akzeptieren von 
 
 ## Qualified Patch Toolkit baseline
 
-Springmaster uses Cocondo Patch Toolkit `1.1.2` as the canonical mutating patch runtime. The immutable runtime SHA-256 is:
-
-```text
-351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155
-```
+Springmaster resolves the canonical mutating Cocondo Patch Toolkit runtime and immutable SHA-256 from `contracts/governance/tooling/patch-toolkit-activation-contract.json`, with `.cocondo/tooling/tooling.lock.json`, project config, sidecar and runtime required to match exactly. The former accepted Toolkit `1.1.2` runtime SHA-256 `351ad49d581bc631e0beb91d9c7a9348e1629c62e795204924a4fa728ad6d155` remains historical provenance rather than a copied current-version constant.
 
 The production baseline requires clean-tree enforcement, commit-on-accept, dedicated Git worktrees, workspace binding and integration into `main`. The activation is verified by `bin/patch-toolkit-activation.sh`, its negative integration fixture and the regular Tooling Selfcheck.
 
@@ -335,3 +331,11 @@ remain fail-closed blockers.
 `000201_springmaster_tooling_hardening_cut` is accepted. The canonical accept run is `run-20260731T073111Z-0e5f6316c4d3`, and the accepted patch commit is `b48743512944e95b39231f685fe172fb93b5a015`. Earlier statements that classify this patch as `NOT_ACCEPTED` are superseded by this section.
 
 `000203_springmaster_codex_cutover_foundation` is canonically accepted at clean main commit `93ab563cc1e82bc801907399602fe04e6d37e2f7`. Its repository-side contracts and harness do not transfer host authorization and do not enable writable Codex operation. Post-accept live readiness, host-local confinement evidence, two accepted calibration tasks and a separate promotion are still required.
+
+## Toolkit 1.1.3 accept-qualification compatibility hotfix candidate
+
+`000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix` removes the Git-version-sensitive `--no-patch` option from `GitRepository.show_check` while retaining `git show --check --oneline <commit>`. The change is a compatible Tooling patch, not a new public capability. Version closure therefore advances `PLATFORM_TOOLING_VERSION` from `0.13.0` to `0.13.1` and `PLATFORM_STATE_PATCH` to `000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix` while leaving aggregate Platform `0.23.0-foundation` and Maven `0.23.0-foundation-SNAPSHOT` unchanged.
+
+The candidate carries a regression fixture in `bin/patch-toolkit-activation-it.sh`. The failed `000208` accept remains immutable incident evidence; no `000208` payload defect is inferred from that failure. Toolkit self-update acceptance remains a separate explicit operator decision after canonical dry-run.
+
+Historical Codex cutover acceptance is no longer derived from the mutable current Tooling version closure. The Activation Contract carries the immutable `codexCutoverFoundationAcceptance` for `000203`, while `versionClosure` describes the current Springmaster Tooling state. This prevents a later Tooling patch from falsely invalidating accepted cutover foundation evidence. Because this fix introduces a new machine-readable Activation Contract field, Springmaster classifies the Tooling/Platform impact as `minor`: Platform `0.24.0-foundation`, Tooling `0.14.0`, Maven `0.24.0-foundation-SNAPSHOT`; the embedded Toolkit runtime itself remains the compatible patch update `1.1.3`.
