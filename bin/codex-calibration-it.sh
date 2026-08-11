@@ -104,7 +104,7 @@ for i in (1,2):
  patch=r/f'handoff{i}.patch'; patch.write_text(f'diff --git a/task-{i} b/task-{i}\n')
  write(f'handoff{i}.json',{'schemaVersion':'springmaster.agent-task-patch-handoff.v1','status':'VERIFIED','patchId':None,'deliveryId':None,'integrationAuthorized':False,'canonicalPatchArtifact':False,'isolatedApplyCheck':'PASS','patch':{'path':patch.name,'sha256':sh(patch)}})
  write(f'dry{i}.json',{'status':'DRY_RUN_SUCCEEDED','runId':f'dry-{i}'})
- write(f'accept{i}.json',{'schemaVersion':'cocondo.patch-acceptance.v2','status':'SUCCEEDED','patchId':f'00030{i}_calibration_{i}'})
+ write(f'accept{i}.json',{'schemaVersion':'cocondo.patch-acceptance.v2','projectId':'springmaster','artifactId':f'urn:uuid:0000030{i}-0000-4000-8000-00000000000{i}','patchId':f'00030{i}_calibration_{i}'})
 manifest={
  'schemaVersion':'springmaster.codex-calibration-assembly.v1','hostQualification':'host.json','analysisInvocation':'analysis.json',
  'hostState':{'integrationStatusBefore':'','integrationStatusAfter':'','integrationHeadBefore':base,'integrationHeadAfter':'f'*40,'canonicalAcceptOnly':True,'unauthorizedIntegrationMutation':False,'unauthorizedGitCommonMutation':False}
@@ -131,4 +131,23 @@ rc=$?
 set -e
 test "${rc}" -eq 2
 grep -F 'ERROR_CODE=ACCEPTED_PATCH_ID_INVALID' "${TMP}/negative.out" >/dev/null
+
+# Canonical Toolkit acceptance v2 does not carry a run status. The assembler
+# binds schema/project/artifact identity instead of inventing a status field.
+python3 - "${TMP}/source/accept2.json" <<'PY_ACCEPT_PROJECT'
+import json,sys
+p=sys.argv[1]
+d=json.load(open(p))
+d['patchId']='000302_calibration_2'
+d.pop('projectId',None)
+open(p,'w').write(json.dumps(d)+'\n')
+PY_ACCEPT_PROJECT
+rm -rf "${OUT}"
+set +e
+"${ROOT}/bin/codex-calibration.sh" assemble --manifest "${TMP}/source/assembly.json" --out "${OUT}" > "${TMP}/negative-project.out"
+rc=$?
+set -e
+test "${rc}" -eq 2
+grep -F 'ERROR_CODE=ACCEPTANCE_NOT_CANONICAL' "${TMP}/negative-project.out" >/dev/null
+
 printf '%s\n' 'CODEX_CALIBRATION_IT=PASS'

@@ -234,7 +234,10 @@ def assemble(project: Path, manifest_path: Path, output: Path) -> dict[str, Any]
         handoff["patch"] = {"path": imported_patch.name, "sha256": sha(imported_patch)}
         atomic(handoff_path, handoff)
         require(dry.get("status") == "DRY_RUN_SUCCEEDED" or dry.get("result", {}).get("status") == "DRY_RUN_SUCCEEDED", "DRY_RUN_NOT_PASS", "Canonical dry-run evidence is not successful", task=number)
-        require(acceptance.get("schemaVersion") == "cocondo.patch-acceptance.v2" and acceptance.get("status") == "SUCCEEDED", "ACCEPTANCE_NOT_CANONICAL", "Canonical acceptance evidence is not successful", task=number)
+        require(acceptance.get("schemaVersion") == "cocondo.patch-acceptance.v2", "ACCEPTANCE_NOT_CANONICAL", "Canonical acceptance evidence schema is invalid", task=number)
+        require(acceptance.get("projectId") == "springmaster", "ACCEPTANCE_NOT_CANONICAL", "Canonical acceptance evidence belongs to another project", task=number, projectId=acceptance.get("projectId"))
+        artifact_id = acceptance.get("artifactId")
+        require(isinstance(artifact_id, str) and re.fullmatch(r"urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", artifact_id) is not None, "ACCEPTANCE_NOT_CANONICAL", "Canonical acceptance evidence has no valid artifact identity", task=number, artifactId=artifact_id)
         patch_id = acceptance.get("patchId")
         require(isinstance(patch_id, str) and patch_id and patch_id not in accepted_patch_ids, "ACCEPTED_PATCH_ID_INVALID", "Accepted calibration patch IDs must be distinct", task=number, patchId=patch_id)
         accepted_patch_ids.add(patch_id)
