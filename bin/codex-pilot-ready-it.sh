@@ -38,6 +38,42 @@ git -C "${FIXTURE}" commit -q -m fixture
 "${FIXTURE}/bin/codex-pilot-ready.sh" --project-root "${FIXTURE}" project --candidate --check --skip-self-tests > "${TMP}/positive.out"
 grep -Fx 'CODEX_PILOT_READINESS=PROJECT_READY' "${TMP}/positive.out" >/dev/null
 grep -Fx 'WRITABLE_CODEX_AUTHORIZED=false' "${TMP}/positive.out" >/dev/null
+grep -Fx 'PILOT_WRITE_READY=false' "${TMP}/positive.out" >/dev/null
+
+PROMOTED="${TMP}/promoted"; cp -a "${FIXTURE}" "${PROMOTED}"
+python3 - "${PROMOTED}/contracts/governance/agent/codex-pilot-contract.json" <<'PY_PROMOTED'
+import json,sys
+p=sys.argv[1]; d=json.load(open(p,encoding="utf-8"))
+d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+d["pilot"]["cutoverLifecycle"]="PROMOTED"
+d["projectReadiness"].update({"doesNotAuthorizeWritableCodex":False,"nextAction":"CODEX_PILOT_TASK","successStatus":"PILOT_WRITE_READY"})
+d["confinementCalibration"]["writableCodexAuthorized"]=True
+d["confinementCalibration"]["pilotWriteReady"]=True
+d["writePromotion"]={
+  "schemaVersion":"springmaster.codex-write-promotion.v1",
+  "decision":"CODEX_CUTOVER_ACCEPTED",
+  "sourceConfinementEvidenceSchemaVersion":"springmaster.codex-confinement-evidence.v2",
+  "sourceConfinementEvidenceSha256":"a"*64,
+  "sourceConfinementBaselineCommit":"b"*40,
+  "promotedFromHead":"c"*40,
+  "hostId":"d"*24,
+  "acceptedPatchIds":["000212_calibration_1","000213_calibration_2"],
+  "acceptedPatchCount":2,
+  "evidenceStatus":"PASS",
+  "writableCodexAuthorized":True,
+  "pilotWriteReady":True,
+  "promotionAuthority":"trusted-operator-accepted-patch",
+  "decidedAt":"2026-08-10T00:00:00Z"
+}
+open(p,'w',encoding='utf-8').write(json.dumps(d,indent=2,sort_keys=True)+'\n')
+PY_PROMOTED
+git -C "${PROMOTED}" add contracts/governance/agent/codex-pilot-contract.json
+git -C "${PROMOTED}" commit -q -m promoted
+"${PROMOTED}/bin/codex-pilot-ready.sh" --project-root "${PROMOTED}" project --candidate --check --skip-self-tests > "${TMP}/promoted.out"
+grep -Fx 'CODEX_PILOT_READINESS=PILOT_WRITE_READY' "${TMP}/promoted.out" >/dev/null
+grep -Fx 'NEXT_ACTION=CODEX_PILOT_TASK' "${TMP}/promoted.out" >/dev/null
+grep -Fx 'WRITABLE_CODEX_AUTHORIZED=true' "${TMP}/promoted.out" >/dev/null
+grep -Fx 'PILOT_WRITE_READY=true' "${TMP}/promoted.out" >/dev/null
 
 case_finding() {
  local name="$1" file="$2" code="$3"

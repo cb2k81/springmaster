@@ -6,6 +6,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 TMP="${ROOT}/target/codex-change-bundle-it"
 rm -rf -- "${TMP}"
 mkdir -p -- "${TMP}/source" "${TMP}/artifact-root"
+# Keep this fixture hermetic even when the caller has configured the real
+# project artifact root for governed operations. The fixture bundle must be
+# validated against its own synthetic artifact root.
+export COCONDO_ARTIFACT_ROOT="${TMP}/artifact-root"
 trap 'rm -rf -- "${TMP}"' EXIT
 
 REPO="${TMP}/source"

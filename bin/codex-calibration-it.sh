@@ -59,6 +59,28 @@ for task in "${PLAN}"/codex-calibration-*.json; do
   "${ROOT}/bin/agent-task.sh" validate "${task}" >/dev/null
 done
 
+# The real implementation tasks are qualified independently while both start
+# from the same accepted baseline. Prove that the checker accepts the exact
+# versioned baseline and either one-file PASS state without requiring the
+# sibling calibration task to have run first.
+FIXTURE_ROOT="${TMP}/fixture-root"
+mkdir -p "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1"
+cp "${ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt" "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt"
+cp "${ROOT}/src/test/resources/tooling/codex-calibration-v1/task-2.txt" "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-2.txt"
+python3 "${ROOT}/bin/codex-calibration-fixture-check.py" --project-root "${FIXTURE_ROOT}" >/dev/null
+printf '%s\n' 'CALIBRATION_TASK_1=PASS' > "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt"
+python3 "${ROOT}/bin/codex-calibration-fixture-check.py" --project-root "${FIXTURE_ROOT}" >/dev/null
+cp "${ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt" "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt"
+printf '%s\n' 'CALIBRATION_TASK_2=PASS' > "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-2.txt"
+python3 "${ROOT}/bin/codex-calibration-fixture-check.py" --project-root "${FIXTURE_ROOT}" >/dev/null
+printf '%s\n' 'INVALID' > "${FIXTURE_ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt"
+set +e
+python3 "${ROOT}/bin/codex-calibration-fixture-check.py" --project-root "${FIXTURE_ROOT}" > "${TMP}/fixture-negative.out"
+fixture_rc=$?
+set -e
+test "${fixture_rc}" -eq 1
+grep -F 'CODEX_CALIBRATION_FIXTURE_CHECK=FAIL' "${TMP}/fixture-negative.out" >/dev/null
+
 python3 - "${TMP}/source" "${BASE}" <<'PY'
 from pathlib import Path
 import hashlib,json,sys

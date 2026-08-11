@@ -280,13 +280,47 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     pilot_state = pilot.get("pilot") if isinstance(pilot.get("pilot"), dict) else {}
     if pilot_state.get("repositoryId") != EXPECTED_PROJECT_ID or pilot_state.get("integrationBranch") != "main":
         finding(findings, "AIA-PROJECT-001", "PILOT_BOUNDARY_INVALID", "Pilot repository or branch boundary is invalid", pilot=pilot_state)
-    if pilot_state.get("currentLifecycle") != "PROJECT_READY":
-        finding(findings, "AIA-CUTOVER-001", "PILOT_LIFECYCLE_INVALID", "Committed pilot contract must stop at PROJECT_READY", actual=pilot_state.get("currentLifecycle"))
+    lifecycle = pilot_state.get("currentLifecycle")
+    if lifecycle not in {"PROJECT_READY", "PILOT_WRITE_READY"}:
+        finding(findings, "AIA-CUTOVER-001", "PILOT_LIFECYCLE_INVALID", "Committed pilot lifecycle is unknown or unsupported", actual=lifecycle)
     if pilot_state.get("codexExecutionBeforeProjectReady") != "forbidden" or pilot_state.get("managedProjectMutation") != "forbidden":
         finding(findings, "AIA-CUTOVER-001", "PILOT_PROHIBITION_INVALID", "Pre-readiness Codex and managed-project mutation must remain forbidden")
     readiness = pilot.get("projectReadiness") if isinstance(pilot.get("projectReadiness"), dict) else {}
-    if readiness.get("doesNotAuthorizeWritableCodex") is not True or readiness.get("nextAction") != "CODEX_CALIBRATION":
-        finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PROJECT_READY must authorize calibration only", projectReadiness=readiness)
+    write_promotion = pilot.get("writePromotion") if isinstance(pilot.get("writePromotion"), dict) else {}
+    if lifecycle == "PROJECT_READY":
+        if readiness.get("doesNotAuthorizeWritableCodex") is not True or readiness.get("nextAction") != "CODEX_CALIBRATION" or readiness.get("successStatus") != "PROJECT_READY":
+            finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PROJECT_READY must authorize calibration only", projectReadiness=readiness)
+        if write_promotion:
+            finding(findings, "AIA-CUTOVER-001", "PREMATURE_WRITE_PROMOTION", "PROJECT_READY must not carry accepted write-promotion evidence")
+    elif lifecycle == "PILOT_WRITE_READY":
+        accepted_patch_ids = write_promotion.get("acceptedPatchIds")
+        promotion_valid = (
+            readiness.get("doesNotAuthorizeWritableCodex") is False
+            and readiness.get("nextAction") == "CODEX_PILOT_TASK"
+            and readiness.get("successStatus") == "PILOT_WRITE_READY"
+            and write_promotion.get("schemaVersion") == "springmaster.codex-write-promotion.v1"
+            and write_promotion.get("decision") == "CODEX_CUTOVER_ACCEPTED"
+            and write_promotion.get("sourceConfinementEvidenceSchemaVersion") == "springmaster.codex-confinement-evidence.v2"
+            and isinstance(write_promotion.get("sourceConfinementEvidenceSha256"), str)
+            and HEX_SHA256.fullmatch(write_promotion["sourceConfinementEvidenceSha256"]) is not None
+            and isinstance(write_promotion.get("sourceConfinementBaselineCommit"), str)
+            and re.fullmatch(r"[0-9a-f]{40}", write_promotion["sourceConfinementBaselineCommit"]) is not None
+            and isinstance(write_promotion.get("promotedFromHead"), str)
+            and re.fullmatch(r"[0-9a-f]{40}", write_promotion["promotedFromHead"]) is not None
+            and isinstance(write_promotion.get("hostId"), str)
+            and re.fullmatch(r"[0-9a-f]{24}", write_promotion["hostId"]) is not None
+            and isinstance(accepted_patch_ids, list)
+            and len(accepted_patch_ids) == 2
+            and len(set(accepted_patch_ids)) == 2
+            and all(isinstance(item, str) and item for item in accepted_patch_ids)
+            and write_promotion.get("acceptedPatchCount") == 2
+            and write_promotion.get("evidenceStatus") == "PASS"
+            and write_promotion.get("writableCodexAuthorized") is True
+            and write_promotion.get("pilotWriteReady") is True
+            and write_promotion.get("promotionAuthority") == "trusted-operator-accepted-patch"
+        )
+        if not promotion_valid:
+            finding(findings, "AIA-CUTOVER-001", "WRITE_PROMOTION_EVIDENCE_INVALID", "PILOT_WRITE_READY requires complete immutable promotion evidence", writePromotion=write_promotion)
     calibration = pilot.get("confinementCalibration") if isinstance(pilot.get("confinementCalibration"), dict) else {}
     handoff = pilot.get("patchHandoff") if isinstance(pilot.get("patchHandoff"), dict) else {}
     confinement_valid = (
@@ -312,6 +346,9 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         host_qualification.get("schemaVersion") == "springmaster.codex-host-qualification-contract.v1"
         and host_qualification.get("status") == "active"
         and host_qualification.get("securityBoundary", {}).get("authoritativeLayer") == "outer-linux-bwrap"
+        and host_qualification.get("securityBoundary", {}).get("codexInnerSandbox") == "harness-generated-permission-profile-defense-in-depth"
+        and host_qualification.get("securityBoundary", {}).get("sandboxPrivateAuthToolAccess") == "deny-read-and-write"
+        and host_qualification.get("securityBoundary", {}).get("legacySandboxCliPolicy") == "forbidden-for-real-invocation"
         and host_qualification.get("securityBoundary", {}).get("additionalWritableRoots") == []
         and len(host_qualification.get("requiredMechanicalProbes", [])) == 20
         and host_qualification.get("hostEvidence", {}).get("requiresRealCodex") is True
@@ -326,8 +363,8 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         and calibration.get("mustRunOnActualDevSystem") is True
         and calibration.get("realCodexInvocationRequired") is True
         and calibration.get("doesNotPromoteAutomatically") is True
-        and calibration.get("writableCodexAuthorized") is False
-        and calibration.get("pilotWriteReady") is False
+        and calibration.get("writableCodexAuthorized") is (lifecycle == "PILOT_WRITE_READY")
+        and calibration.get("pilotWriteReady") is (lifecycle == "PILOT_WRITE_READY")
         and calibration.get("codexMayReadOrWritePatchesWork") is False
         and calibration.get("hostQualificationRequired") is True
         and calibration.get("acceptedImplementationTasksRequired") == 2
@@ -359,13 +396,13 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     expected_mode_writes = {"analysis": [], "implementation": ["task-worktree"], "qualification": []}
     expected_mode_mutations = {"analysis": "none", "implementation": "task-worktree-only", "qualification": "none"}
     expected_sandboxes = {
-        "analysis": {"cliValue": "read-only", "recordValue": "linux-bwrap-read-only"},
-        "implementation": {"cliValue": "workspace-write", "recordValue": "linux-bwrap-workspace-write"},
-        "qualification": {"cliValue": "read-only", "recordValue": "linux-bwrap-read-only"},
+        "analysis": {"permissionProfileBase": ":read-only", "recordValue": "linux-bwrap-read-only"},
+        "implementation": {"permissionProfileBase": ":workspace", "recordValue": "linux-bwrap-workspace-write"},
+        "qualification": {"permissionProfileBase": ":read-only", "recordValue": "linux-bwrap-read-only"},
     }
     forbidden_flags = set(invocation.get("forbiddenFlags", []))
     required_flags = set(invocation.get("requiredBooleanFlags", []))
-    hard_forbidden = {"--add-dir", "--dangerously-bypass-approvals-and-sandbox", "--yolo", "--full-auto", "--config", "-c", "--profile", "-p"}
+    hard_forbidden = {"--add-dir", "--dangerously-bypass-approvals-and-sandbox", "--yolo", "--full-auto", "--config", "-c", "--profile", "-p", "--ignore-user-config", "--sandbox", "-s", "--permission-profile", "-P"}
     always_forbidden_writes = set(invocation.get("alwaysForbiddenAgentWriteScopes", []))
     expected_forbidden_writes = {
         "operator-home", "operator-downloads", "integration-worktree", "git-common-directory",
@@ -374,8 +411,9 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     invocation_valid = (
         invocation.get("recordOperation") == "agent-task record-invocation"
         and invocation.get("immutableAfterRecord") is True
-        and invocation.get("requiredArgvPrefix") == ["codex", "exec"]
-        and {"--ephemeral", "--ignore-user-config", "--ignore-rules", "--json"} <= required_flags
+        and invocation.get("requiredArgvPrefix") == ["codex", "--ask-for-approval", "never", "exec"]
+        and {"--ephemeral", "--ignore-rules", "--json"} <= required_flags
+        and "--ignore-user-config" not in required_flags
         and hard_forbidden <= forbidden_flags
         and invocation.get("requiredApprovalPolicy") == "never"
         and invocation.get("modeWriteScopes") == expected_mode_writes
@@ -602,13 +640,15 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
             if (root / path).is_file() and os.access(root / path, os.X_OK):
                 run_self_test(root, path, findings)
 
-    status = "PROJECT_READY" if not findings else "FINDINGS"
+    success_status = "PILOT_WRITE_READY" if lifecycle == "PILOT_WRITE_READY" else "PROJECT_READY"
+    status = success_status if not findings else "FINDINGS"
     return {
         "schemaVersion": REPORT_SCHEMA,
         "generatedAt": utc_now(),
         "status": status,
-        "nextAction": "CODEX_CALIBRATION" if status == "PROJECT_READY" else "REMAIN_PRE_CUTOVER",
-        "writableCodexAuthorized": False,
+        "nextAction": ("CODEX_PILOT_TASK" if status == "PILOT_WRITE_READY" else "CODEX_CALIBRATION") if not findings else "REMAIN_PRE_CUTOVER",
+        "writableCodexAuthorized": status == "PILOT_WRITE_READY",
+        "pilotWriteReady": status == "PILOT_WRITE_READY",
         "findingCount": len(findings),
         "findings": findings,
         "details": details,
@@ -620,6 +660,7 @@ def render_text(report: dict[str, Any]) -> str:
         f"CODEX_PILOT_READINESS={report['status']}",
         f"NEXT_ACTION={report['nextAction']}",
         f"WRITABLE_CODEX_AUTHORIZED={'true' if report['writableCodexAuthorized'] else 'false'}",
+        f"PILOT_WRITE_READY={'true' if report.get('pilotWriteReady') else 'false'}",
         f"FINDING_COUNT={report['findingCount']}",
     ]
     for index, item in enumerate(report["findings"], start=1):
@@ -674,7 +715,7 @@ def main() -> int:
         sys.stdout.write(text)
     if report["status"] == "TOOL_ERROR":
         return 2
-    if args.check and report["status"] != "PROJECT_READY":
+    if args.check and report["status"] not in {"PROJECT_READY", "PILOT_WRITE_READY"}:
         return 1
     return 0
 

@@ -590,8 +590,15 @@ def validate_codex_argv(argv: list[str], task: dict[str, Any], agent: dict[str, 
     require(approval == invocation_policy.get("requiredApprovalPolicy") == "never", "INVOCATION_APPROVAL_INVALID", "Codex approval policy must be never", actual=approval)
     mode_policies = invocation_policy.get("modeSandboxPolicies", {})
     mode_policy = mode_policies.get(task["mode"], {}) if isinstance(mode_policies, dict) else {}
-    sandbox = argv_flag_value(argv, "--sandbox", code="INVOCATION_SANDBOX_FLAG_INVALID")
-    require(sandbox == mode_policy.get("cliValue"), "INVOCATION_SANDBOX_INVALID", "Codex sandbox does not match the task mode", mode=task["mode"], expected=mode_policy.get("cliValue"), actual=sandbox)
+    expected_permission_base = ":workspace" if task["mode"] == "implementation" else ":read-only"
+    require(
+        mode_policy.get("permissionProfileBase") == expected_permission_base,
+        "INVOCATION_PERMISSION_PROFILE_INVALID",
+        "Harness permission profile does not match the task mode",
+        mode=task["mode"],
+        expected=expected_permission_base,
+        actual=mode_policy.get("permissionProfileBase"),
+    )
 
 
 def validate_platform_sandbox(value: object, task: dict[str, Any], worktree: Path, invocation_policy: dict[str, Any]) -> None:

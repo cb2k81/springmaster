@@ -91,7 +91,7 @@
     "requiredStatusBeforePromotion": "PASS",
     "writableCodexAuthorized": false
   },
-  "contractVersion": "1.5.0",
+  "contractVersion": "1.6.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -134,14 +134,14 @@
     "entrypoint": "bin/codex-host-sandbox.sh",
     "fixtureEntrypoint": "bin/codex-host-sandbox-it.sh",
     "hostEvidencePortable": false,
-    "innerSandbox": "mode-specific-read-only-or-workspace-write",
+    "innerSandbox": "harness-generated-permission-profile",
     "mustPassOnActualHost": true,
     "outerSandbox": "linux-bwrap"
   },
   "invocation": {
     "additionalWritableRoots": [],
     "agentHandoffCapability": "forbidden",
-    "agentHomePolicy": "dedicated-read-only-or-worktree-contained",
+    "agentHomePolicy": "ephemeral-harness-private-home-with-generated-permission-profile",
     "agentName": "codex",
     "agentWriteBoundary": "task-worktree-only",
     "allowedReadScopes": [
@@ -186,7 +186,12 @@
       "--config",
       "-c",
       "--profile",
-      "-p"
+      "-p",
+      "--ignore-user-config",
+      "--sandbox",
+      "-s",
+      "--permission-profile",
+      "-P"
     ],
     "immutableAfterRecord": true,
     "modeRepositoryMutationPolicies": {
@@ -196,15 +201,15 @@
     },
     "modeSandboxPolicies": {
       "analysis": {
-        "cliValue": "read-only",
+        "permissionProfileBase": ":read-only",
         "recordValue": "linux-bwrap-read-only"
       },
       "implementation": {
-        "cliValue": "workspace-write",
+        "permissionProfileBase": ":workspace",
         "recordValue": "linux-bwrap-workspace-write"
       },
       "qualification": {
-        "cliValue": "read-only",
+        "permissionProfileBase": ":read-only",
         "recordValue": "linux-bwrap-read-only"
       }
     },
@@ -227,11 +232,12 @@
     "requiredApprovalPolicy": "never",
     "requiredArgvPrefix": [
       "codex",
+      "--ask-for-approval",
+      "never",
       "exec"
     ],
     "requiredBooleanFlags": [
       "--ephemeral",
-      "--ignore-user-config",
       "--ignore-rules",
       "--json"
     ],
@@ -239,13 +245,13 @@
       "task-worktree"
     ],
     "requiredValueFlags": [
-      "--model",
-      "--sandbox",
-      "--ask-for-approval"
+      "--model"
     ],
     "sourceEvidenceRoot": "external-artifact-root",
     "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree",
-    "workingDirectoryPolicy": "prepared-task-worktree"
+    "workingDirectoryPolicy": "prepared-task-worktree",
+    "privateCodexHomeConfigPolicy": "harness-generated-permission-profile-only",
+    "privateAuthSandboxAccess": "deny"
   },
   "patchHandoff": {
     "allowedAfterTaskStatus": "QUALIFIED",

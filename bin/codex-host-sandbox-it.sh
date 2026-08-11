@@ -82,6 +82,8 @@ if args==['--version']:
  print('codex-cli fixture-1'); raise SystemExit(0)
 if args[:2]==['exec','--help']:
  print('fixture exec help'); raise SystemExit(0)
+if args[:3]==['--ask-for-approval','never','exec']:
+ args=args[2:]
 if args and args[0]=='sandbox':
  if len(args)<3 or args[1]!='--' or args[2]=='linux':
   raise SystemExit(92)
@@ -143,6 +145,8 @@ PY
 python3 - "${TMP}/invoke.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS'; assert v['taskMode']=='analysis'
+a=v['authHandling']; assert a['permissionProfile']=='springmaster-read-only'; assert a['permissionProfileBase']==':read-only'; assert a['sandboxAuthPath']=='/run/codex-home/auth.json'; assert a['sandboxAuthAccess']=='deny'
+e=json.load(open(v['effect']['path'])); argv=e['argv']; assert argv[:4]==['codex','--ask-for-approval','never','exec']; assert '--ignore-user-config' not in argv and '--sandbox' not in argv and '-s' not in argv
 PY
 "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" qualify --inspect "${TMP}/inspect.json" --probe "${TMP}/probe.json" --analysis-invocation "${TMP}/invoke.json" --out "${TMP}/qualification.json" --check >/dev/null
 python3 - "${TMP}/qualification.json" <<'PY'
@@ -159,4 +163,13 @@ python3 - "${TMP}/negative.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='TOOL_ERROR'; assert v['errorCode']=='EXTERNAL_ROOT_INVALID'
 PY
+python3 - "${REPO}/bin/codex-host-sandbox.py" "${TMP}" <<'PY_PROFILE'
+import importlib.util,stat,sys
+from pathlib import Path
+modp=Path(sys.argv[1]); tmp=Path(sys.argv[2]); spec=importlib.util.spec_from_file_location('host_under_test',modp); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+for writable,name,base in ((False,'springmaster-read-only',':read-only'),(True,'springmaster-workspace',':workspace')):
+ h=tmp/('profile-rw' if writable else 'profile-ro'); h.mkdir(); (h/'auth.json').write_text('{}\n'); (h/'auth.json').chmod(0o600); meta=m.write_private_codex_config(h,writable_task=writable); text=(h/'config.toml').read_text(); assert meta['permissionProfile']==name; assert meta['permissionProfileBase']==base; assert meta['sandboxAuthAccess']=='deny'; assert f'default_permissions = "{name}"' in text; assert f'extends = "{base}"' in text; assert '"/run/codex-home/auth.json" = "deny"' in text; assert stat.S_IMODE((h/'config.toml').stat().st_mode)==0o600
+print('PRIVATE_CODEX_PERMISSION_PROFILE_FIXTURE=PASS')
+PY_PROFILE
+
 printf '%s\n' 'CODEX_HOST_SANDBOX_IT=PASS'

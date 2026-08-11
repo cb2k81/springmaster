@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-08-01
+lastReviewedAt: 2026-08-10
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -272,3 +272,10 @@ Das Bundle ersetzt weder Qualification noch Handoff. Insbesondere sind folgende 
 - `cpatch create`;
 - Patch-Dry-run;
 - Patch-Accept.
+## Private Codex home permission-profile hardening
+
+The host harness owns the complete ephemeral private `CODEX_HOME` used by governed Codex invocations. It copies only the required credential and generates the only active runtime configuration. Analysis and qualification extend `:read-only`; implementation extends `:workspace`; nested sandbox commands receive an explicit deny rule for `/run/codex-home/auth.json`.
+
+A governed real invocation therefore must not suppress the harness configuration with `--ignore-user-config` and must not replace it through legacy `--sandbox`/`-s`, direct `--permission-profile`/`-P`, `--config`/`-c` or `--profile`/`-p` overrides. The outer Linux bubblewrap boundary remains authoritative for host confinement; the generated Permission Profile is defense in depth and credential confinement. The 20 live mechanical probe expectations remain unchanged.
+
+The calibration fixture checker is bound to the exact versioned instruction fixtures and accepts each task independently in either its untouched baseline state or its exact `CALIBRATION_TASK_n=PASS` target state. This is required because both implementation tasks are qualified separately against the same A001 baseline before either handoff is canonically accepted.

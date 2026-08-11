@@ -14,7 +14,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-08-01
+lastReviewedAt: 2026-08-10
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
@@ -363,3 +363,8 @@ Der einzige zulässige Übergang lautet:
 Der Harness schreibt zuerst eine unveränderliche Abandonment-Intent-Evidence, entfernt anschließend den sauberen Task-Worktree über `git worktree remove`, behält das externe Run-Verzeichnis und schreibt den terminalen Abandonment-Record. Der alte Task darf danach weder bereinigt, umgebased, fortgesetzt noch erneut vorbereitet werden. Eine Fortsetzung erfolgt ausschließlich mit einem höheren Attempt gegen den aktuellen Integrations-HEAD.
 
 Diese Recovery-Grenze erweitert den Codex-Schreibscope nicht. Codex darf weiterhin ausschließlich den vorbereiteten detached Task-Worktree beschreiben. `patches/work`, Integration, Git-common, Downloads, Operator-Home, externe Run-/Artefakt-Roots, andere Worktrees und Host-Temp bleiben für Codex nicht beschreibbar.
+## 19. Private CODEX_HOME and credential confinement
+
+The host harness is the sole authority for the private Codex home used by a governed invocation. It creates an ephemeral private `CODEX_HOME`, copies the host-local credential with restrictive file mode and writes a mode-bound Permission Profile. Analysis and qualification use `:read-only`; implementation uses `:workspace`. Sandbox commands are denied read and write access to `/run/codex-home/auth.json`.
+
+A governed real invocation may not suppress this configuration with `--ignore-user-config` and may not replace it through legacy `--sandbox`/`-s`, direct `--permission-profile`/`-P`, `--config`/`-c` or `--profile`/`-p` overrides. The outer bubblewrap sandbox remains the authoritative host-level write boundary. This hardening does not weaken any live positive or negative probe requirement and does not itself promote `PILOT_WRITE_READY`.

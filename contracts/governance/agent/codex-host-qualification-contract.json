@@ -1,16 +1,19 @@
 {
   "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.1.0",
+  "contractVersion": "1.2.0",
   "status": "active",
   "supportedHost": {
     "operatingSystem": "Linux",
-    "architectures": ["x86_64", "aarch64"],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
     "sandboxBackend": "bubblewrap",
     "sandboxExecutable": "bwrap"
   },
   "securityBoundary": {
     "authoritativeLayer": "outer-linux-bwrap",
-    "codexInnerSandbox": "mode-specific-read-only-or-workspace-write-defense-in-depth",
+    "codexInnerSandbox": "harness-generated-permission-profile-defense-in-depth",
     "codexApprovalPolicy": "never",
     "taskWorktree": "mode-dependent-read-only-or-read-write",
     "integrationWorktree": "read-only",
@@ -23,11 +26,13 @@
     "externalArtifactRoot": "read-only",
     "hostTemporaryDirectories": "hidden-by-private-tmp",
     "sandboxPrivateTmp": "ephemeral-tmpfs",
-    "sandboxPrivateCodexHome": "ephemeral-host-directory-destroyed-after-invocation",
+    "sandboxPrivateCodexHome": "ephemeral-host-directory-with-copied-auth-and-generated-permission-profile-destroyed-after-invocation",
     "environment": "cleared-and-allowlisted",
     "hostPathInheritance": "forbidden",
     "sandboxPath": "/usr/local/bin:/usr/bin:/bin",
-    "additionalWritableRoots": []
+    "additionalWritableRoots": [],
+    "sandboxPrivateAuthToolAccess": "deny-read-and-write",
+    "legacySandboxCliPolicy": "forbidden-for-real-invocation"
   },
   "portableRoles": [
     "PROJECT_ROOT",
@@ -54,26 +59,86 @@
     "roots-outside-operator-home-and-host-temp"
   ],
   "requiredMechanicalProbes": [
-    {"id": "allowed-task-worktree-write", "expectedOutcome": "PASS"},
-    {"id": "write-integration-worktree", "expectedOutcome": "DENIED"},
-    {"id": "write-other-worktree", "expectedOutcome": "DENIED"},
-    {"id": "write-git-common-directory", "expectedOutcome": "DENIED"},
-    {"id": "write-patches-work", "expectedOutcome": "DENIED"},
-    {"id": "write-operator-home", "expectedOutcome": "DENIED"},
-    {"id": "write-operator-downloads", "expectedOutcome": "DENIED"},
-    {"id": "write-external-run-root", "expectedOutcome": "DENIED"},
-    {"id": "write-external-artifact-root", "expectedOutcome": "DENIED"},
-    {"id": "write-host-temporary-directory", "expectedOutcome": "DENIED"},
-    {"id": "path-traversal-escape", "expectedOutcome": "DENIED"},
-    {"id": "symlink-escape", "expectedOutcome": "DENIED"},
-    {"id": "direct-git-commit", "expectedOutcome": "DENIED"},
-    {"id": "direct-patch-accept", "expectedOutcome": "DENIED"},
-    {"id": "background-writer", "expectedOutcome": "DENIED"},
-    {"id": "inner-sandbox-smoke", "expectedOutcome": "PASS"},
-    {"id": "inner-worktree-write", "expectedOutcome": "PASS"},
-    {"id": "inner-auth-read", "expectedOutcome": "DENIED"},
-    {"id": "inner-network-egress", "expectedOutcome": "DENIED"},
-    {"id": "inner-git-common-write", "expectedOutcome": "DENIED"}
+    {
+      "id": "allowed-task-worktree-write",
+      "expectedOutcome": "PASS"
+    },
+    {
+      "id": "write-integration-worktree",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-other-worktree",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-git-common-directory",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-patches-work",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-operator-home",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-operator-downloads",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-external-run-root",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-external-artifact-root",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "write-host-temporary-directory",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "path-traversal-escape",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "symlink-escape",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "direct-git-commit",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "direct-patch-accept",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "background-writer",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "inner-sandbox-smoke",
+      "expectedOutcome": "PASS"
+    },
+    {
+      "id": "inner-worktree-write",
+      "expectedOutcome": "PASS"
+    },
+    {
+      "id": "inner-auth-read",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "inner-network-egress",
+      "expectedOutcome": "DENIED"
+    },
+    {
+      "id": "inner-git-common-write",
+      "expectedOutcome": "DENIED"
+    }
   ],
   "hostEvidence": {
     "schemaVersion": "springmaster.codex-host-qualification-evidence.v1",

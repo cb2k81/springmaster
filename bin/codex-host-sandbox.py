@@ -207,6 +207,33 @@ def copy_codex_auth(source_home: Path, private_home: Path) -> dict[str, Any]:
     return {"sourceSize": size, "copiedSha256": sha256_file(target), "secretValueRecorded": False}
 
 
+def write_private_codex_config(private_home: Path, *, writable_task: bool) -> dict[str, str]:
+    require(private_home.is_dir() and not private_home.is_symlink(), "PRIVATE_CODEX_HOME_INVALID", "Private Codex home must be an existing non-symlink directory", path=str(private_home))
+    auth_path = private_home / "auth.json"
+    require(auth_path.is_file() and not auth_path.is_symlink(), "CODEX_AUTH_MISSING", "Private Codex auth.json is missing or unsafe", path=str(auth_path))
+    config_path = private_home / "config.toml"
+    require(not config_path.exists() and not config_path.is_symlink(), "PRIVATE_CODEX_CONFIG_EXISTS", "Private Codex config must not pre-exist", path=str(config_path))
+    permission_profile = "springmaster-workspace" if writable_task else "springmaster-read-only"
+    permission_profile_base = ":workspace" if writable_task else ":read-only"
+    sandbox_auth_path = "/run/codex-home/auth.json"
+    content = (
+        f'default_permissions = "{permission_profile}"\n\n'
+        f'[permissions.{permission_profile}]\n'
+        f'extends = "{permission_profile_base}"\n\n'
+        f'[permissions.{permission_profile}.filesystem]\n'
+        f'"{sandbox_auth_path}" = "deny"\n'
+    )
+    config_path.write_text(content, encoding="utf-8")
+    config_path.chmod(0o600)
+    return {
+        "permissionProfile": permission_profile,
+        "permissionProfileBase": permission_profile_base,
+        "permissionConfigSha256": sha256_file(config_path),
+        "sandboxAuthPath": sandbox_auth_path,
+        "sandboxAuthAccess": "deny",
+    }
+
+
 def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, writable_task: bool, extra_env: dict[str, str] | None = None) -> list[str]:
     require(task.is_dir() and not task.is_symlink(), "TASK_WORKTREE_INVALID", "Task worktree must be an existing non-symlink directory", path=str(task))
     task = task.resolve()
@@ -284,6 +311,7 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
     private_home = Path(tempfile.mkdtemp(prefix="private-codex-home-", dir=parent))
     try:
         auth = copy_codex_auth(source_home, private_home)
+        auth.update(write_private_codex_config(private_home, writable_task=True))
         prefix_rw = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=True)
         prefix_ro = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=False)
         results: list[dict[str, Any]] = []
@@ -410,9 +438,9 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
     private_home = Path(tempfile.mkdtemp(prefix="private-codex-home-", dir=evidence_dir))
     try:
         auth = copy_codex_auth(source_home, private_home)
-        cli_sandbox = "workspace-write" if mode == "implementation" else "read-only"
+        auth.update(write_private_codex_config(private_home, writable_task=mode == "implementation"))
         record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
-        codex_argv = [str(codex), "exec", "--ephemeral", "--ignore-user-config", "--ignore-rules", "--json", "--model", model, "--sandbox", cli_sandbox, "--ask-for-approval", "never", "--cd", str(task), "-"]
+        codex_argv = [str(codex), "--ask-for-approval", "never", "exec", "--ephemeral", "--ignore-rules", "--json", "--model", model, "--cd", str(task), "-"]
         outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=mode == "implementation", extra_env=extra_env)
         prompt = prompt_file.read_text(encoding="utf-8")
         started_at = utc_now()

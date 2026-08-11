@@ -148,19 +148,16 @@ exit_code = int(exit_code)
 mode = json.loads(Path(task_path).read_text(encoding="utf-8"))["mode"]
 model = "fixture-model"
 if mode == "implementation":
-    cli_sandbox = "workspace-write"
     record_sandbox = "linux-bwrap-workspace-write"
     writes = ["task-worktree"]
     mutation = "task-worktree-only"
 else:
-    cli_sandbox = "read-only"
     record_sandbox = "linux-bwrap-read-only"
     writes = []
     mutation = "none"
 argv = [
-  "codex", "exec", "--ephemeral", "--ignore-user-config", "--ignore-rules", "--json",
-  "--model", model, "--sandbox", cli_sandbox, "--ask-for-approval", "never",
-  "fixture-calibration"
+  "codex", "--ask-for-approval", "never", "exec", "--ephemeral", "--ignore-rules", "--json",
+  "--model", model, "fixture-calibration"
 ]
 effect = {
   "schemaVersion": "springmaster.operator-command-effect.v1",
@@ -495,6 +492,12 @@ elif mutation == "extra-write-root":
     record["execution"]["platformSandbox"]["additionalWritableRoots"]=["/home/fixture-user/Downloads"]
 elif mutation == "operator-downloads-writable":
     record["execution"]["platformSandbox"]["operatorDownloadsWritable"]=True
+elif mutation == "legacy-sandbox":
+    effect["argv"] += ["--sandbox", "workspace-write"]
+    record["execution"]["argv"] = list(effect["argv"])
+elif mutation == "ignore-user-config":
+    effect["argv"].append("--ignore-user-config")
+    record["execution"]["argv"] = list(effect["argv"])
 else:
     raise SystemExit(f"unknown mutation: {mutation}")
 Path(effect_target).write_text(json.dumps(effect, indent=2)+"\n", encoding="utf-8")
@@ -539,6 +542,12 @@ assert_invalid_invocation AGENT-FIXTURE-013 extra-write-root INVOCATION_ADDITION
 
 CURRENT_STEP=codex-operator-downloads-write-forbidden
 assert_invalid_invocation AGENT-FIXTURE-014 operator-downloads-writable INVOCATION_HOST_WRITE_SCOPE_FORBIDDEN
+
+CURRENT_STEP=codex-legacy-sandbox-forbidden
+assert_invalid_invocation AGENT-FIXTURE-018 legacy-sandbox INVOCATION_FLAG_FORBIDDEN
+
+CURRENT_STEP=codex-ignore-user-config-forbidden
+assert_invalid_invocation AGENT-FIXTURE-019 ignore-user-config INVOCATION_FLAG_FORBIDDEN
 
 CURRENT_STEP=project-ready-arbitrary-task-rejected
 python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
