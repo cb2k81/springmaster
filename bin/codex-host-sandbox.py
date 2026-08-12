@@ -20,6 +20,8 @@ HOST_SCHEMA = "springmaster.codex-host-qualification-contract.v1"
 REPORT_SCHEMA = "springmaster.codex-host-qualification-report.v1"
 EVIDENCE_SCHEMA = "springmaster.codex-host-qualification-evidence.v1"
 SANDBOX_PATH = "/usr/local/bin:/usr/bin:/bin"
+CONTROL_PLANE_HOST = "chatgpt.com"
+CONTROL_PLANE_URL = "https://chatgpt.com/"
 
 
 class HostError(RuntimeError):
@@ -234,13 +236,115 @@ def write_private_codex_config(private_home: Path, *, writable_task: bool) -> di
     }
 
 
-def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, writable_task: bool, extra_env: dict[str, str] | None = None) -> list[str]:
+def prepare_resolver_dependency(
+    private_home: Path,
+    *,
+    resolv_conf: Path = Path("/etc/resolv.conf"),
+    host_run: Path = Path("/run"),
+) -> dict[str, Any]:
+    require(private_home.is_dir() and not private_home.is_symlink(), "PRIVATE_CODEX_HOME_INVALID", "Private Codex home must be an existing non-symlink directory", path=str(private_home))
+    require(resolv_conf.exists() or resolv_conf.is_symlink(), "HOST_RESOLVER_INVALID", "Host resolv.conf is missing", path=str(resolv_conf))
+    try:
+        canonical = resolv_conf.resolve(strict=True)
+    except (FileNotFoundError, RuntimeError) as exc:
+        raise HostError("HOST_RESOLVER_INVALID", "Host resolv.conf cannot be resolved", path=str(resolv_conf)) from exc
+    require(canonical.is_file() and not canonical.is_symlink(), "HOST_RESOLVER_INVALID", "Host resolver target must be a regular file", path=str(canonical))
+    size = canonical.stat().st_size
+    require(0 < size <= 64 * 1024, "HOST_RESOLVER_INVALID", "Host resolver file size is outside the allowed range", path=str(canonical), size=size)
+    metadata: dict[str, Any] = {
+        "resolverSourcePath": str(resolv_conf),
+        "resolverCanonicalPath": str(canonical),
+        "resolverReexposedReadOnly": False,
+    }
+    if contains(host_run.resolve(), canonical):
+        relative = canonical.relative_to(host_run.resolve())
+        sandbox_path = Path("/run") / relative
+        require(not contains(Path("/run/codex-home"), sandbox_path), "HOST_RESOLVER_INVALID", "Host resolver target collides with private Codex home", path=str(sandbox_path))
+        copied = private_home / "host-resolv.conf"
+        require(not copied.exists() and not copied.is_symlink(), "PRIVATE_RESOLVER_COPY_EXISTS", "Private resolver copy must not pre-exist", path=str(copied))
+        shutil.copyfile(canonical, copied)
+        copied.chmod(0o600)
+        metadata.update({
+            "resolverSandboxPath": str(sandbox_path),
+            "resolverCopiedSha256": sha256_file(copied),
+            "resolverReexposedReadOnly": True,
+        })
+    return metadata
+
+
+def resolver_bwrap_args(private_home: Path, resolver: dict[str, Any]) -> list[str]:
+    if resolver.get("resolverReexposedReadOnly") is not True:
+        return []
+    sandbox_path = Path(str(resolver.get("resolverSandboxPath", "")))
+    require(sandbox_path.is_absolute() and contains(Path("/run"), sandbox_path), "HOST_RESOLVER_INVALID", "Sandbox resolver path must be below /run", path=str(sandbox_path))
+    copied = private_home / "host-resolv.conf"
+    require(copied.is_file() and not copied.is_symlink(), "PRIVATE_RESOLVER_COPY_MISSING", "Private resolver copy is missing", path=str(copied))
+    require(sha256_file(copied) == resolver.get("resolverCopiedSha256"), "PRIVATE_RESOLVER_COPY_DRIFT", "Private resolver copy hash changed", path=str(copied))
+    args: list[str] = []
+    current = Path("/run")
+    for part in sandbox_path.relative_to(Path("/run")).parts[:-1]:
+        current /= part
+        args += ["--dir", str(current)]
+    args += ["--ro-bind", str(copied), str(sandbox_path)]
+    return args
+
+
+def network_sandbox_prefix(*, bwrap: Path, ctx: dict[str, Path], private_home: Path, resolver: dict[str, Any]) -> list[str]:
+    args = [
+        str(bwrap), "--die-with-parent", "--new-session", "--unshare-pid", "--unshare-ipc", "--unshare-uts", "--unshare-cgroup-try",
+        "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp", "--tmpfs", "/var/tmp", "--tmpfs", "/run",
+    ]
+    args += resolver_bwrap_args(private_home, resolver)
+    args += ["--tmpfs", str(ctx["operatorHome"]), "--clearenv"]
+    for key, value in sorted({"HOME": "/nonexistent", "LANG": os.environ.get("LANG", "C.UTF-8"), "LC_ALL": "C.UTF-8", "PATH": SANDBOX_PATH, "TZ": os.environ.get("TZ", "UTC")}.items()):
+        args += ["--setenv", key, value]
+    args += ["--"]
+    return args
+
+
+def control_plane_checks(*, bwrap: Path, ctx: dict[str, Path]) -> tuple[dict[str, Any], dict[str, Any]]:
+    getent = executable("getent", None)
+    curl = executable("curl", None)
+    scratch = Path(tempfile.mkdtemp(prefix="codex-network-preflight-", dir=ctx["artifactRoot"]))
+    try:
+        resolver = prepare_resolver_dependency(scratch)
+        prefix = network_sandbox_prefix(bwrap=bwrap, ctx=ctx, private_home=scratch, resolver=resolver)
+        checks: dict[str, Any] = {}
+        for name, argv, timeout in (
+            ("outerSandboxDns", [str(getent), "ahosts", CONTROL_PLANE_HOST], 20),
+            ("outerSandboxHttps", [str(curl), "-q", "-sS", "-o", "/dev/null", "--connect-timeout", "8", "--max-time", "20", CONTROL_PLANE_URL], 30),
+        ):
+            result = run(prefix + argv, timeout=timeout)
+            checks[name] = {"exitCode": result.returncode, "stdout": result.stdout[-1000:], "stderr": result.stderr[-1000:]}
+        resolver_public = {key: value for key, value in resolver.items() if key != "resolverCopiedSha256"}
+        if "resolverCopiedSha256" in resolver:
+            resolver_public["resolverCopiedSha256"] = resolver["resolverCopiedSha256"]
+        return checks, resolver_public
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def remove_empty_probe_scratch(parent: Path, run_root: Path) -> None:
+    require(contains(run_root.resolve(), parent.resolve()), "PROBE_SCRATCH_PATH_INVALID", "Probe scratch path must remain below the external run root", path=str(parent), root=str(run_root))
+    current = parent
+    while current != run_root:
+        try:
+            current.rmdir()
+        except OSError:
+            break
+        current = current.parent
+
+
+def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, resolver: dict[str, Any], writable_task: bool, extra_env: dict[str, str] | None = None) -> list[str]:
     require(task.is_dir() and not task.is_symlink(), "TASK_WORKTREE_INVALID", "Task worktree must be an existing non-symlink directory", path=str(task))
     task = task.resolve()
     require(contains(ctx["worktreeRoot"], task), "TASK_WORKTREE_OUTSIDE_ROOT", "Task worktree is outside the configured worktree root", path=str(task), root=str(ctx["worktreeRoot"]))
     args = [
         str(bwrap), "--die-with-parent", "--new-session", "--unshare-pid", "--unshare-ipc", "--unshare-uts", "--unshare-cgroup-try",
         "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp", "--tmpfs", "/var/tmp", "--tmpfs", "/run",
+    ]
+    args += resolver_bwrap_args(private_home, resolver)
+    args += [
         "--tmpfs", str(ctx["operatorHome"]),
         "--bind", str(private_home), "/run/codex-home",
     ]
@@ -283,6 +387,11 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         checks[name] = {"exitCode": result.returncode, "stdout": result.stdout[-1000:], "stderr": result.stderr[-1000:]}
         if result.returncode != 0:
             findings.append({"code": "HOST_INSPECTION_COMMAND_FAILED", "check": name, "exitCode": result.returncode})
+    network_checks, resolver = control_plane_checks(bwrap=bwrap, ctx=ctx)
+    checks.update(network_checks)
+    for name, result in network_checks.items():
+        if result["exitCode"] != 0:
+            findings.append({"code": "CONTROL_PLANE_PREFLIGHT_FAILED", "check": name, "exitCode": result["exitCode"]})
     return {
         "schemaVersion": REPORT_SCHEMA,
         "operation": "inspect",
@@ -293,6 +402,7 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         "contractSha256": sha256_file(contract_path),
         "paths": {key: str(value) for key, value in ctx.items()},
         "executables": {"bwrap": str(bwrap), "codex": str(codex)},
+        "resolver": resolver,
         "checks": checks,
         "findings": findings,
     }
@@ -312,8 +422,10 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
     try:
         auth = copy_codex_auth(source_home, private_home)
         auth.update(write_private_codex_config(private_home, writable_task=True))
-        prefix_rw = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=True)
-        prefix_ro = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=False)
+        resolver = prepare_resolver_dependency(private_home)
+        auth.update(resolver)
+        prefix_rw = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=True)
+        prefix_ro = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=False)
         results: list[dict[str, Any]] = []
         def record(probe_id: str, expected: str, completed: subprocess.CompletedProcess[str], *, host_path: Path | None = None, should_exist: bool | None = None) -> None:
             actual = "PASS" if completed.returncode == 0 else "DENIED"
@@ -397,6 +509,7 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
         }
     finally:
         shutil.rmtree(private_home, ignore_errors=True)
+        remove_empty_probe_scratch(parent, ctx["runRoot"])
 
 
 def status_json(root: Path, task_id: str) -> dict[str, Any]:
@@ -439,9 +552,11 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
     try:
         auth = copy_codex_auth(source_home, private_home)
         auth.update(write_private_codex_config(private_home, writable_task=mode == "implementation"))
+        resolver = prepare_resolver_dependency(private_home)
+        auth.update(resolver)
         record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
         codex_argv = [str(codex), "--ask-for-approval", "never", "exec", "--ephemeral", "--ignore-rules", "--json", "--model", model, "--cd", str(task), "-"]
-        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, writable_task=mode == "implementation", extra_env=extra_env)
+        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=mode == "implementation", extra_env=extra_env)
         prompt = prompt_file.read_text(encoding="utf-8")
         started_at = utc_now()
         completed = run(outer + codex_argv, input_text=prompt, timeout=1800)

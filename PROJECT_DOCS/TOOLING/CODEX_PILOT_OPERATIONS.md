@@ -151,6 +151,8 @@ Operational reports intended for upload may be written below `patches/logs/valid
 - Preserve the external run directory.
 - Use explicit `cleanup --discard` only after the result is no longer needed.
 - A boundary failure returns the pilot to patch-controlled hardening before another Codex attempt.
+- A failed real invocation is not retried under the same task ID. Run `postcheck`, retain the failure evidence, clean the disposable worktree, harden the boundary by patch and materialize the next numbered calibration attempt.
+- Host inspection must prove DNS and HTTPS reachability to the Codex control plane from the outer `bwrap` boundary before a new calibration attempt is materialized. If `/etc/resolv.conf` resolves below `/run`, the harness keeps `/run` private and copies only the resolver file into private scratch for read-only re-exposure at the original sandbox path.
 
 ### 7.1 Prepared task invalidated before Codex invocation
 

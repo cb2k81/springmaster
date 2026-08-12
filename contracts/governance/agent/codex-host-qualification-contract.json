@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.2.0",
+  "contractVersion": "1.3.0",
   "status": "active",
   "supportedHost": {
     "operatingSystem": "Linux",
@@ -32,7 +32,8 @@
     "sandboxPath": "/usr/local/bin:/usr/bin:/bin",
     "additionalWritableRoots": [],
     "sandboxPrivateAuthToolAccess": "deny-read-and-write",
-    "legacySandboxCliPolicy": "forbidden-for-real-invocation"
+    "legacySandboxCliPolicy": "forbidden-for-real-invocation",
+    "sandboxResolverDependency": "host-resolver-content-copied-into-private-scratch-and-read-only-reexposed-only-when-resolv-conf-target-is-hidden-by-private-run"
   },
   "portableRoles": [
     "PROJECT_ROOT",
@@ -56,7 +57,9 @@
     "project-root",
     "git-common-root",
     "external-roots",
-    "roots-outside-operator-home-and-host-temp"
+    "roots-outside-operator-home-and-host-temp",
+    "outer-sandbox-control-plane-dns",
+    "outer-sandbox-control-plane-https"
   ],
   "requiredMechanicalProbes": [
     {

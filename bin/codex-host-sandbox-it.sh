@@ -64,6 +64,9 @@ chdir=os.getcwd()
 if '--chdir' in args:
  chdir=args[args.index('--chdir')+1]
 joined=' '.join(command)
+if 'chatgpt.com' in joined and (os.path.basename(command[0]) in {'getent','curl'}):
+ print('fixture control-plane reachable')
+ raise SystemExit(0)
 for token in ('git add -A','process-ops.sh patch-accept','../.codex-traversal-denied','.codex-escape-link','/.codex-denied','Downloads/.codex-denied','.codex-background-denied'):
  if token in joined:
   raise SystemExit(13)
@@ -135,12 +138,15 @@ printf '%s\n' 'Analyze only. Do not modify files.' > "${PROMPT}"
 python3 - "${TMP}/inspect.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v
+assert v['checks']['outerSandboxDns']['exitCode']==0 and v['checks']['outerSandboxHttps']['exitCode']==0,v['checks']
 PY
 "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json probe --task-worktree "${TASK_WORKTREE}" --out "${TMP}/probe.json" >/dev/null
 python3 - "${TMP}/probe.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v['findings']; assert len(v['probes'])==20
 PY
+test ! -e "${TMP}/runs/codex-host-probes"
+printf '%s\n' 'PROBE_SCRATCH_CLEANUP_FIXTURE=PASS'
 "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-ANALYSIS-001 --prompt "${PROMPT}" --model fixture-model --out "${TMP}/invoke.json" >/dev/null
 python3 - "${TMP}/invoke.json" <<'PY'
 import json,sys
@@ -169,7 +175,17 @@ from pathlib import Path
 modp=Path(sys.argv[1]); tmp=Path(sys.argv[2]); spec=importlib.util.spec_from_file_location('host_under_test',modp); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 for writable,name,base in ((False,'springmaster-read-only',':read-only'),(True,'springmaster-workspace',':workspace')):
  h=tmp/('profile-rw' if writable else 'profile-ro'); h.mkdir(); (h/'auth.json').write_text('{}\n'); (h/'auth.json').chmod(0o600); meta=m.write_private_codex_config(h,writable_task=writable); text=(h/'config.toml').read_text(); assert meta['permissionProfile']==name; assert meta['permissionProfileBase']==base; assert meta['sandboxAuthAccess']=='deny'; assert f'default_permissions = "{name}"' in text; assert f'extends = "{base}"' in text; assert '"/run/codex-home/auth.json" = "deny"' in text; assert stat.S_IMODE((h/'config.toml').stat().st_mode)==0o600
+fake=tmp/'resolver-host'; (fake/'etc').mkdir(parents=True); (fake/'run/systemd/resolve').mkdir(parents=True); target=fake/'run/systemd/resolve/stub-resolv.conf'; target.write_text('nameserver 127.0.0.53\n'); (fake/'etc/resolv.conf').symlink_to('../run/systemd/resolve/stub-resolv.conf')
+private=tmp/'resolver-private'; private.mkdir(); meta=m.prepare_resolver_dependency(private,resolv_conf=fake/'etc/resolv.conf',host_run=fake/'run'); assert meta['resolverReexposedReadOnly'] is True; assert meta['resolverSandboxPath']=='/run/systemd/resolve/stub-resolv.conf'; args=m.resolver_bwrap_args(private,meta); assert args[-3:]==['--ro-bind',str(private/'host-resolv.conf'),'/run/systemd/resolve/stub-resolv.conf']; assert '--dir' in args
+broken=tmp/'resolver-broken'; broken.mkdir(); (broken/'resolv.conf').symlink_to('missing'); private2=tmp/'resolver-private-2'; private2.mkdir()
+try:
+ m.prepare_resolver_dependency(private2,resolv_conf=broken/'resolv.conf',host_run=fake/'run')
+except m.HostError as exc:
+ assert exc.code=='HOST_RESOLVER_INVALID'
+else:
+ raise AssertionError('broken resolver accepted')
 print('PRIVATE_CODEX_PERMISSION_PROFILE_FIXTURE=PASS')
+print('PRIVATE_RUN_RESOLVER_REEXPOSURE_FIXTURE=PASS')
 PY_PROFILE
 
 printf '%s\n' 'CODEX_HOST_SANDBOX_IT=PASS'
