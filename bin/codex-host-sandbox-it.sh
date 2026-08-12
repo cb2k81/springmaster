@@ -160,6 +160,47 @@ import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS'; assert v['portable'] is False; assert v['realCodex'] is True; assert v['writableCodexAuthorized'] is False
 PY
 
+# Finish the analysis task so the fixture can prepare a separate implementation task.
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json postcheck CODEX-HOST-IT-ANALYSIS-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json qualify CODEX-HOST-IT-ANALYSIS-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup CODEX-HOST-IT-ANALYSIS-001 >/dev/null
+
+IMPLEMENTATION_TASK_JSON="${TMP}/implementation-task.json"
+python3 - "${IMPLEMENTATION_TASK_JSON}" "${BASE}" <<'PY'
+import json,sys
+p,base=sys.argv[1:]
+value={
+ "schemaVersion":"springmaster.agent-task.v2","taskId":"CODEX-HOST-IT-IMPLEMENTATION-001","pilotId":"springmaster-codex-pilot-v1",
+ "repositoryId":"springmaster","mode":"implementation","baseCommit":base,"integrationBranch":"main","riskClass":"low","changeClasses":["test"],
+ "allowedPaths":["README.md"],"forbiddenPaths":[".git/**","patches/**","exports/**","target/**","build/**","tmp/**"],
+ "limits":{"maxChangedFiles":1,"maxNetAddedBytes":4096},
+ "capabilities":{"mayModifyTests":True,"mayModifyGovernance":False,"mayModifyContracts":False,"mayCommit":False,"mayPush":False,"network":"disabled"},
+ "qualificationCommands":[{"id":"targeted-check","argv":["git","status","--short"],"timeoutSeconds":30},{"id":"diff-check","argv":["git","diff","--check"],"timeoutSeconds":30}],
+ "requiredEvidence":["task-contract","task-contract-sha256","prepare-record","integration-pre-state","worktree-pre-state","operator-command-effect","operator-command-effect-sha256","invocation-record","invocation-record-sha256","changed-path-report","qualification-records","final-result","cleanup-disposition"],
+ "completionCriteria":{"postcheckPass":True,"allQualificationCommandsPass":True,"requiredEvidenceComplete":True,"invocationRecordRequired":True,"explicitCleanupDisposition":True}
+}
+open(p,'w').write(json.dumps(value,indent=2)+'\n')
+PY
+IMPLEMENTATION_PREP="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json prepare "${IMPLEMENTATION_TASK_JSON}")"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="PREPARED",v' <<<"${IMPLEMENTATION_PREP}"
+IMPLEMENTATION_PROMPT="${TMP}/implementation.prompt.txt"
+printf '%s\n' 'Run the fixture implementation command.' > "${IMPLEMENTATION_PROMPT}"
+CHANGE_BUNDLE="${TMP}/artifacts/change-bundles/fixture.zip"
+mkdir -p "$(dirname "${CHANGE_BUNDLE}")"
+printf '%s\n' 'fixture change bundle' > "${CHANGE_BUNDLE}"
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-IMPLEMENTATION-001 --prompt "${IMPLEMENTATION_PROMPT}" --model fixture-model --change-bundle "${CHANGE_BUNDLE}" --out "${TMP}/implementation-invoke.json" >/dev/null
+python3 - "${TMP}/implementation-invoke.json" <<'PY'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PASS' and v['taskMode']=='implementation',v
+e=json.load(open(v['effect']['path'])); assert e['reads']==['task-worktree','external-artifact-root-read-only'],e
+assert e['writes']==['task-worktree'],e
+assert 'SPRINGMASTER_CODEX_CHANGE_BUNDLE' in e['environmentInputs'],e
+PY
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json postcheck CODEX-HOST-IT-IMPLEMENTATION-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json qualify CODEX-HOST-IT-IMPLEMENTATION-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup CODEX-HOST-IT-IMPLEMENTATION-001 >/dev/null
+printf '%s\n' 'CHANGE_BUNDLE_READ_SCOPE_FIXTURE=PASS'
+
 set +e
 COCONDO_ARTIFACT_ROOT="${TMP}/missing" "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" inspect --out "${TMP}/negative.json" >/dev/null
 rc=$?

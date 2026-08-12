@@ -543,7 +543,7 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         require(resolved_bundle.is_file() and not resolved_bundle.is_symlink(), "CHANGE_BUNDLE_INVALID", "Change bundle is missing or unsafe", path=str(resolved_bundle))
         require(contains(ctx["artifactRoot"], resolved_bundle), "CHANGE_BUNDLE_OUTSIDE_ARTIFACT_ROOT", "Change bundle must be below the external artifact root", path=str(resolved_bundle), root=str(ctx["artifactRoot"]))
         extra_env["SPRINGMASTER_CODEX_CHANGE_BUNDLE"] = str(resolved_bundle)
-        reads.append("external-artifact-root")
+        reads.append("external-artifact-root-read-only")
     source_home = resolve_codex_home()
     evidence_dir = ctx["artifactRoot"] / "codex-host-qualification" / host_id() / git(root, "rev-parse", "HEAD") / task_id.lower()
     require(not evidence_dir.exists(), "EVIDENCE_DIRECTORY_EXISTS", "Invocation evidence directory already exists", path=str(evidence_dir))
