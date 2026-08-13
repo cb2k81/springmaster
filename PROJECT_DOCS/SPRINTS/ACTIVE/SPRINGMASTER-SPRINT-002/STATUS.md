@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-08-01
+lastReviewedAt: 2026-08-13
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -26,6 +26,11 @@ expectedVersionImpact: minor
 ---
 
 # Codex Calibration and Business Partner End-to-End Pilot – Status
+
+## Codex Cutover Acceptance – 2026-08-13
+
+Diese Sektion ist der aktuelle Cutover-Nachweis und supersediert ältere Aussagen in diesem Statusdokument, nach denen Host-Qualification, Codex-Kalibrierung oder Write-Promotion noch ausstehen. A002 wurde als fehlgeschlagener Calibration-Attempt unveränderlich geschlossen; der konkrete Change-Bundle-Read-Scope-Defekt wurde mit `000214_codex-host-change-bundle-read-scope-correction` kanonisch korrigiert. A003 wurde auf der korrigierten Baseline vollständig neu ausgeführt. Der erste R5-Promotion-Kandidat wurde vor Commit und Artefakterzeugung fail-closed gestoppt, weil `codex-pilot-ready-it.sh` seine PROJECT_READY-Positive-Fixture implizit vom aktuellen Repository-Lifecycle erbte und deshalb auf einem bereits auf `PILOT_WRITE_READY` gesetzten Kandidaten deterministisch fehlschlug. Die Promotion macht diese Fixture lifecycle-neutral; der produktive Readiness-Vertrag selbst wird dadurch nicht abgeschwächt. Die reale Host-Qualification und alle mechanischen Confinement-Probes sind PASS. Zwei unabhängige A003-Implementierungskalibrierungen wurden qualifiziert, über unveränderliche Handoffs in getrennten kanonischen Dry-run-/Accept-Läufen integriert und als `000215_codex-calibration-implementation-1-a003`, `000216_codex-calibration-implementation-2-a003` akzeptiert. Das Confinement-Evidence-Manifest `5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8` ist live verifiziert. Die separate Promotion setzt den Lifecycle konsistent auf `PILOT_WRITE_READY`/`PROMOTED` und autorisiert kontrollierte Codex-Pilot-Tasks. M-002 und M-003 sind damit für den Codex Cutover erfüllt; M-004 und M-005 bleiben eigenständiger Sprint-Folgebedarf.
+
 
 ## Aktueller Stand
 

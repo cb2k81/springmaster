@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: null
-lastReviewedAt: 2026-08-01
+lastReviewedAt: 2026-08-13
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -24,6 +24,11 @@ closedAt: null
 ---
 
 # Codex Calibration and Business Partner End-to-End Pilot – Completion Report
+
+## Codex Cutover Acceptance – 2026-08-13
+
+Cutover-Zwischenabschluss: M-002 und M-003 sind erfüllt. A002 wurde als fehlgeschlagener Calibration-Attempt unveränderlich geschlossen; der konkrete Change-Bundle-Read-Scope-Defekt wurde mit `000214_codex-host-change-bundle-read-scope-correction` kanonisch korrigiert. A003 wurde auf der korrigierten Baseline vollständig neu ausgeführt. Der erste R5-Promotion-Kandidat wurde vor Commit und Artefakterzeugung fail-closed gestoppt, weil `codex-pilot-ready-it.sh` seine PROJECT_READY-Positive-Fixture implizit vom aktuellen Repository-Lifecycle erbte und deshalb auf einem bereits auf `PILOT_WRITE_READY` gesetzten Kandidaten deterministisch fehlschlug. Die Promotion macht diese Fixture lifecycle-neutral; der produktive Readiness-Vertrag selbst wird dadurch nicht abgeschwächt. Reale Host-Qualification, zwei qualifizierte und separat akzeptierte A003-Implementierungskalibrierungen (`000215_codex-calibration-implementation-1-a003`, `000216_codex-calibration-implementation-2-a003`), live verifizierte Confinement-Evidence `5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8` und die separate Write-Promotion liegen vor. `PILOT_WRITE_READY`/`PROMOTED` ist damit für den Codex Cutover erreicht. Der Sprint als Ganzes bleibt wegen M-004 und M-005 offen; dieses Cutover-Ergebnis schließt weder den Business-Partner-End-to-End-Piloten noch Repeatability/V1.1/Closure vorzeitig.
+
 
 ## Ergebnisübersicht
 

@@ -86,12 +86,12 @@
     "minimumQualifiedImplementationTasks": 2,
     "mustRunOnActualDevSystem": true,
     "onlineChatDiagnosticHandoff": "patches/work/diagnostic-<operation-id>.zip",
-    "pilotWriteReady": false,
+    "pilotWriteReady": true,
     "realCodexInvocationRequired": true,
     "requiredStatusBeforePromotion": "PASS",
-    "writableCodexAuthorized": false
+    "writableCodexAuthorized": true
   },
-  "contractVersion": "1.6.0",
+  "contractVersion": "1.7.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -226,6 +226,8 @@
     "outerSandboxEntrypoint": "bin/codex-host-sandbox.sh",
     "overwritePolicy": "declared-task-paths-only",
     "platformSandboxImplementation": "linux-bwrap",
+    "privateAuthSandboxAccess": "deny",
+    "privateCodexHomeConfigPolicy": "harness-generated-permission-profile-only",
     "recordOperation": "agent-task record-invocation",
     "recordSchemaPath": "contracts/governance/agent/codex-invocation-record.schema.json",
     "recordSchemaVersion": "springmaster.codex-invocation-record.v1",
@@ -249,9 +251,7 @@
     ],
     "sourceEvidenceRoot": "external-artifact-root",
     "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree",
-    "workingDirectoryPolicy": "prepared-task-worktree",
-    "privateCodexHomeConfigPolicy": "harness-generated-permission-profile-only",
-    "privateAuthSandboxAccess": "deny"
+    "workingDirectoryPolicy": "prepared-task-worktree"
   },
   "patchHandoff": {
     "allowedAfterTaskStatus": "QUALIFIED",
@@ -294,8 +294,8 @@
   },
   "pilot": {
     "codexExecutionBeforeProjectReady": "forbidden",
-    "currentLifecycle": "PROJECT_READY",
-    "cutoverLifecycle": "CALIBRATION_REQUIRED",
+    "currentLifecycle": "PILOT_WRITE_READY",
+    "cutoverLifecycle": "PROMOTED",
     "integrationBranch": "main",
     "managedProjectMutation": "forbidden",
     "pilotId": "springmaster-codex-pilot-v1",
@@ -311,7 +311,7 @@
       "--candidate",
       "--check"
     ],
-    "doesNotAuthorizeWritableCodex": true,
+    "doesNotAuthorizeWritableCodex": false,
     "entrypoint": "bin/codex-pilot-ready.sh",
     "gateId": "codex-pilot-readiness-v1",
     "liveCommand": [
@@ -320,8 +320,8 @@
       "--live",
       "--check"
     ],
-    "nextAction": "CODEX_CALIBRATION",
-    "successStatus": "PROJECT_READY"
+    "nextAction": "CODEX_PILOT_TASK",
+    "successStatus": "PILOT_WRITE_READY"
   },
   "referenceInput": {
     "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
@@ -545,5 +545,23 @@
     "mayPush": false,
     "maySwitchBranch": false,
     "mode": "detached"
+  },
+  "writePromotion": {
+    "acceptedPatchCount": 2,
+    "acceptedPatchIds": [
+      "000215_codex-calibration-implementation-1-a003",
+      "000216_codex-calibration-implementation-2-a003"
+    ],
+    "decision": "CODEX_CUTOVER_ACCEPTED",
+    "evidenceStatus": "PASS",
+    "hostId": "47bc16ba856f12673105930e",
+    "pilotWriteReady": true,
+    "promotedFromHead": "e35450be8ab23ff4fc039f8fe4f3077f644fbbf1",
+    "promotionAuthority": "trusted-operator-accepted-patch",
+    "schemaVersion": "springmaster.codex-write-promotion.v1",
+    "sourceConfinementBaselineCommit": "aaefe3dea5446ced82b8183abdcdf3231ad45e6c",
+    "sourceConfinementEvidenceSchemaVersion": "springmaster.codex-confinement-evidence.v2",
+    "sourceConfinementEvidenceSha256": "5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8",
+    "writableCodexAuthorized": true
   }
 }

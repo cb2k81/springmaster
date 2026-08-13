@@ -26,6 +26,15 @@ r=Path(sys.argv[1]); binary=r/'.cocondo/tooling/cocondo-toolkit.pyz'; h=hashlib.
 for rel,key in [('contracts/governance/tooling/patch-toolkit-activation-contract.json','runtimeSha256'),('src/test/resources/tooling/patch-toolkit-activation-v1/activation-evidence.json','runtimeSha256')]:
  p=r/rel; d=json.load(open(p)); d[key]=h; p.write_text(json.dumps(d,indent=2)+'\n')
 p=r/'.cocondo/tooling/tooling.lock.json'; d=json.load(open(p)); d['sha256']=h; p.write_text(json.dumps(d,indent=2)+'\n')
+p=r/'contracts/governance/agent/codex-pilot-contract.json'; d=json.load(open(p))
+d['contractVersion']='1.6.0'
+d['pilot']['currentLifecycle']='PROJECT_READY'
+d['pilot']['cutoverLifecycle']='CALIBRATION_REQUIRED'
+d['projectReadiness'].update({'doesNotAuthorizeWritableCodex':True,'nextAction':'CODEX_CALIBRATION','successStatus':'PROJECT_READY'})
+d['confinementCalibration']['writableCodexAuthorized']=False
+d['confinementCalibration']['pilotWriteReady']=False
+d.pop('writePromotion',None)
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
 PY
 export HOME="${TMP}/home" XDG_CONFIG_HOME="${TMP}/xdg" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="${TMP}/git-template" GIT_TERMINAL_PROMPT=0
 mkdir -p "${HOME}" "${XDG_CONFIG_HOME}" "${GIT_TEMPLATE_DIR}"
@@ -44,6 +53,7 @@ PROMOTED="${TMP}/promoted"; cp -a "${FIXTURE}" "${PROMOTED}"
 python3 - "${PROMOTED}/contracts/governance/agent/codex-pilot-contract.json" <<'PY_PROMOTED'
 import json,sys
 p=sys.argv[1]; d=json.load(open(p,encoding="utf-8"))
+d["contractVersion"]="1.7.0"
 d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
 d["pilot"]["cutoverLifecycle"]="PROMOTED"
 d["projectReadiness"].update({"doesNotAuthorizeWritableCodex":False,"nextAction":"CODEX_PILOT_TASK","successStatus":"PILOT_WRITE_READY"})
