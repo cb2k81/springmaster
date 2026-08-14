@@ -345,3 +345,9 @@ Historical Codex cutover acceptance is no longer derived from the mutable curren
 The agent-task harness supports the terminal status `ABANDONED_BEFORE_INVOCATION` for a prepared task whose integration base became stale before any Codex invocation was recorded. The transition is fail-closed, retains immutable external run evidence and removes only a clean detached task worktree at the recorded base commit.
 
 `codex-calibration materialize --attempt <1..999>` emits attempt-qualified task IDs (`A001`, `A002`, ...). Task IDs are immutable and non-reusable. A replacement attempt is always materialized against the current clean integration HEAD. This lifecycle does not grant Codex access to `patches/work`, integration, Git-common, Downloads, external run/artifact roots or any host path outside the prepared task worktree.
+
+## Toolkit Python 3.10/3.12 portability closure
+
+The active Cocondo Patch Toolkit runtime is `1.1.4`. Its supported local launcher boundary is Python `>=3.10`; the Springmaster DEV qualification matrix explicitly covers the system Python 3.10 line and the qualified Python 3.12 bootstrap line. The launcher does not hard-code the bootstrap runtime.
+
+The 1.1.4 correction removes both nested same-quote f-string expression occurrences that Python 3.10 cannot parse, retains the existing Patch Manifest V5 transaction contract, and adds packaged-source compilation plus launcher-contract regression coverage. `PLATFORM_TOOLING_VERSION=0.14.1` and `PLATFORM_STATE_PATCH=000219_patch-toolkit-python310-portability` record the compatible Tooling correction; aggregate Platform and Maven coordinates are unchanged.

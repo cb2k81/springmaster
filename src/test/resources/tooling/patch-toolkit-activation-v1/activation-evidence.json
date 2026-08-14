@@ -1,7 +1,27 @@
 {
+  "acceptQualificationCompatibilityHotfix": {
+    "bootstrapRequirement": "qualified-1.1.2-compatibility-runtime-only-for-self-update-accept-start",
+    "failurePhase": "qualification-commit",
+    "implementation": "GitRepository.show_check invokes git show --check --oneline <commit> without --no-patch",
+    "incidentRunId": "run-20260808T185737Z-d6cd351a7ae9",
+    "patchId": "000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix",
+    "platformVersion": "0.24.0-foundation",
+    "postCommitObserver": "process-ops",
+    "repositoryMutationDuringTemporaryQualification": false,
+    "rootCause": "GitRepository.show_check combined git show --check with --no-patch; the qualified DEV-host Git rejects that option combination",
+    "runtimeSemanticImpact": "patch",
+    "semanticImpact": "minor",
+    "springmasterToolingSemanticImpact": "minor",
+    "temporaryRuntimeQualification": "PASS_STEP_05V3",
+    "toolingVersion": "0.14.0",
+    "toolkitVersion": "1.1.3"
+  },
   "canonicalMutatingEntrypoint": "bin/cpatch",
   "codexCutoverFoundationCandidate": {
+    "acceptanceEvidenceSource": "live-delivery-inventory",
+    "acceptanceStatus": "ACCEPTED",
     "acceptedCalibrationTaskCountRequired": 2,
+    "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
     "baselineCommit": "c9e6b75d7ae505c1b43e89bddce095f2ef7b91b2",
     "deliveryId": "000203-springmaster_codex_cutover_foundation",
     "hostQualificationPortable": false,
@@ -13,10 +33,7 @@
     "realCodexConfinementRequired": true,
     "status": "ACCEPTED_000203",
     "toolingVersion": "0.13.0",
-    "writableCodexAuthorized": false,
-    "acceptanceStatus": "ACCEPTED",
-    "acceptedCommit": "93ab563cc1e82bc801907399602fe04e6d37e2f7",
-    "acceptanceEvidenceSource": "live-delivery-inventory"
+    "writableCodexAuthorized": false
   },
   "directoryGovernanceRuntimeAudit": {
     "baselineCommit": "47264e5f00686fcdd2d3bda82b92ba317d29854e",
@@ -70,13 +87,38 @@
     "terminalRestart": "explicit-only"
   },
   "projectId": "springmaster",
+  "pythonRuntimePortability": {
+    "bootstrapPythonCompilation": "PASS",
+    "bootstrapPythonDoctor": "PASS",
+    "correctedRuntimeSha256": "1241000d6432f7f0b0f13a5249a2c2e98602c2cc604c732df6b84ea6a1fff574",
+    "correctedSourceOccurrenceCount": 2,
+    "failingPythonMemberCountBeforeCorrection": 1,
+    "implementation": "use Python-3.10-compatible expression quoting; enforce launcher minimum Python 3.10; compile every packaged Python member under Python 3.10 and qualified Python 3.12",
+    "incompatibleSourceOccurrenceCount": 2,
+    "minimumVersion": "3.10",
+    "platformToolingVersion": "0.14.1",
+    "qualifiedMinorVersions": [
+      "3.10",
+      "3.12"
+    ],
+    "rootCause": "Toolkit 1.1.3 contained two nested same-quote f-string expression source occurrences that the DEV system Python 3.10 parser rejects",
+    "semanticImpact": "patch",
+    "sourceRuntimeSha256": "be07d5d7d4191bbc10bf13a3effa0a1b0838966e41ea475bc6860fc56204267e",
+    "sourceToolkitVersion": "1.1.3",
+    "statePatch": "000219_patch-toolkit-python310-portability",
+    "status": "PASS",
+    "systemPythonCompilation": "PASS",
+    "systemPythonDoctor": "PASS",
+    "systemPythonWorkspaceSmoke": "PASS",
+    "targetToolkitVersion": "1.1.4"
+  },
   "qualifiedExport": {
     "fileName": "springmaster_export_full_2026-07-23T19-03-30-885456Z.zip",
     "sha256": "13a936462c4d85288a8c5c800338c936c0389759eb4f779ef3d887587ecd7050",
     "sourceCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
     "status": "COMPLETE"
   },
-  "runtimeSha256": "be07d5d7d4191bbc10bf13a3effa0a1b0838966e41ea475bc6860fc56204267e",
+  "runtimeSha256": "1241000d6432f7f0b0f13a5249a2c2e98602c2cc604c732df6b84ea6a1fff574",
   "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
   "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
   "stagingHotfix": {
@@ -122,22 +164,5 @@
     "versionClosure": "ACCEPTED",
     "workspaceLifecycle": "IMPLEMENTED_AND_ACCEPTED"
   },
-  "toolkitVersion": "1.1.3",
-  "acceptQualificationCompatibilityHotfix": {
-    "patchId": "000209_springmaster_patch_toolkit_accept_qualification_compatibility_hotfix",
-    "toolkitVersion": "1.1.3",
-    "semanticImpact": "minor",
-    "incidentRunId": "run-20260808T185737Z-d6cd351a7ae9",
-    "failurePhase": "qualification-commit",
-    "rootCause": "GitRepository.show_check combined git show --check with --no-patch; the qualified DEV-host Git rejects that option combination",
-    "implementation": "GitRepository.show_check invokes git show --check --oneline <commit> without --no-patch",
-    "temporaryRuntimeQualification": "PASS_STEP_05V3",
-    "repositoryMutationDuringTemporaryQualification": false,
-    "bootstrapRequirement": "qualified-1.1.2-compatibility-runtime-only-for-self-update-accept-start",
-    "postCommitObserver": "process-ops",
-    "runtimeSemanticImpact": "patch",
-    "springmasterToolingSemanticImpact": "minor",
-    "platformVersion": "0.24.0-foundation",
-    "toolingVersion": "0.14.0"
-  }
+  "toolkitVersion": "1.1.4"
 }

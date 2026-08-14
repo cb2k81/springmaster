@@ -4,6 +4,20 @@ set -euo pipefail
 TOOL="${1:?tool namespace required}"
 shift
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON_MIN_MAJOR=3
+PYTHON_MIN_MINOR=10
+PYTHON_BIN="$(command -v python3 || true)"
+[[ -n "${PYTHON_BIN}" && -x "${PYTHON_BIN}" ]] || { printf 'Python 3 runtime not found in PATH\n' >&2; exit 9; }
+if ! "${PYTHON_BIN}" - "${PYTHON_MIN_MAJOR}" "${PYTHON_MIN_MINOR}" <<'PY_VERSION_CHECK'
+import sys
+major,minor=map(int,sys.argv[1:])
+raise SystemExit(0 if sys.version_info >= (major,minor) else 1)
+PY_VERSION_CHECK
+then
+  printf 'Cocondo Toolkit requires Python >= %s.%s; resolved %s (%s)\n' \
+    "${PYTHON_MIN_MAJOR}" "${PYTHON_MIN_MINOR}" "${PYTHON_BIN}" "$("${PYTHON_BIN}" --version 2>&1 || true)" >&2
+  exit 9
+fi
 
 if [[ -f "${ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" ]]; then
   TOOLING_DIR="${ROOT}/.cocondo/tooling"
@@ -17,7 +31,7 @@ RUNTIME="${TOOLING_DIR}/cocondo-toolkit.pyz"
 LOCK_FILE="${TOOLING_DIR}/tooling.lock.json"
 [[ -f "${LOCK_FILE}" ]] || { printf 'Toolkit lock file missing: %s\n' "${LOCK_FILE}" >&2; exit 9; }
 
-readarray -t LOCK_VALUES < <(python3 - "${LOCK_FILE}" <<'PY'
+readarray -t LOCK_VALUES < <("${PYTHON_BIN}" - "${LOCK_FILE}" <<'PY_LOCK'
 import json, pathlib, sys
 p=pathlib.Path(sys.argv[1])
 try:
@@ -31,7 +45,7 @@ except Exception as exc:
 print(data['toolkitVersion'])
 print(data['runtimeFile'])
 print(data['sha256'])
-PY
+PY_LOCK
 )
 [[ "${LOCK_VALUES[0]:-}" != INVALID:* && ${#LOCK_VALUES[@]} -eq 3 ]] || { printf 'Invalid toolkit lock file: %s\n' "${LOCK_FILE}" >&2; exit 9; }
 LOCK_VERSION="${LOCK_VALUES[0]}"
@@ -45,7 +59,7 @@ ENV_CONFIG="${ROOT}/.cocondo/tooling/project.env"
 JSON_CONFIG="${ROOT}/.cocondo/tooling/project.json"
 CONFIG_VERSION=""
 if [[ -f "${ENV_CONFIG}" ]]; then
-  CONFIG_VERSION="$(python3 - "${ENV_CONFIG}" <<'PY'
+  CONFIG_VERSION="$("${PYTHON_BIN}" - "${ENV_CONFIG}" <<'PY_ENV'
 import pathlib, sys
 value=''
 for raw in pathlib.Path(sys.argv[1]).read_text(encoding='utf-8').splitlines():
@@ -54,17 +68,17 @@ for raw in pathlib.Path(sys.argv[1]).read_text(encoding='utf-8').splitlines():
         value=line.split('=',1)[1].strip()
         break
 print(value)
-PY
+PY_ENV
 )"
 elif [[ -f "${JSON_CONFIG}" ]]; then
-  CONFIG_VERSION="$(python3 - "${JSON_CONFIG}" <<'PY'
+  CONFIG_VERSION="$("${PYTHON_BIN}" - "${JSON_CONFIG}" <<'PY_JSON'
 import json, pathlib, sys
 try:
     value=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')).get('toolingVersion')
     print(value if isinstance(value,str) else '')
 except Exception:
     print('')
-PY
+PY_JSON
 )"
 fi
 if [[ -n "${CONFIG_VERSION}" ]]; then
@@ -72,4 +86,4 @@ if [[ -n "${CONFIG_VERSION}" ]]; then
 fi
 
 cd "${ROOT}"
-exec python3 "${RUNTIME}" "${TOOL}" "$@"
+exec "${PYTHON_BIN}" "${RUNTIME}" "${TOOL}" "$@"

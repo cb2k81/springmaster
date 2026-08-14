@@ -222,4 +222,55 @@ matches=[
 assert len(matches) == 1, data.get("findings")
 PY_CUTOVER_RESULT
 
+# PATCH_TOOLKIT_PYTHON310_RUNTIME_COMPATIBILITY_REGRESSION_V1
+python3 - "${PROJECT_ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" "${PROJECT_ROOT}/bin/cocondo-toolkit-launcher.sh" <<'PY_PYTHON_RUNTIME'
+import sys,zipfile
+from pathlib import Path
+runtime=Path(sys.argv[1]); launcher=Path(sys.argv[2]).read_text(encoding='utf-8')
+assert 'PYTHON_MIN_MAJOR=3' in launcher and 'PYTHON_MIN_MINOR=10' in launcher, launcher
+assert 'exec "${PYTHON_BIN}" "${RUNTIME}" "${TOOL}" "$@"' in launcher, launcher
+failures=[]
+with zipfile.ZipFile(runtime) as archive:
+    source=archive.read('cocondo_toolkit/patching.py').decode('utf-8')
+    assert source.count('artifact.split(":")') == 0, source
+    assert source.count("artifact.split(':')") == 2, source
+    for info in archive.infolist():
+        if info.is_dir() or not info.filename.endswith('.py'):
+            continue
+        text=archive.read(info).decode('utf-8')
+        try:
+            compile(text,info.filename,'exec')
+        except SyntaxError as exc:
+            failures.append((info.filename,exc.lineno,exc.msg))
+assert not failures, failures
+print(f'PATCH_TOOLKIT_PYTHON_RUNTIME_COMPILE=PASS python={sys.version_info.major}.{sys.version_info.minor}')
+PY_PYTHON_RUNTIME
+
+PY_WORKSPACE_ROOT="${WORK_ROOT}/python-runtime-workspace"
+PY_WORKSPACE_BASE="${PY_WORKSPACE_ROOT}/base"
+PY_WORKSPACE_CANDIDATE="${PY_WORKSPACE_ROOT}/candidate"
+rm -rf "${PY_WORKSPACE_ROOT}"
+mkdir -p "${PY_WORKSPACE_BASE}/bin" "${PY_WORKSPACE_BASE}/.cocondo"
+cp "${PROJECT_ROOT}/bin/cpatch" "${PROJECT_ROOT}/bin/cocondo-toolkit-launcher.sh" "${PY_WORKSPACE_BASE}/bin/"
+cp -a "${PROJECT_ROOT}/.cocondo/tooling" "${PY_WORKSPACE_BASE}/.cocondo/tooling"
+git -C "${PY_WORKSPACE_BASE}" init -q -b main
+git -C "${PY_WORKSPACE_BASE}" config user.name "Toolkit Python Runtime Fixture"
+git -C "${PY_WORKSPACE_BASE}" config user.email "toolkit-python-runtime@example.invalid"
+git -C "${PY_WORKSPACE_BASE}" add bin .cocondo/tooling
+git -C "${PY_WORKSPACE_BASE}" commit -qm "fixture baseline"
+git -C "${PY_WORKSPACE_BASE}" worktree add -q -b change/python-runtime-smoke "${PY_WORKSPACE_CANDIDATE}" main
+(
+  cd "${PY_WORKSPACE_CANDIDATE}"
+  ./bin/cpatch workspace init --name python-runtime-smoke --scope tooling --format json >"${PY_WORKSPACE_ROOT}/workspace-init.json"
+)
+python3 - "${PY_WORKSPACE_ROOT}/workspace-init.json" <<'PY_WORKSPACE_RESULT'
+import json,sys
+v=json.load(open(sys.argv[1],encoding='utf-8'))
+assert isinstance(v,dict) and v,v
+print('PATCH_TOOLKIT_PYTHON_RUNTIME_WORKSPACE_JSON=PASS')
+PY_WORKSPACE_RESULT
+test -z "$(git -C "${PY_WORKSPACE_CANDIDATE}" status --porcelain=v1 --untracked-files=all)"
+printf '%s\n' 'PATCH_TOOLKIT_PYTHON_RUNTIME_WORKSPACE=PASS'
+git -C "${PY_WORKSPACE_BASE}" worktree remove "${PY_WORKSPACE_CANDIDATE}"
+
 echo "PATCH_TOOLKIT_ACTIVATION_IT=PASS"
