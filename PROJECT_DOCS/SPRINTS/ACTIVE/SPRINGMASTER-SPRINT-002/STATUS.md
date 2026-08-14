@@ -12,16 +12,16 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-08-13
+lastReviewedAt: 2026-08-14
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
 temporary: true
 sprintId: SPRINGMASTER-SPRINT-002
 sprintPhase: execution
-overallStatus: blocked
-lastDriftResult: stop-and-replan
-lastDriftAt: 2026-08-01
+overallStatus: active
+lastDriftResult: accepted
+lastDriftAt: 2026-08-14
 expectedVersionImpact: minor
 ---
 
@@ -29,79 +29,73 @@ expectedVersionImpact: minor
 
 ## Codex Cutover Acceptance – 2026-08-13
 
-Diese Sektion ist der aktuelle Cutover-Nachweis und supersediert ältere Aussagen in diesem Statusdokument, nach denen Host-Qualification, Codex-Kalibrierung oder Write-Promotion noch ausstehen. A002 wurde als fehlgeschlagener Calibration-Attempt unveränderlich geschlossen; der konkrete Change-Bundle-Read-Scope-Defekt wurde mit `000214_codex-host-change-bundle-read-scope-correction` kanonisch korrigiert. A003 wurde auf der korrigierten Baseline vollständig neu ausgeführt. Der erste R5-Promotion-Kandidat wurde vor Commit und Artefakterzeugung fail-closed gestoppt, weil `codex-pilot-ready-it.sh` seine PROJECT_READY-Positive-Fixture implizit vom aktuellen Repository-Lifecycle erbte und deshalb auf einem bereits auf `PILOT_WRITE_READY` gesetzten Kandidaten deterministisch fehlschlug. Die Promotion macht diese Fixture lifecycle-neutral; der produktive Readiness-Vertrag selbst wird dadurch nicht abgeschwächt. Die reale Host-Qualification und alle mechanischen Confinement-Probes sind PASS. Zwei unabhängige A003-Implementierungskalibrierungen wurden qualifiziert, über unveränderliche Handoffs in getrennten kanonischen Dry-run-/Accept-Läufen integriert und als `000215_codex-calibration-implementation-1-a003`, `000216_codex-calibration-implementation-2-a003` akzeptiert. Das Confinement-Evidence-Manifest `5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8` ist live verifiziert. Die separate Promotion setzt den Lifecycle konsistent auf `PILOT_WRITE_READY`/`PROMOTED` und autorisiert kontrollierte Codex-Pilot-Tasks. M-002 und M-003 sind damit für den Codex Cutover erfüllt; M-004 und M-005 bleiben eigenständiger Sprint-Folgebedarf.
+Diese Sektion ist der aktuelle Cutover-Nachweis und supersediert ältere Aussagen in diesem Statusdokument, nach denen Host-Qualification, Codex-Kalibrierung oder Write-Promotion noch ausstehen. A002 wurde als fehlgeschlagener Calibration-Attempt unveränderlich geschlossen; der konkrete Change-Bundle-Read-Scope-Defekt wurde mit `000214_codex-host-change-bundle-read-scope-correction` kanonisch korrigiert. A003 wurde auf der korrigierten Baseline vollständig neu ausgeführt. Der erste Cutover-Recovery-Promotion-Kandidat wurde vor Commit und Artefakterzeugung fail-closed gestoppt, weil `codex-pilot-ready-it.sh` seine PROJECT_READY-Positive-Fixture implizit vom aktuellen Repository-Lifecycle erbte und deshalb auf einem bereits auf `PILOT_WRITE_READY` gesetzten Kandidaten deterministisch fehlschlug. Die Promotion macht diese Fixture lifecycle-neutral; der produktive Readiness-Vertrag selbst wird dadurch nicht abgeschwächt. Die reale Host-Qualification und alle mechanischen Confinement-Probes sind PASS. Zwei unabhängige A003-Implementierungskalibrierungen wurden qualifiziert, über unveränderliche Handoffs in getrennten kanonischen Dry-run-/Accept-Läufen integriert und als `000215_codex-calibration-implementation-1-a003`, `000216_codex-calibration-implementation-2-a003` akzeptiert. Das Confinement-Evidence-Manifest `5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8` ist live verifiziert. Die separate Promotion setzt den Lifecycle konsistent auf `PILOT_WRITE_READY`/`PROMOTED` und autorisiert kontrollierte Codex-Pilot-Tasks. M-002 und M-003 sind damit für den Codex Cutover erfüllt; M-004 und M-005 bleiben eigenständiger Sprint-Folgebedarf.
 
 
 ## Aktueller Stand
 
-Die Tooling-Härtung `000201_springmaster_tooling_hardening_cut` und die Codex-Cutover-Foundation `000203_springmaster_codex_cutover_foundation` sind kanonisch akzeptiert. `93ab563cc1e82bc801907399602fe04e6d37e2f7` ist der historische Accept-Commit von `000203_springmaster_codex_cutover_foundation`; der operative Integrationsstand ist immer der aktuell saubere `main`-HEAD und darf nicht aus dieser historischen Evidence abgeleitet werden. Platform `0.23.0-foundation` und Tooling `0.13.0` beschreiben die Foundation-Baseline von `000203`, nicht einen festgeschriebenen aktuellen HEAD.
+Der Codex-Cutover ist kanonisch abgeschlossen. Der Harness-Fix `000214_codex-host-change-bundle-read-scope-correction`, die beiden A003-Kalibrierungspatches `000215_codex-calibration-implementation-1-a003` und `000216_codex-calibration-implementation-2-a003` sowie die separate Promotion `000218_codex-cutover-write-promotion` sind akzeptiert. Die finale Live-Qualification endete mit `CODEX_CUTOVER_ACCEPTED` auf `main`-HEAD `60c99cf05330806d2cf14efd50d70fa7f98adf74`.
 
-Die vorliegende Stabilisierung bindet `agent-task prepare` unter `PROJECT_READY` fail-closed an den materialisierten Calibration Plan, erzeugt gültige Calibration Tasks und verhindert die Übernahme eines Host-`PATH` in die äußere Codex-Sandbox. Sie autorisiert weder reguläre Feature-Tasks noch schreibende Codex-Nutzung.
+Die maschinenlesbare Pilotwahrheit ist `contracts/governance/agent/codex-pilot-contract.json` Version `1.7.0`. Sie setzt den Lifecycle auf `PILOT_WRITE_READY`/`PROMOTED`, autorisiert kontrollierte Codex-Pilot-Tasks und lässt die vertrauenswürdigen Integrationsgrenzen unverändert bestehen.
 
 ```text
-FORMAL_REPOSITORY_READINESS=PROJECT_READY
-NEXT_LIFECYCLE_STATE=CODEX_CALIBRATION
-NEXT_ACTION=POST_ACCEPT_LIVE_READINESS_AND_HOST_QUALIFICATION
+FORMAL_REPOSITORY_READINESS=PILOT_WRITE_READY
+CUTOVER_LIFECYCLE=PROMOTED
+NEXT_ACTION=CODEX_PILOT_TASK
 NEXT_ACTION_EXECUTABLE=true
 NEXT_ACTION_BLOCKER=NONE
-WRITABLE_CODEX_AUTHORIZED=false
-PILOT_WRITE_READY=false
+WRITABLE_CODEX_AUTHORIZED=true
+PILOT_WRITE_READY=true
 ```
 
-`PROJECT_READY` bleibt der formale Repositoryzustand. Der nächste zulässige Operatorabschnitt umfasst Post-Accept-Live-Readiness, hostgebundene Bubblewrap-Qualification und die Materialisierung des Calibration Task Packs gegen den akzeptierten Live-Commit. Reale Codex-Aufrufe bleiben auf die kanonische Kalibrierung begrenzt. Die Versuche `000197` bis `000200` bleiben ausschließlich Incident-Evidence und werden nicht wiederverwendet.
+Die aktuelle Post-Cutover-Versionswahrheit ist Platform `0.24.0-foundation`, Tooling `0.14.1`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.4` und `PLATFORM_STATE_PATCH=000219_patch-toolkit-python310-portability`. Der State-Patch bleibt nach Version Policy die Quelle der aktuellen Versionswahrheit; die anschließende reine Dokumentationssynchronisierung verändert ihn nicht.
+
+M-002 und M-003 sind abgeschlossen. Der nächste kontrollierte fachliche Slice ist M-004, der Business-Partner-End-to-End-Pilot; M-005 bleibt anschließend für Repeatability, V1.1-Evolution und Sprint-Closure vorgesehen.
 
 ## Teilziele
 
 | ID | Status | Evidence oder Blocker |
 |---|---|---|
 | M-001 | completed | Kanonische Zielquelle, vier aktive Sprintdokumente und Indexeinträge; Qualification durch Documentation Gate, Sprint Gate, Payload- und Patch-Preflight. |
-| M-002 | in-progress | Materializer, Host-Sandbox und Calibration-Harness sind vorhanden; das autoritative Task-Pack wird nach bestandener Post-Accept-Live-Readiness und Host-Qualification gegen den akzeptierten Live-Commit materialisiert. |
-| M-003 | blocked | Reale Host-Qualification, zwei akzeptierte Kalibrierungsaufgaben und separate Write-Promotion stehen aus. |
-| M-004 | planned | Business-Partner-Fachkonzept und Acceptance Contract sind vorhanden; Contract-Kette und disposable App noch nicht ausgeführt. |
-| M-005 | planned | Repeatability-, V1.1-, Effizienz- und Closure-Evidence stehen aus. |
+| M-002 | completed | A003-Task-Pack gegen die korrigierte akzeptierte Baseline materialisiert; reale Analysis, Host-Qualification und plan-/hashgebundene Task-Evidence PASS. |
+| M-003 | completed | Zwei unabhängige A003-Implementierungen qualifiziert und als `000215`/`000216` separat akzeptiert; Confinement live verifiziert; Write-Promotion `000218` akzeptiert; final `CODEX_CUTOVER_ACCEPTED`. |
+| M-004 | planned | Business-Partner-Fachkonzept und Acceptance Contract sind eingefroren; Contract-Kette und disposable App werden als nächste reale Codex-Pilotumsetzung geplant. |
+| M-005 | planned | Repeatability-, V1.1-, Effizienz- und Closure-Evidence stehen nach M-004 aus. |
 
 ## Blocker und Erkenntnisse
 
-Die früheren Blocker `TOOLING_HARDENING` und `CODEX_CUTOVER_FOUNDATION_ACCEPTANCE` sind durch die kanonischen Acceptances von `000201` und `000203` geschlossen. Formal bleibt das Repository `PROJECT_READY`; der nächste kontrollierte Abschnitt ist operativ ausführbar, ohne dadurch schreibende Codex-Nutzung zu autorisieren.
+Die früheren Cutover-Blocker sind geschlossen. A001 und A002 bleiben unveränderliche Failure-/Incident-Evidence; A003 ist die erfolgreiche Kalibrierung auf der korrigierten Baseline. Die Promotion `000218_codex-cutover-write-promotion` autorisiert reguläre, weiterhin taskvertraglich begrenzte Codex-Pilot-Tasks.
 
-Aktuelle P0-/P1-Blocker:
+Aktuell besteht kein P0-/P1-Cutover-Blocker. Vor M-004 gelten weiterhin die normalen Pilotgrenzen:
 
-- die Live-Readiness muss gegen den akzeptierten Commit und explizit autorisierte externe Roots erneut ausgeführt werden;
-- Host-Inspection und alle mechanischen Confinement-Probes müssen auf dem realen DEV-System bestehen;
-- das Calibration Task Pack muss gegen den akzeptierten Commit materialisiert werden; unter `PROJECT_READY` dürfen nur dessen bytegenau registrierte Tasks vorbereitet werden;
-- zwei implementierende Kalibrierungsaufgaben müssen über Handoff, Candidate, `cpatch create`, separaten Dry-run und separaten Accept qualifiziert werden;
-- die Promotion zu `PILOT_WRITE_READY` bleibt eine eigene committed Entscheidung; bis dahin gelten `WRITABLE_CODEX_AUTHORIZED=false` und `PILOT_WRITE_READY=false`.
+- jeder reale Codex-Task bindet einen exakten `baseCommit`, erlaubte Pfade, Capabilities, Qualification und Evidence;
+- Codex schreibt nur in den vom Harness vorbereiteten detached Task-Worktree;
+- Handoff, Candidate-Integration, kanonischer Patch, Dry-run und Accept bleiben getrennte vertrauenswürdige Operatorgrenzen;
+- GWC, Personnel, IDM und gemanagte Projekte bleiben read-only Referenzquellen, solange kein ausdrücklich autorisierter separater Flow anderes festlegt;
+- Sprint 003 bleibt bis zur Sprint-002-Closure beziehungsweise einem expliziten disjunkten Amendment gesperrt.
 
-Die Versuche `000197` bis `000200` sind keine akzeptierten Source-Änderungen:
-
-| Versuch | Ergebnis | Status für die Baseline |
-|---|---|---|
-| `000197` | Dry-run scheiterte an einer vermischten portablen und Runtime-Prüfung des Workspaces. | Incident-Evidence; nicht akzeptiert |
-| `000198` | Vorbereitung gelang, zielgerichteter Dry-run scheiterte; der Artefaktpfad lag noch unter Downloads und der konkrete Selfcheck-Substep war zunächst verdeckt. | Incident-Evidence; nicht akzeptiert |
-| `000199` | Workspace-Reset entfernte Altbestand, der Lauf wurde jedoch wegen fortbestehender Artefaktroot-Problematik als fehlgeschlagen superseded. | Incident-Evidence; nicht akzeptiert |
-| `000200` | Vorbereitung scheiterte, weil eine historische `accept-discovery.env`-Datei als Delivery-Verzeichnis klassifiziert wurde. | Incident-Evidence; nicht akzeptiert |
-
-Keine Payload dieser Versuche darf als implementierte Funktion, Candidate-Quelle oder akzeptierte Baseline verwendet werden.
+Die Versuche `000197` bis `000200`, A001 und A002 dürfen nicht als erfolgreiche Baseline oder als wiederverwendbare Invocation interpretiert werden. Ihre Evidence bleibt historisch erhalten.
 
 ## Drift-Bewertung
 
-Ergebnis: `controlled-resume`.
+Ergebnis: `accepted`.
 
-Der Lifecycle-Vertrag `PROJECT_READY -> CODEX_CALIBRATION` ist formal und technisch konsistent. Die Acceptances von `000201` und `000203` erlauben die kontrollierte Wiederaufnahme mit Post-Accept-Live-Readiness und Host-Qualification. Vor Kalibrierung, Write-Promotion, Business-Partner-Pilot, Qualification und Closure bleibt jeweils eine erneute Driftprüfung erforderlich.
+Der Cutover-Drift ist mit der akzeptierten Promotion und finalen Live-Qualification geschlossen. Die bisherige Planung wird nicht verworfen, sondern auf den noch offenen Sprintteil fokussiert: M-002/M-003 sind erfüllt; M-004 wird der nächste Slice; M-005 und die Sprint-Closure folgen danach. Diese Fortschreibung ist in `SPRINT_BRIEF.md` als `AMEND-001` dokumentiert.
 
 ## Risiken und technische Schulden
 
-- Die reale Codex-Runtime und deren Denial-Probes sind noch nicht als aktuelle Acceptance-Evidence vorhanden.
+- Die erste reale Post-Cutover-Feature-Umsetzung mit Codex ist noch nicht qualifiziert; M-004 muss deshalb in kleine, vorab oracle- und scopegebundene Tasks zerlegt werden.
 - Application UI Spec und GWC Implementation Manifest besitzen noch keinen in diesem Sprint qualifizierten End-to-End-Nachweis.
+- Repeatability, V1.1-Evolution, Effizienzvergleich und Sprint-Closure stehen weiterhin aus.
 - Der Sprintzeitraum ist eine Steuerungsannahme; bei Überschreitung ist eine aktuelle Driftbewertung zwingend.
 
 ## Versionswirkung
 
-`000201_springmaster_tooling_hardening_cut` und `000203_springmaster_codex_cutover_foundation` sind akzeptiert. Die aktuelle Versionswahrheit bleibt Platform `0.23.0-foundation`, Tooling `0.13.0` und `PLATFORM_STATE_PATCH=000203_springmaster_codex_cutover_foundation`. Die Stabilisierung ist ein kompatibler Tooling-Patch innerhalb dieser Foundation und führt keine Release- oder Write-Promotion durch.
+Aktuelle Versionswahrheit: Platform `0.24.0-foundation`, Tooling `0.14.1`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.4`, State Patch `000219_patch-toolkit-python310-portability`. Der nachgelagerte Post-Cutover-Dokumentationsschnitt ändert keine weitere Produkt-, Tooling-, Core-, Demo-, Template- oder Platform-Update-Semantik und löst daher keinen zusätzlichen Komponenten- oder Foundation-Bump aus.
 
 ## Nächster kontrollierter Schritt
 
-Als nächster kontrollierter Schritt wird das Calibration Task Pack gegen den aktuell sauberen `main`-HEAD materialisiert und geprüft. Unmittelbar vor einer realen Codex-Invocation müssen Live-Readiness, Host-Inspection und mechanische Confinement-Probes für genau diesen aktuellen HEAD erfolgreich sein. `PROJECT_READY` autorisiert keine reguläre schreibende Codex-Nutzung; `PILOT_WRITE_READY` bleibt einer separaten Promotion vorbehalten.
+M-004 wird sorgfältig vor der ersten realen Feature-Invocation geplant. Zuerst werden Business-Partner-Fachkonzept und Acceptance Contract in eine kleine deterministische Contract-/Intent-Kette zerlegt; danach werden Task Contract, erlaubte Pfade, Oracles, Qualification Commands, Evidence und Handoff-Grenzen vollständig eingefroren. Erst dann wird der erste reale Codex-Pilot-Task auf einer sauberen akzeptierten Baseline vorbereitet.
 
 ## Lifecycle
 
@@ -112,3 +106,5 @@ Als nächster kontrollierter Schritt wird das Calibration Task Pack gegen den ak
 | 2026-07-30 | blocked | blocked | Candidate `000201` implementiert, Live-Inventory konfliktfrei aufgelöst und Version Closure auf `0.22.0-foundation` / `0.12.0` gesetzt; vollständige Qualification und Acceptance bleiben offen. |
 | 2026-07-31 | blocked | blocked | Acceptance von `000201` nachvollzogen; aktueller Blocker auf kanonische Acceptance von `000203`, reale Host-Qualification und Kalibrierung fortgeschrieben. |
 | 2026-08-01 | blocked | blocked | Acceptance von `000203` aus dem kanonischen Delivery-Inventory bestätigt; nächster Abschnitt auf Post-Accept-Live-Readiness, Host-Qualification und plan-gebundene Kalibrierung fortgeschrieben. |
+| 2026-08-13 | blocked | active | A003-Kalibrierung, zwei getrennte Calibration-Accepts, live verifizierte Confinement-Evidence und Promotion `000218` abgeschlossen; `CODEX_CUTOVER_ACCEPTED`, nächster Slice M-004. |
+| 2026-08-14 | active | active | Post-Cutover-Tooling-Portabilität mit `000219` geschlossen; diese Dokumentationssynchronisierung bildet die Zielwahrheit für die abschließende `POST_CUTOVER_DEVELOPMENT_BASELINE_READY`-Qualification ab; M-004 bleibt nächster fachlicher Slice. |

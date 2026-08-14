@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-07-30
+lastReviewedAt: 2026-08-14
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -44,17 +44,21 @@ Der Sprint verändert zunächst keine Produktarchitektur. Er verwendet und quali
 
 Neue dauerhafte Semantik wird nur über einen eigenen ADR-, Governance-, Standard- oder Contract-Schnitt eingeführt. Sprintdokumente bleiben Steuerungs- und Evidence-Quellen, nicht Ersatz für Produktverträge.
 
-Der formale Zustand `PROJECT_READY` bleibt bestehen. Der in den Readiness-Verträgen benannte nächste Lifecycle-Zustand `CODEX_CALIBRATION` ist jedoch bis zur Annahme des Tooling-Härtungsschnitts nicht operativ ausführbar; `WRITABLE_CODEX_AUTHORIZED=false`.
+Der Cutover-Pfad ist abgeschlossen. Der aktuelle Lifecycle ist `PILOT_WRITE_READY`/`PROMOTED`; `WRITABLE_CODEX_AUTHORIZED=true` gilt ausschließlich innerhalb der unverändert strikten Task-, Worktree-, Qualification-, Handoff- und Operatorgrenzen. Slices 1 bis 3 sind abgeschlossen. Der aktive Ausführungsschwerpunkt beginnt mit Slice 4. Die Post-Cutover-Tooling-Portabilität ist mit `000219_patch-toolkit-python310-portability` auf Toolkit `1.1.4` / Tooling `0.14.1` geschlossen; daraus entsteht keine Änderung der M-004/M-005-Scope- oder Sprint-3-Grenzen.
 
 ## Slices und Reihenfolge
 
 ### Slice 1: Ziel- und Sprintwahrheit
+
+Status: `completed`.
 
 - kanonische Projektziele anlegen;
 - vollständigen aktiven Sprint-002-Harness anlegen;
 - Index, Gate-Evidence und Baselinebindung qualifizieren.
 
 ### Slice 1A: Tooling-Härtung vor Kalibrierung
+
+Status: `completed`.
 
 - genau einen vollständigen Candidate aus der akzeptierten Baseline `c5c5846176d92c34b19b7a7827d7264c1923805f` erzeugen;
 - zentralen Workspace-Lifecycle für alle Writer schließen;
@@ -69,12 +73,16 @@ Kein D3 Task Pack, keine Task-Vorbereitung und kein Codex-Aufruf sind vor Annahm
 
 ### Slice 2: D3 Task Pack und Oracle
 
+Status: `completed` durch den erfolgreichen A003-Neuaufbau; aufgegebene frühere Attempts bleiben historische Evidence.
+
 - aufgegebenen Vor-000186-Kandidaten und die Payloads `000197` bis `000200` nicht wiederverwenden;
 - Tasks gegen den aktuellen Commit neu erzeugen;
 - read-only Aufgabe, negativer Boundary-Probe und zwei kleine Implementierungsaufgaben definieren;
 - Oracles, Größenlimits, erlaubte Pfade, Qualifikationskommandos und Evidence vorab einfrieren.
 
 ### Slice 3: Runtime-Boundaries und Kalibrierung
+
+Status: `completed`; A003, `000215`, `000216`, live Confinement und Promotion `000218` sind qualifiziert.
 
 - externe Roots und isolierten Worktree preflighten;
 - reale Denial-Probes ausführen;
@@ -84,6 +92,8 @@ Kein D3 Task Pack, keine Task-Vorbereitung und kein Codex-Aufruf sind vor Annahm
 
 ### Slice 4: Business-Partner-Contract-Kette
 
+Status: `next`.
+
 - Fachkonzept in canonical intent überführen;
 - Generated-Slice-Spec und IR erzeugen;
 - Application UI Spec aus Fach- und API-Verträgen ableiten;
@@ -92,11 +102,15 @@ Kein D3 Task Pack, keine Task-Vorbereitung und kein Codex-Aufruf sind vor Annahm
 
 ### Slice 5: Disposable Application
 
+Status: `planned` nach qualifizierter Contract-Kette.
+
 - Anwendung ausschließlich in einem externen disponiblen Zielroot materialisieren;
 - Build, Runtime, API, Validierung, Fehler, Persistenz, Security-Klassifikation und UI prüfen;
 - Re-Generation und geschützte Extension Points verifizieren.
 
 ### Slice 6: Repeatability und Evolution
+
+Status: `planned` nach M-004.
 
 - drei Clean-Runs mit identischen Baseline-Eingaben durchführen;
 - Outputs, Hashes, semantische Unterschiede und Laufzeiten vergleichen;
@@ -168,27 +182,32 @@ Slice 1 ist eine Governance- und Planungsinitialisierung ohne unmittelbaren Komp
 
 ## Patch- oder Commitsequenz
 
-1. Projektziele und Sprint-002-Harness;
-2. ein vollständiger Tooling-Härtungsschnitt;
-3. Annahme der Härtung und erneute Live-Baseline;
-4. D3 Task Pack und Oracle;
-5. Runtime-Boundary-Evidence;
-6. Kalibrierungsaufgabe A;
-7. Kalibrierungsaufgabe B;
-8. Write-Readiness-Entscheidung;
-9. Business-Partner-Contract-Kette;
-10. Disposable Application, Repeatability, V1.1 und Closure.
+Abgeschlossene Cutover-Sequenz:
 
-Jeder Schnitt besitzt eigene Baseline-Hashes, Scope, Changelog, Dry-run und expliziten Accept. Die Reihenfolge kann nur durch ein dokumentiertes Sprint-Amendment materiell geändert werden.
+1. `[completed]` Projektziele und Sprint-002-Harness;
+2. `[completed]` Tooling-Härtung;
+3. `[completed]` Annahme der Härtung und erneute Live-Baseline;
+4. `[completed]` Calibration Task Pack und Oracle in A003;
+5. `[completed]` Runtime-Boundary-Evidence;
+6. `[completed]` Kalibrierungsaufgabe A / `000215`;
+7. `[completed]` Kalibrierungsaufgabe B / `000216`;
+8. `[completed]` Write-Readiness-Entscheidung / `000218`.
+
+Verbleibende Sprintsequenz:
+
+9. Business-Partner-Contract-Kette in kleinen taskvertraglich begrenzten Codex-Pilot-Schnitten;
+10. Disposable Application;
+11. Repeatability und V1.1-Evolution;
+12. Sprint-Closure und Rollout-/Generalisierungsentscheidung.
+
+Jeder mutierende Repositoryschnitt besitzt weiterhin eigene Baseline-Hashes, Scope, Changelog, Dry-run und expliziten Accept. Ein Codex-Handoff ist kein kanonischer Patch und keine Integrationsautorität.
 
 ## Unsicherheiten und Entscheidungszeitpunkte
 
-- Tooling-Härtung: zwingende Annahmeentscheidung vor Slice 2;
-- konkrete Kalibrierungsaufgaben: Entscheidung erst nach neuem Live-Baseline-Freeze;
-- erlaubtes Codex-Modell und lokale Runtime: Entscheidung im Task-/Invocation-Preflight;
-- Form der Application UI Spec: Entscheidung vor Slice 4, gestützt auf vorhandene GWC-Beispiele;
-- Generator-/Rendererbedarf: Entscheidung erst nach Contract-Kette; keine vorschnelle Frameworkwahl;
-- `PILOT_WRITE_READY`: separate Entscheidung nach Slice 3;
+- Form der Application UI Spec: Entscheidung vor beziehungsweise innerhalb von Slice 4, gestützt auf vorhandene GWC-/IDM-/Personnel-Referenzen und den eingefrorenen Business-Partner-Acceptance-Contract;
+- Zerlegung von M-004: vor jeder realen Invocation werden Task Contract, Scope, Oracle, Qualification und Evidence eingefroren;
+- Generator-/Rendererbedarf: Entscheidung erst nach qualifizierter Contract-Kette; keine vorschnelle Frameworkwahl;
+- Persistenz-, Security- und UI-Deferrals: müssen aus den bestehenden Standards und dem Pilot-Acceptance-Contract abgeleitet und explizit qualifiziert werden;
 - Generalisierung auf Project-New oder Managed Projects: nur nach Sprint Closure.
 
 ## Lifecycle
@@ -197,3 +216,5 @@ Jeder Schnitt besitzt eigene Baseline-Hashes, Scope, Changelog, Dry-run und expl
 |---|---|---|---|
 | 2026-07-28 | – | active | Staged Lösungs- und Ausführungsplan für Sprint 002 angelegt. |
 | 2026-07-30 | active | active | Vollständigen Tooling-Härtungsschnitt als Slice 1A und zwingende Annahmegrenze vor D3 und Codex-Kalibrierung eingefügt. |
+| 2026-08-13 | active | active | Slices 1 bis 3 einschließlich A003-Kalibrierung und Write-Promotion abgeschlossen; aktiver Ausführungsschwerpunkt auf Slice 4/M-004 fortgeschrieben. |
+| 2026-08-14 | active | active | Post-Cutover-Tooling-Portabilität `000219` geschlossen; Slice 4/M-004 bleibt unverändert der nächste Ausführungsschwerpunkt. |

@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-08-01
+lastReviewedAt: 2026-08-14
 reviewBy: 2026-08-21
 supersedes: []
 supersededBy: null
@@ -26,9 +26,11 @@ targetCompletion: 2026-08-21
 
 ## Sprintziel
 
-Springmaster soll den akzeptierten Zustand `PROJECT_READY` nach den kanonischen Acceptances von `000201` und `000203` kontrolliert über Post-Accept-Live-Readiness und reale Host-Qualification in Codex-Kalibrierung überführen und anschließend die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren. `CODEX_CALIBRATION` ist als nächster kontrollierter Abschnitt ausführbar; reguläre schreibende Codex-Nutzung bleibt bis zur separaten Promotion verboten. `WRITABLE_CODEX_AUTHORIZED` und `PILOT_WRITE_READY` bleiben `false`.
+Der Codex-Cutover-Anteil von Sprint 002 ist abgeschlossen: Springmaster ist nach realer Host-Qualification, A003-Kalibrierung, zwei unabhängig akzeptierten Implementierungsaufgaben, live verifizierter Confinement-Evidence und separater Promotion im Zustand `PILOT_WRITE_READY`/`PROMOTED`. Kontrollierte schreibende Codex-Pilot-Tasks sind damit gemäß Task Contract und Harness autorisiert; direkte Integration, automatischer Accept, Push oder Zielprojektmutation bleiben verboten.
 
-Der Sprint ist erfolgreich, wenn Springmaster belastbar entscheiden kann, ob Codex für begrenzte lokale Springmaster-Aufgaben sicher und effizient eingesetzt werden darf und ob die Kette vom Fachkonzept bis zu einer disponiblen GWC-Anwendung deterministisch, traceable und wiederholbar funktioniert.
+Der verbleibende Sprintfokus ist M-004/M-005: die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren, anschließend Repeatability und V1.1-Evolution belegen und den Sprint evidence-basiert schließen.
+
+Der Sprint ist erfolgreich, wenn Springmaster belastbar zeigt, dass die Kette vom Fachkonzept bis zu einer disponiblen GWC-Anwendung deterministisch, traceable und wiederholbar funktioniert und daraus eine begründete Rollout-, Generalisierungs- oder Stopentscheidung ableitet.
 
 ## Strategischer Bezug
 
@@ -42,30 +44,34 @@ Kanonische Zielquelle ist `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md
 
 ## Ausgangslage und Baseline
 
-Kanonische akzeptierte Baseline für den Härtungsschnitt:
+### Sprintinitialisierungs-Baseline (historisch)
 
-- Git-HEAD des geprüften Full-Exports: `c5c5846176d92c34b19b7a7827d7264c1923805f`;
+Der Sprint wurde auf dem Full-Export-HEAD `c5c5846176d92c34b19b7a7827d7264c1923805f` mit Platform `0.21.1-foundation`, Tooling `0.11.3`, State Patch `000196_springmaster_directory_governance_runtime_audit_closure`, Patch Toolkit `1.1.2` und formalem Lifecycle `PROJECT_READY` gestartet. Die Versuche `000197` bis `000200` wurden ausschließlich als Incident-Evidence behandelt und nie Teil der akzeptierten Source-Baseline.
+
+### Aktuelle Post-Cutover-Baseline – 2026-08-14
+
+- Git-HEAD des abschließend geprüften Full-Exports: `60c99cf05330806d2cf14efd50d70fa7f98adf74`;
 - Branch: `main`, Exportstatus: sauber;
-- Export-SHA-256: `01ca13927f5edd8efa2f501b623aa9376ff51921360273875151ebb6acbb1ddc`;
-- File-Manifest-SHA-256: `b1bf29739ee734fa323255dca3b70740019d6a8ade3efca82050fa0941d1ba59`;
-- Plattformversion: `0.21.1-foundation`;
-- Toolingversion: `0.11.3`;
-- State Patch: `000196_springmaster_directory_governance_runtime_audit_closure`;
-- Patch Toolkit: `1.1.2`;
-- akzeptierte Pilotentscheidung: ADR-0015;
-- formale Readiness: `PROJECT_READY`;
-- nächster Lifecycle-Zustand: `CODEX_CALIBRATION`;
-- Tooling-Härtung `000201_springmaster_tooling_hardening_cut`: akzeptiert;
-- aktueller Cutover-Foundation-Candidate: `000203_springmaster_codex_cutover_foundation`;
-- operative Ausführbarkeit dieses Übergangs: blockiert durch `CODEX_CUTOVER_FOUNDATION_ACCEPTANCE`;
-- `WRITABLE_CODEX_AUTHORIZED=false`;
-- Business-Partner-Fachkonzept und Acceptance Contract: vorhanden und eingefroren.
+- Export-SHA-256: `a0aff1666b83fda555122aa0c16f8c71224e1d8237ada226090094bce30ba290`;
+- File-Manifest-SHA-256: `6a00907b6ba689bed65fa0b70de0416748a65d595c3d45304909e555248a7097`;
+- Platform: `0.24.0-foundation`;
+- Tooling: `0.14.1`;
+- Patch Toolkit: `1.1.4`;
+- Maven: `0.24.0-foundation-SNAPSHOT`;
+- State Patch: `000219_patch-toolkit-python310-portability`;
+- Codex Pilot Contract: `1.7.0`;
+- Lifecycle: `PILOT_WRITE_READY` / `PROMOTED`;
+- Write-Promotion: `000218_codex-cutover-write-promotion`, final `CODEX_CUTOVER_ACCEPTED`;
+- M-002 und M-003: abgeschlossen;
+- M-004: nächster fachlicher Slice;
+- M-005: danach geplant;
+- Sprint 003: weiterhin gesperrt, bis Sprint 002 geschlossen oder explizit disjunkt amended ist.
 
-Die Versuche `000197` bis `000200` sind ausschließlich Incident- und Lern-Evidence. Keiner dieser Versuche wurde akzeptiert; ihre Payloads sind keine Source-Baseline und dürfen nicht als implementiert oder freigegeben verwendet werden. Der frühere D3-Kalibrierungskandidat ist ebenfalls nicht Teil der Repositoryhistorie und muss erst nach akzeptierter Tooling-Härtung gegen den dann tatsächlichen Live-Commit neu erzeugt werden.
+A001 und A002 bleiben unveränderliche fehlgeschlagene Calibration-/Incident-Evidence; A003 ist der erfolgreiche, vollständig qualifizierte Calibration-Attempt. Kein fehlgeschlagener Task wird erneut invoked oder als erfolgreiche Baseline umgedeutet.
 
 ## Problemstellung und Stakeholder
 
-Governance, Harness und Referenzinput sind vorhanden, aber der reale Nachweis fehlt, dass Codex die geschlossenen Aufgaben-, Scope-, Host- und Evidence-Grenzen tatsächlich einhält und fachlich brauchbare Ergebnisse liefert. Ohne kontrollierte Kalibrierung wäre jede schreibende Nutzung eine unbelegte Promotion. Ohne End-to-End-Pilot bliebe zudem offen, ob die vorhandenen Verträge vom Fachkonzept bis zur GWC-Anwendung konsistent zusammenspielen.
+Die technische Frage, ob Codex die geschlossenen Aufgaben-, Scope-, Host- und Evidence-Grenzen real einhalten kann, ist durch den Cutover beantwortet. Offen ist nun die fachliche und methodische Frage, ob die vorhandenen Verträge vom Business-Partner-Fachkonzept bis zur GWC-Anwendung in kleinen kontrollierten Codex-Tasks konsistent zusammenspielen und ob die Ergebnisse deterministisch wiederholbar und evolvierbar sind.
 
 Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumgebung, Reviewer von Architektur und Sicherheit sowie spätere Nutzer von Project-New, GWC-Erzeugung und gemanagten Projekten.
 
@@ -98,7 +104,7 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - Jede erzeugte Spezifikation besitzt stabile IDs und Rückverweise bis zum Fachkonzept.
 - Wiederholungen verwenden identische Eingaben und qualifizierte Umgebungsparameter; nichtdeterministische Unterschiede werden erklärt oder blockieren den Abschluss.
 - Neue dauerhafte Regeln werden in ADRs, Governance, Standards oder Contracts promoviert und nicht nur im Sprintstatus festgehalten.
-- `NEXT_ACTION=CODEX_CALIBRATION` bezeichnet bis zur akzeptierten Cutover-Foundation, Live-Readiness und Host-Qualification nur den nächsten Lifecycle-Zustand und keine ausführbare Operatoraktion.
+- `PILOT_WRITE_READY` autorisiert die Vorbereitung und Ausführung ausdrücklich beauftragter Pilot-Tasks gemäß Task Contract und Harness; Handoff, Candidate-Integration, Dry-run, Accept, Push und Zielprojektmutation bleiben davon getrennte Grenzen.
 
 ## In Scope
 
@@ -127,8 +133,8 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 ## Constraints und Abhängigkeiten
 
 - ADR-0015 und AI Agent Development Governance bleiben bindend.
-- `PROJECT_READY` bleibt der formale Repositoryzustand, autorisiert derzeit aber weder Vorbereitung noch Ausführung von `CODEX_CALIBRATION`.
-- `CODEX_CALIBRATION` darf erst nach akzeptiertem Härtungsschnitt, erneuter Live-Readiness-Prüfung und neu erzeugtem Task-Pack vorbereitet werden.
+- `PILOT_WRITE_READY`/`PROMOTED` ist der aktuelle Repository- und Cutover-Lifecycle; schreibende Codex-Pilotarbeit bleibt strikt auf task-contract- und harnessgebundene Worktrees begrenzt.
+- `CODEX_CALIBRATION` ist ein historischer Übergangszustand des Cutovers. Eine neue Kalibrierung oder Requalification wird nur bei konkret invalidierter Evidence beziehungsweise einer dafür vorgesehenen neuen Baseline erforderlich und ist keine generelle Vorbedingung für M-004.
 - Das Cocondo Patch Toolkit bleibt die kanonische Integrations- und Commitgrenze.
 - Externe Worktree-, Run- und Artifact-Roots müssen vorprovisioniert, getrennt, schreibbar und nicht symlinkbasiert sein.
 - Das Business-Partner-Fachkonzept bleibt für die Baseline-Läufe unverändert; V1.1 wird als separate kontrollierte Eingabe geführt.
@@ -154,36 +160,37 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 
 ## Definition of Ready
 
-- [x] ADR-0015 ist akzeptiert und der Zustand `PROJECT_READY` ist belegt.
+- [x] ADR-0015 ist akzeptiert und der Übergang von `PROJECT_READY` zu `PILOT_WRITE_READY` ist evidence-basiert abgeschlossen.
 - [x] Agent Task Contract V2, Harness, Process Operations und Operator Command Effect Contract sind vorhanden.
 - [x] Das Business-Partner-Fachkonzept und sein Acceptance Contract sind eingefroren.
 - [x] Die aktuelle Git-, Export-, Versions- und Toolingbaseline ist dokumentiert.
 - [x] Allgemeine Projektziele und Sprintscope sind als kanonische Quellen definiert.
 - [x] Mutationsverbote, externe Roots, Promotionen und Stopbedingungen sind benannt.
-- [ ] `CAP-REQ-010` bis `CAP-REQ-014` sind in einem einzigen Candidate implementiert, zielgerichtet und breit qualifiziert sowie separat akzeptiert.
-- [ ] Die Project Directory Governance bleibt bis zu dieser technischen Closure ausdrücklich `draft`; ihre Geltung ist als Ziel- und Reviewquelle begrenzt.
-- [ ] Das gegen den nach der Härtungsannahme tatsächlichen Live-Commit neu erzeugte Kalibrierungs-Task-Pack und seine Oracles sind unabhängig reviewed.
-- [ ] Die konkrete lokale Codex-Umgebung und alle Runtime-Denial-Probes sind preflight-ready.
+- [x] `CAP-REQ-010` bis `CAP-REQ-014` sind über akzeptierte Tooling-/Cutover-Schnitte qualifiziert.
+- [ ] Die Project Directory Governance ist entweder vollständig aktiviert oder bleibt für M-004 ausdrücklich mit begrenzter Geltung `draft`.
+- [x] Das A003-Kalibrierungs-Task-Pack und seine Oracles wurden gegen die korrigierte Live-Baseline neu erzeugt und unabhängig qualifiziert.
+- [x] Die konkrete lokale Codex-Umgebung, Host-Qualification und Runtime-Denial-Probes sind live belegt.
+- [ ] Der erste M-004-Task Contract inklusive Scope, Oracle, Qualification und Evidence ist vor Invocation vollständig eingefroren.
 
 ## Definition of Done
 
 - [ ] `CAP-REQ-001` bis `CAP-REQ-014` sind jeweils erfüllt, bewusst deferiert oder mit Blocker bewertet.
-- [ ] Workspace-Lifecycle, Artefakt-Root-Autorisierung, typisiertes Delivery-/Patch-ID-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung sind gemeinsam in einem einzigen akzeptierten Tooling-Schnitt geschlossen.
-- [ ] Die Incidents `000197`, `000198`, `000199` und `000200` sind als nicht akzeptierte Evidence dokumentiert; keine ihrer Payloads wurde in die Source-Baseline übernommen.
-- [ ] Die Readiness-Evidence unterscheidet konsistent `PROJECT_READY`, den nächsten Lifecycle-Zustand `CODEX_CALIBRATION`, `NEXT_ACTION_EXECUTABLE=false` und `WRITABLE_CODEX_AUTHORIZED=false`.
+- [x] Workspace-Lifecycle, Artefakt-Root-Autorisierung, typisiertes Delivery-/Patch-ID-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung sind über akzeptierte Tooling-Schnitte geschlossen.
+- [x] Die Incidents `000197`, `000198`, `000199` und `000200` sind als nicht akzeptierte Evidence dokumentiert; keine ihrer Payloads wurde in die Source-Baseline übernommen.
+- [x] Die Readiness-Evidence dokumentiert den kontrollierten Übergang `PROJECT_READY -> CODEX_CALIBRATION -> PILOT_WRITE_READY` und die separate Promotion ohne automatische Schreibfreigabe aus einem Einzelrun.
 - [ ] Die Project Directory Governance ist entweder nach vollständiger Closure evidenzbasiert aktiviert oder bleibt ausdrücklich `draft` mit eindeutig begrenzter Geltung.
-- [ ] Die Kalibrierung wurde erst nach akzeptiertem Härtungsschnitt gegen den neuen Live-Commit neu vorbereitet.
-- [ ] Die fünf allgemeinen Projektziele sind als aktive kanonische Zielquelle indexiert und werden vom Sprint referenziert.
-- [ ] Der aktive Sprint besitzt Brief, Solution Plan, genau eine Statusquelle und einen vorbereiteten Completion Report mit konsistenter Milestone-Abdeckung.
-- [ ] Das immutable Kalibrierungs-Task-Pack enthält read-only Analyse, negativen Boundary-Probe und zwei kleine implementierende Aufgaben mit vorab festgelegten Oracles.
-- [ ] Alle Host-, Pfad-, Scope-, Git-, Sandbox-, Größen-, Capability- und Evidence-Grenzen wurden real geprüft; unerlaubte Mutation wurde verhindert und nachgewiesen.
-- [ ] Zwei implementierende Kalibrierungsaufgaben wurden fachlich und technisch unabhängig akzeptiert oder `PILOT_WRITE_READY` wurde ausdrücklich blockiert.
-- [ ] Eine separate Entscheidung hat `PILOT_WRITE_READY` evidenzbasiert promoviert oder den Abbruch vor schreibender Pilotnutzung dokumentiert.
+- [x] Die Kalibrierung wurde erst nach akzeptiertem Härtungsschnitt gegen die jeweils aktuelle Live-Baseline neu vorbereitet.
+- [x] Die fünf allgemeinen Projektziele sind als aktive kanonische Zielquelle indexiert und werden vom Sprint referenziert.
+- [x] Der aktive Sprint besitzt Brief, Solution Plan, genau eine Statusquelle und einen vorbereiteten Completion Report mit konsistenter Milestone-Abdeckung.
+- [x] Das immutable A003-Kalibrierungs-Task-Pack enthält read-only Analysis und zwei kleine implementierende Aufgaben mit vorab festgelegten Oracles; die mechanischen Negativproben sind durch die Host-/Confinement-Evidence gebunden.
+- [x] Alle Cutover-relevanten Host-, Pfad-, Scope-, Git-, Sandbox-, Größen-, Capability- und Evidence-Grenzen wurden real geprüft; unerlaubte Mutation wurde verhindert und nachgewiesen.
+- [x] Zwei implementierende Kalibrierungsaufgaben wurden fachlich und technisch unabhängig akzeptiert.
+- [x] Eine separate akzeptierte Entscheidung hat `PILOT_WRITE_READY` evidenzbasiert promoviert (`000218_codex-cutover-write-promotion`).
 - [ ] Die Business-Partner-Kette vom Fachkonzept bis zur disponiblen GWC-Anwendung ist vollständig traceable und ohne Mutation von GWC oder gemanagten Projekten erzeugt.
 - [ ] Die generierte Anwendung besteht die definierten Build-, Runtime-, API-, Validierungs-, Fehler-, Persistenz-, Security- und UI-Acceptance-Kriterien oder weist begründete Deferrals aus.
 - [ ] Drei Clean-Runs sind deterministisch vergleichbar; Abweichungen sind erklärt und akzeptiert oder blockieren die Qualification.
 - [ ] Die V1.1-Fachkonzeptänderung wurde kontrolliert verarbeitet, ohne geschützte manuelle Extension Points zu überschreiben.
-- [ ] Alle Patches und Commits wurden über den kanonischen Dry-run-/Review-/Accept-Flow qualifiziert; es erfolgten kein automatischer Accept, kein Push und keine unerlaubte Zielmutation.
+- [x] Alle bisher akzeptierten Cutover-Patches und Commits wurden über den kanonischen Dry-run-/Review-/Accept-Flow qualifiziert; es erfolgten kein automatischer Accept, kein Push und keine unerlaubte Zielmutation.
 - [ ] Completion Report, technische Schulden, temporäre Dokumentdisposition, SemVer-Auswirkung und Rollout-, Generalisierungs- oder Stopentscheidung sind vollständig.
 
 ## Messbare Teilziele
@@ -191,14 +198,14 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
 | M-001 | Projektziele und aktiver Sprintvertrag sind kanonisch persistiert. | CAP-REQ-001 | Documentation Gate und Sprint Gate ohne neue Findings; alle sechs Dokumente indexiert. | Gate-Reports und Repository-Diff | springmaster-maintainers | completed |
-| M-002 | Kalibrierungs-Task-Pack und unabhängige Oracles sind gegen die aktuelle Baseline eingefroren. | CAP-REQ-002, CAP-REQ-003 | Schema, Hashbindung, Scope, Limits und positive/negative Oracles reviewed. | Task-, Oracle- und Preflight-Evidence | springmaster-maintainers | planned |
-| M-003 | Reale Kalibrierung und Write-Readiness-Entscheidung sind abgeschlossen. | CAP-REQ-003, CAP-REQ-004 | Boundary-Probes und zwei Aufgaben qualifiziert; separate Promotion oder Blockerentscheidung. | Invocation-, Run-, Diff-, Qualification- und Promotion-Evidence | springmaster-maintainers | planned |
+| M-002 | Kalibrierungs-Task-Pack und unabhängige Oracles sind gegen die aktuelle Baseline eingefroren. | CAP-REQ-002, CAP-REQ-003 | Schema, Hashbindung, Scope, Limits und positive/negative Oracles reviewed. | A003 Task-, Oracle-, Host- und Preflight-Evidence | springmaster-maintainers | completed |
+| M-003 | Reale Kalibrierung und Write-Readiness-Entscheidung sind abgeschlossen. | CAP-REQ-003, CAP-REQ-004 | Boundary-Probes und zwei Aufgaben qualifiziert; separate Promotion oder Blockerentscheidung. | A003 Invocation-, Handoff-, `000215`/`000216`, Confinement- und `000218`-Promotion-Evidence | springmaster-maintainers | completed |
 | M-004 | Business-Partner-End-to-End-Pilot ist traceable und disponibel erzeugt. | CAP-REQ-005, CAP-REQ-006, CAP-REQ-007 | Staged Contracts und generierte Anwendung bestehen definierte Acceptance-Kriterien. | Contract-Kette, Build-, Runtime-, API- und UI-Evidence | springmaster-maintainers | planned |
 | M-005 | Repeatability, V1.1-Evolution und Sprintabschluss sind qualifiziert. | CAP-REQ-008, CAP-REQ-009 | Drei Clean-Runs, Evolutionstest, Debt-/Effizienzbewertung und Abschlussentscheidung liegen vor. | Vergleichsreports und finaler Completion Report | springmaster-maintainers | planned |
 
 ## SemVer-Auswirkung
 
-Erwartete Auswirkung: `minor`, falls der Sprint neue freigegebene Tooling-, Generator- oder Pilotfähigkeiten aktiviert. Dieser Initialisierungspatch erhöht keine Version vorweg. Die tatsächliche Komponenten- und Foundation-Version wird erst bei qualifizierter Release Closure anhand der akzeptierten Ergebnisse entschieden.
+Erwartete Sprintauswirkung bleibt `minor`, sofern M-004/M-005 weitere freigegebene Generator-, Contract- oder Pilotfähigkeiten etablieren. Der Cutover-Anteil und der anschließende kompatible Portabilitätsfix `000219_patch-toolkit-python310-portability` haben die aktuelle Versionswahrheit auf Platform `0.24.0-foundation`, Tooling `0.14.1`, Toolkit `1.1.4` und Maven `0.24.0-foundation-SNAPSHOT` geführt. Die nachgelagerte Post-Cutover-Dokumentationssynchronisierung erhöht keine weitere Version; spätere M-004/M-005-Schnitte werden jeweils nach `SPRINGMASTER_VERSION_POLICY.md` klassifiziert.
 
 ## Stop- und Abbruchkriterien
 
@@ -215,6 +222,16 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 
 ## Amendments
 
+### AMEND-001
+
+- Datum: 2026-08-13
+- Anlass: after-accepted-change; Codex Cutover wurde nach A003-Kalibrierung und separater Promotion final als `CODEX_CUTOVER_ACCEPTED` qualifiziert.
+- Alte Aussage: Sprint 002 befand sich vor realer Codex-Kalibrierung; `PROJECT_READY` war der aktuelle Lifecycle, M-002/M-003 waren offen und schreibende Pilot-Tasks nicht autorisiert.
+- Neue Aussage: M-002 und M-003 sind abgeschlossen; der Lifecycle ist `PILOT_WRITE_READY`/`PROMOTED`; M-004 ist der nächste fachliche Slice und M-005 folgt danach.
+- Auswirkungen: Cutover-bezogene DoR-/DoD- und Milestone-Punkte werden auf erfüllt gesetzt; Sprint 002 bleibt aktiv, Sprint 003 bleibt gesperrt; M-004/M-005-Scope bleibt unverändert.
+- Entscheidung: accepted; der Sprint wird ohne neue Cutover-Schleife mit dem Business-Partner-End-to-End-Pilot fortgesetzt.
+- Freigaben: kanonische Acceptances `000215`, `000216`, `000218`, finale Live-Qualification `CODEX_CUTOVER_ACCEPTED` und Full-Export-HEAD `60c99cf05330806d2cf14efd50d70fa7f98adf74`.
+
 ### Amendment 2026-07-31 – akzeptierte Tooling-Härtung und Cutover-Foundation
 
 - `000201_springmaster_tooling_hardening_cut` ist akzeptiert; frühere Aussagen `NOT_ACCEPTED` oder `NEXT_ACTION_BLOCKER=TOOLING_HARDENING` sind für den aktuellen Zustand superseded.
@@ -230,3 +247,5 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 | 2026-07-28 | – | active | Aktiver Sprint für reale Codex-Kalibrierung und den Business-Partner-End-to-End-Pilot angelegt. |
 | 2026-07-30 | active | active | Tooling-Härtung als zwingende P0-Voraussetzung vor operativer Codex-Kalibrierung in Anforderungen, Risiken, DoR und DoD aufgenommen. |
 | 2026-07-31 | active | active | Tooling-Härtung `000201` als akzeptiert und `000203` als qualifizierter, noch nicht akzeptierter Cutover-Foundation-Candidate fortgeschrieben. |
+| 2026-08-13 | active | active | AMEND-001 akzeptiert: M-002/M-003 und Codex-Cutover abgeschlossen; Fokus auf M-004 Business-Partner-End-to-End-Pilot und anschließend M-005. |
+| 2026-08-14 | active | active | Post-Cutover-Tooling-Portabilität `000219` in die aktuelle Baseline übernommen; keine Scope-Änderung an M-004/M-005 und kein Start von Sprint 003. |

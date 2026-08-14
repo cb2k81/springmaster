@@ -1,6 +1,6 @@
 ---
 documentId: TOOL-CODEX-PILOT-0001
-title: Codex Pilot Pre-Cutover Operations Guide
+title: Codex Pilot Operations Guide
 documentType: guide
 status: active
 authority: informative
@@ -13,20 +13,20 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-08-10
+lastReviewedAt: 2026-08-14
 reviewBy: 2027-01-25
 supersedes: []
 supersededBy: null
 temporary: false
 sprintId: null
 ---
-# Codex Pilot Pre-Cutover Operations Guide
+# Codex Pilot Operations Guide
 
 ## 1. Boundary
 
-This guide covers preparation up to the first Codex calibration invocation. It does not authorize a writable Codex task.
+This guide covers governed Codex pilot operation on Springmaster before and after write promotion. The current repository lifecycle is `PILOT_WRITE_READY`/`PROMOTED` after the accepted cutover promotion `000218_codex-cutover-write-promotion` and final live qualification `CODEX_CUTOVER_ACCEPTED`.
 
-Before cutover, repository changes continue through `bin/cpatch` and `bin/process-ops.sh`.
+Write promotion authorizes only task-contract-bound pilot work in harness-created detached task worktrees. It does not authorize direct writes to the integration checkout, patch acceptance by Codex, push, mutation of managed projects or bypass of the trusted operator integration path. The post-cutover operator baseline uses Cocondo Patch Toolkit `1.1.4` / Platform Tooling `0.14.1`; `000219_patch-toolkit-python310-portability` restores the supported Python-3.10 launcher path without changing the promoted Codex authorization model.
 
 ## 2. External roots
 
@@ -52,7 +52,7 @@ During patch qualification:
 ./bin/codex-pilot-ready.sh project --candidate --check
 ```
 
-After the accepted patch is committed on the clean integration worktree:
+On the clean integration worktree:
 
 ```bash
 ./bin/codex-pilot-ready.sh project --live --check \
@@ -60,33 +60,22 @@ After the accepted patch is committed on the clean integration worktree:
   --out-text patches/logs/validation/codex-pilot/codex-project-readiness.txt
 ```
 
-The committed readiness contract still reports the formal lifecycle result:
+The promoted contract reports:
 
 ```text
-CODEX_PILOT_READINESS=PROJECT_READY
-NEXT_ACTION=CODEX_CALIBRATION
-WRITABLE_CODEX_AUTHORIZED=false
+CODEX_PILOT_READINESS=PILOT_WRITE_READY
+NEXT_ACTION=CODEX_PILOT_TASK
+WRITABLE_CODEX_AUTHORIZED=true
+PILOT_WRITE_READY=true
 ```
 
-For the current sprint, `NEXT_ACTION=CODEX_CALIBRATION` names the next lifecycle state; it is not an executable operator authorization. Tooling hardening `000201_springmaster_tooling_hardening_cut` is accepted. The current operational state is:
+The source of truth is `contracts/governance/agent/codex-pilot-contract.json` version `1.7.0`. `pilot.currentLifecycle=PILOT_WRITE_READY`, `pilot.cutoverLifecycle=PROMOTED` and `writePromotion.decision=CODEX_CUTOVER_ACCEPTED`. The promotion was accepted only after two independent A003 calibration patches and live confinement evidence.
 
-```text
-FORMAL_REPOSITORY_READINESS=PROJECT_READY
-NEXT_LIFECYCLE_STATE=CODEX_CALIBRATION
-NEXT_ACTION=POST_ACCEPT_LIVE_READINESS_AND_HOST_QUALIFICATION
-NEXT_ACTION_EXECUTABLE=true
-NEXT_ACTION_BLOCKER=NONE
-WRITABLE_CODEX_AUTHORIZED=false
-PILOT_WRITE_READY=false
-```
-
-`000203_springmaster_codex_cutover_foundation` is canonically accepted and provides the repository-side confinement, host-qualification and calibration foundation at Platform `0.23.0-foundation` and Tooling `0.13.0`. Attempts `000197` through `000200` remain incident evidence only.
-
-Live readiness, host inspection and mechanical probes must always be evaluated against the current clean integration HEAD with the explicitly authorized existing roots. The accepted commit `93ab563cc1e82bc801907399602fe04e6d37e2f7` is immutable historical evidence for `000203_springmaster_codex_cutover_foundation`, not an operational baseline. Before a calibration task pack is materialized or a real Codex invocation is started, those checks must pass for the current HEAD. `PROJECT_READY` does not mean `PILOT_WRITE_READY`.
+Historical `PROJECT_READY` and `CODEX_CALIBRATION` output remains relevant when reconstructing pre-promotion evidence or a new calibration attempt, but it is not the current operational state. A successful readiness result never grants authority outside the task contract and harness boundaries.
 
 ## 4. Agent task preparation
 
-Only after the operational hold above has been lifted, a calibration task is prepared from an immutable Task Contract V2. While the committed lifecycle is `PROJECT_READY`, `agent-task prepare` accepts only task files whose exact path and SHA-256 are registered in the sibling materialized `calibration-plan.json`:
+A post-promotion pilot task is prepared from an immutable Task Contract V2 after its scope, baseline, capabilities, qualification commands, evidence requirements and completion criteria have been reviewed:
 
 ```bash
 ./bin/agent-task.sh validate /absolute/path/to/task.json
@@ -94,22 +83,11 @@ Only after the operational hold above has been lifted, a calibration task is pre
 ./bin/agent-task.sh status <task-id>
 ```
 
-Preparation creates a detached worktree and run record outside the repository. It does not start Codex.
+Preparation creates a detached worktree and run record outside the repository. It does not start Codex. Under `PILOT_WRITE_READY`, regular pilot task contracts may be prepared according to the contract and scope rules. The sibling `calibration-plan.json` byte-binding remains the special fail-closed authorization rule for the pre-promotion `PROJECT_READY` lifecycle and for calibration reconstruction.
 
-Before the manually started calibration run, the operator prepares two JSON files below the explicit `COCONDO_ARTIFACT_ROOT`:
+The governed host harness creates immutable operator-effect and invocation evidence for real Codex execution. When evidence must be recorded explicitly, `agent-task record-invocation` binds the already completed operator action; it never starts Codex itself.
 
-- an operator-command-effect declaration according to `operator-command-effect.schema.json`;
-- a Codex invocation record according to `codex-invocation-record.schema.json`.
-
-After the invocation has completed, record both immutable inputs:
-
-```bash
-./bin/agent-task.sh record-invocation <task-id> \
-  --effect "${COCONDO_ARTIFACT_ROOT:?}/<effect-file>.json" \
-  --record "${COCONDO_ARTIFACT_ROOT:?}/<invocation-file>.json"
-```
-
-The effect declaration must make the operator-visible effects explicit:
+The effect declaration must keep the operator-visible effects explicit:
 
 ```text
 READS: prepared task worktree and explicitly declared read-only inputs
@@ -121,12 +99,9 @@ DIRECTORY_CREATION: declared task paths only
 OVERWRITE: declared task paths only
 ```
 
-
-The immutable invocation evidence must show the safe non-interactive shape: `codex exec`, `--ephemeral`, `--ignore-user-config`, `--ignore-rules`, `--json`, explicit `--model`, mode-specific `--sandbox` and `--ask-for-approval never`. Linux records identify `linux-bwrap-read-only` or `linux-bwrap-workspace-write`. `--add-dir`, user/profile configuration overrides, full-auto and sandbox-bypass flags are rejected.
-
 The Codex process never receives write authority for the operator home, operator handoff or download directories, integration checkout, Git common directory, external run or artifact roots, other repositories or host temporary directories. A concrete local handoff path is operator configuration, never a portable agent capability. Copying an accepted artifact there is a separate explicit operator action after the Codex task has ended.
 
-Then run postcheck and qualification:
+After the invocation, run postcheck and qualification:
 
 ```bash
 ./bin/agent-task.sh postcheck <task-id>
@@ -136,9 +111,11 @@ Then run postcheck and qualification:
 
 The harness still does not integrate the result.
 
-## 5. Deliberate stop at cutover
+## 5. Deliberate stop at the integration boundary
 
-`agent-task` has no `run-codex`, `commit`, `merge`, `push` or `integrate` command. `record-invocation` records an already completed explicit operator action; it does not execute Codex. The first invocation still requires a separate operator decision after an accepted tooling-hardening cut, fresh live project-readiness evidence, a newly generated task pack and review of the declared command effects.
+`agent-task` has no `commit`, `merge`, `push`, `integrate` or patch-accept capability. A successful writable Codex task ends at qualification and, for implementation, at an immutable non-canonical handoff. Candidate integration, canonical patch creation, Dry-run and Accept remain separate trusted operator actions.
+
+`PILOT_WRITE_READY` therefore removes the pre-cutover prohibition on regular governed pilot tasks; it does not collapse any integration or acceptance boundary.
 
 ## 6. Diagnostics
 
@@ -151,7 +128,7 @@ Operational reports intended for upload may be written below `patches/logs/valid
 - Preserve the external run directory.
 - Use explicit `cleanup --discard` only after the result is no longer needed.
 - A boundary failure returns the pilot to patch-controlled hardening before another Codex attempt.
-- A failed real invocation is not retried under the same task ID. Run `postcheck`, retain the failure evidence, clean the disposable worktree, harden the boundary by patch and materialize the next numbered calibration attempt.
+- A failed real invocation is not retried under the same task ID. Run `postcheck`, retain the failure evidence and clean the disposable worktree only after disposition. For calibration, materialize the next numbered attempt after any required hardening. For post-cutover feature work, create a new task contract and task ID only after the cause is classified and the baseline is revalidated.
 - Host inspection must prove DNS and HTTPS reachability to the Codex control plane from the outer `bwrap` boundary before a new calibration attempt is materialized. If `/etc/resolv.conf` resolves below `/run`, the harness keeps `/run` private and copies only the resolver file into private scratch for read-only re-exposure at the original sandbox path.
 
 ### 7.1 Prepared task invalidated before Codex invocation
@@ -189,9 +166,9 @@ Danach endet die Agentautorität. Der Operator übernimmt den Handoff in einen g
 
 ## 9. Live-Confinement-Abnahme auf dem DEV-System
 
-Die äußere Sandbox verwirft die geerbte Umgebung. Ihr `PATH` ist fest auf `/usr/local/bin:/usr/bin:/bin` gesetzt; der Operator- beziehungsweise Host-`PATH` wird nicht übernommen.
+The cutover confinement acceptance was completed on the real DEV system with real Codex. Its immutable evidence remains part of the write-promotion basis and must not be rewritten or reinterpreted.
 
-Vor `PILOT_WRITE_READY` müssen reale Codex-Aufrufe die Evidence nach `contracts/governance/agent/codex-confinement-contract.json` erzeugen. Der Abschluss wird ausschließlich aus einem externen Evidence-Root geprüft:
+For historical or requalification use, the live verifier remains:
 
 ```bash
 ./bin/codex-confinement-check.sh verify \
@@ -200,7 +177,7 @@ Vor `PILOT_WRITE_READY` müssen reale Codex-Aufrufe die Evidence nach `contracts
   --check
 ```
 
-Erwarteter Zustand:
+Before the accepted promotion, a confinement PASS intentionally still reported:
 
 ```text
 CODEX_CONFINEMENT_STATUS=PASS
@@ -209,7 +186,7 @@ PILOT_WRITE_READY=false
 NEXT_ACTION=SEPARATE_PROMOTION_REVIEW
 ```
 
-Ein Fixture-PASS ersetzt diesen Live-Lauf nicht. Die Negativproben müssen auf dem tatsächlichen DEV-System mit der real installierten Codex-CLI versucht worden sein.
+That output describes the confinement evidence boundary, not the current promoted repository lifecycle. The current authorization is established only by the separate accepted promotion and the live project-readiness contract. Host or baseline changes that invalidate required evidence must be requalified fail-closed before a new writable task proceeds.
 
 ## 10. Terminalschonende verkettete Abläufe
 
@@ -244,6 +221,8 @@ Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover
 | Date | Change |
 |---|---|
 | 2026-08-01 | Acceptance of `000203` reflected; next operator stage set to Post-Accept Live Readiness, host qualification and plan-bound calibration. |
+| 2026-08-13 | Cutover completed; current lifecycle is `PILOT_WRITE_READY`/`PROMOTED`, regular governed pilot tasks are allowed while integration and accept boundaries remain trusted-operator-only. |
+| 2026-08-14 | Post-cutover operator tooling advanced to Toolkit `1.1.4` / Tooling `0.14.1` through `000219`; governed Codex lifecycle and trusted integration boundaries are unchanged. |
 
 ## 12. Patch-ID-freies Change Bundle im Task-Worktree
 

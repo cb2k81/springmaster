@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-07-31
+lastReviewedAt: 2026-08-14
 reviewBy: 2026-10-22
 supersedes: []
 supersededBy: null
@@ -191,7 +191,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TEMPLATES/project-skeleton/README.md`
 ## TOOLING
 
-- `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — pre-cutover readiness, external-root, task preparation and diagnostic procedure
+- `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — promoted Codex pilot readiness, external-root, task preparation, handoff and diagnostic procedure
 - `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md` — normative host-command effect declaration and explicit authorization boundary
 
 - `PROJECT_DOCS/TOOLING/BUILD_TOOL.md`
@@ -268,4 +268,5 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |
 | 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |
 | 2026-07-28 | active | active | Canonical project goals and complete active Sprint 002 harness indexed |
+| 2026-08-14 | active | active | Promoted Codex operations and the post-cutover Tooling `0.14.1` / Toolkit `1.1.4` baseline are reflected; Sprint 002 remains active with M-004 next and Sprint 003 not started. |
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |
