@@ -26,7 +26,7 @@ sprintId: null
 
 This guide covers governed Codex pilot operation on Springmaster before and after write promotion. The current repository lifecycle is `PILOT_WRITE_READY`/`PROMOTED` after the accepted cutover promotion `000218_codex-cutover-write-promotion` and final live qualification `CODEX_CUTOVER_ACCEPTED`.
 
-Write promotion authorizes only task-contract-bound pilot work in harness-created detached task worktrees. It does not authorize direct writes to the integration checkout, patch acceptance by Codex, push, mutation of managed projects or bypass of the trusted operator integration path. The post-cutover operator baseline uses Cocondo Patch Toolkit `1.1.4` / Platform Tooling `0.14.1`; `000219_patch-toolkit-python310-portability` restores the supported Python-3.10 launcher path without changing the promoted Codex authorization model.
+Write promotion authorizes only task-contract-bound pilot work in harness-created detached task worktrees. It does not authorize direct writes to the integration checkout, patch acceptance by Codex, push, mutation of managed projects or bypass of the trusted operator integration path. The post-cutover operator baseline uses Cocondo Patch Toolkit `1.1.5` / Platform Tooling `0.14.2`; `000222_patch-toolkit-staged-path-parity` corrects rename-sensitive staged-path inventory without changing the promoted Codex authorization model or trusted operator boundary.
 
 ## 2. External roots
 
@@ -223,6 +223,7 @@ Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover
 | 2026-08-01 | Acceptance of `000203` reflected; next operator stage set to Post-Accept Live Readiness, host qualification and plan-bound calibration. |
 | 2026-08-13 | Cutover completed; current lifecycle is `PILOT_WRITE_READY`/`PROMOTED`, regular governed pilot tasks are allowed while integration and accept boundaries remain trusted-operator-only. |
 | 2026-08-14 | Post-cutover operator tooling advanced to Toolkit `1.1.4` / Tooling `0.14.1` through `000219`; governed Codex lifecycle and trusted integration boundaries are unchanged. |
+| 2026-08-14 | Staged-path inventory advanced to Toolkit `1.1.5` / Tooling `0.14.2` through `000222`; exact manifest parity and trusted integration boundaries remain unchanged. |
 
 ## 12. Patch-ID-freies Change Bundle im Task-Worktree
 

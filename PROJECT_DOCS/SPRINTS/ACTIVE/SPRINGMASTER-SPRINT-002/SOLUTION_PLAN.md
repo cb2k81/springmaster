@@ -44,7 +44,7 @@ Der Sprint verändert zunächst keine Produktarchitektur. Er verwendet und quali
 
 Neue dauerhafte Semantik wird nur über einen eigenen ADR-, Governance-, Standard- oder Contract-Schnitt eingeführt. Sprintdokumente bleiben Steuerungs- und Evidence-Quellen, nicht Ersatz für Produktverträge.
 
-Der Cutover-Pfad ist abgeschlossen. Der aktuelle Lifecycle ist `PILOT_WRITE_READY`/`PROMOTED`; `WRITABLE_CODEX_AUTHORIZED=true` gilt ausschließlich innerhalb der unverändert strikten Task-, Worktree-, Qualification-, Handoff- und Operatorgrenzen. Slices 1 bis 3 sind abgeschlossen. Der aktive Ausführungsschwerpunkt beginnt mit Slice 4. Die Post-Cutover-Tooling-Portabilität ist mit `000219_patch-toolkit-python310-portability` auf Toolkit `1.1.4` / Tooling `0.14.1` geschlossen; daraus entsteht keine Änderung der M-004/M-005-Scope- oder Sprint-3-Grenzen.
+Der Cutover-Pfad ist abgeschlossen. Der aktuelle Lifecycle ist `PILOT_WRITE_READY`/`PROMOTED`; `WRITABLE_CODEX_AUTHORIZED=true` gilt ausschließlich innerhalb der unverändert strikten Task-, Worktree-, Qualification-, Handoff- und Operatorgrenzen. Slices 1 bis 3 sind abgeschlossen. Der aktive Ausführungsschwerpunkt beginnt mit Slice 4. Die Post-Cutover-Toolingbaseline steht nach der kompatiblen Staged-Path-Paritätskorrektur `000222_patch-toolkit-staged-path-parity` auf Toolkit `1.1.5` / Tooling `0.14.2`; daraus entsteht keine Änderung der M-004/M-005-Scope- oder Sprint-3-Grenzen.
 
 ## Slices und Reihenfolge
 

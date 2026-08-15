@@ -66,20 +66,21 @@
   "requireCleanTree": true,
   "requireWorkspaceForCreate": true,
   "requireWorktree": true,
-  "runtimeSha256": "1241000d6432f7f0b0f13a5249a2c2e98602c2cc604c732df6b84ea6a1fff574",
+  "runtimeSha256": "938706d0b3f47991c94aee797e3c7bedf25ddde25f9b8a317c64ae733107a058",
   "schemaVersion": "springmaster.patch-toolkit-activation-contract.v1",
   "stagingModel": {
     "additions": "git-add-without-force",
     "ignoredAdditions": "rejected",
     "pathInput": "nul-separated-literal-pathspecs",
+    "stagedPathInventory": "git-diff-cached-no-renames",
     "stagedPathParity": "manifest-exact",
     "trackedUpdatesAndDeletions": "git-add-u"
   },
-  "toolkitVersion": "1.1.4",
+  "toolkitVersion": "1.1.5",
   "versionClosure": {
     "mavenVersion": "0.24.0-foundation-SNAPSHOT",
     "platformVersion": "0.24.0-foundation",
-    "statePatch": "000219_patch-toolkit-python310-portability",
-    "toolingVersion": "0.14.1"
+    "statePatch": "000222_patch-toolkit-staged-path-parity",
+    "toolingVersion": "0.14.2"
   }
 }

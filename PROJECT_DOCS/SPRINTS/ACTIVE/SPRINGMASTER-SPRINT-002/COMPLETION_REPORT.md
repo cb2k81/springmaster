@@ -96,7 +96,7 @@ Noch offen und nur evidence-basiert zu entscheiden:
 
 ## SemVer- und Releasebewertung
 
-Die aktuelle Post-Cutover-Versionswahrheit ist Platform `0.24.0-foundation`, Tooling `0.14.1`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.4` und State Patch `000219_patch-toolkit-python310-portability`. `000219` schließt die Python-3.10-Portabilitätslücke des Patch-Toolkits als kompatiblen Tooling-Patch; diese anschließende Dokumentationssynchronisierung verändert keine weitere Komponentensemantik und löst keinen zusätzlichen Versions-Bump aus.
+Die aktuelle Post-Cutover-Versionswahrheit ist Platform `0.24.0-foundation`, Tooling `0.14.2`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.5` und State Patch `000222_patch-toolkit-staged-path-parity`. `000222` korrigiert die rename-sensitive Staged-Path-Inventarisierung als kompatiblen Tooling-Patch und lässt die exakte Manifestparität unverändert verpflichtend. Der fehlgeschlagene `000221`-Dry-run bleibt Failure-Evidence; diese Source-Änderung behauptet weder dessen Erfolg noch Acceptance.
 
 ## Nicht erreichte Ziele und Folgebedarf
 
@@ -112,4 +112,5 @@ M-004 und M-005 sind noch nicht erreicht. Als Nächstes wird der Business-Partne
 | 2026-07-31 | draft | draft | Acceptance von `000201` übernommen; `000203` als qualifizierter Candidate und Host-/Kalibrierungs-Evidence als nächste Abschlussgrenze dokumentiert. |
 | 2026-08-01 | draft | draft | Acceptance von `000203` übernommen; Post-Accept-Live-Readiness, Host-Qualification und plan-gebundene Kalibrierung als nächste Abschlussgrenze dokumentiert. |
 | 2026-08-13 | draft | draft | M-002/M-003 durch A003, zwei getrennte Calibration-Accepts, Confinement-Evidence und Promotion `000218` qualifiziert; Cutover abgeschlossen, M-004/M-005 und Sprint-Closure bleiben offen. |
-| 2026-08-14 | draft | draft | Post-Cutover-Tooling-Portabilität mit `000219_patch-toolkit-python310-portability` geschlossen; aktuelle Tooling-Wahrheit `0.14.1`/Toolkit `1.1.4`; M-004 bleibt der nächste fachliche Slice. |
+| 2026-08-14 | draft | draft | Post-Cutover-Tooling-Portabilität mit `000219_patch-toolkit-python310-portability` geschlossen; Tooling-Wahrheit dieses Schritts `0.14.1`/Toolkit `1.1.4`; M-004 bleibt der nächste fachliche Slice. |
+| 2026-08-14 | draft | draft | Rename-sensitive Staged-Path-Inventarisierung mit `000222_patch-toolkit-staged-path-parity` korrigiert; aktuelle Tooling-Wahrheit `0.14.2`/Toolkit `1.1.5`; Sprint 003 bleibt inaktiv. |

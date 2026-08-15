@@ -154,6 +154,113 @@ assert repo.staged_paths(large) == sorted(paths)
 print(json.dumps({"mixed": "PASS", "ignoredAddition": "REJECTED", "largePathCount": len(paths)}, sort_keys=True))
 PY_STAGING
 
+# PATCH_TOOLKIT_STAGED_PATH_RENAME_PARITY_REGRESSION_V1
+python3 - "${PROJECT_ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" "${WORK_ROOT}/staged-path-rename-parity" <<'PY_STAGED_PATH_RENAME_PARITY'
+from pathlib import Path
+import json
+import subprocess
+import sys
+import zipfile
+
+runtime = Path(sys.argv[1])
+root = Path(sys.argv[2])
+sys.path.insert(0, str(runtime))
+from cocondo_toolkit import __version__
+from cocondo_toolkit.errors import git_error
+from cocondo_toolkit.gitops import GitRepository
+
+
+def run(args, cwd, *, text=True):
+    return subprocess.run(
+        args,
+        cwd=cwd,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=text,
+    ).stdout
+
+
+def diff_paths(repo_root, *, no_renames):
+    args = ["git", "diff", "--cached"]
+    if no_renames:
+        args.append("--no-renames")
+    raw = run([*args, "--name-only", "-z"], repo_root, text=False)
+    return sorted(item.decode("utf-8") for item in raw.split(b"\x00") if item)
+
+
+def require_exact_parity(repo, expected, repo_root):
+    actual = repo.staged_paths(repo_root)
+    if actual != sorted(expected):
+        raise git_error(
+            "GIT_STAGED_PATH_PARITY_FAILED",
+            "Staged paths differ from patch manifest",
+            expected=sorted(expected),
+            actual=actual,
+        )
+    return actual
+
+
+with zipfile.ZipFile(runtime) as archive:
+    gitops_source = archive.read("cocondo_toolkit/gitops.py").decode("utf-8")
+    patching_source = archive.read("cocondo_toolkit/patching.py").decode("utf-8")
+assert __version__ == "1.1.5", __version__
+assert 'self.run(["diff", "--cached", "--no-renames", "--name-only", "-z"]' in gitops_source
+assert 'self.run(["diff", "--cached", "--name-only", "-z"]' not in gitops_source
+assert 'if staged != sorted(info.manifest.paths):' in patching_source
+assert '"GIT_STAGED_PATH_PARITY_FAILED"' in patching_source
+
+root.mkdir(parents=True)
+run(["git", "init", "-q", "-b", "main"], root)
+run(["git", "config", "user.name", "Staged Path Parity Fixture"], root)
+run(["git", "config", "user.email", "staged-path-parity@example.invalid"], root)
+deleted = root / "ACTIVE/SPRINT_BRIEF.md"
+deleted.parent.mkdir(parents=True)
+deleted.write_text("shared content\n" + ("same line\n" * 40), encoding="utf-8")
+run(["git", "add", "."], root)
+run(["git", "commit", "-qm", "baseline"], root)
+
+added = root / "ARCHIVE/2026/SPRINT_BRIEF.md"
+added.parent.mkdir(parents=True)
+added.write_bytes(deleted.read_bytes())
+deleted.unlink()
+manifest = sorted(["ACTIVE/SPRINT_BRIEF.md", "ARCHIVE/2026/SPRINT_BRIEF.md"])
+repo = GitRepository(root)
+repo.stage_paths(manifest, root)
+
+# This is the exact 1.1.4 inventory command. Git represents the staged pair as
+# R100 and --name-only returns only the destination, reproducing the incident.
+legacy_paths = diff_paths(root, no_renames=False)
+legacy_status = run(["git", "diff", "--cached", "--name-status"], root).strip()
+assert legacy_status.startswith("R100\t"), legacy_status
+assert legacy_paths == ["ARCHIVE/2026/SPRINT_BRIEF.md"], legacy_paths
+assert legacy_paths != manifest
+
+corrected_paths = require_exact_parity(repo, manifest, root)
+assert corrected_paths == manifest
+assert diff_paths(root, no_renames=True) == manifest
+
+unexpected = root / "UNEXPECTED.txt"
+unexpected.write_text("unexpected\n", encoding="utf-8")
+run(["git", "add", "UNEXPECTED.txt"], root)
+try:
+    require_exact_parity(repo, manifest, root)
+except Exception as exc:
+    assert getattr(exc, "code", None) == "GIT_STAGED_PATH_PARITY_FAILED", repr(exc)
+    negative = "REJECTED_GIT_STAGED_PATH_PARITY_FAILED"
+else:
+    raise AssertionError("exact staged-path parity accepted an unexpected staged path")
+
+print(json.dumps({
+    "legacyRuntime": "1.1.4",
+    "legacyRenameStatus": legacy_status.split("\t", 1)[0],
+    "legacyPositiveFixture": "REPRODUCED_FALSE_MISMATCH",
+    "correctedRuntime": __version__,
+    "positive": "PASS_EXACT_DELETE_ADD_PARITY",
+    "negative": negative,
+}, sort_keys=True))
+PY_STAGED_PATH_RENAME_PARITY
+
 # PATCH_TOOLKIT_ACCEPT_QUALIFICATION_COMPATIBILITY_REGRESSION_V1
 python3 - "${PROJECT_ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" "${WORK_ROOT}/qualification-commit" <<'PY_ACCEPT_QUALIFICATION'
 from pathlib import Path

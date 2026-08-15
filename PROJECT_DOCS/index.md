@@ -269,4 +269,5 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |
 | 2026-07-28 | active | active | Canonical project goals and complete active Sprint 002 harness indexed |
 | 2026-08-14 | active | active | Promoted Codex operations and the post-cutover Tooling `0.14.1` / Toolkit `1.1.4` baseline are reflected; Sprint 002 remains active with M-004 next and Sprint 003 not started. |
+| 2026-08-14 | active | active | Tooling `0.14.2` / Toolkit `1.1.5` corrects staged-path rename inventory through `000222`; Sprint 002 remains active and Sprint 003 is not started. |
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |

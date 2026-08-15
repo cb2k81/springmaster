@@ -48,7 +48,7 @@ WRITABLE_CODEX_AUTHORIZED=true
 PILOT_WRITE_READY=true
 ```
 
-Die aktuelle Post-Cutover-Versionswahrheit ist Platform `0.24.0-foundation`, Tooling `0.14.1`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.4` und `PLATFORM_STATE_PATCH=000219_patch-toolkit-python310-portability`. Der State-Patch bleibt nach Version Policy die Quelle der aktuellen Versionswahrheit; die anschließende reine Dokumentationssynchronisierung verändert ihn nicht.
+Die aktuelle Post-Cutover-Versionswahrheit ist Platform `0.24.0-foundation`, Tooling `0.14.2`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.5` und `PLATFORM_STATE_PATCH=000222_patch-toolkit-staged-path-parity`. Die Korrektur hält die exakte Manifest-/Staged-Path-Parität verpflichtend; `000221` bleibt als fehlgeschlagener Dry-run dokumentiert und ist nicht durch diesen Source-Stand akzeptiert.
 
 M-002 und M-003 sind abgeschlossen. Der nächste kontrollierte fachliche Slice ist M-004, der Business-Partner-End-to-End-Pilot; M-005 bleibt anschließend für Repeatability, V1.1-Evolution und Sprint-Closure vorgesehen.
 
@@ -91,7 +91,7 @@ Der Cutover-Drift ist mit der akzeptierten Promotion und finalen Live-Qualificat
 
 ## Versionswirkung
 
-Aktuelle Versionswahrheit: Platform `0.24.0-foundation`, Tooling `0.14.1`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.4`, State Patch `000219_patch-toolkit-python310-portability`. Der nachgelagerte Post-Cutover-Dokumentationsschnitt ändert keine weitere Produkt-, Tooling-, Core-, Demo-, Template- oder Platform-Update-Semantik und löst daher keinen zusätzlichen Komponenten- oder Foundation-Bump aus.
+Aktuelle Versionswahrheit: Platform `0.24.0-foundation`, Tooling `0.14.2`, Maven `0.24.0-foundation-SNAPSHOT`, Toolkit `1.1.5`, State Patch `000222_patch-toolkit-staged-path-parity`. Core-, Demo-, Template- und Platform-Update-Version bleiben unverändert; der kompatible Tooling-Patch löst keinen Foundation-Bump aus.
 
 ## Nächster kontrollierter Schritt
 

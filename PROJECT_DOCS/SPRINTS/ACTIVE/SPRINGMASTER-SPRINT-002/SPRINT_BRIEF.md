@@ -55,10 +55,10 @@ Der Sprint wurde auf dem Full-Export-HEAD `c5c5846176d92c34b19b7a7827d7264c19238
 - Export-SHA-256: `a0aff1666b83fda555122aa0c16f8c71224e1d8237ada226090094bce30ba290`;
 - File-Manifest-SHA-256: `6a00907b6ba689bed65fa0b70de0416748a65d595c3d45304909e555248a7097`;
 - Platform: `0.24.0-foundation`;
-- Tooling: `0.14.1`;
-- Patch Toolkit: `1.1.4`;
+- Tooling: `0.14.2`;
+- Patch Toolkit: `1.1.5`;
 - Maven: `0.24.0-foundation-SNAPSHOT`;
-- State Patch: `000219_patch-toolkit-python310-portability`;
+- State Patch: `000222_patch-toolkit-staged-path-parity`;
 - Codex Pilot Contract: `1.7.0`;
 - Lifecycle: `PILOT_WRITE_READY` / `PROMOTED`;
 - Write-Promotion: `000218_codex-cutover-write-promotion`, final `CODEX_CUTOVER_ACCEPTED`;
@@ -205,7 +205,7 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 
 ## SemVer-Auswirkung
 
-Erwartete Sprintauswirkung bleibt `minor`, sofern M-004/M-005 weitere freigegebene Generator-, Contract- oder Pilotfähigkeiten etablieren. Der Cutover-Anteil und der anschließende kompatible Portabilitätsfix `000219_patch-toolkit-python310-portability` haben die aktuelle Versionswahrheit auf Platform `0.24.0-foundation`, Tooling `0.14.1`, Toolkit `1.1.4` und Maven `0.24.0-foundation-SNAPSHOT` geführt. Die nachgelagerte Post-Cutover-Dokumentationssynchronisierung erhöht keine weitere Version; spätere M-004/M-005-Schnitte werden jeweils nach `SPRINGMASTER_VERSION_POLICY.md` klassifiziert.
+Erwartete Sprintauswirkung bleibt `minor`, sofern M-004/M-005 weitere freigegebene Generator-, Contract- oder Pilotfähigkeiten etablieren. Der Cutover-Anteil, der kompatible Portabilitätsfix `000219_patch-toolkit-python310-portability` und die kompatible Staged-Path-Paritätskorrektur `000222_patch-toolkit-staged-path-parity` haben die aktuelle Versionswahrheit auf Platform `0.24.0-foundation`, Tooling `0.14.2`, Toolkit `1.1.5` und Maven `0.24.0-foundation-SNAPSHOT` geführt. Spätere M-004/M-005-Schnitte werden jeweils nach `SPRINGMASTER_VERSION_POLICY.md` klassifiziert.
 
 ## Stop- und Abbruchkriterien
 
@@ -249,3 +249,4 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 | 2026-07-31 | active | active | Tooling-Härtung `000201` als akzeptiert und `000203` als qualifizierter, noch nicht akzeptierter Cutover-Foundation-Candidate fortgeschrieben. |
 | 2026-08-13 | active | active | AMEND-001 akzeptiert: M-002/M-003 und Codex-Cutover abgeschlossen; Fokus auf M-004 Business-Partner-End-to-End-Pilot und anschließend M-005. |
 | 2026-08-14 | active | active | Post-Cutover-Tooling-Portabilität `000219` in die aktuelle Baseline übernommen; keine Scope-Änderung an M-004/M-005 und kein Start von Sprint 003. |
+| 2026-08-14 | active | active | Staged-Path-Paritätskorrektur `000222` auf Toolkit `1.1.5` / Tooling `0.14.2` aufgenommen; kein Start von Sprint 003 und keine Erfolgsbehauptung für `000221`. |

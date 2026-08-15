@@ -118,7 +118,7 @@
     "sourceCommit": "873decb209b1e1f5cea6b1f6ffb20544f6ae8d96",
     "status": "COMPLETE"
   },
-  "runtimeSha256": "1241000d6432f7f0b0f13a5249a2c2e98602c2cc604c732df6b84ea6a1fff574",
+  "runtimeSha256": "938706d0b3f47991c94aee797e3c7bedf25ddde25f9b8a317c64ae733107a058",
   "schemaVersion": "springmaster.patch-toolkit-activation-evidence.v1",
   "sourceBaselineCommit": "e46c51ba833103f3442b9ae85575d8a3de5dde0a",
   "stagingHotfix": {
@@ -142,6 +142,18 @@
     },
     "rootCause": "git add --all returns non-zero for deleted tracked paths below ignored directories even though the deletion is staged"
   },
+  "stagedPathRenameParityFix": {
+    "failedPatchId": "000221_sprint2-closure-amend-002",
+    "incidentRunId": "run-20260814T184824Z-391d72ebf4ce",
+    "platformToolingVersion": "0.14.2",
+    "regression": "PATCH_TOOLKIT_STAGED_PATH_RENAME_PARITY_REGRESSION_V1",
+    "rootCause": "GitRepository.staged_paths used git diff --cached --name-only -z with ordinary rename detection; a staged tracked deletion plus sufficiently similar addition was represented as a rename, so --name-only returned only the destination and lost the deleted manifest path from the effective staged-path inventory",
+    "securityInvariant": "exact manifest/staged path parity remains mandatory",
+    "sourceToolkitVersion": "1.1.4",
+    "statePatch": "000222_patch-toolkit-staged-path-parity",
+    "status": "PASS",
+    "targetToolkitVersion": "1.1.5"
+  },
   "toolingHardeningCandidate": {
     "acceptRunId": "run-20260731T073111Z-0e5f6316c4d3",
     "acceptanceStatus": "ACCEPTED",
@@ -164,5 +176,5 @@
     "versionClosure": "ACCEPTED",
     "workspaceLifecycle": "IMPLEMENTED_AND_ACCEPTED"
   },
-  "toolkitVersion": "1.1.4"
+  "toolkitVersion": "1.1.5"
 }

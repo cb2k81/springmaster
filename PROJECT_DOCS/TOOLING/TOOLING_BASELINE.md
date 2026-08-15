@@ -348,6 +348,10 @@ The agent-task harness supports the terminal status `ABANDONED_BEFORE_INVOCATION
 
 ## Toolkit Python 3.10/3.12 portability closure
 
-The active Cocondo Patch Toolkit runtime is `1.1.4`. Its supported local launcher boundary is Python `>=3.10`; the Springmaster DEV qualification matrix explicitly covers the system Python 3.10 line and the qualified Python 3.12 bootstrap line. The launcher does not hard-code the bootstrap runtime.
+The active Cocondo Patch Toolkit runtime is `1.1.5`. Its supported local launcher boundary is Python `>=3.10`; the Springmaster DEV qualification matrix explicitly covers the system Python 3.10 line and the qualified Python 3.12 bootstrap line. The launcher does not hard-code the bootstrap runtime.
 
 The 1.1.4 correction removes both nested same-quote f-string expression occurrences that Python 3.10 cannot parse, retains the existing Patch Manifest V5 transaction contract, and adds packaged-source compilation plus launcher-contract regression coverage. `PLATFORM_TOOLING_VERSION=0.14.1` and `PLATFORM_STATE_PATCH=000219_patch-toolkit-python310-portability` record the compatible Tooling correction; aggregate Platform and Maven coordinates are unchanged.
+
+## Staged-path rename parity correction 000222
+
+Toolkit `1.1.5` inventories the staged index with `git diff --cached --no-renames --name-only -z`. This preserves both paths when Git can otherwise represent a manifest deletion/addition pair as a rename. Exact equality between Patch Manifest paths and effective staged paths remains mandatory; real missing or additional paths still fail closed. The current Tooling truth is `PLATFORM_TOOLING_VERSION=0.14.2` and `PLATFORM_STATE_PATCH=000222_patch-toolkit-staged-path-parity`; aggregate Platform and Maven coordinates remain unchanged.
