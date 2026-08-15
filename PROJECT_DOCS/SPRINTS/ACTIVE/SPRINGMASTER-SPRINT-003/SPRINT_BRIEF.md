@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-003-BRIEF
 title: Cross-App Backend Contract Foundation and GWC Readiness – Sprint Brief
 documentType: sprint-brief
-status: blocked
+status: active
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -11,8 +11,8 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-07-30
-validFrom: null
-lastReviewedAt: 2026-07-31
+validFrom: 2026-08-15
+lastReviewedAt: 2026-08-15
 reviewBy: 2026-08-31
 supersedes: []
 supersededBy: null
@@ -30,7 +30,7 @@ Springmaster schafft eine fachneutrale, contract-first Cross-App-Grundlage, mit 
 
 Der Sprint hebt nur ausreichend verstandene Fähigkeiten bis `REFERENCE_IMPLEMENTED` an. Komplexe Aggregate, gemischte Concurrency, Backend-Bulk-Orchestrierung, Background Jobs und Workspace Runtime bleiben sichtbar, aber bewusst auf `CONTRACTED` oder `DEFINED`, solange ihre Runtime-Oracles nicht belastbar geschlossen sind.
 
-Der Sprint bleibt bis zur erfüllten Aktivierungsvoraussetzung blockiert. Es wird keine parallele schreibende Umsetzung in überlappenden Scopes begonnen.
+Die Aktivierungsvoraussetzung ist durch die qualifizierte und archivierte Sprint-002-Closure unter `AMEND-002` erfüllt. Sprint 003 ist aktiv; M-001 materialisiert die Baseline und den Anti-Drift-Nachweis in dieser Kandidatin. Kanonische Completion entsteht erst durch trusted-operator Acceptance.
 
 ## Strategischer Bezug
 
@@ -43,12 +43,12 @@ Kanonische Quellen sind `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` 
 
 ## Ausgangslage und Baseline
 
-- Das Zielbild und der vollständige Solution Plan für Sprint 003 liegen vor.
+- Das Zielbild und der vollständige Solution Plan für Sprint 003 liegen vor; der Plan ist mit der M1-Aktivierung aktiv.
 - Bestehende CRUD-, Query-, Command-, Relationship-, Error-, Security-, Generated-Slice- und GWC-Verträge bleiben verbindlich.
 - Springmaster enthält noch keine vollständige fachneutrale Contract-Familie für Operationsidentität, Resource Semantics, Preconditions, Backend Bulk, Operation Catalog und Cross-App-Handoff.
 - IDM, Personnel, Contacts und GWC sind ausschließlich read-only Qualification- und Kompatibilitätsquellen.
-- Die agentenbasierte Entwicklung bleibt bis zur separaten hostbezogenen Codex-Qualification und Promotion gesperrt.
-- Sprint 003 darf erst aktiviert werden, wenn Sprint 002 qualifiziert abgeschlossen und archiviert ist oder ein akzeptiertes Sprint-002-Amendment disjunkte Scopes, Ownership und Evidence festlegt.
+- Der Codex-Lifecycle ist `PILOT_WRITE_READY`/`PROMOTED`; `PILOT_COMPLETED` ist nicht erreicht. Schreibende Tasks bleiben an immutable Task Contract, detached Worktree, Scope-Prüfung und menschliche Integration gebunden.
+- Sprint 002 ist gemäß `AMEND-002` qualifiziert mit kontrollierten Deferrals abgeschlossen und archiviert. Seine M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` bleiben außerhalb von Sprint 003 und werden nicht übernommen.
 
 ## Problemstellung und Stakeholder
 
@@ -107,13 +107,13 @@ Die verbindlichen Anforderungen `S003-REQ-001` bis `S003-REQ-032` sind im `SOLUT
 
 ## Constraints und Abhängigkeiten
 
-- Aktivierungsvoraussetzung aus dem Solution Plan bleibt verbindlich.
+- Die Aktivierungsvoraussetzung aus dem Solution Plan ist erfüllt und im M1-Baseline-Report nachgewiesen.
 - Neue ADR-Nummern werden erst gegen die Live-Baseline vergeben.
 - App- und GWC-Quellen bleiben read-only.
 - Contract-, Runtime-, Oracle- und Promotion-Schnitte bleiben getrennt.
-- `operationKey` wird additiv und versioniert eingeführt; `operationId` bleibt technische Identität.
-- Optimistic Locking bleibt Baseline; weitere Strategien sind additive Use-Case-Entscheidungen.
-- Codex-Implementierungstasks sind erst nach hostbezogener Confinement-Qualification zulässig.
+- Operationsidentität, Operationsart und Operationsrollen werden erst in M-002 normativ entschieden.
+- Die akzeptierte Optimistic-Locking-Baseline bleibt unverändert; Preconditions sowie pessimistische oder gemischte Details werden erst in M-002 entschieden.
+- Codex-Implementierungstasks bleiben nur im promovierten, hostqualifizierten Task-Contract-/Harness-Prozess zulässig.
 
 ## Risiken
 
@@ -128,9 +128,9 @@ Die verbindlichen Anforderungen `S003-REQ-001` bis `S003-REQ-032` sind im `SOLUT
 - [x] Zielbild und übergeordnete Projektziele sind kanonisch dokumentiert.
 - [x] Der Solution Plan enthält Anforderungen, Slices, Teststrategie und Stopkriterien.
 - [x] Die erforderlichen Sprintdokumente sind vollständig angelegt und indexiert.
-- [ ] Sprint 002 ist qualifiziert abgeschlossen und archiviert oder ein akzeptiertes Amendment definiert disjunkte Scopes und Ownership.
-- [ ] Live-Baseline, Versionen, Capability-Reifegrade und relevante Cross-App-Verträge sind erneut verifiziert.
-- [ ] Codex Write Readiness ist für gegebenenfalls agentenbasierte Implementierungstasks hostbezogen nachgewiesen.
+- [x] Sprint 002 ist qualifiziert abgeschlossen und archiviert; seine kontrollierten Deferrals werden nicht übernommen.
+- [x] Live-Baseline, Versionen, Capability-Reifegrade und relevante Springmaster-Verträge sind für M-001 erneut verifiziert.
+- [x] Codex Write Readiness ist als `PILOT_WRITE_READY`/`PROMOTED` hostbezogen nachgewiesen; `PILOT_COMPLETED` wird nicht behauptet.
 
 ## Definition of Done
 
@@ -149,7 +149,7 @@ Die verbindlichen Anforderungen `S003-REQ-001` bis `S003-REQ-032` sind im `SOLUT
 
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
-| M-001 | Aktivierter, driftfreier Sprint-Harness mit Baseline und Capability-Scope | S003-REQ-001, S003-REQ-002, S003-REQ-025, S003-REQ-029, S003-REQ-030 | Aktivierungsvoraussetzung erfüllt; Sprint- und Documentation-Gates ohne Findings | Sprintdokumente, Baseline- und Anti-Drift-Report | springmaster-maintainers | blocked |
+| M-001 | Aktivierter, driftfreier Sprint-Harness mit Baseline und Capability-Scope | S003-REQ-001, S003-REQ-002, S003-REQ-025, S003-REQ-029, S003-REQ-030 | Aktivierungsvoraussetzung erfüllt; Sprint- und Documentation-Verträge sowie 11-Pfad-Scope verifiziert | Sprintdokumente, Capability Catalog, fünf M1-Analysen | springmaster-maintainers | in-progress |
 | M-002 | Akzeptierte ADRs und Standards für Operations-, Resource-, Precondition-, Concurrency-, Bulk- und GWC-Semantik | S003-REQ-003 bis S003-REQ-018, S003-REQ-023 | jeder Begriff besitzt genau eine normative Definition; keine akzeptierte ADR wird überschrieben | ADRs, Standards, Authority Matrix | springmaster-maintainers | planned |
 | M-003 | Versionierte Schemas, positive/negative Fixtures und stabile Diagnosecodes | S003-REQ-019, S003-REQ-024, S003-REQ-027, S003-REQ-032 | Pflicht-Negativfälle scheitern deterministisch; positive Fixtures validieren | JSON-Schemas, Fixture-Familien, Contract-Tests | springmaster-maintainers | planned |
 | M-004 | Fachneutraler Validator, Operation Catalog und reproduzierbarer Contract-Handoff | S003-REQ-019, S003-REQ-024, S003-REQ-026 | identischer Zweitlauf; unerwartete Datei blockiert; kein `CONTRADICTORY` | CLI-Reports, Catalog, Manifest, ZIP-Hashes | springmaster-maintainers | planned |
@@ -188,3 +188,4 @@ Keine.
 |---|---|---|---|
 | 2026-07-30 | – | planned | Sprint Brief auf Basis des vollständigen Solution Plans angelegt. |
 | 2026-07-31 | planned | blocked | Aktivierung bis zum qualifizierten Abschluss von Sprint 002 oder einem akzeptierten disjunkten Amendment gesperrt. |
+| 2026-08-15 | blocked | active | Sprint-002-Closure unter AMEND-002 verifiziert; Sprint 003 aktiviert und M-001 als noch nicht akzeptierte Materialisierung in Ausführung genommen. |

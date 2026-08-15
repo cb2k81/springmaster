@@ -173,10 +173,15 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — planned, not activated problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint; the Sprint-2 closure prerequisite is satisfied
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — review solution and execution plan for the cross-app backend contract foundation and GWC readiness sprint
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — single current status source for the blocked pre-activation state of Sprint 003
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable draft qualification and closure report for Sprint 003
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — active problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — active solution and execution plan; M-001 is in materialization and M-002..M-007 remain planned
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — single current status source for active M-001 execution; trusted-operator Acceptance remains open
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable draft qualification and closure report; `qualificationStatus=pending`, `closureStatus=open`
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/M1_BASELINE_AND_ANTI_DRIFT_REPORT.md` — temporary M1 candidate evidence for the exact baseline and anti-drift result
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/CROSS_APP_PATTERN_COMPATIBILITY_MATRIX.md` — temporary M1 authority/evidence compatibility classification without pattern promotion
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/NAMING_MATRIX.md` — temporary M1 naming and gap inventory with all reserved semantics open for M-002
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/REQUIREMENTS_TO_CAPABILITY_MATRIX.md` — temporary primary mapping for all 32 Sprint-003 requirements
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/REQUIREMENTS_TO_TEST_MATRIX.md` — temporary primary test/Oracle mapping without unimplemented pass claims
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
@@ -269,3 +274,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-08-14 | active | active | Tooling `0.14.2` / Toolkit `1.1.5` corrects staged-path rename inventory through `000222`; Sprint 003 is not started. |
 | 2026-08-14 | active | active | Sprint 002 gemäß AMEND-002 am erreichten Codex-Cutover-/Write-Readiness-Ziel qualifiziert mit Deferrals geschlossen und archiviert; Sprint 003 bleibt geplant und nicht aktiviert, seine Sprint-2-Closure-Voraussetzung ist erfüllt. |
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |
+| 2026-08-15 | active | active | Sprint 003 nach verifizierter Sprint-002-Closure aktiviert; M-001 als noch nicht trusted-operator-akzeptierte Materialisierung in Ausführung, M-002..M-007 geplant und Completion draft/pending/open. |

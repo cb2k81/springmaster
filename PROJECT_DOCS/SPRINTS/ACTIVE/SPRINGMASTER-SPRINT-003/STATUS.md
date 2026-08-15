@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-003-STATUS
 title: Cross-App Backend Contract Foundation and GWC Readiness – Status
 documentType: sprint-status
-status: blocked
+status: active
 authority: evidence
 scopeLevel: project
 scopePaths:
@@ -11,17 +11,17 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-07-30
-validFrom: null
-lastReviewedAt: 2026-07-31
+validFrom: 2026-08-15
+lastReviewedAt: 2026-08-15
 reviewBy: 2026-08-31
 supersedes: []
 supersededBy: null
 temporary: true
 sprintId: SPRINGMASTER-SPRINT-003
-sprintPhase: intake-and-alignment
-overallStatus: blocked
+sprintPhase: execution
+overallStatus: active
 lastDriftResult: none
-lastDriftAt: 2026-07-31
+lastDriftAt: 2026-08-15
 expectedVersionImpact: minor
 ---
 
@@ -29,16 +29,16 @@ expectedVersionImpact: minor
 
 ## Aktueller Stand
 
-Der Sprint-Harness ist vollständig angelegt, aber Sprint 003 ist noch nicht aktiviert. Der Solution Plan befindet sich in `review`; Sprint Brief, Status und Completion Skeleton sind nun auf denselben Scope und dieselbe Aktivierungsvoraussetzung ausgerichtet.
+Sprint 003 ist aktiv. Die qualifizierte und archivierte Sprint-002-Closure unter `AMEND-002` erfüllt die Aktivierungsvoraussetzung. M-001 materialisiert am exakten Commit `396ae7e1f7d372489a82969555b1a1e74d4e7633` den 27-Capability-Catalog, fünf M1-Analysen und den atomaren Lifecycle-Abgleich der Sprintdokumente und des Index.
 
-Die Blockade ist bewusst: Sprint 003 darf erst beginnen, wenn Sprint 002 qualifiziert abgeschlossen und archiviert ist oder ein akzeptiertes Amendment disjunkte Dateiscopes, Contract-Ownership und Evidence festlegt. Bis dahin erfolgen keine schema-, runtime- oder managed-project-wirksamen Änderungen aus Sprint 003.
+Diese Worktree-Ausführung ist eine Acceptance-Kandidatin. M-001 bleibt `in-progress`, bis der trusted operator den Änderungsschnitt akzeptiert. Es werden keine M2-Semantiken entschieden, keine Runtime oder Gates implementiert, keine Versionen erhöht und keine gemanagten Projekte gelesen oder verändert.
 
 ## Teilziele
 
 | ID | Status | Evidence oder Blocker |
 |---|---|---|
-| M-001 | blocked | Sprint-Harness vollständig; Aktivierungsvoraussetzung aus Sprint 002 noch offen. |
-| M-002 | planned | ADR- und Standardentscheidungen beginnen erst nach Aktivierung und Baseline-Recheck. |
+| M-001 | in-progress | Baseline und 11-Pfad-Scope verifiziert; Catalog und fünf Analysen materialisiert; trusted-operator Acceptance ausstehend. |
+| M-002 | planned | Operations-, Authority-, Resource-, Precondition-, Concurrency-, Bulk- und GWC-Semantik bleibt ausdrücklich offen. |
 | M-003 | planned | Schema- und Fixture-Familien beginnen erst nach akzeptierter Semantik. |
 | M-004 | planned | Validator, Catalog und Handoff folgen den akzeptierten Schemas und Oracles. |
 | M-005 | planned | OpenAPI-Runtime und Referenzslice folgen erst nach Contract-Qualification. |
@@ -47,22 +47,23 @@ Die Blockade ist bewusst: Sprint 003 darf erst beginnen, wenn Sprint 002 qualifi
 
 ## Blocker und Erkenntnisse
 
-- Sprint 002 ist noch die aktive Quelle für Codex-Kalibrierung und den Business-Partner-Piloten.
-- Parallele Arbeit ist nur nach akzeptierter disjunkter Scope-, Ownership- und Evidence-Regel zulässig.
-- Der vollständige Solution Plan ist kein Aktivierungsnachweis und autorisiert keine Implementierung allein.
-- Codex Write Readiness bleibt hostbezogen und muss vor agentenbasierten Implementierungstasks separat bewiesen werden.
+Aktuell besteht kein Aktivierungsblocker. Die kanonische M1-Completion ist bis trusted-operator Acceptance bewusst offen.
+
+- Sprint-002 M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` bleiben außerhalb von Sprint 003.
+- Der Codex-Lifecycle bleibt `PILOT_WRITE_READY`/`PROMOTED`; `PILOT_COMPLETED` wird nicht behauptet.
+- Catalog-demo bleibt `candidate-reference-slice`, `not-canonical` und mit `documented-deferred-security` begrenzt.
+- Harness-Weiterentwicklung ist nicht blockierender Backlog und liegt außerhalb des M1-Scope.
 
 ## Drift-Bewertung
 
 Ergebnis: `none`.
 
-Sprint Brief, Solution Plan, Status und Completion Skeleton stimmen in Ziel, Scope, Aktivierungsvoraussetzung, Nicht-Zielen und Reifegrenzen überein. Vor Aktivierung, jedem neuen Slice, Qualification und Closure ist eine erneute Driftprüfung erforderlich.
+Sprint Brief, Solution Plan, Status, Completion Report, Capability Catalog und fünf M1-Analysen stimmen in Baseline, Scope, Nicht-Zielen und Reifegrenzen überein. `NORMATIVE_CONFLICT_COUNT=0`; alle 32 Anforderungen und alle 27 Capabilities sind gemappt. Vor M-002, jedem weiteren Slice, Qualification und Closure ist eine erneute Driftprüfung erforderlich.
 
 ## Risiken und technische Schulden
 
-- Verzögerter Sprint-002-Abschluss verschiebt den geplanten Start von Sprint 003.
-- Ein zu früher paralleler Start würde Scope- und Evidence-Ownership unklar machen.
-- Die endgültige ADR-Aufteilung und Contract-Granularität bleiben bewusste Entscheidungszeitpunkte.
+- Die M1-Materialisierung darf vor Acceptance nicht als kanonisch abgeschlossen behandelt werden.
+- Die endgültige ADR-Aufteilung, Source Authority und Contract-Granularität bleiben bewusste M2-Entscheidungszeitpunkte.
 - Komplexe Aggregate-, Bulk-, Job- und Workspace-Runtimes bleiben Deferrals und dürfen nicht als umgesetzt dargestellt werden.
 
 ## Versionswirkung
@@ -73,7 +74,7 @@ Die konkrete Komponenten- und Foundation-Version wird erst pro qualifiziertem Sl
 
 ## Nächster kontrollierter Schritt
 
-Sprint 002 qualifiziert abschließen und archivieren oder ein disjunktes Amendment akzeptieren. Danach werden Live-Commit, Versionen, Capability-Reifegrade, Scope-Ownership und Codex Host Qualification erneut geprüft. Erst anschließend darf Sprint 003 auf `active` wechseln und Slice 0 beginnen.
+Trusted-operator Review und Acceptance des exakt elf Pfade umfassenden M1-Schnitts. Erst danach darf M-001 kanonisch als abgeschlossen bewertet und M-002 in einem getrennten Task zur normativen Entscheidung der reservierten Semantik begonnen werden.
 
 ## Lifecycle
 
@@ -81,3 +82,4 @@ Sprint 002 qualifiziert abschließen und archivieren oder ein disjunktes Amendme
 |---|---|---|---|
 | 2026-07-30 | – | planned | Erste Statusquelle für den vorbereiteten Sprint angelegt. |
 | 2026-07-31 | planned | blocked | Aktivierungsvoraussetzung und parallele Scope-Grenze als aktuellen Blocker festgehalten. |
+| 2026-08-15 | blocked | active | Sprint-002-Closure verifiziert; Sprint 003 aktiviert und M-001-Materialisierung als noch nicht akzeptierte Execution-Kandidatin gestartet. |

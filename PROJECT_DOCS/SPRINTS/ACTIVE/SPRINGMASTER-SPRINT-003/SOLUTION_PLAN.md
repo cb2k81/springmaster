@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-003-PLAN
 title: Cross-App Backend Contract Foundation and GWC Readiness – Solution Plan
 documentType: plan
-status: review
+status: active
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -11,8 +11,8 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-07-30
-validFrom: null
-lastReviewedAt: 2026-07-31
+validFrom: 2026-08-15
+lastReviewedAt: 2026-08-15
 reviewBy: 2026-08-31
 supersedes: []
 supersededBy: null
@@ -60,12 +60,7 @@ Verworfen. Sprint 003 arbeitet gegenüber IDM, Personnel, Contacts und GWC aussc
 
 ### Aktivierungsvoraussetzung
 
-Sprint 003 darf erst `active` werden, wenn genau eine der folgenden Bedingungen erfüllt ist:
-
-- SPRINGMASTER-SPRINT-002 ist qualifiziert abgeschlossen und archiviert; oder
-- ein akzeptiertes Sprint-002-Amendment definiert disjunkte Dateiscopes, Contract-Ownership und Evidence.
-
-Bis dahin bleibt dieses Dokument `status: review`.
+Die Voraussetzung ist erfüllt: `SPRINGMASTER-SPRINT-002` wurde am 2026-08-14 gemäß `AMEND-002` qualifiziert mit kontrollierten Deferrals abgeschlossen und archiviert. M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` aus Sprint 002 werden nicht in Sprint 003 übernommen. Dieser Plan ist mit der M1-Materialisierung `active`; M-001 bleibt bis trusted-operator Acceptance `in-progress`.
 
 ## Architektur- und Contract-Auswirkungen
 
@@ -109,7 +104,7 @@ Die Ist-Reifegrade werden zu Sprintbeginn gegen die Live-Baseline verifiziert.
 | `CAP-QUERY-003` | `DEFINED` |
 | `CAP-AGG-001` | `DEFINED` |
 | `CAP-GWC-001` | `CONTRACTED` |
-| `CAP-GWC-002` | bestehende Reife erhalten |
+| `CAP-GWC-002` | `DEFINED`, bestehende Kompatibilitätsevidence erhalten |
 | `CAP-GWC-003` | `CONTRACTED` |
 | `CAP-WS-001` | `DEFINED`, Kompatibilität nachgewiesen |
 | `CAP-WS-002` | `DEFINED`, Schnittstellen vorbereitet |
@@ -175,7 +170,7 @@ Die endgültige Aufteilung wird in der Contract-ADR entschieden. Neue technische
 
 ### Normative Dokumente
 
-Voraussichtlich erforderlich:
+M1 erstellt oder entscheidet keine ADR und keinen Standard. Die folgenden Pfade sind ausschließlich bestehende Planungsplatzhalter; Aufteilung, Benennung und Live-Nummern werden erst in M-002 gegen die dann aktuelle Authority entschieden:
 
 ```text
 PROJECT_DOCS/ADR/ADR-0016-backend-operation-semantics-and-gwc-profile.md
@@ -187,7 +182,7 @@ PROJECT_DOCS/STANDARDS/ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md
 PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md
 ```
 
-Die ADR-Nummern werden erst gegen die Live-Baseline vergeben.
+Die Platzhalter sind keine reservierten ADR-Nummern und keine vorweggenommene Source-Authority-Entscheidung.
 
 ## Slices und Reihenfolge
 
@@ -605,12 +600,12 @@ Ein Schnitt soll nicht gleichzeitig Normen entscheiden, Schemas ändern, Runtime
 
 ## Unsicherheiten und Entscheidungszeitpunkte
 
-### Vor Sprintaktivierung
+### Mit M1 verifiziert
 
-- Status und Closure von Sprint 002;
-- tatsächliche Live-Baseline und aktuelle Versionen;
-- zulässige parallele Dateiscopes;
-- Codex Write Readiness für Implementierungstasks.
+- Sprint 002 ist qualifiziert abgeschlossen und archiviert; seine Deferrals werden nicht übernommen;
+- die Baseline ist Commit `396ae7e1f7d372489a82969555b1a1e74d4e7633` mit Platform `0.24.0-foundation`, Tooling `0.14.2`, Toolkit `1.1.5` und State Patch `000222_patch-toolkit-staged-path-parity`;
+- der M1-Dateiscope umfasst genau die elf freigegebenen Pfade;
+- der Codex-Lifecycle bleibt `PILOT_WRITE_READY`/`PROMOTED`, nicht `PILOT_COMPLETED`.
 
 ### Vor Schemaimplementierung
 
@@ -660,10 +655,12 @@ Der aktuelle Schnitt stoppt, wenn:
 
 ## Lifecycle
 
-1. `review`: Dieses Dokument ist inhaltlich vollständig, aber Sprint 003 noch nicht aktiviert.
-2. `active`: erst nach erfüllter Aktivierungsvoraussetzung, vollständigem Sprint-Harness und bestandenen Documentation-/Sprint-Gates.
-3. `completed`: nach vollständiger Qualification und akzeptiertem Completion Report.
-4. Vor Archivierung wird der Solution Plan gemäß Sprint Governance aggregiert, promoviert, begründet archiviert oder verworfen; er ist standardmäßig kein Archivartefakt.
+| Datum | Vorher | Nachher | Grund |
+|---|---|---|---|
+| 2026-07-30 | - | review | Vollständigen Solution Plan für den vorbereiteten Sprint angelegt. |
+| 2026-08-15 | review | active | Sprint-002-Closure und M1-Baseline verifiziert; Slice 0/M-001 als Acceptance-Kandidatin gestartet. |
+
+`completed` ist erst nach vollständiger Qualification und akzeptiertem Completion Report zulässig. Vor Archivierung wird der Solution Plan gemäß Sprint Governance aggregiert, promoviert, begründet archiviert oder verworfen; er ist standardmäßig kein Archivartefakt.
 
 Geplanter Folgesprint:
 
