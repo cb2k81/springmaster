@@ -173,18 +173,15 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/SPRINT_BRIEF.md` — active problem, scope, requirements and exact Definition of Done for the Codex calibration and Business Partner pilot
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/SOLUTION_PLAN.md` — temporary staged execution plan for calibration, generation, repeatability and closure
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/STATUS.md` — single current status source for the active pilot sprint
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-002/COMPLETION_REPORT.md` — durable draft qualification and closure report
-
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — blocked problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — planned, not activated problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint; the Sprint-2 closure prerequisite is satisfied
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — review solution and execution plan for the cross-app backend contract foundation and GWC readiness sprint
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — single current status source for the blocked pre-activation state of Sprint 003
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable draft qualification and closure report for Sprint 003
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-002/SPRINT_BRIEF.md` — archivierter, durch AMEND-002 abgeschlossener Sprintvertrag für Codex Cutover und Write-Readiness
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-002/COMPLETION_REPORT.md` — finaler Abschlussnachweis mit kontrollierten Deferrals für M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009`; `PILOT_COMPLETED` nicht beansprucht
 
 ## TEMPLATES
 
@@ -268,6 +265,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-23 | active | active | Sprint Contracts, report-only Sprint Gate and four Sprint templates integrated |
 | 2026-07-23 | active | active | Engineering Qualification Pilot qualifiziert geschlossen; Archiv- und Aktivierungsnachweise indexiert |
 | 2026-07-28 | active | active | Canonical project goals and complete active Sprint 002 harness indexed |
-| 2026-08-14 | active | active | Promoted Codex operations and the post-cutover Tooling `0.14.1` / Toolkit `1.1.4` baseline are reflected; Sprint 002 remains active with M-004 next and Sprint 003 not started. |
-| 2026-08-14 | active | active | Tooling `0.14.2` / Toolkit `1.1.5` corrects staged-path rename inventory through `000222`; Sprint 002 remains active and Sprint 003 is not started. |
+| 2026-08-14 | active | active | Promoted Codex operations and the post-cutover Tooling `0.14.1` / Toolkit `1.1.4` baseline were reflected before the final Sprint-002 closure decision; Sprint 003 was not started. |
+| 2026-08-14 | active | active | Tooling `0.14.2` / Toolkit `1.1.5` corrects staged-path rename inventory through `000222`; Sprint 003 is not started. |
+| 2026-08-14 | active | active | Sprint 002 gemäß AMEND-002 am erreichten Codex-Cutover-/Write-Readiness-Ziel qualifiziert mit Deferrals geschlossen und archiviert; Sprint 003 bleibt geplant und nicht aktiviert, seine Sprint-2-Closure-Voraussetzung ist erfüllt. |
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |

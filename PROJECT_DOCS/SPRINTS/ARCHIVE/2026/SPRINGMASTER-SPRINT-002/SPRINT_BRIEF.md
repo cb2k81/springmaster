@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-002-BRIEF
 title: Codex Calibration and Business Partner End-to-End Pilot – Sprint Brief
 documentType: sprint-brief
-status: active
+status: archived
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -28,9 +28,9 @@ targetCompletion: 2026-08-21
 
 Der Codex-Cutover-Anteil von Sprint 002 ist abgeschlossen: Springmaster ist nach realer Host-Qualification, A003-Kalibrierung, zwei unabhängig akzeptierten Implementierungsaufgaben, live verifizierter Confinement-Evidence und separater Promotion im Zustand `PILOT_WRITE_READY`/`PROMOTED`. Kontrollierte schreibende Codex-Pilot-Tasks sind damit gemäß Task Contract und Harness autorisiert; direkte Integration, automatischer Accept, Push oder Zielprojektmutation bleiben verboten.
 
-Der verbleibende Sprintfokus ist M-004/M-005: die Business-Partner-Dummy-Anwendung als nachvollziehbaren End-to-End-Pilot qualifizieren, anschließend Repeatability und V1.1-Evolution belegen und den Sprint evidence-basiert schließen.
+Sprint 002 schließt am erreichten technischen Codex-Cutover- und Write-Readiness-Stand. M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` wurden nicht ausgeführt und sind kontrollierte Deferrals außerhalb dieses Sprints. Sie werden weder als abgeschlossen noch als automatisch von Sprint 003 übernommen behandelt.
 
-Der Sprint ist erfolgreich, wenn Springmaster belastbar zeigt, dass die Kette vom Fachkonzept bis zu einer disponiblen GWC-Anwendung deterministisch, traceable und wiederholbar funktioniert und daraus eine begründete Rollout-, Generalisierungs- oder Stopentscheidung ableitet.
+`PILOT_COMPLETED` ist nicht erreicht und wird nicht beansprucht. Der Sprintabschluss bestätigt ausschließlich `PILOT_WRITE_READY`/`PROMOTED` und `WRITABLE_CODEX_AUTHORIZED=true` innerhalb der bestehenden Grenzen.
 
 ## Strategischer Bezug
 
@@ -63,9 +63,8 @@ Der Sprint wurde auf dem Full-Export-HEAD `c5c5846176d92c34b19b7a7827d7264c19238
 - Lifecycle: `PILOT_WRITE_READY` / `PROMOTED`;
 - Write-Promotion: `000218_codex-cutover-write-promotion`, final `CODEX_CUTOVER_ACCEPTED`;
 - M-002 und M-003: abgeschlossen;
-- M-004: nächster fachlicher Slice;
-- M-005: danach geplant;
-- Sprint 003: weiterhin gesperrt, bis Sprint 002 geschlossen oder explizit disjunkt amended ist.
+- M-004 und M-005: nicht ausgeführt, kontrolliert außerhalb von Sprint 002 deferiert;
+- Sprint 003: nicht aktiviert; seine Closure-Voraussetzung aus Sprint 002 ist erfüllt, ohne automatische Übernahme der Deferrals.
 
 A001 und A002 bleiben unveränderliche fehlgeschlagene Calibration-/Incident-Evidence; A003 ist der erfolgreiche, vollständig qualifizierte Calibration-Attempt. Kein fehlgeschlagener Task wird erneut invoked oder als erfolgreiche Baseline umgedeutet.
 
@@ -167,18 +166,18 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - [x] Allgemeine Projektziele und Sprintscope sind als kanonische Quellen definiert.
 - [x] Mutationsverbote, externe Roots, Promotionen und Stopbedingungen sind benannt.
 - [x] `CAP-REQ-010` bis `CAP-REQ-014` sind über akzeptierte Tooling-/Cutover-Schnitte qualifiziert.
-- [ ] Die Project Directory Governance ist entweder vollständig aktiviert oder bleibt für M-004 ausdrücklich mit begrenzter Geltung `draft`.
+- [x] Die Project Directory Governance bleibt ausdrücklich `draft` mit begrenzter Geltung; keine Promotion erfolgt durch diesen Abschluss.
 - [x] Das A003-Kalibrierungs-Task-Pack und seine Oracles wurden gegen die korrigierte Live-Baseline neu erzeugt und unabhängig qualifiziert.
 - [x] Die konkrete lokale Codex-Umgebung, Host-Qualification und Runtime-Denial-Probes sind live belegt.
-- [ ] Der erste M-004-Task Contract inklusive Scope, Oracle, Qualification und Evidence ist vor Invocation vollständig eingefroren.
+- [ ] Der erste M-004-Task Contract wurde nicht erstellt; M-004 ist kontrolliert außerhalb des Sprints deferiert.
 
 ## Definition of Done
 
-- [ ] `CAP-REQ-001` bis `CAP-REQ-014` sind jeweils erfüllt, bewusst deferiert oder mit Blocker bewertet.
+- [x] `CAP-REQ-001` bis `CAP-REQ-014` sind jeweils erfüllt oder bewusst deferiert; `CAP-REQ-005` bis `CAP-REQ-009` sind kontrollierte Deferrals außerhalb des Sprints.
 - [x] Workspace-Lifecycle, Artefakt-Root-Autorisierung, typisiertes Delivery-/Patch-ID-Inventory, Selfcheck-Observability und harnessgebundene Operatorausführung sind über akzeptierte Tooling-Schnitte geschlossen.
 - [x] Die Incidents `000197`, `000198`, `000199` und `000200` sind als nicht akzeptierte Evidence dokumentiert; keine ihrer Payloads wurde in die Source-Baseline übernommen.
 - [x] Die Readiness-Evidence dokumentiert den kontrollierten Übergang `PROJECT_READY -> CODEX_CALIBRATION -> PILOT_WRITE_READY` und die separate Promotion ohne automatische Schreibfreigabe aus einem Einzelrun.
-- [ ] Die Project Directory Governance ist entweder nach vollständiger Closure evidenzbasiert aktiviert oder bleibt ausdrücklich `draft` mit eindeutig begrenzter Geltung.
+- [x] Die Project Directory Governance bleibt ausdrücklich `draft` mit eindeutig begrenzter Geltung und wird nicht promoviert.
 - [x] Die Kalibrierung wurde erst nach akzeptiertem Härtungsschnitt gegen die jeweils aktuelle Live-Baseline neu vorbereitet.
 - [x] Die fünf allgemeinen Projektziele sind als aktive kanonische Zielquelle indexiert und werden vom Sprint referenziert.
 - [x] Der aktive Sprint besitzt Brief, Solution Plan, genau eine Statusquelle und einen vorbereiteten Completion Report mit konsistenter Milestone-Abdeckung.
@@ -186,12 +185,12 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 - [x] Alle Cutover-relevanten Host-, Pfad-, Scope-, Git-, Sandbox-, Größen-, Capability- und Evidence-Grenzen wurden real geprüft; unerlaubte Mutation wurde verhindert und nachgewiesen.
 - [x] Zwei implementierende Kalibrierungsaufgaben wurden fachlich und technisch unabhängig akzeptiert.
 - [x] Eine separate akzeptierte Entscheidung hat `PILOT_WRITE_READY` evidenzbasiert promoviert (`000218_codex-cutover-write-promotion`).
-- [ ] Die Business-Partner-Kette vom Fachkonzept bis zur disponiblen GWC-Anwendung ist vollständig traceable und ohne Mutation von GWC oder gemanagten Projekten erzeugt.
-- [ ] Die generierte Anwendung besteht die definierten Build-, Runtime-, API-, Validierungs-, Fehler-, Persistenz-, Security- und UI-Acceptance-Kriterien oder weist begründete Deferrals aus.
-- [ ] Drei Clean-Runs sind deterministisch vergleichbar; Abweichungen sind erklärt und akzeptiert oder blockieren die Qualification.
-- [ ] Die V1.1-Fachkonzeptänderung wurde kontrolliert verarbeitet, ohne geschützte manuelle Extension Points zu überschreiben.
+- [ ] Die Business-Partner-Kette wurde nicht erzeugt; dieser DoD-Punkt ist kontrolliert außerhalb des Sprints deferiert.
+- [ ] Die Application-Acceptance wurde nicht ausgeführt; Build-, Runtime-, API-, Validierungs-, Fehler-, Persistenz-, Security- und UI-Evidence werden nicht beansprucht.
+- [ ] Drei Clean-Runs wurden nicht ausgeführt; Repeatability-Evidence ist kontrolliert außerhalb des Sprints deferiert.
+- [ ] Die V1.1-Fachkonzeptänderung wurde nicht ausgeführt; Evolution- und Extension-Point-Evidence wird nicht beansprucht.
 - [x] Alle bisher akzeptierten Cutover-Patches und Commits wurden über den kanonischen Dry-run-/Review-/Accept-Flow qualifiziert; es erfolgten kein automatischer Accept, kein Push und keine unerlaubte Zielmutation.
-- [ ] Completion Report, technische Schulden, temporäre Dokumentdisposition, SemVer-Auswirkung und Rollout-, Generalisierungs- oder Stopentscheidung sind vollständig.
+- [x] Completion Report, kontrollierte Deferrals, temporäre Dokumentdisposition sowie SemVer- und Releasewirkung sind abschließend bewertet; es gibt keine Rollout- oder Generalisierungsfreigabe.
 
 ## Messbare Teilziele
 
@@ -200,12 +199,12 @@ Stakeholder sind Springmaster-Maintainer, Betreiber der lokalen Entwicklungsumge
 | M-001 | Projektziele und aktiver Sprintvertrag sind kanonisch persistiert. | CAP-REQ-001 | Documentation Gate und Sprint Gate ohne neue Findings; alle sechs Dokumente indexiert. | Gate-Reports und Repository-Diff | springmaster-maintainers | completed |
 | M-002 | Kalibrierungs-Task-Pack und unabhängige Oracles sind gegen die aktuelle Baseline eingefroren. | CAP-REQ-002, CAP-REQ-003 | Schema, Hashbindung, Scope, Limits und positive/negative Oracles reviewed. | A003 Task-, Oracle-, Host- und Preflight-Evidence | springmaster-maintainers | completed |
 | M-003 | Reale Kalibrierung und Write-Readiness-Entscheidung sind abgeschlossen. | CAP-REQ-003, CAP-REQ-004 | Boundary-Probes und zwei Aufgaben qualifiziert; separate Promotion oder Blockerentscheidung. | A003 Invocation-, Handoff-, `000215`/`000216`, Confinement- und `000218`-Promotion-Evidence | springmaster-maintainers | completed |
-| M-004 | Business-Partner-End-to-End-Pilot ist traceable und disponibel erzeugt. | CAP-REQ-005, CAP-REQ-006, CAP-REQ-007 | Staged Contracts und generierte Anwendung bestehen definierte Acceptance-Kriterien. | Contract-Kette, Build-, Runtime-, API- und UI-Evidence | springmaster-maintainers | planned |
-| M-005 | Repeatability, V1.1-Evolution und Sprintabschluss sind qualifiziert. | CAP-REQ-008, CAP-REQ-009 | Drei Clean-Runs, Evolutionstest, Debt-/Effizienzbewertung und Abschlussentscheidung liegen vor. | Vergleichsreports und finaler Completion Report | springmaster-maintainers | planned |
+| M-004 | Business-Partner-End-to-End-Pilot ist traceable und disponibel erzeugt. | CAP-REQ-005, CAP-REQ-006, CAP-REQ-007 | Nicht ausgeführt; Business-Partner-, Application-, Security-, Persistence- und UI-Evidence wird nicht beansprucht. | kontrollierter Deferral im Completion Report | springmaster-maintainers | deferred |
+| M-005 | Repeatability, V1.1-Evolution und Sprintabschluss sind qualifiziert. | CAP-REQ-008, CAP-REQ-009 | Repeatability, V1.1 und Effizienz nicht ausgeführt; Sprintabschluss erfolgt gemäß AMEND-002 am erreichten Cutover-Ziel. | kontrollierter Deferral und finaler Completion Report | springmaster-maintainers | deferred |
 
 ## SemVer-Auswirkung
 
-Erwartete Sprintauswirkung bleibt `minor`, sofern M-004/M-005 weitere freigegebene Generator-, Contract- oder Pilotfähigkeiten etablieren. Der Cutover-Anteil, der kompatible Portabilitätsfix `000219_patch-toolkit-python310-portability` und die kompatible Staged-Path-Paritätskorrektur `000222_patch-toolkit-staged-path-parity` haben die aktuelle Versionswahrheit auf Platform `0.24.0-foundation`, Tooling `0.14.2`, Toolkit `1.1.5` und Maven `0.24.0-foundation-SNAPSHOT` geführt. Spätere M-004/M-005-Schnitte werden jeweils nach `SPRINGMASTER_VERSION_POLICY.md` klassifiziert.
+Der Abschluss allein bewirkt keine Versionserhöhung und keine Releasefreigabe. Die aktuelle Wahrheit bleibt Platform `0.24.0-foundation`, Tooling `0.14.2`, Toolkit `1.1.5`, Maven `0.24.0-foundation-SNAPSHOT` und State Patch `000222_patch-toolkit-staged-path-parity`.
 
 ## Stop- und Abbruchkriterien
 
@@ -221,6 +220,16 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 - wesentliche Nichtdeterministik nach drei Clean-Runs ungeklärt bleibt.
 
 ## Amendments
+
+### AMEND-002
+
+- Datum: 2026-08-14
+- Anlass: formale Closure-Entscheidung nach vollständig erreichtem technischen Codex-Cutover- und Write-Readiness-Ziel.
+- Alte Aussage: Sprint 002 bleibt für M-004 Business-Partner-End-to-End und M-005 Repeatability/V1.1 aktiv.
+- Neue Aussage: Sprint 002 schließt am erreichten Stand `PILOT_WRITE_READY`/`PROMOTED` mit `WRITABLE_CODEX_AUTHORIZED=true`. M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` wurden nicht ausgeführt und sind kontrollierte Deferrals außerhalb des Sprints.
+- Auswirkungen: M-001 bis M-003 bleiben `completed`; M-004/M-005 werden `deferred`. Business-Partner-, Repeatability-, V1.1-, Effizienz-, Security-, Persistence-, Canonicalization- und Rollout-Evidence wird nicht behauptet. `PILOT_COMPLETED` ist nicht erreicht oder beansprucht. Die Project Directory Governance bleibt `draft` mit begrenzter Geltung. Die Deferrals werden nicht automatisch von Sprint 003 übernommen.
+- Entscheidung: accepted; Sprintziel ist in der geänderten Fassung erreicht, Qualification ist `qualified-with-deferrals`, Closure ist `completed` zum 2026-08-14.
+- Freigaben: normative Closure-Entscheidung der Springmaster-Maintainer; Rematerialisierung gegen die aktuelle akzeptierte Baseline Tooling `0.14.2`, Toolkit `1.1.5`, State Patch `000222_patch-toolkit-staged-path-parity`.
 
 ### AMEND-001
 
@@ -250,3 +259,4 @@ Der Sprint stoppt und wird neu geplant oder abgebrochen, wenn:
 | 2026-08-13 | active | active | AMEND-001 akzeptiert: M-002/M-003 und Codex-Cutover abgeschlossen; Fokus auf M-004 Business-Partner-End-to-End-Pilot und anschließend M-005. |
 | 2026-08-14 | active | active | Post-Cutover-Tooling-Portabilität `000219` in die aktuelle Baseline übernommen; keine Scope-Änderung an M-004/M-005 und kein Start von Sprint 003. |
 | 2026-08-14 | active | active | Staged-Path-Paritätskorrektur `000222` auf Toolkit `1.1.5` / Tooling `0.14.2` aufgenommen; kein Start von Sprint 003 und keine Erfolgsbehauptung für `000221`. |
+| 2026-08-14 | active | archived | AMEND-002 akzeptiert: Sprint am erreichten Codex-Cutover-/Write-Readiness-Ziel qualifiziert mit Deferrals geschlossen; M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` nicht ausgeführt und kontrolliert deferiert; `PILOT_COMPLETED` nicht beansprucht. |
