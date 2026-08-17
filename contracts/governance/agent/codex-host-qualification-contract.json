@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.4.0",
+  "contractVersion": "1.5.0",
   "status": "active",
   "supportedHost": {
     "operatingSystem": "Linux",
@@ -38,7 +38,18 @@
       "direct",
       "linux-subcommand"
     ],
-    "innerSandboxCommandFormSelection": "capability-probed-fail-closed"
+    "innerSandboxCommandFormSelection": "capability-probed-fail-closed",
+    "codexExecJsonlValidation": {
+      "required": true,
+      "jsonObjectPerNonemptyLineRequired": true,
+      "turnCompletedRequired": true,
+      "turnFailedForbidden": true,
+      "errorEventsForbidden": true,
+      "startedCommandMustComplete": true,
+      "completedCommandExitCodeZeroRequired": true,
+      "implementationCompletedCommandExecutionMinimum": 1,
+      "outerProcessExitCodeZeroRequired": true
+    }
   },
   "portableRoles": [
     "PROJECT_ROOT",
@@ -159,7 +170,8 @@
     "mustBindSandboxArgvSha256": true,
     "requiresRealCodex": true,
     "requiresNestedCodexSandboxProbes": true,
-    "mustBindCodexSandboxCommandForm": true
+    "mustBindCodexSandboxCommandForm": true,
+    "mustBindCodexExecJsonlValidation": true
   },
   "cutoverBoundary": {
     "hostInspectionPassRequired": true,

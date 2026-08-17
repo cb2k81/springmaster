@@ -566,8 +566,162 @@ def status_json(root: Path, task_id: str) -> dict[str, Any]:
     return value
 
 
+def validate_codex_jsonl(stdout: str, mode: str, contract: dict[str, Any]) -> dict[str, Any]:
+    security = contract.get("securityBoundary") if isinstance(contract.get("securityBoundary"), dict) else {}
+    policy = security.get("codexExecJsonlValidation") if isinstance(security.get("codexExecJsonlValidation"), dict) else {}
+    require(policy.get("required") is True, "HOST_CONTRACT_INVALID", "Codex JSONL validation policy is missing or disabled")
+    required_true_flags = (
+        "jsonObjectPerNonemptyLineRequired",
+        "turnCompletedRequired",
+        "turnFailedForbidden",
+        "errorEventsForbidden",
+        "startedCommandMustComplete",
+        "completedCommandExitCodeZeroRequired",
+        "outerProcessExitCodeZeroRequired",
+    )
+    for key in required_true_flags:
+        require(policy.get(key) is True, "HOST_CONTRACT_INVALID", "Codex JSONL validation invariant must be enabled", invariant=key)
+    require(mode in {"analysis", "implementation", "qualification"}, "TASK_MODE_INVALID", "Unsupported task mode", mode=mode)
+
+    findings: list[dict[str, Any]] = []
+    nonempty_line_count = 0
+    parse_error_count = 0
+    error_event_count = 0
+    turn_started_count = 0
+    turn_completed_count = 0
+    turn_failed_count = 0
+    command_started_ids: set[str] = set()
+    command_completed_ids: set[str] = set()
+    command_completed_count = 0
+    command_failed_count = 0
+
+    for line_number, raw in enumerate(stdout.splitlines(), 1):
+        if not raw.strip():
+            continue
+        nonempty_line_count += 1
+        try:
+            event = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            parse_error_count += 1
+            findings.append({
+                "code": "CODEX_JSONL_PARSE_ERROR",
+                "line": line_number,
+                "column": exc.colno,
+            })
+            continue
+        if not isinstance(event, dict):
+            findings.append({"code": "CODEX_JSONL_EVENT_INVALID", "line": line_number})
+            continue
+
+        event_type = event.get("type")
+        item = event.get("item") if isinstance(event.get("item"), dict) else {}
+        item_type = item.get("type")
+        item_id = item.get("id") if isinstance(item.get("id"), str) and item.get("id") else None
+
+        if event_type == "turn.started":
+            turn_started_count += 1
+        elif event_type == "turn.completed":
+            turn_completed_count += 1
+        elif event_type == "turn.failed":
+            turn_failed_count += 1
+            findings.append({"code": "CODEX_TURN_FAILED", "line": line_number})
+        elif event_type == "error":
+            error_event_count += 1
+            findings.append({"code": "CODEX_ERROR_EVENT", "line": line_number})
+
+        if item_type == "error":
+            error_event_count += 1
+            finding: dict[str, Any] = {"code": "CODEX_ERROR_ITEM", "line": line_number}
+            message = item.get("message")
+            if isinstance(message, str) and message:
+                finding["message"] = message[-1000:]
+            findings.append(finding)
+
+        if item_type != "command_execution":
+            continue
+
+        if event_type == "item.started":
+            if item_id is None:
+                findings.append({"code": "CODEX_COMMAND_ID_MISSING", "line": line_number, "phase": "started"})
+            else:
+                command_started_ids.add(item_id)
+            continue
+
+        if event_type != "item.completed":
+            continue
+
+        command_completed_count += 1
+        if item_id is None:
+            findings.append({"code": "CODEX_COMMAND_ID_MISSING", "line": line_number, "phase": "completed"})
+        else:
+            command_completed_ids.add(item_id)
+
+        status = item.get("status")
+        exit_code = item.get("exit_code")
+        command_failed = False
+        if status != "completed":
+            command_failed = True
+            findings.append({
+                "code": "CODEX_COMMAND_STATUS_NOT_COMPLETED",
+                "line": line_number,
+                "itemId": item_id,
+                "status": status,
+            })
+        if not isinstance(exit_code, int):
+            command_failed = True
+            findings.append({
+                "code": "CODEX_COMMAND_EXIT_CODE_MISSING",
+                "line": line_number,
+                "itemId": item_id,
+                "exitCode": exit_code,
+            })
+        elif exit_code != 0:
+            command_failed = True
+            findings.append({
+                "code": "CODEX_COMMAND_EXIT_NONZERO",
+                "line": line_number,
+                "itemId": item_id,
+                "exitCode": exit_code,
+            })
+        if command_failed:
+            command_failed_count += 1
+
+    if turn_completed_count < 1:
+        findings.append({"code": "CODEX_TURN_COMPLETED_MISSING"})
+
+    incomplete_commands = sorted(command_started_ids - command_completed_ids)
+    if incomplete_commands:
+        findings.append({"code": "CODEX_COMMAND_COMPLETION_MISSING", "itemIds": incomplete_commands})
+
+    minimum = policy.get("implementationCompletedCommandExecutionMinimum", 0)
+    require(isinstance(minimum, int) and minimum >= 0, "HOST_CONTRACT_INVALID", "Implementation command minimum is invalid")
+    if mode == "implementation" and command_completed_count < minimum:
+        findings.append({
+            "code": "CODEX_IMPLEMENTATION_COMMAND_EXECUTION_MISSING",
+            "minimum": minimum,
+            "actual": command_completed_count,
+        })
+
+    return {
+        "schemaVersion": "springmaster.codex-jsonl-validation.v1",
+        "status": "PASS" if not findings else "FAILED",
+        "mode": mode,
+        "nonemptyLineCount": nonempty_line_count,
+        "parseErrorCount": parse_error_count,
+        "errorEventCount": error_event_count,
+        "turnStartedCount": turn_started_count,
+        "turnCompletedCount": turn_completed_count,
+        "turnFailedCount": turn_failed_count,
+        "commandExecutionStartedCount": len(command_started_ids),
+        "commandExecutionCompletedCount": command_completed_count,
+        "commandExecutionFailedCount": command_failed_count,
+        "findings": findings,
+    }
+
+
 def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path, model: str, change_bundle: Path | None = None) -> dict[str, Any]:
     ctx = context(root)
+    _, contract = load_contract(root)
     state = status_json(root, task_id)
     task = Path(state["worktreePath"]).resolve()
     run_dir = Path(state["runDirectory"]).resolve()
@@ -604,8 +758,14 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         started_at = utc_now()
         completed = run(outer + codex_argv, input_text=prompt, timeout=1800)
         finished_at = utc_now()
-        (evidence_dir / "codex.stdout.jsonl").write_text(completed.stdout, encoding="utf-8")
-        (evidence_dir / "codex.stderr.log").write_text(completed.stderr, encoding="utf-8")
+        stdout_path = evidence_dir / "codex.stdout.jsonl"
+        stderr_path = evidence_dir / "codex.stderr.log"
+        validation_path = evidence_dir / "codex-jsonl-validation.json"
+        stdout_path.write_text(completed.stdout, encoding="utf-8")
+        stderr_path.write_text(completed.stderr, encoding="utf-8")
+        jsonl_validation = validate_codex_jsonl(completed.stdout, mode, contract)
+        atomic_json(validation_path, jsonl_validation)
+        governed_pass = completed.returncode == 0 and jsonl_validation["status"] == "PASS"
         writes = ["task-worktree"] if mode == "implementation" else []
         mutation = "task-worktree-only" if mode == "implementation" else "none"
         effect = {
@@ -663,7 +823,7 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         result = {
             "schemaVersion": REPORT_SCHEMA,
             "operation": "invoke",
-            "status": "PASS" if completed.returncode == 0 else "FAILED",
+            "status": "PASS" if governed_pass else "FAILED",
             "generatedAt": utc_now(),
             "hostId": host_id(),
             "baselineCommit": git(root, "rev-parse", "HEAD"),
@@ -677,8 +837,15 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
             "authHandling": auth,
             "effect": {"path": str(effect_path), "sha256": sha256_file(effect_path)},
             "invocation": {"path": str(invocation_path), "sha256": sha256_file(invocation_path)},
-            "stdout": {"path": str(evidence_dir / "codex.stdout.jsonl"), "sha256": sha256_file(evidence_dir / "codex.stdout.jsonl")},
-            "stderr": {"path": str(evidence_dir / "codex.stderr.log"), "sha256": sha256_file(evidence_dir / "codex.stderr.log")},
+            "stdout": {"path": str(stdout_path), "sha256": sha256_file(stdout_path)},
+            "stderr": {"path": str(stderr_path), "sha256": sha256_file(stderr_path)},
+            "codexJsonlValidation": {
+                "path": str(validation_path),
+                "sha256": sha256_file(validation_path),
+                "status": jsonl_validation["status"],
+                "commandExecutionCompletedCount": jsonl_validation["commandExecutionCompletedCount"],
+                "errorEventCount": jsonl_validation["errorEventCount"],
+            },
         }
         atomic_json(evidence_dir / "host-invocation.json", result)
         return result

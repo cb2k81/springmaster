@@ -104,8 +104,19 @@ if args and args[0]=='sandbox':
   raise SystemExit(subprocess.run(cmd).returncode)
  raise SystemExit(13)
 if args and args[0]=='exec':
- _=sys.stdin.read()
- print('{"type":"message","role":"assistant","content":"fixture pass"}')
+ prompt=sys.stdin.read()
+ print('{"type":"turn.started"}')
+ if 'fixture-error-item' in prompt:
+  print('{"type":"item.completed","item":{"id":"item_error","type":"error","message":"fixture inner error"}}')
+ elif 'fixture-command-fail' in prompt:
+  print('{"type":"item.started","item":{"id":"item_cmd","type":"command_execution","command":"/usr/bin/false"}}')
+  print('{"type":"item.completed","item":{"id":"item_cmd","type":"command_execution","command":"/usr/bin/false","status":"completed","exit_code":1,"aggregated_output":""}}')
+ elif 'fixture implementation command' in prompt or 'fixture-command-success' in prompt:
+  print('{"type":"item.started","item":{"id":"item_cmd","type":"command_execution","command":"/usr/bin/true"}}')
+  print('{"type":"item.completed","item":{"id":"item_cmd","type":"command_execution","command":"/usr/bin/true","status":"completed","exit_code":0,"aggregated_output":""}}')
+ else:
+  print('{"type":"item.completed","item":{"id":"item_msg","type":"agent_message","text":"fixture pass"}}')
+ print('{"type":"turn.completed"}')
  raise SystemExit(0)
 raise SystemExit(2)
 CODEX
@@ -180,6 +191,7 @@ printf '%s\n' 'PROBE_SCRATCH_CLEANUP_FIXTURE=PASS'
 python3 - "${TMP}/invoke.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS'; assert v['taskMode']=='analysis'
+j=v['codexJsonlValidation']; assert j['status']=='PASS' and j['commandExecutionCompletedCount']==0 and j['errorEventCount']==0,j
 a=v['authHandling']; assert a['permissionProfile']=='springmaster-read-only'; assert a['permissionProfileBase']==':read-only'; assert a['sandboxAuthPath']=='/run/codex-home/auth.json'; assert a['sandboxAuthAccess']=='deny'
 e=json.load(open(v['effect']['path'])); argv=e['argv']; assert argv[:4]==['codex','--ask-for-approval','never','exec']; assert '--ignore-user-config' not in argv and '--sandbox' not in argv and '-s' not in argv
 PY
@@ -221,6 +233,7 @@ printf '%s\n' 'fixture change bundle' > "${CHANGE_BUNDLE}"
 python3 - "${TMP}/implementation-invoke.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS' and v['taskMode']=='implementation',v
+j=v['codexJsonlValidation']; assert j['status']=='PASS' and j['commandExecutionCompletedCount']==1 and j['errorEventCount']==0,j
 e=json.load(open(v['effect']['path'])); assert e['reads']==['task-worktree','external-artifact-root-read-only'],e
 assert e['writes']==['task-worktree'],e
 assert 'SPRINGMASTER_CODEX_CHANGE_BUNDLE' in e['environmentInputs'],e
@@ -257,5 +270,69 @@ else:
 print('PRIVATE_CODEX_PERMISSION_PROFILE_FIXTURE=PASS')
 print('PRIVATE_RUN_RESOLVER_REEXPOSURE_FIXTURE=PASS')
 PY_PROFILE
+
+python3 - "${REPO}/bin/codex-host-sandbox.py" "${REPO}/contracts/governance/agent/codex-host-qualification-contract.json" <<'PY_JSONL'
+import importlib.util,json,sys
+from pathlib import Path
+modp=Path(sys.argv[1]); contract=json.load(open(sys.argv[2],encoding='utf-8'))
+spec=importlib.util.spec_from_file_location('host_jsonl_under_test',modp); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+
+def ev(*lines): return '\n'.join(lines)+'\n'
+analysis_ok=m.validate_codex_jsonl(ev('{"type":"turn.started"}','{"type":"turn.completed"}'),'analysis',contract)
+assert analysis_ok['status']=='PASS',analysis_ok
+impl_ok=m.validate_codex_jsonl(ev(
+ '{"type":"turn.started"}',
+ '{"type":"item.started","item":{"id":"c1","type":"command_execution","command":"/usr/bin/true"}}',
+ '{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"completed","exit_code":0}}',
+ '{"type":"turn.completed"}'),'implementation',contract)
+assert impl_ok['status']=='PASS',impl_ok
+for name,text in {
+ 'malformed': ev('{not-json}','{"type":"turn.completed"}'),
+ 'error-item': ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"e1","type":"error","message":"boom"}}','{"type":"turn.completed"}'),
+ 'impl-no-command': ev('{"type":"turn.started"}','{"type":"turn.completed"}'),
+ 'impl-command-fail': ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"completed","exit_code":7}}','{"type":"turn.completed"}'),
+ 'impl-command-incomplete': ev('{"type":"turn.started"}','{"type":"item.started","item":{"id":"c1","type":"command_execution"}}','{"type":"turn.completed"}'),
+}.items():
+ mode='analysis' if name in {'malformed','error-item'} else 'implementation'
+ result=m.validate_codex_jsonl(text,mode,contract)
+ assert result['status']=='FAILED',(name,result)
+print('CODEX_JSONL_VALIDATION_FIXTURES=PASS_7_OF_7')
+PY_JSONL
+rm -rf -- "${REPO}/bin/__pycache__"
+
+# Prove that an outer Codex exit 0 with an inner error is still a failed governed
+# invocation, while immutable invocation evidence remains recorded for disposition.
+NEG_TASK_JSON="${TMP}/implementation-error-task.json"
+python3 - "${NEG_TASK_JSON}" "${BASE}" <<'PY_NEG_TASK'
+import json,sys
+p,base=sys.argv[1:]
+value={
+ "schemaVersion":"springmaster.agent-task.v2","taskId":"CODEX-HOST-IT-IMPL-ERROR-001","pilotId":"springmaster-codex-pilot-v1",
+ "repositoryId":"springmaster","mode":"implementation","baseCommit":base,"integrationBranch":"main","riskClass":"low","changeClasses":["test"],
+ "allowedPaths":["README.md"],"forbiddenPaths":[".git/**","patches/**","exports/**","target/**","build/**","tmp/**"],
+ "limits":{"maxChangedFiles":1,"maxNetAddedBytes":4096},
+ "capabilities":{"mayModifyTests":True,"mayModifyGovernance":False,"mayModifyContracts":False,"mayCommit":False,"mayPush":False,"network":"disabled"},
+ "qualificationCommands":[{"id":"targeted-check","argv":["git","status","--short"],"timeoutSeconds":30},{"id":"diff-check","argv":["git","diff","--check"],"timeoutSeconds":30}],
+ "requiredEvidence":["task-contract","task-contract-sha256","prepare-record","integration-pre-state","worktree-pre-state","operator-command-effect","operator-command-effect-sha256","invocation-record","invocation-record-sha256","changed-path-report","qualification-records","final-result","cleanup-disposition"],
+ "completionCriteria":{"postcheckPass":True,"allQualificationCommandsPass":True,"requiredEvidenceComplete":True,"invocationRecordRequired":True,"explicitCleanupDisposition":True}
+}
+open(p,'w').write(json.dumps(value,indent=2)+'\n')
+PY_NEG_TASK
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${NEG_TASK_JSON}" >/dev/null
+NEG_PROMPT="${TMP}/implementation-error.prompt.txt"
+printf '%s\n' 'fixture-error-item' > "${NEG_PROMPT}"
+set +e
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-IMPL-ERROR-001 --prompt "${NEG_PROMPT}" --model fixture-model --change-bundle "${CHANGE_BUNDLE}" --out "${TMP}/implementation-error-invoke.json" >/dev/null
+NEG_RC=$?
+set -e
+test "${NEG_RC}" -eq 1
+python3 - "${TMP}/implementation-error-invoke.json" <<'PY_NEG_REPORT'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='FAILED' and v['exitCode']==0,v
+j=v['codexJsonlValidation']; assert j['status']=='FAILED' and j['errorEventCount']==1 and j['commandExecutionCompletedCount']==0,j
+PY_NEG_REPORT
+NEG_STATUS="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json status CODEX-HOST-IT-IMPL-ERROR-001)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="PREPARED" and v["codexInvocation"]=="RECORDED",v' <<<"${NEG_STATUS}"
+printf '%s\n' 'CODEX_OUTER_ZERO_INNER_ERROR_FAIL_CLOSED=PASS'
 
 printf '%s\n' 'CODEX_HOST_SANDBOX_IT=PASS'

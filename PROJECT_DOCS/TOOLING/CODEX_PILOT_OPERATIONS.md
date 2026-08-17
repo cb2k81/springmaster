@@ -114,13 +114,15 @@ OVERWRITE: declared task paths only
 
 The Codex process never receives write authority for the operator home, operator handoff or download directories, integration checkout, Git common directory, external run or artifact roots, other repositories or host temporary directories. A concrete local handoff path is operator configuration, never a portable agent capability. Copying an accepted artifact there is a separate explicit operator action after the Codex task has ended.
 
-After the invocation, run postcheck and qualification:
+Only after `codex-host-sandbox invoke` itself reports `PASS` may the operator run postcheck and qualification:
 
 ```bash
 ./bin/agent-task.sh postcheck <task-id>
 ./bin/agent-task.sh qualify <task-id>
 ./bin/agent-task.sh status <task-id>
 ```
+
+`invoke=PASS` requires both raw Codex process exit `0` and a fail-closed validation of the complete JSONL event stream. Codex `error` items, `turn.failed`, malformed JSONL, incomplete command executions or non-zero completed command exits make the governed invocation fail even if the outer Codex process exits `0`. Implementation mode additionally requires at least one successfully completed `command_execution`. The validation record is immutable host evidence next to stdout/stderr.
 
 The harness still does not integrate the result.
 
@@ -137,11 +139,11 @@ Operational reports intended for upload may be written below `patches/logs/valid
 ## 7. Failure handling
 
 - Do not repair a failed task worktree manually before collecting evidence.
-- Run `agent-task status` and `postcheck` first.
-- Preserve the external run directory.
-- Use explicit `cleanup --discard` only after the result is no longer needed.
-- A boundary failure returns the pilot to patch-controlled hardening before another Codex attempt.
-- A failed real invocation is not retried under the same task ID. Run `postcheck`, retain the failure evidence and clean the disposable worktree only after disposition. For calibration, materialize the next numbered attempt after any required hardening. For post-cutover feature work, create a new task contract and task ID only after the cause is classified and the baseline is revalidated.
+- Run `agent-task status` first and preserve the external run directory plus host invocation evidence.
+- Run `postcheck` only when `codex-host-sandbox invoke` reported `PASS`. A failed governed invocation is disposed from its actual recorded state; do not advance it through postcheck or qualification merely to make cleanup possible.
+- Use explicit `cleanup --discard` only after the result is no longer needed; a clean failed-invocation worktree may be terminalized through the normal incomplete-cleanup disposition while retaining evidence.
+- A boundary or invocation-oracle failure returns the pilot to patch-controlled hardening before another Codex attempt.
+- A failed real invocation is not retried under the same task ID. Retain its immutable invocation/JSONL evidence and clean the disposable worktree only after separate disposition. For calibration, materialize the next numbered attempt after any required hardening. For post-cutover feature work, create a new task contract and task ID only after the cause is classified and the baseline is revalidated.
 - Host inspection must prove DNS and HTTPS reachability to the Codex control plane from the outer `bwrap` boundary before a new calibration attempt is materialized. If `/etc/resolv.conf` resolves below `/run`, the harness keeps `/run` private and copies only the resolver file into private scratch for read-only re-exposure at the original sandbox path.
 
 ### 7.1 Prepared task invalidated before Codex invocation

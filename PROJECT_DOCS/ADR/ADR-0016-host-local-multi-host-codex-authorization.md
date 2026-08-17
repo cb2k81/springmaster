@@ -44,6 +44,7 @@ Springmaster must support normal development from more than one workstation with
 8. Host qualification must bind the Codex CLI version and the successfully probed inner-sandbox command form. The active contract permits only explicitly listed safe forms. The harness probes them fail-closed and records the selected form in inspect, probe and qualification evidence.
 9. Supporting more than one Codex sandbox command form does not relax confinement. The outer Linux Bubblewrap profile, private Codex home, approval policy, path restrictions, network restrictions and trusted operator integration boundaries remain unchanged.
 10. Desktop and laptop may therefore be simultaneously authorized only after each machine has completed its own qualification and separate accepted promotion. Adding one host does not revoke or mutate another host's evidence.
+11. Host qualification and later governed implementation invocations bind semantic Codex JSONL validation in addition to the raw process exit code. A Codex process exit `0` is insufficient when the event stream contains an error, a failed/incomplete command, malformed JSONL, or—during implementation—no completed command execution. The raw process exit remains preserved as evidence; the governed invocation result fails closed independently.
 
 ## Consequences
 
@@ -53,6 +54,7 @@ Springmaster must support normal development from more than one workstation with
 - A newly installed or materially changed host cannot gain write authority merely by checking out a promoted Springmaster commit.
 - Compatible Codex CLI generations can be qualified by capability instead of by an unreviewed version-number assumption.
 - A laptop and desktop can both be normal Springmaster Codex development hosts once both have independent accepted authorization entries.
+- A host cannot qualify or continue a writable task solely because `codex exec` returned process exit `0`; semantic JSONL validation is part of the host-local execution evidence.
 
 ## Rejected alternatives
 
@@ -73,4 +75,5 @@ The contract and harness tests must prove at minimum:
 - a host-bound requalification task is allowed only when its sibling plan matches host ID, baseline, task path and SHA-256;
 - both accepted Codex sandbox command forms pass the same confinement contract;
 - unsupported command forms fail closed;
+- an outer Codex process exit `0` with an error item, failed command execution or missing implementation command execution fails the governed invoke and cannot proceed to qualification;
 - promotion remains a separate trusted-operator accepted change and never follows automatically from qualification.
