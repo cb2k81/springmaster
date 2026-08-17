@@ -39,6 +39,17 @@
       "id": "confinement-finding",
       "expectedStatus": "FINDINGS",
       "expectedExit": 1
+    },
+    {
+      "id": "host-requalification-plan",
+      "expectedSchemaVersion": "springmaster.codex-calibration-plan.v2",
+      "expectedPurpose": "HOST_REQUALIFICATION",
+      "expectedStatus": "MATERIALIZED"
+    },
+    {
+      "id": "host-requalification-change-bundles",
+      "expectedBundleCount": 2,
+      "expectedOperation": "create"
     }
   ]
 }

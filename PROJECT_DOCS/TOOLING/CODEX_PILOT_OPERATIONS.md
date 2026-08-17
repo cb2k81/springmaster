@@ -60,16 +60,29 @@ On the clean integration worktree:
   --out-text patches/logs/validation/codex-pilot/codex-project-readiness.txt
 ```
 
-The promoted contract reports:
+On an already registered host, the promoted contract reports:
 
 ```text
 CODEX_PILOT_READINESS=PILOT_WRITE_READY
 NEXT_ACTION=CODEX_PILOT_TASK
 WRITABLE_CODEX_AUTHORIZED=true
+HOST_WRITE_AUTHORIZED=true
 PILOT_WRITE_READY=true
 ```
 
-The source of truth is `contracts/governance/agent/codex-pilot-contract.json` version `1.7.0`. `pilot.currentLifecycle=PILOT_WRITE_READY`, `pilot.cutoverLifecycle=PROMOTED` and `writePromotion.decision=CODEX_CUTOVER_ACCEPTED`. The promotion was accepted only after two independent A003 calibration patches and live confinement evidence.
+On a clean but not yet registered workstation, the same project lifecycle deliberately reports:
+
+```text
+CODEX_PILOT_READINESS=PILOT_WRITE_READY
+NEXT_ACTION=CODEX_HOST_CALIBRATION
+WRITABLE_CODEX_AUTHORIZED=false
+HOST_WRITE_AUTHORIZED=false
+PILOT_WRITE_READY=true
+```
+
+The second state is not a project regression. It means the repository is ready but this physical host still requires its own qualification and accepted promotion.
+
+The source of truth is `contracts/governance/agent/codex-pilot-contract.json` version `1.8.0`. `pilot.currentLifecycle=PILOT_WRITE_READY`, `pilot.cutoverLifecycle=PROMOTED` and `writePromotion.decision=CODEX_CUTOVER_ACCEPTED`. The historical primary promotion remains registered in `writeAuthorizations`. The project lifecycle is global, while writable authorization is evaluated for the current host.
 
 Historical `PROJECT_READY` and `CODEX_CALIBRATION` output remains relevant when reconstructing pre-promotion evidence or a new calibration attempt, but it is not the current operational state. A successful readiness result never grants authority outside the task contract and harness boundaries.
 
@@ -83,7 +96,7 @@ A post-promotion pilot task is prepared from an immutable Task Contract V2 after
 ./bin/agent-task.sh status <task-id>
 ```
 
-Preparation creates a detached worktree and run record outside the repository. It does not start Codex. Under `PILOT_WRITE_READY`, regular pilot task contracts may be prepared according to the contract and scope rules. The sibling `calibration-plan.json` byte-binding remains the special fail-closed authorization rule for the pre-promotion `PROJECT_READY` lifecycle and for calibration reconstruction.
+Preparation creates a detached worktree and run record outside the repository. It does not start Codex. Under global `PILOT_WRITE_READY`, regular pilot task contracts may be prepared only when the current host is present in the committed `writeAuthorizations` registry. The sibling `calibration-plan.json` byte-binding remains the fail-closed authorization rule for initial `PROJECT_READY` calibration; an unregistered post-promotion host uses the host-bound `springmaster.codex-calibration-plan.v2` requalification variant instead.
 
 The governed host harness creates immutable operator-effect and invocation evidence for real Codex execution. When evidence must be recorded explicitly, `agent-task record-invocation` binds the already completed operator action; it never starts Codex itself.
 
@@ -209,10 +222,15 @@ Die Repository-Foundation stellt folgende kanonische Entrypoints bereit:
 ./bin/codex-host-sandbox.sh invoke --task-id <analysis-task-id> --prompt <prompt.txt> --model <model> --out <invocation.json>
 ./bin/codex-host-sandbox.sh qualify --inspect <inspect.json> --probe <probe.json> --analysis-invocation <invocation.json> --out <host-qualification.json> --check
 ./bin/codex-calibration.sh materialize --out <task-pack> --baseline <commit>
+./bin/codex-calibration.sh materialize --out <task-pack> --baseline <commit> --attempt <n> --host-requalification
 ./bin/codex-calibration.sh assemble --manifest <assembly.json> --out <confinement-evidence>
 ```
 
-`inspect`, `probe` und `invoke` müssen auf demselben Host und Baseline-Commit laufen. Die Host-Evidence ist nicht portabel. Die zwei Implementierungstasks werden erst nach Host-PASS vorbereitet, jeweils über `agent-task` qualifiziert und als nicht kanonischer Handoff übergeben. Dry-run und Accept bleiben getrennte Operatoraktionen.
+`inspect`, `probe` und `invoke` müssen auf demselben Host und Baseline-Commit laufen. Die Host-Evidence ist nicht portabel. `inspect` bindet zusätzlich die erfolgreich capability-geprobte Codex-Sandbox-Command-Form; nur die im Host-Qualification-Contract gelisteten Formen sind zulässig.
+
+Für einen zusätzlichen Desktop oder Laptop wird `--host-requalification` verwendet. Der Plan bindet die aktuelle Host-ID und erzeugt zwei host-/attempt-spezifische unveränderliche Change Bundles für die Implementierungs-Canaries. Die zwei Implementierungstasks werden erst nach Host-PASS vorbereitet, jeweils über `agent-task` qualifiziert und als nicht kanonischer Handoff übergeben. Jeder Handoff durchläuft separat Candidate, Dry-run und Accept. Erst ein weiterer Trusted-Operator-Promotion-Schnitt darf den Host zur Registry hinzufügen; derselbe Promotion-Schnitt entfernt die temporären Canary-Dateien aus dem aktuellen Tree.
+
+Eine Host-Promotion ist additiv. Sie darf vorhandene `writeAuthorizations` weder ersetzen noch deren Evidence auf den neuen Host übertragen. Desktop und Laptop benötigen daher jeweils eigene Qualification- und Promotion-Evidence.
 
 Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover-Foundation-Lauf bereinigt und sind kein Readiness-Blocker. Der Harness blockiert weiterhin aktive Runs, Locks, Pfadüberschneidungen und unklare Autorität.
 
@@ -223,6 +241,7 @@ Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover
 | 2026-08-01 | Acceptance of `000203` reflected; next operator stage set to Post-Accept Live Readiness, host qualification and plan-bound calibration. |
 | 2026-08-13 | Cutover completed; current lifecycle is `PILOT_WRITE_READY`/`PROMOTED`, regular governed pilot tasks are allowed while integration and accept boundaries remain trusted-operator-only. |
 | 2026-08-14 | Post-cutover operator tooling advanced to Toolkit `1.1.4` / Tooling `0.14.1` through `000219`; governed Codex lifecycle and trusted integration boundaries are unchanged. |
+| 2026-08-17 | Multi-host authorization model added: global project readiness is separated from host-local write authorization; additional hosts use host-bound requalification and separate additive promotion. |
 | 2026-08-14 | Staged-path inventory advanced to Toolkit `1.1.5` / Tooling `0.14.2` through `000222`; exact manifest parity and trusted integration boundaries remain unchanged. |
 
 ## 12. Patch-ID-freies Change Bundle im Task-Worktree

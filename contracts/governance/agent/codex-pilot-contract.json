@@ -91,7 +91,7 @@
     "requiredStatusBeforePromotion": "PASS",
     "writableCodexAuthorized": true
   },
-  "contractVersion": "1.7.0",
+  "contractVersion": "1.8.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -321,7 +321,8 @@
       "--check"
     ],
     "nextAction": "CODEX_PILOT_TASK",
-    "successStatus": "PILOT_WRITE_READY"
+    "successStatus": "PILOT_WRITE_READY",
+    "hostAuthorizationRequiredForWritableCodex": true
   },
   "referenceInput": {
     "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
@@ -359,7 +360,12 @@
       "PILOT_COMPLETED"
     ],
     "prePromotionLifecycle": "PROJECT_READY",
-    "prePromotionTaskSource": "sibling-calibration-plan"
+    "prePromotionTaskSource": "sibling-calibration-plan",
+    "hostAuthorizationRegistry": "writeAuthorizations",
+    "hostCalibrationPlanSchemaVersion": "springmaster.codex-calibration-plan.v2",
+    "hostCalibrationPlanStatus": "MATERIALIZED",
+    "hostCalibrationPlanPurpose": "HOST_REQUALIFICATION",
+    "unpromotedHostTaskSource": "sibling-host-calibration-plan"
   },
   "taskContract": {
     "baseCommitMustEqualIntegrationHeadAtPrepare": true,
@@ -545,6 +551,32 @@
     "mayPush": false,
     "maySwitchBranch": false,
     "mode": "detached"
+  },
+  "writeAuthorizations": {
+    "schemaVersion": "springmaster.codex-write-authorization-registry.v1",
+    "authority": "explicit-host-registry",
+    "hostEvidencePortable": false,
+    "automaticPromotionForbidden": true,
+    "entries": [
+      {
+        "acceptedPatchCount": 2,
+        "acceptedPatchIds": [
+          "000215_codex-calibration-implementation-1-a003",
+          "000216_codex-calibration-implementation-2-a003"
+        ],
+        "decision": "CODEX_CUTOVER_ACCEPTED",
+        "evidenceStatus": "PASS",
+        "hostId": "47bc16ba856f12673105930e",
+        "pilotWriteReady": true,
+        "promotedFromHead": "e35450be8ab23ff4fc039f8fe4f3077f644fbbf1",
+        "promotionAuthority": "trusted-operator-accepted-patch",
+        "schemaVersion": "springmaster.codex-write-promotion.v1",
+        "sourceConfinementBaselineCommit": "aaefe3dea5446ced82b8183abdcdf3231ad45e6c",
+        "sourceConfinementEvidenceSchemaVersion": "springmaster.codex-confinement-evidence.v2",
+        "sourceConfinementEvidenceSha256": "5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8",
+        "writableCodexAuthorized": true
+      }
+    ]
   },
   "writePromotion": {
     "acceptedPatchCount": 2,

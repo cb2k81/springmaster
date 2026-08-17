@@ -313,6 +313,7 @@ Nach ADR-0015 und der AI Agent Development Governance gilt fuer den Springmaster
 
 - Bis `bin/codex-pilot-ready.sh project --live --check` den Zustand `PROJECT_READY` nachweist, ist jede Codex-Ausfuehrung verboten; mutierende Lieferungen erfolgen weiter ueber `bin/cpatch` beziehungsweise `bin/process-ops.sh`.
 - `PROJECT_READY` ist der bewusste Cutover-Punkt zu einer getrennt freizugebenden Codex-Kalibrierung. Der Zustand autorisiert noch keine schreibende Standardentwicklung; dafuer ist spaeter `PILOT_WRITE_READY` erforderlich.
+- `PILOT_WRITE_READY` ist eine projektweite Reifeaussage, keine portable Rechnerfreigabe. Reguläre Agent-Tasks dürfen nur auf einer aktuellen Host-ID vorbereitet werden, die in `writeAuthorizations` unabhängig akzeptiert registriert ist; ein unregistrierter Host darf ausschließlich seinen hostgebundenen Requalification-Plan ausführen.
 - Beschreibbar ist ausschliesslich ein externer, detached Springmaster-Task-Worktree am exakten `baseCommit`. Der Integrations-Checkout, GWC, Personnel und alle gemanagten Projekte bleiben ausserhalb des Schreibscopes.
 - Jeder Task benoetigt vor Vorbereitung einen unveraenderlichen Vertrag nach `contracts/governance/agent/agent-task-contract.schema.json`. Task Contract V2 erzwingt Modus, Risiko, Change Classes, Nettozuwachs-Limit, Qualifikations-IDs, Evidence und maschinenlesbare Abschlusskriterien.
 - `analysis` und `qualification` sind technisch schreibgeschuetzt; jede Pfadaenderung ist ein Finding. Kritische Implementierungs-Tasks sind waehrend der Kalibrierung verboten.
@@ -326,6 +327,7 @@ Nach ADR-0015 und der AI Agent Development Governance gilt fuer den Springmaster
 - Eine echte Grenzverletzung, fehlende Evidence, Integrations-Drift oder nicht deterministische Wiederholung stoppt den Piloten.
 - Ein nur vorbereiteter Task mit `codexInvocation=NOT_RECORDED` darf bei zwischenzeitlich fortgeschrittenem sauberem `main` ausschließlich über `bin/agent-task.sh abandon-before-invocation <task-id> --reason integration-head-advanced` terminalisiert werden. Der Harness entfernt nur den unveränderten detached Task-Worktree, behält die Evidence und setzt `ABANDONED_BEFORE_INVOCATION`; manuelles Löschen, Umbasen oder Wiederverwenden der Task-ID ist verboten.
 - Jede Kalibrierung wird mit einer expliziten Attempt-Nummer materialisiert (`bin/codex-calibration.sh materialize ... --attempt <1..999>`). Task-IDs enthalten `A001`, `A002`, ... und werden niemals wiederverwendet.
+- Zusätzliche Rechner verwenden `bin/codex-calibration.sh materialize ... --host-requalification`; Host-Evidence ist nie portabel. Desktop und Laptop benötigen getrennte Host-Qualification, zwei getrennt akzeptierte Calibration-Patches und je einen separaten additiven Promotion-Schnitt.
 
 ## Patch-, Git- und Export-Governance
 
@@ -469,6 +471,7 @@ Named long-running operations that must not overlap are started through `bin/pro
 
 - Git verteilt nur Harness, Verträge, Probes und Kalibrierungsdefinitionen. Eine Hostfreigabe ist nicht portabel und muss auf jedem Rechner neu erzeugt werden.
 - Die äußere Linux-`bubblewrap`-Grenze ist die maßgebliche Dateisystem- und Prozessgrenze. Die Codex-eigene Sandbox bleibt als zweite Schutzschicht aktiv.
+- Der Host-Harness probiert die im Host-Qualification-Contract explizit erlaubten Codex-Sandbox-CLI-Formen capability-basiert und bindet die erfolgreiche Form in die Host-Evidence. Eine inkompatible CLI blockiert fail-closed; die Sandbox-Prüfung wird nicht abgeschwächt.
 - Vor jeder schreibenden Codex-Aufgabe müssen Host-Inspection, 20 mechanische Probes und ein realer read-only Codex-Aufruf auf demselben Host und Commit `PASS` sein.
 - Danach sind genau zwei unabhängige Implementierungsaufgaben erforderlich. Jede endet im nicht kanonischen `agent-task handoff` und durchläuft getrennt Candidate, Dry-run und Accept.
 - Alte inaktive Worktrees, alte Diagnosearchive und ein fehlender Komfortexport blockieren den Cutover nicht. Aktive Writer, gehaltene Locks, Pfadüberschneidungen, unklare Baselines oder fehlende Boundary-Evidence blockieren weiterhin fail-closed.

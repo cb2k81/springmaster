@@ -106,6 +106,33 @@ def executable(name: str, override: str | None) -> Path:
     return path.resolve()
 
 
+def resolve_codex_sandbox_command_form(codex: Path) -> tuple[str | None, dict[str, dict[str, Any]]]:
+    candidates = [
+        ("direct", [str(codex), "sandbox", "--", "/usr/bin/true"]),
+        ("linux-subcommand", [str(codex), "sandbox", "linux", "--", "/usr/bin/true"]),
+    ]
+    attempts: dict[str, dict[str, Any]] = {}
+    for name, argv in candidates:
+        result = run(argv, timeout=30)
+        attempts[name] = {
+            "argv": argv,
+            "exitCode": result.returncode,
+            "stdout": result.stdout[-1000:],
+            "stderr": result.stderr[-1000:],
+        }
+        if result.returncode == 0:
+            return name, attempts
+    return None, attempts
+
+
+def codex_sandbox_argv(codex: Path, command_form: str, command: list[str]) -> list[str]:
+    if command_form == "direct":
+        return [str(codex), "sandbox", "--", *command]
+    if command_form == "linux-subcommand":
+        return [str(codex), "sandbox", "linux", "--", *command]
+    raise HostError("CODEX_SANDBOX_COMMAND_FORM_INVALID", "Unsupported Codex sandbox command form", commandForm=command_form)
+
+
 def external_root(name: str) -> Path:
     raw = os.environ.get(name)
     require(bool(raw), "EXTERNAL_ROOT_UNSET", "Required external root is not set", variable=name)
@@ -379,7 +406,6 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         "bubblewrapSmoke": [str(bwrap), "--ro-bind", "/", "/", "--proc", "/proc", "--dev", "/dev", "--unshare-pid", "--die-with-parent", "/usr/bin/true"],
         "codexVersion": [str(codex), "--version"],
         "codexExecHelp": [str(codex), "exec", "--help"],
-        "codexInnerSandboxSmoke": [str(codex), "sandbox", "--", "/usr/bin/true"],
         "gitVersion": ["git", "--version"],
         "pythonVersion": [sys.executable, "--version"],
     }.items():
@@ -387,6 +413,17 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         checks[name] = {"exitCode": result.returncode, "stdout": result.stdout[-1000:], "stderr": result.stderr[-1000:]}
         if result.returncode != 0:
             findings.append({"code": "HOST_INSPECTION_COMMAND_FAILED", "check": name, "exitCode": result.returncode})
+    sandbox_form, sandbox_attempts = resolve_codex_sandbox_command_form(codex)
+    checks["codexInnerSandboxSmoke"] = {
+        "exitCode": 0 if sandbox_form is not None else 1,
+        "commandForm": sandbox_form,
+        "attempts": sandbox_attempts,
+        "stdout": "",
+        "stderr": "" if sandbox_form is not None else "No supported Codex sandbox command form succeeded",
+    }
+    supported_forms = set(contract.get("securityBoundary", {}).get("supportedInnerSandboxCommandForms", []))
+    if sandbox_form is None or sandbox_form not in supported_forms:
+        findings.append({"code": "CODEX_SANDBOX_COMMAND_FORM_UNSUPPORTED", "check": "codexInnerSandboxSmoke", "commandForm": sandbox_form, "supported": sorted(supported_forms)})
     network_checks, resolver = control_plane_checks(bwrap=bwrap, ctx=ctx)
     checks.update(network_checks)
     for name, result in network_checks.items():
@@ -404,6 +441,7 @@ def inspect(root: Path, bwrap: Path, codex: Path) -> dict[str, Any]:
         "executables": {"bwrap": str(bwrap), "codex": str(codex)},
         "resolver": resolver,
         "checks": checks,
+        "codexSandboxCommandForm": sandbox_form,
         "findings": findings,
     }
 
@@ -474,12 +512,16 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
         subprocess.run(["sleep", "3"], check=False)
         results.append({"id": "background-writer", "expectedOutcome": "DENIED", "outcome": "DENIED" if not background.exists() else "PASS", "exitCode": completed.returncode})
         background.unlink(missing_ok=True)
+        sandbox_form, sandbox_attempts = resolve_codex_sandbox_command_form(codex)
+        require(sandbox_form is not None, "CODEX_SANDBOX_COMMAND_FORM_UNSUPPORTED", "No supported Codex sandbox command form succeeded", attempts=sandbox_attempts)
+        supported_forms = set(contract.get("securityBoundary", {}).get("supportedInnerSandboxCommandForms", []))
+        require(sandbox_form in supported_forms, "CODEX_SANDBOX_COMMAND_FORM_UNSUPPORTED", "Resolved Codex sandbox command form is not allowed by the host contract", commandForm=sandbox_form, supported=sorted(supported_forms))
         inner_cases = [
-            ("inner-sandbox-smoke", "PASS", [str(codex), "sandbox", "--", "/usr/bin/true"]),
-            ("inner-worktree-write", "PASS", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", f"printf PASS > {json.dumps(str(task / '.codex-inner-write'))}"]),
-            ("inner-auth-read", "DENIED", [str(codex), "sandbox", "--", "/bin/cat", "/run/codex-home/auth.json"]),
-            ("inner-network-egress", "DENIED", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", "exec 3<>/dev/tcp/1.1.1.1/53"]),
-            ("inner-git-common-write", "DENIED", [str(codex), "sandbox", "--", "/bin/sh", "-eu", "-c", f"printf X > {json.dumps(str(ctx['gitCommon'] / '.codex-inner-denied'))}"]),
+            ("inner-sandbox-smoke", "PASS", codex_sandbox_argv(codex, sandbox_form, ["/usr/bin/true"])),
+            ("inner-worktree-write", "PASS", codex_sandbox_argv(codex, sandbox_form, ["/bin/sh", "-eu", "-c", f"printf PASS > {json.dumps(str(task / '.codex-inner-write'))}"])),
+            ("inner-auth-read", "DENIED", codex_sandbox_argv(codex, sandbox_form, ["/bin/cat", "/run/codex-home/auth.json"])),
+            ("inner-network-egress", "DENIED", codex_sandbox_argv(codex, sandbox_form, ["/bin/sh", "-eu", "-c", "exec 3<>/dev/tcp/1.1.1.1/53"])),
+            ("inner-git-common-write", "DENIED", codex_sandbox_argv(codex, sandbox_form, ["/bin/sh", "-eu", "-c", f"printf X > {json.dumps(str(ctx['gitCommon'] / '.codex-inner-denied'))}"])),
         ]
         for probe_id, expected, argv in inner_cases:
             completed = run(prefix_rw + argv, timeout=30)
@@ -504,6 +546,7 @@ def probes(root: Path, bwrap: Path, codex: Path, task: Path) -> dict[str, Any]:
             "baselineCommit": git(root, "rev-parse", "HEAD"),
             "authHandling": auth,
             "sandboxArgvSha256": sha256_bytes(json.dumps(prefix_rw, separators=(",", ":")).encode("utf-8")),
+            "codexSandboxCommandForm": sandbox_form,
             "probes": results,
             "findings": findings,
         }
@@ -656,6 +699,12 @@ def qualify(root: Path, inspect_path: Path, probe_path: Path, analysis_invocatio
     for name, value in (("inspect", inspect_value), ("probe", probe_value), ("analysis", invocation)):
         if value.get("baselineCommit") != baseline: findings.append({"code": "BASELINE_BINDING_MISMATCH", "evidence": name})
         if value.get("hostId") != host_id(): findings.append({"code": "HOST_BINDING_MISMATCH", "evidence": name})
+    inspect_form = inspect_value.get("codexSandboxCommandForm")
+    probe_form = probe_value.get("codexSandboxCommandForm")
+    if inspect_form not in set(contract.get("securityBoundary", {}).get("supportedInnerSandboxCommandForms", [])):
+        findings.append({"code": "CODEX_SANDBOX_COMMAND_FORM_NOT_BOUND", "evidence": "inspect", "commandForm": inspect_form})
+    if probe_form != inspect_form:
+        findings.append({"code": "CODEX_SANDBOX_COMMAND_FORM_MISMATCH", "inspect": inspect_form, "probe": probe_form})
     return {
         "schemaVersion": EVIDENCE_SCHEMA,
         "status": "PASS" if not findings else "FINDINGS",
@@ -669,6 +718,7 @@ def qualify(root: Path, inspect_path: Path, probe_path: Path, analysis_invocatio
         "mechanicalProbes": {"path": str(probe_path), "sha256": sha256_file(probe_path)},
         "analysisInvocation": {"path": str(analysis_invocation_path), "sha256": sha256_file(analysis_invocation_path)},
         "probeCount": len(contract["requiredMechanicalProbes"]),
+        "codexSandboxCommandForm": inspect_form,
         "findings": findings,
         "writableCodexAuthorized": False,
         "pilotWriteReady": False,

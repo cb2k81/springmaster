@@ -49,6 +49,12 @@ d.setdefault("taskAuthorization", {
  "prePromotionTaskSource":"sibling-calibration-plan"
 })
 d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+import hashlib,platform
+machine_path=Path("/etc/machine-id")
+machine=machine_path.read_text(encoding="utf-8").strip() if machine_path.is_file() else platform.node()
+host=hashlib.sha256(f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode()).hexdigest()[:24]
+d["writePromotion"]["hostId"]=host
+d["writeAuthorizations"]["entries"][0]["hostId"]=host
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PY
 chmod +x "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh"
@@ -720,5 +726,29 @@ RC=$?
 set -e
 test "${RC}" -eq 1
 BASE="$(git -C "${REPO}" rev-parse HEAD)"
+
+CURRENT_STEP=multi-host-authorization-contract
+python3 - "${REPO}/bin/agent-task.py" "${REPO}/contracts/governance/agent/codex-pilot-contract.json" "${TMP_ROOT}/host-auth-unit" <<'PY_HOST_AUTH'
+import hashlib,importlib.util,json,sys,tempfile
+from pathlib import Path
+module_path=Path(sys.argv[1]); policy_path=Path(sys.argv[2]); unit=Path(sys.argv[3]); unit.mkdir(parents=True,exist_ok=True)
+spec=importlib.util.spec_from_file_location('agent_task_host_auth_it',module_path); mod=importlib.util.module_from_spec(spec); sys.modules[spec.name]=mod; spec.loader.exec_module(mod)
+policy=json.loads(policy_path.read_text(encoding='utf-8')); host=mod.current_host_id()
+task_path=unit/'task.json'; task={'taskId':'HOST-AUTH-UNIT','mode':'analysis','baseCommit':'a'*40}; task_path.write_text(json.dumps(task)+'\n',encoding='utf-8')
+authorized=json.loads(json.dumps(policy)); authorized['writePromotion']['hostId']=host; authorized['writeAuthorizations']['entries'][0]['hostId']=host
+value=mod.validate_prepare_authorization(task_path.resolve(),task,authorized); assert value['source']=='committed-host-authorization-registry' and value['hostId']==host,value
+unpromoted=json.loads(json.dumps(policy)); unpromoted['writePromotion']['hostId']='f'*24; unpromoted['writeAuthorizations']['entries'][0]['hostId']='f'*24
+try: mod.validate_prepare_authorization(task_path.resolve(),task,unpromoted)
+except mod.AgentTaskError as exc: assert exc.code=='TASK_AUTHORIZATION_PLAN_MISSING',exc.code
+else: raise AssertionError('unpromoted host accepted without calibration plan')
+plan={'schemaVersion':'springmaster.codex-calibration-plan.v2','status':'MATERIALIZED','purpose':'HOST_REQUALIFICATION','hostId':host,'baselineCommit':'a'*40,'tasks':[{'taskId':'HOST-AUTH-UNIT','mode':'analysis','task':{'path':'task.json','sha256':hashlib.sha256(task_path.read_bytes()).hexdigest()}}]}
+(unit/'calibration-plan.json').write_text(json.dumps(plan)+'\n',encoding='utf-8')
+value=mod.validate_prepare_authorization(task_path.resolve(),task,unpromoted); assert value['source']=='sibling-host-calibration-plan' and value['nextAction']=='EXPLICIT_CODEX_HOST_REQUALIFICATION_ONLY',value
+plan['hostId']='e'*24; (unit/'calibration-plan.json').write_text(json.dumps(plan)+'\n',encoding='utf-8')
+try: mod.validate_prepare_authorization(task_path.resolve(),task,unpromoted)
+except mod.AgentTaskError as exc: assert exc.code=='TASK_AUTHORIZATION_HOST_MISMATCH',exc.code
+else: raise AssertionError('wrong-host plan accepted')
+print('MULTI_HOST_AUTHORIZATION_FIXTURE=PASS')
+PY_HOST_AUTH
 
 printf '%s\n' 'AGENT_TASK_IT=PASS'

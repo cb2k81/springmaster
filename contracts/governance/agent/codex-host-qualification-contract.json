@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.3.0",
+  "contractVersion": "1.4.0",
   "status": "active",
   "supportedHost": {
     "operatingSystem": "Linux",
@@ -33,7 +33,12 @@
     "additionalWritableRoots": [],
     "sandboxPrivateAuthToolAccess": "deny-read-and-write",
     "legacySandboxCliPolicy": "forbidden-for-real-invocation",
-    "sandboxResolverDependency": "host-resolver-content-copied-into-private-scratch-and-read-only-reexposed-only-when-resolv-conf-target-is-hidden-by-private-run"
+    "sandboxResolverDependency": "host-resolver-content-copied-into-private-scratch-and-read-only-reexposed-only-when-resolv-conf-target-is-hidden-by-private-run",
+    "supportedInnerSandboxCommandForms": [
+      "direct",
+      "linux-subcommand"
+    ],
+    "innerSandboxCommandFormSelection": "capability-probed-fail-closed"
   },
   "portableRoles": [
     "PROJECT_ROOT",
@@ -153,7 +158,8 @@
     "mustBindContractSha256": true,
     "mustBindSandboxArgvSha256": true,
     "requiresRealCodex": true,
-    "requiresNestedCodexSandboxProbes": true
+    "requiresNestedCodexSandboxProbes": true,
+    "mustBindCodexSandboxCommandForm": true
   },
   "cutoverBoundary": {
     "hostInspectionPassRequired": true,

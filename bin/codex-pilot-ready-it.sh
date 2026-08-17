@@ -9,7 +9,7 @@ mkdir -p -- "${TMP}"
 trap 'if [[ "${KEEP_CODEX_READY_IT:-false}" != true ]]; then rm -rf -- "${TMP}"; fi' EXIT
 python3 - "${ROOT}/src/test/resources/tooling/codex-pilot-readiness-v1/expected-cases.json" <<'PY'
 import json,sys
-v=json.load(open(sys.argv[1])); assert v['schemaVersion']=='springmaster.codex-pilot-readiness-fixture.v1'; assert len(v['cases'])==6
+v=json.load(open(sys.argv[1])); assert v['schemaVersion']=='springmaster.codex-pilot-readiness-fixture.v1'; assert len(v['cases'])==8
 PY
 FIXTURE="${TMP}/fixture"
 mkdir -p "${FIXTURE}"
@@ -34,6 +34,7 @@ d['projectReadiness'].update({'doesNotAuthorizeWritableCodex':True,'nextAction':
 d['confinementCalibration']['writableCodexAuthorized']=False
 d['confinementCalibration']['pilotWriteReady']=False
 d.pop('writePromotion',None)
+d.pop('writeAuthorizations',None)
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
 PY
 export HOME="${TMP}/home" XDG_CONFIG_HOME="${TMP}/xdg" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="${TMP}/git-template" GIT_TERMINAL_PROMPT=0
@@ -75,6 +76,14 @@ d["writePromotion"]={
   "promotionAuthority":"trusted-operator-accepted-patch",
   "decidedAt":"2026-08-10T00:00:00Z"
 }
+d["writeAuthorizations"]={
+  "schemaVersion":"springmaster.codex-write-authorization-registry.v1",
+  "authority":"explicit-host-registry",
+  "hostEvidencePortable":False,
+  "automaticPromotionForbidden":True,
+  "entries":[dict(d["writePromotion"])],
+}
+d["projectReadiness"]["hostAuthorizationRequiredForWritableCodex"]=True
 open(p,'w',encoding='utf-8').write(json.dumps(d,indent=2,sort_keys=True)+'\n')
 PY_PROMOTED
 git -C "${PROMOTED}" add contracts/governance/agent/codex-pilot-contract.json
@@ -84,6 +93,33 @@ grep -Fx 'CODEX_PILOT_READINESS=PILOT_WRITE_READY' "${TMP}/promoted.out" >/dev/n
 grep -Fx 'NEXT_ACTION=CODEX_PILOT_TASK' "${TMP}/promoted.out" >/dev/null
 grep -Fx 'WRITABLE_CODEX_AUTHORIZED=true' "${TMP}/promoted.out" >/dev/null
 grep -Fx 'PILOT_WRITE_READY=true' "${TMP}/promoted.out" >/dev/null
+
+mkdir -p "${TMP}/live-worktrees" "${TMP}/live-runs" "${TMP}/live-artifacts"
+export COCONDO_WORKTREE_ROOT="${TMP}/live-worktrees"
+export COCONDO_AGENT_RUN_ROOT="${TMP}/live-runs"
+export COCONDO_ARTIFACT_ROOT="${TMP}/live-artifacts"
+"${PROMOTED}/bin/codex-pilot-ready.sh" --project-root "${PROMOTED}" project --live --check --skip-self-tests --out-json "${TMP}/promoted-live-unregistered.json" >/dev/null
+python3 - "${TMP}/promoted-live-unregistered.json" <<'PY_LIVE_UNREGISTERED'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PILOT_WRITE_READY',v; assert v['pilotWriteReady'] is True; assert v['writableCodexAuthorized'] is False and v['hostWriteAuthorized'] is False,v; assert v['nextAction']=='CODEX_HOST_CALIBRATION',v
+print('UNREGISTERED_LIVE_HOST_REQUIRES_CALIBRATION=PASS')
+PY_LIVE_UNREGISTERED
+python3 - "${PROMOTED}/contracts/governance/agent/codex-pilot-contract.json" <<'PY_ADD_HOST'
+import hashlib,json,platform,sys
+from pathlib import Path
+p=Path(sys.argv[1]); d=json.load(open(p,encoding='utf-8')); machine_path=Path('/etc/machine-id'); machine=machine_path.read_text(encoding='utf-8').strip() if machine_path.is_file() else platform.node(); host=hashlib.sha256(f'{machine}\n{platform.machine()}\n{platform.release()}\n'.encode()).hexdigest()[:24]
+entry=dict(d['writePromotion']); entry['hostId']=host; entry['acceptedPatchIds']=['000300_host_calibration_1','000301_host_calibration_2']; entry['sourceConfinementEvidenceSha256']='e'*64; entry['sourceConfinementBaselineCommit']='f'*40; entry['promotedFromHead']='a'*40
+d['writeAuthorizations']['entries'].append(entry)
+p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+PY_ADD_HOST
+git -C "${PROMOTED}" add contracts/governance/agent/codex-pilot-contract.json
+git -C "${PROMOTED}" commit -q -m add-second-host
+"${PROMOTED}/bin/codex-pilot-ready.sh" --project-root "${PROMOTED}" project --live --check --skip-self-tests --out-json "${TMP}/promoted-live-registered.json" >/dev/null
+python3 - "${TMP}/promoted-live-registered.json" <<'PY_LIVE_REGISTERED'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PILOT_WRITE_READY',v; assert v['writableCodexAuthorized'] is True and v['hostWriteAuthorized'] is True,v; assert v['nextAction']=='CODEX_PILOT_TASK',v; assert len(v['details']['authorizedHostIds'])==2,v
+print('SECOND_REGISTERED_LIVE_HOST_AUTHORIZED=PASS')
+PY_LIVE_REGISTERED
 
 case_finding() {
  local name="$1" file="$2" code="$3"

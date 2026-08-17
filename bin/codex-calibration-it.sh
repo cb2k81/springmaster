@@ -150,4 +150,31 @@ set -e
 test "${rc}" -eq 2
 grep -F 'ERROR_CODE=ACCEPTANCE_NOT_CANONICAL' "${TMP}/negative-project.out" >/dev/null
 
+HOST_PLAN="${TMP}/host-plan"
+"${ROOT}/bin/codex-calibration.sh" materialize --out "${HOST_PLAN}" --baseline "${BASE}" --attempt 7 --host-requalification >/dev/null
+python3 - "${HOST_PLAN}" "${BASE}" <<'PY_HOST_PLAN'
+import hashlib,json,re,sys,zipfile
+from pathlib import Path
+root=Path(sys.argv[1]); base=sys.argv[2]; plan=json.load(open(root/'calibration-plan.json',encoding='utf-8'))
+assert plan['schemaVersion']=='springmaster.codex-calibration-plan.v2' and plan['purpose']=='HOST_REQUALIFICATION' and plan['baselineCommit']==base,plan
+host=plan['hostId']; assert re.fullmatch(r'[0-9a-f]{24}',host),host
+assert plan['attemptId']=='A007' and plan['hostEvidencePortable'] is False and plan['separatePromotionRequired'] is True,plan
+for number,entry in enumerate(plan['tasks'][1:],start=1):
+ assert entry['mode']=='implementation' and f'/{host}/A007/task-{number}.txt' in entry['canaryPath'],entry
+ bundle=root/entry['changeBundle']['path']; assert hashlib.sha256(bundle.read_bytes()).hexdigest()==entry['changeBundle']['sha256']
+ with zipfile.ZipFile(bundle) as z:
+  manifest=json.loads(z.read('manifest.json')); assert manifest['taskId']==entry['taskId'] and manifest['operations'][0]['operation']=='create'; assert manifest['operations'][0]['path']==entry['canaryPath']
+  payload=z.read('payload/'+entry['canaryPath']).decode(); assert f'HOST_CALIBRATION_HOST_ID={host}\n' in payload and f'HOST_CALIBRATION_TASK={number}\n' in payload
+print('HOST_REQUALIFICATION_PLAN_FIXTURE=PASS')
+PY_HOST_PLAN
+for task in "${HOST_PLAN}"/codex-hostcal-*.json; do
+  "${ROOT}/bin/agent-task.sh" validate "${task}" >/dev/null
+done
+HOST_ID="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["hostId"])' "${HOST_PLAN}/calibration-plan.json")"
+HOST_FIXTURE_ROOT="${TMP}/host-fixture-root"
+mkdir -p "${HOST_FIXTURE_ROOT}/src/test/resources/tooling/codex-host-calibration-v1/${HOST_ID}/A007"
+unzip -p "${HOST_PLAN}/codex-hostcal-implementation-1-a007-${HOST_ID}.change-bundle.zip" "payload/src/test/resources/tooling/codex-host-calibration-v1/${HOST_ID}/A007/task-1.txt" > "${HOST_FIXTURE_ROOT}/src/test/resources/tooling/codex-host-calibration-v1/${HOST_ID}/A007/task-1.txt"
+python3 "${ROOT}/bin/codex-calibration-fixture-check.py" --project-root "${HOST_FIXTURE_ROOT}" --host-id "${HOST_ID}" --attempt A007 --task 1 >/dev/null
+printf '%s\n' 'HOST_REQUALIFICATION_FIXTURE_CHECK=PASS'
+
 printf '%s\n' 'CODEX_CALIBRATION_IT=PASS'

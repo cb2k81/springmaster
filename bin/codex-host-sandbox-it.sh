@@ -28,6 +28,12 @@ from pathlib import Path
 p=Path(sys.argv[1])
 d=json.loads(p.read_text(encoding="utf-8"))
 d["pilot"]["currentLifecycle"]="PILOT_WRITE_READY"
+import hashlib,platform
+machine_path=Path("/etc/machine-id")
+machine=machine_path.read_text(encoding="utf-8").strip() if machine_path.is_file() else platform.node()
+host=hashlib.sha256(f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode()).hexdigest()[:24]
+d["writePromotion"]["hostId"]=host
+d["writeAuthorizations"]["entries"][0]["hostId"]=host
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PY
 chmod 755 "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh" "${REPO}/bin/codex-host-sandbox.py" "${REPO}/bin/codex-host-sandbox.sh"
@@ -103,7 +109,24 @@ if args and args[0]=='exec':
  raise SystemExit(0)
 raise SystemExit(2)
 CODEX
-chmod 755 "${TMP}/fake-bin/bwrap" "${TMP}/fake-bin/codex"
+cat > "${TMP}/fake-bin/codex-linux" <<'CODEX_LINUX'
+#!/usr/bin/env python3
+import subprocess,sys
+args=sys.argv[1:]
+if args==['--version']:
+ print('codex-cli fixture-linux-subcommand'); raise SystemExit(0)
+if args[:2]==['exec','--help']:
+ print('fixture exec help'); raise SystemExit(0)
+if args and args[0]=='sandbox':
+ if len(args)<4 or args[1:3]!=['linux','--']:
+  raise SystemExit(92)
+ cmd=args[3:]
+ if cmd==['/usr/bin/true']:
+  raise SystemExit(0)
+ raise SystemExit(13)
+raise SystemExit(2)
+CODEX_LINUX
+chmod 755 "${TMP}/fake-bin/bwrap" "${TMP}/fake-bin/codex" "${TMP}/fake-bin/codex-linux"
 
 export COCONDO_WORKTREE_ROOT="${TMP}/worktrees"
 export COCONDO_AGENT_RUN_ROOT="${TMP}/runs"
@@ -140,6 +163,12 @@ import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v
 assert v['checks']['outerSandboxDns']['exitCode']==0 and v['checks']['outerSandboxHttps']['exitCode']==0,v['checks']
 PY
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex-linux" --format json inspect --out "${TMP}/inspect-linux.json" >/dev/null
+python3 - "${TMP}/inspect-linux.json" <<'PY_LINUX_FORM'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v; assert v['codexSandboxCommandForm']=='linux-subcommand',v
+print('CODEX_LINUX_SUBCOMMAND_FORM_FIXTURE=PASS')
+PY_LINUX_FORM
 "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json probe --task-worktree "${TASK_WORKTREE}" --out "${TMP}/probe.json" >/dev/null
 python3 - "${TMP}/probe.json" <<'PY'
 import json,sys

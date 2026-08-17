@@ -36,6 +36,18 @@
       "expectedStatus": "FINDINGS",
       "expectedFindingCode": "CONFINEMENT_POLICY_INVALID",
       "expectedExit": 1
+    },
+    {
+      "id": "live-unregistered-host",
+      "expectedStatus": "PILOT_WRITE_READY",
+      "expectedHostWriteAuthorized": false,
+      "expectedNextAction": "CODEX_HOST_CALIBRATION"
+    },
+    {
+      "id": "live-second-registered-host",
+      "expectedStatus": "PILOT_WRITE_READY",
+      "expectedHostWriteAuthorized": true,
+      "expectedNextAction": "CODEX_PILOT_TASK"
     }
   ]
 }

@@ -91,7 +91,9 @@ Writable pilot tasks remain blocked until both calibration implementation tasks 
 
 ### 3.4 PILOT_WRITE_READY
 
-The state may be promoted only by a separate committed change that references immutable calibration evidence. The promotion must not be performed by the Codex task being evaluated.
+The repository state may be promoted only by a separate committed change that references immutable calibration evidence. The promotion must not be performed by the Codex task being evaluated.
+
+`PILOT_WRITE_READY` is project-wide readiness, not portable machine authorization. Writable Codex use additionally requires the current host ID to be present in the committed `writeAuthorizations` registry. A host without that entry remains restricted to an immutable host-requalification calibration plan even when the repository lifecycle is already `PILOT_WRITE_READY`.
 
 ### 3.5 PILOT_COMPLETED
 
@@ -284,13 +286,15 @@ Der Handoff wird anschließend durch einen getrennten Operatorprozess in einen C
 
 Solange der committed Pilot-Lifecycle `PROJECT_READY` ist, darf `agent-task prepare` ausschließlich Taskverträge akzeptieren, die bytegenau in einem unmittelbar benachbarten, materialisierten `calibration-plan.json` registriert sind. Task-ID, Modus, Baseline, relativer Dateipfad und SHA-256 müssen übereinstimmen. Ein beliebiger formal gültiger Task Contract ohne diese Bindung wird fail-closed abgelehnt.
 
-Nach einer separaten committed Promotion zu `PILOT_WRITE_READY` darf der Harness reguläre Pilot-Tasks gemäß Task Contract, Scope- und Qualification-Regeln vorbereiten. Ein unbekannter Lifecycle autorisiert keine Taskvorbereitung. Die reine Operation `agent-task validate` bleibt eine statische Vertragsprüfung und ist keine Ausführungsfreigabe.
+Nach einer separaten committed Promotion zu `PILOT_WRITE_READY` darf der Harness reguläre Pilot-Tasks gemäß Task Contract, Scope- und Qualification-Regeln nur auf einem Host vorbereiten, dessen aktuelle Host-ID als aktive, unabhängig akzeptierte Autorisierung in `writeAuthorizations` registriert ist. Die historische erste `writePromotion` bleibt als Primärprovenienz erhalten und muss zugleich ein Registry-Eintrag bleiben.
+
+Ein noch nicht registrierter Host darf auch bei globalem `PILOT_WRITE_READY` ausschließlich Taskverträge vorbereiten, die bytegenau an einen unmittelbar benachbarten Host-Requalification-Plan `springmaster.codex-calibration-plan.v2` mit identischer Host-ID, Baseline, Task-Pfad und SHA-256 gebunden sind. Reguläre Feature-Tasks werden auf einem unpromovierten Host fail-closed abgelehnt. Ein unbekannter Lifecycle autorisiert keine Taskvorbereitung. Die reine Operation `agent-task validate` bleibt eine statische Vertragsprüfung und ist keine Ausführungsfreigabe.
 
 ### 14.5 Live-Abnahme und Promotion
 
-Vor jeder Umstellung auf schreibende Codex-Entwicklung muss `codex-confinement-check --live --check` auf dem tatsächlichen DEV-System mit realem Codex bestehen. Die Evidence umfasst alle verpflichtenden Denial-Probes, zwei unabhängige qualifizierte Implementierungsaufgaben mit Patch-Handoff, getrennte Dry-runs sowie unveränderten Integration- und Git-Common-Zustand.
+Vor jeder erstmaligen Umstellung eines Hosts auf schreibende Codex-Entwicklung muss die Live-Host-Qualification auf genau diesem DEV-System mit realem Codex bestehen. Die Evidence umfasst Host-Inspection, alle verpflichtenden mechanischen Probes, einen realen read-only Codex-Lauf, zwei unabhängige qualifizierte Implementierungsaufgaben mit Patch-Handoff, getrennte Dry-runs sowie unveränderten Integration- und Git-Common-Zustand. Host-Evidence ist nicht portabel.
 
-Ein PASS autorisiert keine automatische Promotion. Bis zu einem separaten akzeptierten Promotion-Schnitt bleiben:
+Ein PASS autorisiert keine automatische Promotion. Bis zu einem separaten akzeptierten Host-Promotion-Schnitt bleiben für den noch nicht registrierten Host:
 
 ```text
 WRITABLE_CODEX_AUTHORIZED=false
@@ -310,6 +314,7 @@ CODEX_PATCH_ACCEPT_AUTHORIZED=false
 | 2026-07-30 | active | active | Live Codex confinement, immutable patch handoff and separate promotion boundary added. |
 | 2026-07-31 | active | active | `agent-task prepare` vor `PILOT_WRITE_READY` an den materialisierten Calibration Plan gebunden. |
 | 2026-08-01 | active | active | Acceptance von `000203` reflektiert; plan-gebundene Kalibrierung bleibt von regulärer Write-Promotion getrennt. |
+| 2026-08-17 | active | active | Host-lokale Multi-Host-Autorisierung, hostgebundene Requalification und capability-basierte Codex-Sandbox-CLI-Bindung nach ADR-0016 ergänzt. |
 
 ## 16. Portabler Hostvertrag und minimaler Cutover-Pfad
 
@@ -320,7 +325,9 @@ Die technische Grenze ist zweischichtig:
 1. `bin/codex-host-sandbox.sh` erzwingt über eine äußere Linux-Bubblewrap-Sandbox ausschließlich den Task-Worktree als modeabhängig schreibbaren Root und blendet beziehungsweise schützt Integration, Git-common, andere Worktrees, Operator-Home, Downloads, `patches/work`, externe Run-/Artefakt-Roots und Host-Temp.
 2. Codex läuft zusätzlich mit `read-only` beziehungsweise `workspace-write`, `--ask-for-approval never` und ohne zusätzliche Write-Roots.
 
-Der minimale Cutover-Pfad besteht aus Host-Inspection, 20 mechanischen Grenzproben, einem realen read-only Codex-Lauf, zwei unabhängigen Implementierungsaufgaben mit unveränderlichem Patch-Handoff, je einem getrennten kanonischen Dry-run und Accept sowie einer nachgelagerten Evidence-Prüfung. Erst ein weiterer akzeptierter Promotion-Schnitt darf die Hostfreigabe aktivieren.
+Der minimale Cutover- beziehungsweise Requalification-Pfad besteht pro Host aus Host-Inspection, 20 mechanischen Grenzproben, einem realen read-only Codex-Lauf, zwei unabhängigen Implementierungsaufgaben mit unveränderlichem Patch-Handoff, je einem getrennten kanonischen Dry-run und Accept sowie einer nachgelagerten Evidence-Prüfung. Erst ein weiterer akzeptierter Promotion-Schnitt darf genau diese Hostfreigabe als zusätzlichen Registry-Eintrag aktivieren. Eine bestehende Host-Autorisierung wird dabei weder kopiert noch ersetzt.
+
+Der innere Codex-Sandbox-Smoke ist capability-basiert: Der Host-Harness darf ausschließlich die im Host-Qualification-Contract freigegebenen CLI-Formen probieren, muss genau eine funktionierende Form binden und dieselbe Form in Inspect-, Probe- und Qualification-Evidence festhalten. Ein fehlender kompatibler Command-Form-Pfad ist ein Host-Blocker und kein Anlass, die Sandbox-Prüfung abzuschwächen.
 
 Sekundäre Aufräumarbeiten an inaktiven Worktrees, historischen Diagnosearchiven, Exportkomfort oder Terminaldarstellung liegen außerhalb dieses kritischen Pfads, sofern sie keinen aktiven Writer, Lock, Scope-Konflikt oder Sicherheitsbefund darstellen.
 

@@ -14,6 +14,7 @@ import fnmatch
 import hashlib
 import json
 import os
+import platform
 import re
 import shutil
 import stat
@@ -419,6 +420,71 @@ def validate_task(task: dict[str, Any], policy: dict[str, Any]) -> None:
     require(required_ids <= command_ids, "TASK_QUALIFICATION_INCOMPLETE", "Qualification commands do not satisfy risk and change-class policy", missing=sorted(required_ids - command_ids))
 
 
+def current_host_id() -> str:
+    machine_id_path = Path("/etc/machine-id")
+    machine = machine_id_path.read_text(encoding="utf-8").strip() if machine_id_path.is_file() else platform.node()
+    value = f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode("utf-8")
+    return hashlib.sha256(value).hexdigest()[:24]
+
+
+def write_authorized_host_ids(policy: dict[str, Any], authorization: dict[str, Any]) -> set[str]:
+    registry_name = authorization.get("hostAuthorizationRegistry")
+    require(isinstance(registry_name, str) and registry_name, "TASK_AUTHORIZATION_POLICY_INVALID", "Host authorization registry name is missing")
+    registry = policy.get(registry_name)
+    require(isinstance(registry, dict), "TASK_HOST_AUTHORIZATION_REGISTRY_MISSING", "Host authorization registry is missing", registry=registry_name)
+    require(registry.get("schemaVersion") == "springmaster.codex-write-authorization-registry.v1", "TASK_HOST_AUTHORIZATION_REGISTRY_INVALID", "Host authorization registry schema is invalid")
+    require(registry.get("authority") == "explicit-host-registry" and registry.get("hostEvidencePortable") is False and registry.get("automaticPromotionForbidden") is True, "TASK_HOST_AUTHORIZATION_REGISTRY_INVALID", "Host authorization registry policy is unsafe")
+    entries = registry.get("entries")
+    require(isinstance(entries, list) and entries, "TASK_HOST_AUTHORIZATION_REGISTRY_INVALID", "Host authorization registry entries are missing")
+    hosts: set[str] = set()
+    for entry in entries:
+        require(isinstance(entry, dict), "TASK_HOST_AUTHORIZATION_ENTRY_INVALID", "Host authorization entry must be an object")
+        host = entry.get("hostId")
+        require(isinstance(host, str) and re.fullmatch(r"[0-9a-f]{24}", host) is not None, "TASK_HOST_AUTHORIZATION_ENTRY_INVALID", "Host authorization entry has an invalid host ID", hostId=host)
+        require(host not in hosts, "TASK_HOST_AUTHORIZATION_DUPLICATE", "Host authorization registry contains a duplicate host", hostId=host)
+        require(entry.get("decision") == "CODEX_CUTOVER_ACCEPTED" and entry.get("evidenceStatus") == "PASS" and entry.get("writableCodexAuthorized") is True and entry.get("pilotWriteReady") is True and entry.get("promotionAuthority") == "trusted-operator-accepted-patch", "TASK_HOST_AUTHORIZATION_ENTRY_INVALID", "Host authorization entry is not an active accepted promotion", hostId=host)
+        hosts.add(host)
+    return hosts
+
+
+def validate_calibration_plan_authorization(*, task_path: Path, task: dict[str, Any], plan_path: Path, schema_version: str, status: str, lifecycle: str, source: str, next_action: str, expected_host_id: str | None = None, expected_purpose: str | None = None) -> dict[str, Any]:
+    require(plan_path.is_file() and not plan_path.is_symlink(), "TASK_AUTHORIZATION_PLAN_MISSING", "Task requires a sibling immutable calibration plan", path=str(plan_path))
+    plan = load_json(plan_path)
+    require(plan.get("schemaVersion") == schema_version, "TASK_AUTHORIZATION_PLAN_SCHEMA_INVALID", "Calibration plan schema is invalid", actual=plan.get("schemaVersion"), expected=schema_version)
+    require(plan.get("status") == status, "TASK_AUTHORIZATION_PLAN_STATUS_INVALID", "Calibration plan status is invalid", actual=plan.get("status"))
+    if expected_host_id is not None:
+        require(plan.get("hostId") == expected_host_id, "TASK_AUTHORIZATION_HOST_MISMATCH", "Host calibration plan is bound to another host", expected=expected_host_id, actual=plan.get("hostId"))
+    if expected_purpose is not None:
+        require(plan.get("purpose") == expected_purpose, "TASK_AUTHORIZATION_PLAN_PURPOSE_INVALID", "Host calibration plan purpose is invalid", expected=expected_purpose, actual=plan.get("purpose"))
+    require(plan.get("baselineCommit") == task.get("baseCommit"), "TASK_AUTHORIZATION_BASELINE_MISMATCH", "Calibration plan baseline differs from the task base", planBaseline=plan.get("baselineCommit"), taskBase=task.get("baseCommit"))
+    entries = plan.get("tasks")
+    require(isinstance(entries, list), "TASK_AUTHORIZATION_PLAN_INVALID", "Calibration plan tasks are missing")
+    matching = [entry for entry in entries if isinstance(entry, dict) and entry.get("taskId") == task.get("taskId")]
+    require(len(matching) == 1, "TASK_NOT_AUTHORIZED_FOR_LIFECYCLE", "Task is not uniquely authorized by the calibration plan", taskId=task.get("taskId"), lifecycle=lifecycle)
+    entry = matching[0]
+    require(entry.get("mode") == task.get("mode"), "TASK_AUTHORIZATION_MODE_MISMATCH", "Calibration plan mode differs from the task", expected=entry.get("mode"), actual=task.get("mode"))
+    task_record = entry.get("task") if isinstance(entry.get("task"), dict) else {}
+    relative = task_record.get("path")
+    expected_hash = task_record.get("sha256")
+    require(isinstance(relative, str) and relative and not Path(relative).is_absolute() and ".." not in PurePosixPath(relative).parts, "TASK_AUTHORIZATION_PLAN_PATH_INVALID", "Calibration plan task path is invalid", path=relative)
+    expected_task_path = (plan_path.parent / relative).resolve()
+    require(expected_task_path == task_path, "TASK_AUTHORIZATION_PLAN_PATH_MISMATCH", "Calibration plan task path does not identify the prepared task", expected=str(expected_task_path), actual=str(task_path))
+    actual_hash = sha256_file(task_path)
+    require(isinstance(expected_hash, str) and re.fullmatch(r"[0-9a-f]{64}", expected_hash) is not None, "TASK_AUTHORIZATION_PLAN_HASH_INVALID", "Calibration plan task hash is invalid")
+    require(actual_hash == expected_hash, "TASK_AUTHORIZATION_PLAN_HASH_MISMATCH", "Task bytes differ from the calibration plan", expected=expected_hash, actual=actual_hash)
+    result = {
+        "lifecycle": lifecycle,
+        "source": source,
+        "calibrationPlanPath": str(plan_path.resolve()),
+        "calibrationPlanSha256": sha256_file(plan_path),
+        "taskSha256": actual_hash,
+        "nextAction": next_action,
+    }
+    if expected_host_id is not None:
+        result["hostId"] = expected_host_id
+    return result
+
+
 def validate_prepare_authorization(task_path: Path, task: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
     authorization = policy.get("taskAuthorization")
     pilot = policy.get("pilot") if isinstance(policy.get("pilot"), dict) else {}
@@ -433,47 +499,46 @@ def validate_prepare_authorization(task_path: Path, task: dict[str, Any], policy
     pre_promotion = authorization.get("prePromotionLifecycle")
     post_promotion = authorization.get("postPromotionLifecycles")
     require(isinstance(post_promotion, list) and all(isinstance(item, str) and item for item in post_promotion), "TASK_AUTHORIZATION_POLICY_INVALID", "Post-promotion lifecycle policy is invalid")
+    plan_name = authorization.get("calibrationPlanFileName")
+    require(isinstance(plan_name, str) and plan_name and "/" not in plan_name and "\\" not in plan_name, "TASK_AUTHORIZATION_POLICY_INVALID", "Calibration plan filename is invalid")
+    plan_path = task_path.parent / plan_name
 
     if lifecycle == pre_promotion:
         require(authorization.get("prePromotionTaskSource") == "sibling-calibration-plan", "TASK_AUTHORIZATION_POLICY_INVALID", "Unsupported pre-promotion task source")
-        plan_name = authorization.get("calibrationPlanFileName")
-        require(isinstance(plan_name, str) and plan_name and "/" not in plan_name and "\\" not in plan_name, "TASK_AUTHORIZATION_POLICY_INVALID", "Calibration plan filename is invalid")
-        plan_path = task_path.parent / plan_name
-        require(plan_path.is_file() and not plan_path.is_symlink(), "TASK_AUTHORIZATION_PLAN_MISSING", "PROJECT_READY tasks require a sibling immutable calibration plan", path=str(plan_path))
-        plan = load_json(plan_path)
-        require(plan.get("schemaVersion") == authorization.get("calibrationPlanSchemaVersion"), "TASK_AUTHORIZATION_PLAN_SCHEMA_INVALID", "Calibration plan schema is invalid", actual=plan.get("schemaVersion"))
-        require(plan.get("status") == authorization.get("calibrationPlanStatus"), "TASK_AUTHORIZATION_PLAN_STATUS_INVALID", "Calibration plan status is invalid", actual=plan.get("status"))
-        require(plan.get("baselineCommit") == task.get("baseCommit"), "TASK_AUTHORIZATION_BASELINE_MISMATCH", "Calibration plan baseline differs from the task base", planBaseline=plan.get("baselineCommit"), taskBase=task.get("baseCommit"))
-        entries = plan.get("tasks")
-        require(isinstance(entries, list), "TASK_AUTHORIZATION_PLAN_INVALID", "Calibration plan tasks are missing")
-        matching = [entry for entry in entries if isinstance(entry, dict) and entry.get("taskId") == task.get("taskId")]
-        require(len(matching) == 1, "TASK_NOT_AUTHORIZED_FOR_LIFECYCLE", "Task is not uniquely authorized by the calibration plan", taskId=task.get("taskId"), lifecycle=lifecycle)
-        entry = matching[0]
-        require(entry.get("mode") == task.get("mode"), "TASK_AUTHORIZATION_MODE_MISMATCH", "Calibration plan mode differs from the task", expected=entry.get("mode"), actual=task.get("mode"))
-        task_record = entry.get("task") if isinstance(entry.get("task"), dict) else {}
-        relative = task_record.get("path")
-        expected_hash = task_record.get("sha256")
-        require(isinstance(relative, str) and relative and not Path(relative).is_absolute() and ".." not in PurePosixPath(relative).parts, "TASK_AUTHORIZATION_PLAN_PATH_INVALID", "Calibration plan task path is invalid", path=relative)
-        expected_task_path = (plan_path.parent / relative).resolve()
-        require(expected_task_path == task_path, "TASK_AUTHORIZATION_PLAN_PATH_MISMATCH", "Calibration plan task path does not identify the prepared task", expected=str(expected_task_path), actual=str(task_path))
-        actual_hash = sha256_file(task_path)
-        require(isinstance(expected_hash, str) and re.fullmatch(r"[0-9a-f]{64}", expected_hash) is not None, "TASK_AUTHORIZATION_PLAN_HASH_INVALID", "Calibration plan task hash is invalid")
-        require(actual_hash == expected_hash, "TASK_AUTHORIZATION_PLAN_HASH_MISMATCH", "Task bytes differ from the calibration plan", expected=expected_hash, actual=actual_hash)
-        return {
-            "lifecycle": lifecycle,
-            "source": "sibling-calibration-plan",
-            "calibrationPlanPath": str(plan_path.resolve()),
-            "calibrationPlanSha256": sha256_file(plan_path),
-            "taskSha256": actual_hash,
-            "nextAction": "EXPLICIT_CODEX_CALIBRATION_ONLY",
-        }
+        return validate_calibration_plan_authorization(
+            task_path=task_path,
+            task=task,
+            plan_path=plan_path,
+            schema_version=str(authorization.get("calibrationPlanSchemaVersion")),
+            status=str(authorization.get("calibrationPlanStatus")),
+            lifecycle=str(lifecycle),
+            source="sibling-calibration-plan",
+            next_action="EXPLICIT_CODEX_CALIBRATION_ONLY",
+        )
 
     if lifecycle in post_promotion:
-        return {
-            "lifecycle": lifecycle,
-            "source": "committed-pilot-lifecycle",
-            "nextAction": "EXPLICIT_CODEX_PILOT_TASK_ONLY",
-        }
+        current_host = current_host_id()
+        authorized_hosts = write_authorized_host_ids(policy, authorization)
+        if current_host in authorized_hosts:
+            return {
+                "lifecycle": lifecycle,
+                "source": "committed-host-authorization-registry",
+                "hostId": current_host,
+                "nextAction": "EXPLICIT_CODEX_PILOT_TASK_ONLY",
+            }
+        require(authorization.get("unpromotedHostTaskSource") == "sibling-host-calibration-plan", "TASK_AUTHORIZATION_POLICY_INVALID", "Unsupported unpromoted-host task source")
+        return validate_calibration_plan_authorization(
+            task_path=task_path,
+            task=task,
+            plan_path=plan_path,
+            schema_version=str(authorization.get("hostCalibrationPlanSchemaVersion")),
+            status=str(authorization.get("hostCalibrationPlanStatus")),
+            lifecycle=str(lifecycle),
+            source="sibling-host-calibration-plan",
+            next_action="EXPLICIT_CODEX_HOST_REQUALIFICATION_ONLY",
+            expected_host_id=current_host,
+            expected_purpose=str(authorization.get("hostCalibrationPlanPurpose")),
+        )
 
     require(not authorization.get("failClosedOnUnknownLifecycle", True), "TASK_LIFECYCLE_NOT_AUTHORIZED", "Pilot lifecycle does not authorize task preparation", lifecycle=lifecycle)
     return {"lifecycle": lifecycle, "source": "unrestricted", "nextAction": "EXPLICIT_OPERATOR_REVIEW"}

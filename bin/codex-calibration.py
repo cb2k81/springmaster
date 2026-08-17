@@ -6,9 +6,11 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import re
 import subprocess
 import sys
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -76,6 +78,45 @@ def git(project: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def current_host_id() -> str:
+    machine_id_path = Path("/etc/machine-id")
+    machine = machine_id_path.read_text(encoding="utf-8").strip() if machine_id_path.is_file() else platform.node()
+    value = f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode("utf-8")
+    return hashlib.sha256(value).hexdigest()[:24]
+
+
+def sha_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def write_change_bundle(path: Path, *, bundle_id: str, task_id: str, baseline: str, relative: str, payload: bytes) -> None:
+    manifest = {
+        "schemaVersion": "springmaster.codex-change-bundle.v1",
+        "bundleId": bundle_id,
+        "taskId": task_id,
+        "repositoryId": "springmaster",
+        "baseCommit": baseline,
+        "operations": [{
+            "path": relative,
+            "operation": "create",
+            "sourceSha256": None,
+            "targetSha256": sha_bytes(payload),
+            "mode": "100644",
+        }],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for name, data in (
+            ("manifest.json", (json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")),
+            (f"payload/{relative}", payload),
+        ):
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, data)
+
+
 def task(task_id: str, mode: str, baseline: str, allowed: list[str], classes: list[str], commands: list[dict[str, Any]], notes: str) -> dict[str, Any]:
     return {
         "schemaVersion": "springmaster.agent-task.v2",
@@ -118,7 +159,7 @@ def task(task_id: str, mode: str, baseline: str, allowed: list[str], classes: li
     }
 
 
-def materialize(project: Path, output: Path, baseline: str, attempt: int) -> dict[str, Any]:
+def materialize(project: Path, output: Path, baseline: str, attempt: int, *, host_requalification: bool = False) -> dict[str, Any]:
     require(HEX40.fullmatch(baseline) is not None, "BASELINE_INVALID", "Baseline commit must be a 40-character lowercase Git hash", baseline=baseline)
     require(isinstance(attempt, int) and ATTEMPT_MIN <= attempt <= ATTEMPT_MAX, "ATTEMPT_INVALID", "Calibration attempt must be between 1 and 999", attempt=attempt)
     attempt_id = f"A{attempt:03d}"
@@ -128,33 +169,128 @@ def materialize(project: Path, output: Path, baseline: str, attempt: int) -> dic
     (fixtures / "task-2.txt").read_text(encoding="utf-8")
     output.mkdir(parents=True, mode=0o700)
     diff_check = {"id": "diff-check", "argv": ["git", "diff", "--check"], "timeoutSeconds": 30}
-    fixture_check = {"id": "targeted-check", "argv": ["python3", "bin/codex-calibration-fixture-check.py"], "timeoutSeconds": 30}
-    tasks = [
-        (
-            f"CODEX-CALIBRATION-ANALYSIS-{attempt_id}", "analysis", ["src/test/resources/tooling/codex-calibration-v1/**"], ["analysis"], [diff_check],
-            "Read-only analysis. Do not modify any file. Identify the two calibration fixture tasks and report the exact paths only."
-        ),
-        (
-            f"CODEX-CALIBRATION-IMPLEMENTATION-1-{attempt_id}", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-1.txt"], ["fixture", "test"], [diff_check, fixture_check],
-            "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
-        ),
-        (
-            f"CODEX-CALIBRATION-IMPLEMENTATION-2-{attempt_id}", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-2.txt"], ["fixture", "test"], [diff_check, fixture_check],
-            "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
-        ),
-    ]
-    entries = []
-    for task_id, mode, allowed, classes, commands, prompt in tasks:
+
+    if not host_requalification:
+        fixture_check = {"id": "targeted-check", "argv": ["python3", "bin/codex-calibration-fixture-check.py"], "timeoutSeconds": 30}
+        tasks = [
+            (
+                f"CODEX-CALIBRATION-ANALYSIS-{attempt_id}", "analysis", ["src/test/resources/tooling/codex-calibration-v1/**"], ["analysis"], [diff_check],
+                "Read-only analysis. Do not modify any file. Identify the two calibration fixture tasks and report the exact paths only."
+            ),
+            (
+                f"CODEX-CALIBRATION-IMPLEMENTATION-1-{attempt_id}", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-1.txt"], ["fixture", "test"], [diff_check, fixture_check],
+                "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
+            ),
+            (
+                f"CODEX-CALIBRATION-IMPLEMENTATION-2-{attempt_id}", "implementation", ["src/test/resources/tooling/codex-calibration-v1/task-2.txt"], ["fixture", "test"], [diff_check, fixture_check],
+                "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command."
+            ),
+        ]
+        entries = []
+        for task_id, mode, allowed, classes, commands, prompt in tasks:
+            task_path = output / f"{task_id.lower()}.json"
+            prompt_path = output / f"{task_id.lower()}.prompt.txt"
+            atomic(task_path, task(task_id, mode, baseline, allowed, classes, commands, "Host-confined cutover calibration; no direct integration or accept authority."))
+            prompt_path.write_text(prompt.rstrip() + "\n", encoding="utf-8")
+            entries.append({"taskId": task_id, "mode": mode, "task": {"path": task_path.name, "sha256": sha(task_path)}, "prompt": {"path": prompt_path.name, "sha256": sha(prompt_path)}})
+        manifest = {
+            "schemaVersion": "springmaster.codex-calibration-plan.v1",
+            "status": "MATERIALIZED",
+            "generatedAt": now(),
+            "baselineCommit": baseline,
+            "attempt": attempt,
+            "attemptId": attempt_id,
+            "taskCount": 3,
+            "implementationTaskCount": 2,
+            "tasks": entries,
+            "writableCodexAuthorized": False,
+            "pilotWriteReady": False,
+        }
+        atomic(output / "calibration-plan.json", manifest)
+        return manifest
+
+    host = current_host_id()
+    host_upper = host.upper()
+    entries: list[dict[str, Any]] = []
+    analysis_id = f"CODEX-HOSTCAL-ANALYSIS-{attempt_id}-{host_upper}"
+    analysis_task = output / f"{analysis_id.lower()}.json"
+    analysis_prompt = output / f"{analysis_id.lower()}.prompt.txt"
+    atomic(analysis_task, task(
+        analysis_id,
+        "analysis",
+        baseline,
+        ["src/test/resources/tooling/codex-host-calibration-v1/**"],
+        ["analysis"],
+        [diff_check],
+        "Host-confined host-requalification analysis; no direct integration, promotion or accept authority.",
+    ))
+    analysis_prompt.write_text(
+        "Read-only host requalification analysis. Do not modify files. Report the current host ID and the two declared canary paths from the sibling calibration plan only.\n",
+        encoding="utf-8",
+    )
+    entries.append({
+        "taskId": analysis_id,
+        "mode": "analysis",
+        "task": {"path": analysis_task.name, "sha256": sha(analysis_task)},
+        "prompt": {"path": analysis_prompt.name, "sha256": sha(analysis_prompt)},
+    })
+
+    for number in (1, 2):
+        relative = f"src/test/resources/tooling/codex-host-calibration-v1/{host}/{attempt_id}/task-{number}.txt"
+        payload = (
+            f"HOST_CALIBRATION_HOST_ID={host}\n"
+            f"HOST_CALIBRATION_ATTEMPT={attempt_id}\n"
+            f"HOST_CALIBRATION_TASK={number}\n"
+            "HOST_CALIBRATION_RESULT=PASS\n"
+        ).encode("utf-8")
+        task_id = f"CODEX-HOSTCAL-IMPLEMENTATION-{number}-{attempt_id}-{host_upper}"
         task_path = output / f"{task_id.lower()}.json"
         prompt_path = output / f"{task_id.lower()}.prompt.txt"
-        atomic(task_path, task(task_id, mode, baseline, allowed, classes, commands, "Host-confined cutover calibration; no direct integration or accept authority."))
-        prompt_path.write_text(prompt.rstrip() + "\n", encoding="utf-8")
-        entries.append({"taskId": task_id, "mode": mode, "task": {"path": task_path.name, "sha256": sha(task_path)}, "prompt": {"path": prompt_path.name, "sha256": sha(prompt_path)}})
+        bundle_path = output / f"{task_id.lower()}.change-bundle.zip"
+        targeted = {
+            "id": "targeted-check",
+            "argv": ["python3", "bin/codex-calibration-fixture-check.py", "--host-id", host, "--attempt", attempt_id, "--task", str(number)],
+            "timeoutSeconds": 30,
+        }
+        atomic(task_path, task(
+            task_id,
+            "implementation",
+            baseline,
+            [relative],
+            ["fixture", "test"],
+            [diff_check, targeted],
+            "Host-confined host-requalification calibration; no direct integration, promotion or accept authority.",
+        ))
+        prompt_path.write_text(
+            "Run exactly ./bin/codex-change-bundle.sh apply. Do not edit files manually and do not run any other command.\n",
+            encoding="utf-8",
+        )
+        write_change_bundle(
+            bundle_path,
+            bundle_id=f"hostcal-{host}-{attempt_id.lower()}-task-{number}",
+            task_id=task_id,
+            baseline=baseline,
+            relative=relative,
+            payload=payload,
+        )
+        entries.append({
+            "taskId": task_id,
+            "mode": "implementation",
+            "task": {"path": task_path.name, "sha256": sha(task_path)},
+            "prompt": {"path": prompt_path.name, "sha256": sha(prompt_path)},
+            "changeBundle": {"path": bundle_path.name, "sha256": sha(bundle_path)},
+            "canaryPath": relative,
+        })
+
     manifest = {
-        "schemaVersion": "springmaster.codex-calibration-plan.v1",
+        "schemaVersion": "springmaster.codex-calibration-plan.v2",
         "status": "MATERIALIZED",
+        "purpose": "HOST_REQUALIFICATION",
         "generatedAt": now(),
         "baselineCommit": baseline,
+        "hostId": host,
+        "hostEvidencePortable": False,
+        "separatePromotionRequired": True,
         "attempt": attempt,
         "attemptId": attempt_id,
         "taskCount": 3,
@@ -165,7 +301,6 @@ def materialize(project: Path, output: Path, baseline: str, attempt: int) -> dic
     }
     atomic(output / "calibration-plan.json", manifest)
     return manifest
-
 
 def evidence_ref(base: Path, path: Path) -> dict[str, str]:
     resolved = path.resolve()
@@ -318,6 +453,7 @@ def parser() -> argparse.ArgumentParser:
     m.add_argument("--out", required=True, type=Path)
     m.add_argument("--baseline")
     m.add_argument("--attempt", type=int, default=1)
+    m.add_argument("--host-requalification", action="store_true")
     a = sub.add_parser("assemble")
     a.add_argument("--manifest", required=True, type=Path)
     a.add_argument("--out", required=True, type=Path)
@@ -330,7 +466,7 @@ def main() -> int:
         project = root(args.project_root)
         if args.command == "materialize":
             baseline = args.baseline or git(project, "rev-parse", "HEAD")
-            value = materialize(project, args.out.resolve(), baseline, args.attempt)
+            value = materialize(project, args.out.resolve(), baseline, args.attempt, host_requalification=args.host_requalification)
         else:
             value = assemble(project, args.manifest.resolve(), args.out.resolve())
         if args.format == "json":

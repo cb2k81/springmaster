@@ -27,6 +27,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## ADR
 
 - `PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md` — accepted Springmaster-only AI-agent pilot and staged Codex cutover
+- `PROJECT_DOCS/ADR/ADR-0016-host-local-multi-host-codex-authorization.md` — accepted host-local multi-host Codex authorization and requalification
 
 - `PROJECT_DOCS/ADR/ADR-0001-springmaster-bootstrap.md`
 - `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`

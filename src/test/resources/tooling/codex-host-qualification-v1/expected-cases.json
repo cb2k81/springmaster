@@ -35,6 +35,16 @@
       "id": "mechanical-probe-finding",
       "expectedStatus": "FINDINGS",
       "expectedExit": 1
+    },
+    {
+      "id": "inner-sandbox-direct-command-form",
+      "expectedCommandForm": "direct",
+      "expectedStatus": "PASS"
+    },
+    {
+      "id": "inner-sandbox-linux-subcommand-form",
+      "expectedCommandForm": "linux-subcommand",
+      "expectedStatus": "PASS"
     }
   ]
 }

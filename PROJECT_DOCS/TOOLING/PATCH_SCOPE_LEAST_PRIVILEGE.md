@@ -37,3 +37,11 @@ Springmaster-specific package paths must never be copied into a generated target
 ## Expansion rule
 
 A scope is expanded in a dedicated patch, for a named capability and a bounded file set. The expansion is removed when the capability no longer requires it. `bin/patch-scope-least-privilege-it.sh` rejects known Springmaster-path leakage into project templates.
+
+## Agent-governance capability scope
+
+The project-local `agent-governance` scope is a durable narrow capability boundary for the governed Codex harness. It exists because one safety change may need to update executable agent tooling, its machine-readable contracts and fixtures, the directly governing ADR/operations text and root `AGENTS.md` atomically.
+
+The scope is intentionally limited to the `agent-task*` and `codex-*` tooling families, agent-governance contracts, Codex tooling fixtures and the directly governing documentation. It does not include Java application code, platform-update logic, templates, database resources, arbitrary project documentation or managed-project content.
+
+Host onboarding and host-promotion changes may reuse this scope because their authorization registry and temporary calibration canaries belong to the same safety capability. Expanding it to unrelated tooling or product code requires another dedicated scope decision.

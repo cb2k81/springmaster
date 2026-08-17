@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import re
 import stat
 import subprocess
@@ -43,6 +44,7 @@ REQUIRED_FILES = {
     TOOLKIT_RUNTIME_PATH,
     TOOLKIT_SIDECAR_PATH,
     "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
+    "PROJECT_DOCS/ADR/ADR-0016-host-local-multi-host-codex-authorization.md",
     "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md",
     "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md",
     "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md",
@@ -133,6 +135,41 @@ def load_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise GateToolError("JSON_ROOT_INVALID", "JSON root must be an object", path=str(path))
     return value
+
+
+def current_host_id() -> str:
+    machine_id_path = Path("/etc/machine-id")
+    machine = machine_id_path.read_text(encoding="utf-8").strip() if machine_id_path.is_file() else platform.node()
+    value = f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode("utf-8")
+    return hashlib.sha256(value).hexdigest()[:24]
+
+
+def valid_write_authorization(entry: object) -> bool:
+    if not isinstance(entry, dict):
+        return False
+    accepted_patch_ids = entry.get("acceptedPatchIds")
+    return (
+        entry.get("schemaVersion") == "springmaster.codex-write-promotion.v1"
+        and entry.get("decision") == "CODEX_CUTOVER_ACCEPTED"
+        and entry.get("sourceConfinementEvidenceSchemaVersion") == "springmaster.codex-confinement-evidence.v2"
+        and isinstance(entry.get("sourceConfinementEvidenceSha256"), str)
+        and HEX_SHA256.fullmatch(entry["sourceConfinementEvidenceSha256"]) is not None
+        and isinstance(entry.get("sourceConfinementBaselineCommit"), str)
+        and re.fullmatch(r"[0-9a-f]{40}", entry["sourceConfinementBaselineCommit"]) is not None
+        and isinstance(entry.get("promotedFromHead"), str)
+        and re.fullmatch(r"[0-9a-f]{40}", entry["promotedFromHead"]) is not None
+        and isinstance(entry.get("hostId"), str)
+        and re.fullmatch(r"[0-9a-f]{24}", entry["hostId"]) is not None
+        and isinstance(accepted_patch_ids, list)
+        and len(accepted_patch_ids) == 2
+        and len(set(accepted_patch_ids)) == 2
+        and all(isinstance(item, str) and item for item in accepted_patch_ids)
+        and entry.get("acceptedPatchCount") == 2
+        and entry.get("evidenceStatus") == "PASS"
+        and entry.get("writableCodexAuthorized") is True
+        and entry.get("pilotWriteReady") is True
+        and entry.get("promotionAuthority") == "trusted-operator-accepted-patch"
+    )
 
 
 def sha256(path: Path) -> str:
@@ -258,6 +295,7 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     if not findings or all(item["code"] != "REQUIRED_FILE_MISSING" for item in findings):
         expected_statuses = {
             "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md": "accepted",
+            "PROJECT_DOCS/ADR/ADR-0016-host-local-multi-host-codex-authorization.md": "accepted",
             "PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md": "active",
             "PROJECT_DOCS/DEMO/BUSINESS_PARTNER_CODEX_PILOT_FACHKONZEPT.md": "active",
             "PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md": "active",
@@ -287,40 +325,32 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         finding(findings, "AIA-CUTOVER-001", "PILOT_PROHIBITION_INVALID", "Pre-readiness Codex and managed-project mutation must remain forbidden")
     readiness = pilot.get("projectReadiness") if isinstance(pilot.get("projectReadiness"), dict) else {}
     write_promotion = pilot.get("writePromotion") if isinstance(pilot.get("writePromotion"), dict) else {}
+    write_registry = pilot.get("writeAuthorizations") if isinstance(pilot.get("writeAuthorizations"), dict) else {}
+    registry_entries = write_registry.get("entries") if isinstance(write_registry.get("entries"), list) else []
+    registry_valid = (
+        write_registry.get("schemaVersion") == "springmaster.codex-write-authorization-registry.v1"
+        and write_registry.get("authority") == "explicit-host-registry"
+        and write_registry.get("hostEvidencePortable") is False
+        and write_registry.get("automaticPromotionForbidden") is True
+        and bool(registry_entries)
+        and all(valid_write_authorization(item) for item in registry_entries)
+        and len({item.get("hostId") for item in registry_entries if isinstance(item, dict)}) == len(registry_entries)
+    )
+    registry_host_ids = {item.get("hostId") for item in registry_entries if isinstance(item, dict) and valid_write_authorization(item)}
     if lifecycle == "PROJECT_READY":
         if readiness.get("doesNotAuthorizeWritableCodex") is not True or readiness.get("nextAction") != "CODEX_CALIBRATION" or readiness.get("successStatus") != "PROJECT_READY":
             finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PROJECT_READY must authorize calibration only", projectReadiness=readiness)
-        if write_promotion:
+        if write_promotion or registry_entries:
             finding(findings, "AIA-CUTOVER-001", "PREMATURE_WRITE_PROMOTION", "PROJECT_READY must not carry accepted write-promotion evidence")
     elif lifecycle == "PILOT_WRITE_READY":
-        accepted_patch_ids = write_promotion.get("acceptedPatchIds")
-        promotion_valid = (
-            readiness.get("doesNotAuthorizeWritableCodex") is False
-            and readiness.get("nextAction") == "CODEX_PILOT_TASK"
-            and readiness.get("successStatus") == "PILOT_WRITE_READY"
-            and write_promotion.get("schemaVersion") == "springmaster.codex-write-promotion.v1"
-            and write_promotion.get("decision") == "CODEX_CUTOVER_ACCEPTED"
-            and write_promotion.get("sourceConfinementEvidenceSchemaVersion") == "springmaster.codex-confinement-evidence.v2"
-            and isinstance(write_promotion.get("sourceConfinementEvidenceSha256"), str)
-            and HEX_SHA256.fullmatch(write_promotion["sourceConfinementEvidenceSha256"]) is not None
-            and isinstance(write_promotion.get("sourceConfinementBaselineCommit"), str)
-            and re.fullmatch(r"[0-9a-f]{40}", write_promotion["sourceConfinementBaselineCommit"]) is not None
-            and isinstance(write_promotion.get("promotedFromHead"), str)
-            and re.fullmatch(r"[0-9a-f]{40}", write_promotion["promotedFromHead"]) is not None
-            and isinstance(write_promotion.get("hostId"), str)
-            and re.fullmatch(r"[0-9a-f]{24}", write_promotion["hostId"]) is not None
-            and isinstance(accepted_patch_ids, list)
-            and len(accepted_patch_ids) == 2
-            and len(set(accepted_patch_ids)) == 2
-            and all(isinstance(item, str) and item for item in accepted_patch_ids)
-            and write_promotion.get("acceptedPatchCount") == 2
-            and write_promotion.get("evidenceStatus") == "PASS"
-            and write_promotion.get("writableCodexAuthorized") is True
-            and write_promotion.get("pilotWriteReady") is True
-            and write_promotion.get("promotionAuthority") == "trusted-operator-accepted-patch"
-        )
-        if not promotion_valid:
-            finding(findings, "AIA-CUTOVER-001", "WRITE_PROMOTION_EVIDENCE_INVALID", "PILOT_WRITE_READY requires complete immutable promotion evidence", writePromotion=write_promotion)
+        if readiness.get("doesNotAuthorizeWritableCodex") is not False or readiness.get("nextAction") != "CODEX_PILOT_TASK" or readiness.get("successStatus") != "PILOT_WRITE_READY" or readiness.get("hostAuthorizationRequiredForWritableCodex") is not True:
+            finding(findings, "AIA-CUTOVER-001", "CUTOVER_SEMANTICS_INVALID", "PILOT_WRITE_READY must require explicit host authorization", projectReadiness=readiness)
+        if not valid_write_authorization(write_promotion):
+            finding(findings, "AIA-CUTOVER-001", "WRITE_PROMOTION_EVIDENCE_INVALID", "PILOT_WRITE_READY requires complete immutable primary promotion evidence", writePromotion=write_promotion)
+        if not registry_valid:
+            finding(findings, "AIA-CUTOVER-001", "WRITE_AUTHORIZATION_REGISTRY_INVALID", "PILOT_WRITE_READY requires a complete explicit multi-host authorization registry", writeAuthorizations=write_registry)
+        elif write_promotion not in registry_entries:
+            finding(findings, "AIA-CUTOVER-001", "PRIMARY_PROMOTION_NOT_REGISTERED", "The historical primary promotion must remain registered as an active host authorization")
     calibration = pilot.get("confinementCalibration") if isinstance(pilot.get("confinementCalibration"), dict) else {}
     handoff = pilot.get("patchHandoff") if isinstance(pilot.get("patchHandoff"), dict) else {}
     confinement_valid = (
@@ -642,12 +672,23 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
 
     success_status = "PILOT_WRITE_READY" if lifecycle == "PILOT_WRITE_READY" else "PROJECT_READY"
     status = success_status if not findings else "FINDINGS"
+    local_host_id = current_host_id() if mode == "live" else None
+    local_host_authorized = bool(status == "PILOT_WRITE_READY" and (mode == "candidate" or local_host_id in registry_host_ids))
+    if not findings and status == "PILOT_WRITE_READY" and mode == "live" and not local_host_authorized:
+        next_action = "CODEX_HOST_CALIBRATION"
+    elif not findings:
+        next_action = "CODEX_PILOT_TASK" if status == "PILOT_WRITE_READY" else "CODEX_CALIBRATION"
+    else:
+        next_action = "REMAIN_PRE_CUTOVER"
+    details["currentHostId"] = local_host_id
+    details["authorizedHostIds"] = sorted(x for x in registry_host_ids if isinstance(x, str))
     return {
         "schemaVersion": REPORT_SCHEMA,
         "generatedAt": utc_now(),
         "status": status,
-        "nextAction": ("CODEX_PILOT_TASK" if status == "PILOT_WRITE_READY" else "CODEX_CALIBRATION") if not findings else "REMAIN_PRE_CUTOVER",
-        "writableCodexAuthorized": status == "PILOT_WRITE_READY",
+        "nextAction": next_action,
+        "writableCodexAuthorized": local_host_authorized,
+        "hostWriteAuthorized": local_host_authorized,
         "pilotWriteReady": status == "PILOT_WRITE_READY",
         "findingCount": len(findings),
         "findings": findings,
@@ -660,6 +701,7 @@ def render_text(report: dict[str, Any]) -> str:
         f"CODEX_PILOT_READINESS={report['status']}",
         f"NEXT_ACTION={report['nextAction']}",
         f"WRITABLE_CODEX_AUTHORIZED={'true' if report['writableCodexAuthorized'] else 'false'}",
+        f"HOST_WRITE_AUTHORIZED={'true' if report.get('hostWriteAuthorized') else 'false'}",
         f"PILOT_WRITE_READY={'true' if report.get('pilotWriteReady') else 'false'}",
         f"FINDING_COUNT={report['findingCount']}",
     ]
