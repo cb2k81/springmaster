@@ -196,6 +196,13 @@ def load_contract(root: Path) -> tuple[Path, dict[str, Any]]:
     path = root / "contracts/governance/agent/codex-host-qualification-contract.json"
     value = load_json(path)
     require(value.get("schemaVersion") == HOST_SCHEMA and value.get("status") == "active", "HOST_CONTRACT_INVALID", "Host qualification contract is invalid")
+    plan_input = value.get("securityBoundary", {}).get("hostCalibrationPlanInput")
+    require(isinstance(plan_input, dict), "HOST_CONTRACT_INVALID", "Host calibration plan input contract is missing")
+    require(plan_input.get("requiredFor") == "host-requalification-analysis", "HOST_CONTRACT_INVALID", "Host calibration plan input requirement is invalid")
+    require(plan_input.get("source") == "agent-task-prepare-record.taskAuthorization", "HOST_CONTRACT_INVALID", "Host calibration plan input source is invalid")
+    require(plan_input.get("sandboxPath") == "/run/codex-input/calibration-plan.json", "HOST_CONTRACT_INVALID", "Host calibration plan sandbox path is invalid")
+    require(plan_input.get("environmentVariable") == "SPRINGMASTER_CODEX_CALIBRATION_PLAN", "HOST_CONTRACT_INVALID", "Host calibration plan environment variable is invalid")
+    require(plan_input.get("sourceSha256MustMatchPrepareRecord") is True and plan_input.get("filesystemSearchForbidden") is True, "HOST_CONTRACT_INVALID", "Host calibration plan input safety policy is invalid")
     return path, value
 
 
@@ -362,7 +369,7 @@ def remove_empty_probe_scratch(parent: Path, run_root: Path) -> None:
         current = current.parent
 
 
-def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, resolver: dict[str, Any], writable_task: bool, extra_env: dict[str, str] | None = None) -> list[str]:
+def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home: Path, resolver: dict[str, Any], writable_task: bool, extra_env: dict[str, str] | None = None, readonly_inputs: list[tuple[Path, Path]] | None = None) -> list[str]:
     require(task.is_dir() and not task.is_symlink(), "TASK_WORKTREE_INVALID", "Task worktree must be an existing non-symlink directory", path=str(task))
     task = task.resolve()
     require(contains(ctx["worktreeRoot"], task), "TASK_WORKTREE_OUTSIDE_ROOT", "Task worktree is outside the configured worktree root", path=str(task), root=str(ctx["worktreeRoot"]))
@@ -379,6 +386,10 @@ def bwrap_prefix(*, bwrap: Path, ctx: dict[str, Path], task: Path, private_home:
         args += ["--bind", str(task), str(task)]
     else:
         args += ["--ro-bind", str(task), str(task)]
+    for source, target in readonly_inputs or []:
+        require(source.is_file() and not source.is_symlink(), "READONLY_INPUT_INVALID", "Read-only sandbox input is missing or unsafe", path=str(source))
+        require(target.is_absolute() and str(target).startswith("/run/codex-input/"), "READONLY_INPUT_TARGET_INVALID", "Read-only sandbox input target is outside the dedicated input root", path=str(target))
+        args += ["--dir", str(target.parent), "--ro-bind", str(source), str(target)]
     args += ["--clearenv"]
     for key, value in sorted(sanitized_env(Path("/run/codex-home"), extra_env).items()):
         args += ["--setenv", key, value]
@@ -719,6 +730,39 @@ def validate_codex_jsonl(stdout: str, mode: str, contract: dict[str, Any]) -> di
     }
 
 
+def host_calibration_plan_input(
+    *,
+    ctx: dict[str, Path],
+    root: Path,
+    run_dir: Path,
+    task_contract: dict[str, Any],
+    task_id: str,
+    mode: str,
+    contract: dict[str, Any],
+) -> tuple[Path, Path, str] | None:
+    prepare_record = load_json(run_dir / "prepare-record.json")
+    authorization = prepare_record.get("taskAuthorization") if isinstance(prepare_record.get("taskAuthorization"), dict) else {}
+    if authorization.get("source") != "sibling-host-calibration-plan":
+        return None
+    if mode != "analysis":
+        return None
+    input_contract = contract["securityBoundary"]["hostCalibrationPlanInput"]
+    plan_path = Path(str(authorization.get("calibrationPlanPath", ""))).expanduser()
+    require(plan_path.is_absolute(), "CALIBRATION_PLAN_INPUT_INVALID", "Prepared calibration plan path must be absolute", path=str(plan_path))
+    plan_path = plan_path.resolve()
+    require(plan_path.is_file() and not plan_path.is_symlink(), "CALIBRATION_PLAN_INPUT_INVALID", "Prepared calibration plan is missing or unsafe", path=str(plan_path))
+    require(contains(ctx["artifactRoot"], plan_path), "CALIBRATION_PLAN_INPUT_OUTSIDE_ARTIFACT_ROOT", "Prepared calibration plan must remain below the external artifact root", path=str(plan_path), root=str(ctx["artifactRoot"]))
+    expected_plan_sha = authorization.get("calibrationPlanSha256")
+    require(isinstance(expected_plan_sha, str) and sha256_file(plan_path) == expected_plan_sha, "CALIBRATION_PLAN_INPUT_HASH_MISMATCH", "Prepared calibration plan hash changed after task preparation", path=str(plan_path))
+    plan = load_json(plan_path)
+    require(plan.get("schemaVersion") == "springmaster.codex-calibration-plan.v2" and plan.get("purpose") == "HOST_REQUALIFICATION", "CALIBRATION_PLAN_INPUT_SCHEMA_INVALID", "Prepared calibration plan is not a host requalification plan", path=str(plan_path))
+    require(plan.get("baselineCommit") == task_contract.get("baseCommit") == git(root, "rev-parse", "HEAD"), "CALIBRATION_PLAN_INPUT_BASELINE_MISMATCH", "Prepared calibration plan baseline does not match the task and repository", path=str(plan_path))
+    require(plan.get("hostId") == host_id(), "CALIBRATION_PLAN_INPUT_HOST_MISMATCH", "Prepared calibration plan is bound to another host", path=str(plan_path))
+    matches = [entry for entry in plan.get("tasks", []) if isinstance(entry, dict) and entry.get("taskId") == task_id]
+    require(len(matches) == 1 and matches[0].get("mode") == "analysis", "CALIBRATION_PLAN_INPUT_TASK_MISMATCH", "Prepared calibration plan does not uniquely authorize the analysis task", taskId=task_id)
+    return plan_path, Path(str(input_contract["sandboxPath"])), str(input_contract["environmentVariable"])
+
+
 def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path, model: str, change_bundle: Path | None = None) -> dict[str, Any]:
     ctx = context(root)
     _, contract = load_contract(root)
@@ -734,6 +778,21 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         "SPRINGMASTER_AGENT_TASK_CONTRACT": str(run_dir / "task-contract.json"),
     }
     reads = ["task-worktree"]
+    readonly_inputs: list[tuple[Path, Path]] = []
+    plan_input = host_calibration_plan_input(
+        ctx=ctx,
+        root=root,
+        run_dir=run_dir,
+        task_contract=task_contract,
+        task_id=task_id,
+        mode=mode,
+        contract=contract,
+    )
+    if plan_input is not None:
+        plan_path, sandbox_plan_path, environment_variable = plan_input
+        readonly_inputs.append((plan_path, sandbox_plan_path))
+        extra_env[environment_variable] = str(sandbox_plan_path)
+        reads.append("host-calibration-plan-read-only")
     if change_bundle is not None:
         require(mode == "implementation", "CHANGE_BUNDLE_MODE_INVALID", "Change bundles require an implementation task", mode=mode)
         resolved_bundle = change_bundle.expanduser().resolve()
@@ -753,7 +812,7 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         auth.update(resolver)
         record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
         codex_argv = [str(codex), "--ask-for-approval", "never", "exec", "--ephemeral", "--ignore-rules", "--json", "--model", model, "--cd", str(task), "-"]
-        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=mode == "implementation", extra_env=extra_env)
+        outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=mode == "implementation", extra_env=extra_env, readonly_inputs=readonly_inputs)
         prompt = prompt_file.read_text(encoding="utf-8")
         started_at = utc_now()
         completed = run(outer + codex_argv, input_text=prompt, timeout=1800)

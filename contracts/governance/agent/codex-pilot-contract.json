@@ -10,6 +10,8 @@
     },
     "entrypoint": "bin/codex-calibration.sh",
     "fixtureEntrypoint": "bin/codex-calibration-it.sh",
+    "hostRequalificationAnalysisInput": "prepare-record-bound-calibration-plan",
+    "hostRequalificationAnalysisSandboxPath": "/run/codex-input/calibration-plan.json",
     "implementationHandoffRequired": true,
     "implementationTaskCount": 2,
     "materializeOperation": "materialize",
@@ -91,7 +93,7 @@
     "requiredStatusBeforePromotion": "PASS",
     "writableCodexAuthorized": true
   },
-  "contractVersion": "1.8.0",
+  "contractVersion": "1.9.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -148,7 +150,8 @@
       "task-worktree",
       "integration-worktree-read-only",
       "external-run-root-read-only",
-      "external-artifact-root-read-only"
+      "external-artifact-root-read-only",
+      "host-calibration-plan-read-only"
     ],
     "alwaysForbiddenAgentWriteScopes": [
       "operator-home",
@@ -173,6 +176,7 @@
       "SPRINGMASTER_AGENT_TASK_CONTRACT",
       "SPRINGMASTER_AGENT_TASK_ID",
       "SPRINGMASTER_CODEX_CHANGE_BUNDLE",
+      "SPRINGMASTER_CODEX_CALIBRATION_PLAN",
       "TMPDIR",
       "TZ",
       "USER"
@@ -314,6 +318,7 @@
     "doesNotAuthorizeWritableCodex": false,
     "entrypoint": "bin/codex-pilot-ready.sh",
     "gateId": "codex-pilot-readiness-v1",
+    "hostAuthorizationRequiredForWritableCodex": true,
     "liveCommand": [
       "bin/codex-pilot-ready.sh",
       "project",
@@ -321,8 +326,7 @@
       "--check"
     ],
     "nextAction": "CODEX_PILOT_TASK",
-    "successStatus": "PILOT_WRITE_READY",
-    "hostAuthorizationRequiredForWritableCodex": true
+    "successStatus": "PILOT_WRITE_READY"
   },
   "referenceInput": {
     "acceptancePath": "contracts/pilots/codex/business-partner-pilot-acceptance.json",
@@ -355,16 +359,16 @@
     "calibrationPlanSchemaVersion": "springmaster.codex-calibration-plan.v1",
     "calibrationPlanStatus": "MATERIALIZED",
     "failClosedOnUnknownLifecycle": true,
+    "hostAuthorizationRegistry": "writeAuthorizations",
+    "hostCalibrationPlanPurpose": "HOST_REQUALIFICATION",
+    "hostCalibrationPlanSchemaVersion": "springmaster.codex-calibration-plan.v2",
+    "hostCalibrationPlanStatus": "MATERIALIZED",
     "postPromotionLifecycles": [
       "PILOT_WRITE_READY",
       "PILOT_COMPLETED"
     ],
     "prePromotionLifecycle": "PROJECT_READY",
     "prePromotionTaskSource": "sibling-calibration-plan",
-    "hostAuthorizationRegistry": "writeAuthorizations",
-    "hostCalibrationPlanSchemaVersion": "springmaster.codex-calibration-plan.v2",
-    "hostCalibrationPlanStatus": "MATERIALIZED",
-    "hostCalibrationPlanPurpose": "HOST_REQUALIFICATION",
     "unpromotedHostTaskSource": "sibling-host-calibration-plan"
   },
   "taskContract": {
@@ -553,9 +557,7 @@
     "mode": "detached"
   },
   "writeAuthorizations": {
-    "schemaVersion": "springmaster.codex-write-authorization-registry.v1",
     "authority": "explicit-host-registry",
-    "hostEvidencePortable": false,
     "automaticPromotionForbidden": true,
     "entries": [
       {
@@ -576,7 +578,9 @@
         "sourceConfinementEvidenceSha256": "5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8",
         "writableCodexAuthorized": true
       }
-    ]
+    ],
+    "hostEvidencePortable": false,
+    "schemaVersion": "springmaster.codex-write-authorization-registry.v1"
   },
   "writePromotion": {
     "acceptedPatchCount": 2,

@@ -9,10 +9,12 @@ mkdir -p -- "${TMP}"
 trap 'if [[ "${KEEP_CODEX_HOST_IT:-false}" != true ]]; then rm -rf -- "${TMP}"; fi' EXIT
 
 REPO="${TMP}/repo"
-mkdir -p "${REPO}/bin" "${REPO}/.cocondo/tooling" "${REPO}/contracts/governance/agent"
+mkdir -p "${REPO}/bin" "${REPO}/.cocondo/tooling" "${REPO}/contracts/governance/agent" "${REPO}/src/test/resources/tooling/codex-calibration-v1"
 cp -- \
   "${ROOT}/bin/agent-task.py" \
   "${ROOT}/bin/agent-task.sh" \
+  "${ROOT}/bin/codex-calibration.py" \
+  "${ROOT}/bin/codex-calibration.sh" \
   "${ROOT}/bin/codex-host-sandbox.py" \
   "${ROOT}/bin/codex-host-sandbox.sh" \
   "${REPO}/bin/"
@@ -21,6 +23,7 @@ cp -- \
   "${ROOT}/contracts/governance/agent/codex-host-qualification-contract.json" \
   "${REPO}/contracts/governance/agent/"
 cp -- "${ROOT}/.cocondo/tooling/project.env" "${REPO}/.cocondo/tooling/project.env"
+cp -- "${ROOT}/src/test/resources/tooling/codex-calibration-v1/task-1.txt" "${ROOT}/src/test/resources/tooling/codex-calibration-v1/task-2.txt" "${REPO}/src/test/resources/tooling/codex-calibration-v1/"
 printf '%s\n' 'host sandbox fixture' > "${REPO}/README.md"
 python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY'
 import json,sys
@@ -36,7 +39,7 @@ d["writePromotion"]["hostId"]=host
 d["writeAuthorizations"]["entries"][0]["hostId"]=host
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PY
-chmod 755 "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh" "${REPO}/bin/codex-host-sandbox.py" "${REPO}/bin/codex-host-sandbox.sh"
+chmod 755 "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh" "${REPO}/bin/codex-calibration.py" "${REPO}/bin/codex-calibration.sh" "${REPO}/bin/codex-host-sandbox.py" "${REPO}/bin/codex-host-sandbox.sh"
 git -c init.defaultRefFormat=files -C "${REPO}" init -q -b main
 git -C "${REPO}" config user.name fixture
 git -C "${REPO}" config user.email fixture@example.invalid
@@ -271,6 +274,41 @@ print('PRIVATE_CODEX_PERMISSION_PROFILE_FIXTURE=PASS')
 print('PRIVATE_RUN_RESOLVER_REEXPOSURE_FIXTURE=PASS')
 PY_PROFILE
 
+python3 - "${REPO}/bin/codex-host-sandbox.py" "${REPO}" "${TMP}" <<'PY_PLAN_INPUT'
+import hashlib,importlib.util,json,sys
+from pathlib import Path
+modp=Path(sys.argv[1]); repo=Path(sys.argv[2]); tmp=Path(sys.argv[3])
+spec=importlib.util.spec_from_file_location('host_plan_input_under_test',modp); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+contract=json.load(open(repo/'contracts/governance/agent/codex-host-qualification-contract.json',encoding='utf-8'))
+base=m.git(repo,'rev-parse','HEAD'); host=m.host_id(); task_id=f'CODEX-HOSTCAL-ANALYSIS-A777-{host.upper()}'
+plan_dir=tmp/'artifacts/host-plan-input'; plan_dir.mkdir(parents=True)
+plan=plan_dir/'calibration-plan.json'
+value={'schemaVersion':'springmaster.codex-calibration-plan.v2','status':'MATERIALIZED','purpose':'HOST_REQUALIFICATION','baselineCommit':base,'hostId':host,'tasks':[{'taskId':task_id,'mode':'analysis'}]}
+plan.write_text(json.dumps(value,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+plan_sha=hashlib.sha256(plan.read_bytes()).hexdigest()
+run_dir=tmp/'plan-input-run-record'; run_dir.mkdir(parents=True)
+(run_dir/'prepare-record.json').write_text(json.dumps({'taskAuthorization':{'source':'sibling-host-calibration-plan','calibrationPlanPath':str(plan.resolve()),'calibrationPlanSha256':plan_sha}},indent=2)+'\n',encoding='utf-8')
+task={'taskId':task_id,'mode':'analysis','baseCommit':base}
+result=m.host_calibration_plan_input(ctx={'artifactRoot':(tmp/'artifacts').resolve()},root=repo,run_dir=run_dir,task_contract=task,task_id=task_id,mode='analysis',contract=contract)
+assert result is not None,result
+source,target,env_name=result
+assert source==plan.resolve() and target==Path('/run/codex-input/calibration-plan.json') and env_name=='SPRINGMASTER_CODEX_CALIBRATION_PLAN',result
+private=tmp/'plan-input-private'; private.mkdir(); (private/'auth.json').write_text('{}\n'); (private/'auth.json').chmod(0o600)
+resolver={'resolverReexposedReadOnly':False}
+args=m.bwrap_prefix(bwrap=Path('/usr/bin/bwrap'),ctx={'worktreeRoot':tmp.resolve(),'operatorHome':Path('/nonexistent-home')},task=tmp,private_home=private,resolver=resolver,writable_task=False,extra_env={env_name:str(target)},readonly_inputs=[(source,target)])
+joined='\n'.join(args)
+assert '--ro-bind\n'+str(source)+'\n'+str(target) in joined, args
+assert '--setenv\nSPRINGMASTER_CODEX_CALIBRATION_PLAN\n/run/codex-input/calibration-plan.json' in joined,args
+plan.write_text(plan.read_text(encoding='utf-8')+' ',encoding='utf-8')
+try:
+ m.host_calibration_plan_input(ctx={'artifactRoot':(tmp/'artifacts').resolve()},root=repo,run_dir=run_dir,task_contract=task,task_id=task_id,mode='analysis',contract=contract)
+except m.HostError as exc:
+ assert exc.code=='CALIBRATION_PLAN_INPUT_HASH_MISMATCH',exc.code
+else:
+ raise AssertionError('calibration plan hash drift accepted')
+print('HOST_CALIBRATION_PLAN_INPUT_FIXTURE=PASS')
+PY_PLAN_INPUT
+
 python3 - "${REPO}/bin/codex-host-sandbox.py" "${REPO}/contracts/governance/agent/codex-host-qualification-contract.json" <<'PY_JSONL'
 import importlib.util,json,sys
 from pathlib import Path
@@ -334,5 +372,46 @@ PY_NEG_REPORT
 NEG_STATUS="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json status CODEX-HOST-IT-IMPL-ERROR-001)"
 python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="PREPARED" and v["codexInvocation"]=="RECORDED",v' <<<"${NEG_STATUS}"
 printf '%s\n' 'CODEX_OUTER_ZERO_INNER_ERROR_FAIL_CLOSED=PASS'
+set +e
+NEG_CLEANUP="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json cleanup CODEX-HOST-IT-IMPL-ERROR-001)"
+NEG_CLEANUP_RC=$?
+set -e
+test "${NEG_CLEANUP_RC}" -eq 1
+python3 -c 'import json,sys;v=json.load(sys.stdin);assert v["status"]=="CLEANED_INCOMPLETE",v' <<<"${NEG_CLEANUP}"
+
+# End-to-end: an unpromoted host-requalification analysis consumes the exact
+# sibling plan recorded by agent-task prepare, without operator plan discovery.
+python3 - "${REPO}/contracts/governance/agent/codex-pilot-contract.json" <<'PY_UNPROMOTE'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]); v=json.loads(p.read_text(encoding='utf-8'))
+other='0'*24
+v['writePromotion']['hostId']=other
+v['writeAuthorizations']['entries'][0]['hostId']=other
+p.write_text(json.dumps(v,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+PY_UNPROMOTE
+git -C "${REPO}" add -- contracts/governance/agent/codex-pilot-contract.json
+git -C "${REPO}" commit -q -m fixture-unpromoted-host
+HOST_BASE="$(git -C "${REPO}" rev-parse HEAD)"
+HOST_PLAN="${TMP}/artifacts/host-requalification-e2e"
+"${REPO}/bin/codex-calibration.sh" materialize --out "${HOST_PLAN}" --baseline "${HOST_BASE}" --attempt 777 --host-requalification >/dev/null
+HOST_ID="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["hostId"])' "${HOST_PLAN}/calibration-plan.json")"
+HOST_TASK_ID="CODEX-HOSTCAL-ANALYSIS-A777-${HOST_ID^^}"
+HOST_TASK="${HOST_PLAN}/${HOST_TASK_ID,,}.json"
+HOST_PROMPT="${HOST_PLAN}/${HOST_TASK_ID,,}.prompt.txt"
+HOST_PREP="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json prepare "${HOST_TASK}")"
+python3 -c 'import json,sys;v=json.load(sys.stdin);assert v["taskAuthorization"]["source"]=="sibling-host-calibration-plan",v' <<<"${HOST_PREP}"
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id "${HOST_TASK_ID}" --prompt "${HOST_PROMPT}" --model fixture-model --out "${TMP}/host-plan-input-invoke.json" >/dev/null
+python3 - "${TMP}/host-plan-input-invoke.json" <<'PY_HOST_INPUT_E2E'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PASS' and v['taskMode']=='analysis',v
+e=json.load(open(v['effect']['path']))
+assert e['reads']==['task-worktree','host-calibration-plan-read-only'],e
+assert 'SPRINGMASTER_CODEX_CALIBRATION_PLAN' in e['environmentInputs'],e
+print('HOST_CALIBRATION_PLAN_INPUT_E2E=PASS')
+PY_HOST_INPUT_E2E
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json postcheck "${HOST_TASK_ID}" >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json qualify "${HOST_TASK_ID}" >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup "${HOST_TASK_ID}" >/dev/null
 
 printf '%s\n' 'CODEX_HOST_SANDBOX_IT=PASS'

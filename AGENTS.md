@@ -484,3 +484,10 @@ Named long-running operations that must not overlap are started through `bin/pro
 - Das Bundle liegt read-only unter dem externen Artefakt-Root und bindet Task-ID, Base-Commit, exakte Pfade, Source-/Target-SHA-256 und Modi. Bundle und Task Contract müssen exakt zusammenpassen.
 - Change Bundles enthalten keine Patch-ID, Delivery-ID, Kommandos oder Integrationsautorität. `agent-task handoff`, kontrollierte Candidate-Anwendung, `cpatch create`, Dry-run und Accept bleiben getrennte vertrauenswürdige Operatorgrenzen.
 - Vor `PILOT_WRITE_READY` dürfen nur die freigegebenen Kalibrierungsbundles verwendet werden.
+
+### Deterministischer Host-Requalification-Input
+
+- Ein `CODEX-HOSTCAL-ANALYSIS-*`-Task darf den Host-Requalification-Plan nicht durch Repository- oder Filesystem-Suche ermitteln.
+- `agent-task prepare` bindet den sibling `calibration-plan.json` bereits mit absolutem Pfad und SHA-256. `codex-host-sandbox invoke` muss genau diese vorbereitete Datei erneut verifizieren und read-only unter `/run/codex-input/calibration-plan.json` exponieren.
+- Der Sandbox-Prozess setzt dafür ausschließlich `SPRINGMASTER_CODEX_CALIBRATION_PLAN=/run/codex-input/calibration-plan.json`. Abweichende Pfade, Hashdrift, fremde Host-ID oder Baseline müssen vor Codex-Start fail-closed stoppen.
+- Host-Requalification-Analysis-Prompts müssen den festen Inputpfad benutzen und dürfen keine breitflächige Suche nach Calibration-Plänen anweisen oder voraussetzen.

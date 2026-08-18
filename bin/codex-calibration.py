@@ -225,7 +225,7 @@ def materialize(project: Path, output: Path, baseline: str, attempt: int, *, hos
         "Host-confined host-requalification analysis; no direct integration, promotion or accept authority.",
     ))
     analysis_prompt.write_text(
-        "Read-only host requalification analysis. Do not modify files. Report the current host ID and the two declared canary paths from the sibling calibration plan only.\n",
+        "Read-only host requalification analysis. Do not modify files. Read exactly the immutable calibration plan at $SPRINGMASTER_CODEX_CALIBRATION_PLAN. Do not search the repository or filesystem for calibration plans. Report only the plan hostId and the two implementation canaryPath values.\n",
         encoding="utf-8",
     )
     entries.append({

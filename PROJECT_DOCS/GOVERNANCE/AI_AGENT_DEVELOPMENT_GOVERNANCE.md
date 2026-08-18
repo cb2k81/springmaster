@@ -376,3 +376,7 @@ Diese Recovery-Grenze erweitert den Codex-Schreibscope nicht. Codex darf weiterh
 The host harness is the sole authority for the private Codex home used by a governed invocation. It creates an ephemeral private `CODEX_HOME`, copies the host-local credential with restrictive file mode and writes a mode-bound Permission Profile. Analysis and qualification use `:read-only`; implementation uses `:workspace`. Sandbox commands are denied read and write access to `/run/codex-home/auth.json`.
 
 A governed real invocation may not suppress this configuration with `--ignore-user-config` and may not replace it through legacy `--sandbox`/`-s`, direct `--permission-profile`/`-P`, `--config`/`-c` or `--profile`/`-p` overrides. The outer bubblewrap sandbox remains the authoritative host-level write boundary. This hardening does not weaken any live positive or negative probe requirement and does not itself promote `PILOT_WRITE_READY`.
+
+## 17. Deterministic host-requalification inputs
+
+A host-requalification analysis consumes only the immutable sibling calibration plan already authorized by `agent-task prepare`. The harness revalidates its SHA-256 and bindings, mounts it read-only at `/run/codex-input/calibration-plan.json` and exposes that fixed path through `SPRINGMASTER_CODEX_CALIBRATION_PLAN`. Codex must not discover this input by scanning repository siblings or host filesystem roots. The JSONL fail-closed rules remain unchanged; an unfinished command remains a failed governed invocation.

@@ -282,3 +282,7 @@ The host harness owns the complete ephemeral private `CODEX_HOME` used by govern
 A governed real invocation therefore must not suppress the harness configuration with `--ignore-user-config` and must not replace it through legacy `--sandbox`/`-s`, direct `--permission-profile`/`-P`, `--config`/`-c` or `--profile`/`-p` overrides. The outer Linux bubblewrap boundary remains authoritative for host confinement; the generated Permission Profile is defense in depth and credential confinement. The 20 live mechanical probe expectations remain unchanged.
 
 The calibration fixture checker is bound to the exact versioned instruction fixtures and accepts each task independently in either its untouched baseline state or its exact `CALIBRATION_TASK_n=PASS` target state. This is required because both implementation tasks are qualified separately against the same A001 baseline before either handoff is canonically accepted.
+
+## Deterministic host-requalification plan input
+
+For `CODEX-HOSTCAL-ANALYSIS-*`, the sibling host-requalification plan is not discovered by the agent. `agent-task prepare` records `calibrationPlanPath` and `calibrationPlanSha256`; `codex-host-sandbox invoke` revalidates them and binds the exact file read-only to `/run/codex-input/calibration-plan.json`. The sandbox environment contains `SPRINGMASTER_CODEX_CALIBRATION_PLAN` with exactly that value. The prompt must read this input directly and must not search other repository, worktree, home, temporary or host filesystem locations for calibration plans.

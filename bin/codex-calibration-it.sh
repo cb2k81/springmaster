@@ -159,6 +159,7 @@ root=Path(sys.argv[1]); base=sys.argv[2]; plan=json.load(open(root/'calibration-
 assert plan['schemaVersion']=='springmaster.codex-calibration-plan.v2' and plan['purpose']=='HOST_REQUALIFICATION' and plan['baselineCommit']==base,plan
 host=plan['hostId']; assert re.fullmatch(r'[0-9a-f]{24}',host),host
 assert plan['attemptId']=='A007' and plan['hostEvidencePortable'] is False and plan['separatePromotionRequired'] is True,plan
+analysis=plan['tasks'][0]; prompt=(root/analysis['prompt']['path']).read_text(encoding='utf-8'); assert '$SPRINGMASTER_CODEX_CALIBRATION_PLAN' in prompt and 'Do not search the repository or filesystem' in prompt,prompt
 for number,entry in enumerate(plan['tasks'][1:],start=1):
  assert entry['mode']=='implementation' and f'/{host}/A007/task-{number}.txt' in entry['canaryPath'],entry
  bundle=root/entry['changeBundle']['path']; assert hashlib.sha256(bundle.read_bytes()).hexdigest()==entry['changeBundle']['sha256']

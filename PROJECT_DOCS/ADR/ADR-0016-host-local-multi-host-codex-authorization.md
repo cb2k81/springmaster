@@ -77,3 +77,10 @@ The contract and harness tests must prove at minimum:
 - unsupported command forms fail closed;
 - an outer Codex process exit `0` with an error item, failed command execution or missing implementation command execution fails the governed invoke and cannot proceed to qualification;
 - promotion remains a separate trusted-operator accepted change and never follows automatically from qualification.
+
+## Addendum: deterministic host-requalification analysis input
+
+12. The read-only host-requalification analysis receives its sibling `calibration-plan.json` through the already validated `agent-task prepare` authorization record. `codex-host-sandbox invoke` revalidates the prepared absolute path and SHA-256, host ID, baseline and task binding, then exposes exactly that file read-only at `/run/codex-input/calibration-plan.json`.
+13. The analysis prompt refers only to `SPRINGMASTER_CODEX_CALIBRATION_PLAN=/run/codex-input/calibration-plan.json`. Repository-wide or host-wide discovery of calibration plans is forbidden. This is an input-interface constraint, not a relaxation of the JSONL completion oracle.
+
+This addendum closes the ambiguity observed when a valid read-only analysis searched broad filesystem roots for a plan that the trusted prepare step had already identified exactly.

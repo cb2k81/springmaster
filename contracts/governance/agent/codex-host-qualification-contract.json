@@ -1,55 +1,29 @@
 {
-  "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
-  "contractVersion": "1.5.0",
-  "status": "active",
-  "supportedHost": {
-    "operatingSystem": "Linux",
-    "architectures": [
-      "x86_64",
-      "aarch64"
-    ],
-    "sandboxBackend": "bubblewrap",
-    "sandboxExecutable": "bwrap"
+  "contractVersion": "1.6.0",
+  "cutoverBoundary": {
+    "acceptedImplementationCalibrationCount": 2,
+    "automaticPromotionForbidden": true,
+    "hostInspectionPassRequired": true,
+    "hostQualificationPortable": false,
+    "mechanicalProbePassRequired": true,
+    "realCodexAnalysisRequired": true,
+    "separateHostAuthorizationRequired": true,
+    "separateRepositoryPromotionRequired": true
   },
-  "securityBoundary": {
-    "authoritativeLayer": "outer-linux-bwrap",
-    "codexInnerSandbox": "harness-generated-permission-profile-defense-in-depth",
-    "codexApprovalPolicy": "never",
-    "taskWorktree": "mode-dependent-read-only-or-read-write",
-    "integrationWorktree": "read-only",
-    "gitCommonDirectory": "read-only",
-    "otherWorktrees": "read-only",
-    "operatorHome": "hidden",
-    "operatorDownloads": "hidden-with-operator-home",
-    "patchesWork": "read-only-and-not-a-codex-handoff-channel",
-    "externalRunRoot": "read-only",
-    "externalArtifactRoot": "read-only",
-    "hostTemporaryDirectories": "hidden-by-private-tmp",
-    "sandboxPrivateTmp": "ephemeral-tmpfs",
-    "sandboxPrivateCodexHome": "ephemeral-host-directory-with-copied-auth-and-generated-permission-profile-destroyed-after-invocation",
-    "environment": "cleared-and-allowlisted",
-    "hostPathInheritance": "forbidden",
-    "sandboxPath": "/usr/local/bin:/usr/bin:/bin",
-    "additionalWritableRoots": [],
-    "sandboxPrivateAuthToolAccess": "deny-read-and-write",
-    "legacySandboxCliPolicy": "forbidden-for-real-invocation",
-    "sandboxResolverDependency": "host-resolver-content-copied-into-private-scratch-and-read-only-reexposed-only-when-resolv-conf-target-is-hidden-by-private-run",
-    "supportedInnerSandboxCommandForms": [
-      "direct",
-      "linux-subcommand"
-    ],
-    "innerSandboxCommandFormSelection": "capability-probed-fail-closed",
-    "codexExecJsonlValidation": {
-      "required": true,
-      "jsonObjectPerNonemptyLineRequired": true,
-      "turnCompletedRequired": true,
-      "turnFailedForbidden": true,
-      "errorEventsForbidden": true,
-      "startedCommandMustComplete": true,
-      "completedCommandExitCodeZeroRequired": true,
-      "implementationCompletedCommandExecutionMinimum": 1,
-      "outerProcessExitCodeZeroRequired": true
-    }
+  "hostEvidence": {
+    "immutableAfterCompletion": true,
+    "machineIdentity": "sha256-of-machine-id-architecture-and-kernel",
+    "mustBindBaselineCommit": true,
+    "mustBindCodexExecJsonlValidation": true,
+    "mustBindCodexSandboxCommandForm": true,
+    "mustBindContractSha256": true,
+    "mustBindHostCalibrationPlanInput": true,
+    "mustBindSandboxArgvSha256": true,
+    "requiresNestedCodexSandboxProbes": true,
+    "requiresRealCodex": true,
+    "schemaVersion": "springmaster.codex-host-qualification-evidence.v1",
+    "secretValuesForbidden": true,
+    "storage": "external-artifact-root/codex-host-qualification/<host-id>/<baseline-commit>"
   },
   "portableRoles": [
     "PROJECT_ROOT",
@@ -79,108 +53,145 @@
   ],
   "requiredMechanicalProbes": [
     {
-      "id": "allowed-task-worktree-write",
-      "expectedOutcome": "PASS"
+      "expectedOutcome": "PASS",
+      "id": "allowed-task-worktree-write"
     },
     {
-      "id": "write-integration-worktree",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-integration-worktree"
     },
     {
-      "id": "write-other-worktree",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-other-worktree"
     },
     {
-      "id": "write-git-common-directory",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-git-common-directory"
     },
     {
-      "id": "write-patches-work",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-patches-work"
     },
     {
-      "id": "write-operator-home",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-operator-home"
     },
     {
-      "id": "write-operator-downloads",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-operator-downloads"
     },
     {
-      "id": "write-external-run-root",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-external-run-root"
     },
     {
-      "id": "write-external-artifact-root",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-external-artifact-root"
     },
     {
-      "id": "write-host-temporary-directory",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "write-host-temporary-directory"
     },
     {
-      "id": "path-traversal-escape",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "path-traversal-escape"
     },
     {
-      "id": "symlink-escape",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "symlink-escape"
     },
     {
-      "id": "direct-git-commit",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "direct-git-commit"
     },
     {
-      "id": "direct-patch-accept",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "direct-patch-accept"
     },
     {
-      "id": "background-writer",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "background-writer"
     },
     {
-      "id": "inner-sandbox-smoke",
-      "expectedOutcome": "PASS"
+      "expectedOutcome": "PASS",
+      "id": "inner-sandbox-smoke"
     },
     {
-      "id": "inner-worktree-write",
-      "expectedOutcome": "PASS"
+      "expectedOutcome": "PASS",
+      "id": "inner-worktree-write"
     },
     {
-      "id": "inner-auth-read",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "inner-auth-read"
     },
     {
-      "id": "inner-network-egress",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "inner-network-egress"
     },
     {
-      "id": "inner-git-common-write",
-      "expectedOutcome": "DENIED"
+      "expectedOutcome": "DENIED",
+      "id": "inner-git-common-write"
     }
   ],
-  "hostEvidence": {
-    "schemaVersion": "springmaster.codex-host-qualification-evidence.v1",
-    "storage": "external-artifact-root/codex-host-qualification/<host-id>/<baseline-commit>",
-    "immutableAfterCompletion": true,
-    "secretValuesForbidden": true,
-    "machineIdentity": "sha256-of-machine-id-architecture-and-kernel",
-    "mustBindBaselineCommit": true,
-    "mustBindContractSha256": true,
-    "mustBindSandboxArgvSha256": true,
-    "requiresRealCodex": true,
-    "requiresNestedCodexSandboxProbes": true,
-    "mustBindCodexSandboxCommandForm": true,
-    "mustBindCodexExecJsonlValidation": true
+  "schemaVersion": "springmaster.codex-host-qualification-contract.v1",
+  "securityBoundary": {
+    "additionalWritableRoots": [],
+    "authoritativeLayer": "outer-linux-bwrap",
+    "codexApprovalPolicy": "never",
+    "codexExecJsonlValidation": {
+      "completedCommandExitCodeZeroRequired": true,
+      "errorEventsForbidden": true,
+      "implementationCompletedCommandExecutionMinimum": 1,
+      "jsonObjectPerNonemptyLineRequired": true,
+      "outerProcessExitCodeZeroRequired": true,
+      "required": true,
+      "startedCommandMustComplete": true,
+      "turnCompletedRequired": true,
+      "turnFailedForbidden": true
+    },
+    "codexInnerSandbox": "harness-generated-permission-profile-defense-in-depth",
+    "environment": "cleared-and-allowlisted",
+    "externalArtifactRoot": "read-only",
+    "externalRunRoot": "read-only",
+    "gitCommonDirectory": "read-only",
+    "hostCalibrationPlanInput": {
+      "environmentVariable": "SPRINGMASTER_CODEX_CALIBRATION_PLAN",
+      "filesystemSearchForbidden": true,
+      "requiredFor": "host-requalification-analysis",
+      "sandboxAccess": "read-only",
+      "sandboxPath": "/run/codex-input/calibration-plan.json",
+      "source": "agent-task-prepare-record.taskAuthorization",
+      "sourceMustBeBelowExternalArtifactRoot": true,
+      "sourceSha256MustMatchPrepareRecord": true
+    },
+    "hostPathInheritance": "forbidden",
+    "hostTemporaryDirectories": "hidden-by-private-tmp",
+    "innerSandboxCommandFormSelection": "capability-probed-fail-closed",
+    "integrationWorktree": "read-only",
+    "legacySandboxCliPolicy": "forbidden-for-real-invocation",
+    "operatorDownloads": "hidden-with-operator-home",
+    "operatorHome": "hidden",
+    "otherWorktrees": "read-only",
+    "patchesWork": "read-only-and-not-a-codex-handoff-channel",
+    "sandboxPath": "/usr/local/bin:/usr/bin:/bin",
+    "sandboxPrivateAuthToolAccess": "deny-read-and-write",
+    "sandboxPrivateCodexHome": "ephemeral-host-directory-with-copied-auth-and-generated-permission-profile-destroyed-after-invocation",
+    "sandboxPrivateTmp": "ephemeral-tmpfs",
+    "sandboxResolverDependency": "host-resolver-content-copied-into-private-scratch-and-read-only-reexposed-only-when-resolv-conf-target-is-hidden-by-private-run",
+    "supportedInnerSandboxCommandForms": [
+      "direct",
+      "linux-subcommand"
+    ],
+    "taskWorktree": "mode-dependent-read-only-or-read-write"
   },
-  "cutoverBoundary": {
-    "hostInspectionPassRequired": true,
-    "mechanicalProbePassRequired": true,
-    "realCodexAnalysisRequired": true,
-    "acceptedImplementationCalibrationCount": 2,
-    "separateRepositoryPromotionRequired": true,
-    "separateHostAuthorizationRequired": true,
-    "automaticPromotionForbidden": true,
-    "hostQualificationPortable": false
+  "status": "active",
+  "supportedHost": {
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "operatingSystem": "Linux",
+    "sandboxBackend": "bubblewrap",
+    "sandboxExecutable": "bwrap"
   }
 }
