@@ -840,6 +840,17 @@
       "normalization": "none"
     },
     {
+      "path": "src/test/resources/tooling/codex-host-calibration-v1/52ec27b736913d70ef81388a/A004/task-1.txt",
+      "fixtureType": "golden-text",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-calibration-fixture-check.py"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "exact-utf8"
+    },
+    {
       "path": "src/test/resources/tooling/codex-host-qualification-v1/expected-cases.json",
       "fixtureType": "expected-case-catalog",
       "owner": "springmaster-maintainers",
@@ -1030,7 +1041,7 @@
   "summary": {
     "javaTestClassCount": 49,
     "toolingEntrypointCount": 40,
-    "sourceFixtureCount": 21,
+    "sourceFixtureCount": 22,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
     "coveragePolicyStatus": "unresolved"
@@ -1041,6 +1052,6 @@
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
   ],
-  "lastUpdatedAt": "2026-08-01",
-  "lastUpdateReason": "Register Codex change-bundle integration coverage."
+  "lastUpdatedAt": "2026-08-18",
+  "lastUpdateReason": "Register qualified A004 host-calibration Canary 1 for host 52ec27b736913d70ef81388a pending host promotion."
 }
