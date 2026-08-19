@@ -577,6 +577,24 @@
         "sourceConfinementEvidenceSchemaVersion": "springmaster.codex-confinement-evidence.v2",
         "sourceConfinementEvidenceSha256": "5765d4d07c4f2ed4a012c9be4a1e01981d570368f474f45baf5c506b95a988f8",
         "writableCodexAuthorized": true
+      },
+      {
+        "acceptedPatchCount": 2,
+        "acceptedPatchIds": [
+          "000232_codex_hostcal_canary_1_a004",
+          "000233_codex_hostcal_canary_2_a004"
+        ],
+        "decision": "CODEX_CUTOVER_ACCEPTED",
+        "evidenceStatus": "PASS",
+        "hostId": "52ec27b736913d70ef81388a",
+        "pilotWriteReady": true,
+        "promotedFromHead": "6d8d32ab74767c4cac008ab43e551be825193af0",
+        "promotionAuthority": "trusted-operator-accepted-patch",
+        "schemaVersion": "springmaster.codex-write-promotion.v1",
+        "sourceConfinementBaselineCommit": "06dadb473ada986cdc3b7ed8a5378f4249e1e7aa",
+        "sourceConfinementEvidenceSchemaVersion": "springmaster.codex-confinement-evidence.v2",
+        "sourceConfinementEvidenceSha256": "b302861f8143686ee969d11a0c3eec2fef26d84d591a1de30eee6cbe93da22c6",
+        "writableCodexAuthorized": true
       }
     ],
     "hostEvidencePortable": false,
