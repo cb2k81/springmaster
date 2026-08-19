@@ -36,7 +36,7 @@ machine_path=Path("/etc/machine-id")
 machine=machine_path.read_text(encoding="utf-8").strip() if machine_path.is_file() else platform.node()
 host=hashlib.sha256(f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode()).hexdigest()[:24]
 d["writePromotion"]["hostId"]=host
-d["writeAuthorizations"]["entries"][0]["hostId"]=host
+d["writeAuthorizations"]["entries"]=[dict(d["writePromotion"])]
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PY
 chmod 755 "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh" "${REPO}/bin/codex-calibration.py" "${REPO}/bin/codex-calibration.sh" "${REPO}/bin/codex-host-sandbox.py" "${REPO}/bin/codex-host-sandbox.sh"
@@ -387,7 +387,7 @@ from pathlib import Path
 p=Path(sys.argv[1]); v=json.loads(p.read_text(encoding='utf-8'))
 other='0'*24
 v['writePromotion']['hostId']=other
-v['writeAuthorizations']['entries'][0]['hostId']=other
+v['writeAuthorizations']['entries']=[dict(v['writePromotion'])]
 p.write_text(json.dumps(v,indent=2,sort_keys=True)+'\n',encoding='utf-8')
 PY_UNPROMOTE
 git -C "${REPO}" add -- contracts/governance/agent/codex-pilot-contract.json

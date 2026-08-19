@@ -54,7 +54,7 @@ machine_path=Path("/etc/machine-id")
 machine=machine_path.read_text(encoding="utf-8").strip() if machine_path.is_file() else platform.node()
 host=hashlib.sha256(f"{machine}\n{platform.machine()}\n{platform.release()}\n".encode()).hexdigest()[:24]
 d["writePromotion"]["hostId"]=host
-d["writeAuthorizations"]["entries"][0]["hostId"]=host
+d["writeAuthorizations"]["entries"]=[dict(d["writePromotion"])]
 p.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PY
 chmod +x "${REPO}/bin/agent-task.py" "${REPO}/bin/agent-task.sh"
@@ -735,9 +735,9 @@ module_path=Path(sys.argv[1]); policy_path=Path(sys.argv[2]); unit=Path(sys.argv
 spec=importlib.util.spec_from_file_location('agent_task_host_auth_it',module_path); mod=importlib.util.module_from_spec(spec); sys.modules[spec.name]=mod; spec.loader.exec_module(mod)
 policy=json.loads(policy_path.read_text(encoding='utf-8')); host=mod.current_host_id()
 task_path=unit/'task.json'; task={'taskId':'HOST-AUTH-UNIT','mode':'analysis','baseCommit':'a'*40}; task_path.write_text(json.dumps(task)+'\n',encoding='utf-8')
-authorized=json.loads(json.dumps(policy)); authorized['writePromotion']['hostId']=host; authorized['writeAuthorizations']['entries'][0]['hostId']=host
+authorized=json.loads(json.dumps(policy)); authorized['writePromotion']['hostId']=host; authorized['writeAuthorizations']['entries']=[dict(authorized['writePromotion'])]
 value=mod.validate_prepare_authorization(task_path.resolve(),task,authorized); assert value['source']=='committed-host-authorization-registry' and value['hostId']==host,value
-unpromoted=json.loads(json.dumps(policy)); unpromoted['writePromotion']['hostId']='f'*24; unpromoted['writeAuthorizations']['entries'][0]['hostId']='f'*24
+unpromoted=json.loads(json.dumps(policy)); unpromoted['writePromotion']['hostId']='f'*24; unpromoted['writeAuthorizations']['entries']=[dict(unpromoted['writePromotion'])]
 try: mod.validate_prepare_authorization(task_path.resolve(),task,unpromoted)
 except mod.AgentTaskError as exc: assert exc.code=='TASK_AUTHORIZATION_PLAN_MISSING',exc.code
 else: raise AssertionError('unpromoted host accepted without calibration plan')
