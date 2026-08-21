@@ -36,7 +36,8 @@ TASK_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
 COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 ACTIVE_STATES = {"PREPARED", "QUALIFYING", "QUALIFIED", "HANDED_OFF", "FAILED", "POSTCHECK_PASSED", "POSTCHECK_FAILED"}
 ABANDONED_BEFORE_INVOCATION = "ABANDONED_BEFORE_INVOCATION"
-VALID_RUN_STATES = ACTIVE_STATES | {"CLEANED", "CLEANED_INCOMPLETE", ABANDONED_BEFORE_INVOCATION}
+RECOVERY_PRESERVED_INCOMPLETE = "RECOVERY_PRESERVED_INCOMPLETE"
+VALID_RUN_STATES = ACTIVE_STATES | {"CLEANED", "CLEANED_INCOMPLETE", ABANDONED_BEFORE_INVOCATION, RECOVERY_PRESERVED_INCOMPLETE}
 FORBIDDEN_COMMAND_PREFIXES: tuple[tuple[str, ...], ...] = (
     ("git", "push"),
     ("git", "reset", "--hard"),
@@ -82,6 +83,7 @@ EVIDENCE_FILES = {
     "cleanup-disposition": "cleanup-disposition.json",
     "abandonment-intent": "abandonment-intent.json",
     "abandonment-record": "abandonment-record.json",
+    "recovery-preservation": "recovery-preservation.json",
 }
 
 
@@ -1213,6 +1215,54 @@ def parse_changed_paths(root: Path) -> list[str]:
     return sorted(set(paths))
 
 
+def recovery_worktree_fingerprint(root: Path) -> str:
+    completed = subprocess.run(
+        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+        cwd=str(root),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    require(completed.returncode == 0, "GIT_STATUS_FAILED", "Cannot fingerprint recovery worktree", stderr=completed.stderr.decode("utf-8", "replace")[-2000:])
+    raw = completed.stdout
+    records = raw.split(b"\0")
+    paths: list[str] = []
+    index = 0
+    while index < len(records):
+        record = records[index]
+        if not record:
+            break
+        require(len(record) >= 4, "GIT_STATUS_INVALID", "Invalid porcelain record while fingerprinting recovery worktree")
+        code = record[:2].decode("ascii", "strict")
+        relative = record[3:].decode("utf-8", "surrogateescape")
+        paths.append(relative)
+        if "R" in code or "C" in code:
+            index += 1
+            require(index < len(records) and bool(records[index]), "GIT_STATUS_INVALID", "Rename/copy status is incomplete")
+        index += 1
+    digest = hashlib.sha256()
+    digest.update(raw)
+    for relative in sorted(paths):
+        candidate = root / relative
+        digest.update(relative.encode("utf-8", "surrogateescape") + b"\0")
+        try:
+            info = candidate.lstat()
+        except FileNotFoundError:
+            digest.update(b"MISSING\0")
+            continue
+        digest.update(oct(stat.S_IMODE(info.st_mode)).encode("ascii") + b"\0")
+        if candidate.is_symlink():
+            digest.update(b"L\0" + os.readlink(candidate).encode("utf-8", "surrogateescape") + b"\0")
+        elif candidate.is_file():
+            digest.update(b"F\0")
+            with candidate.open("rb") as handle:
+                for block in iter(lambda: handle.read(1024 * 1024), b""):
+                    digest.update(block)
+        else:
+            digest.update(b"O\0")
+    return digest.hexdigest()
+
+
 def pattern_matches(path: str, pattern: str) -> bool:
     normalized = pattern.rstrip("/")
     if normalized.endswith("/**"):
@@ -1572,7 +1622,7 @@ def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
     result["runDirectory"] = str(directory)
     task = load_json(directory / "task-contract.json")
     result["requiredEvidence"] = evidence_status(directory, task, include_cleanup=(directory / "cleanup-disposition.json").is_file())
-    for name in ("changed-path-report.json", "final-result.json", "cleanup-disposition.json", "abandonment-intent.json", "abandonment-record.json"):
+    for name in ("changed-path-report.json", "final-result.json", "cleanup-disposition.json", "abandonment-intent.json", "abandonment-record.json", "recovery-preservation.json"):
         path = directory / name
         if path.is_file():
             result[name.removesuffix(".json")] = load_json(path)
@@ -1582,10 +1632,80 @@ def cmd_status(args: argparse.Namespace) -> dict[str, Any]:
     return result
 
 
+def cmd_preserve_recovery(args: argparse.Namespace) -> dict[str, Any]:
+    context = resolve_context(args.project_root)
+    directory, record = load_run_record(context, args.task_id)
+    preservation_path = directory / "recovery-preservation.json"
+    if record.get("status") == RECOVERY_PRESERVED_INCOMPLETE:
+        require(preservation_path.is_file(), "RECOVERY_PRESERVATION_MISSING", "Terminal recovery preservation status requires immutable evidence", taskId=args.task_id)
+        existing = load_json(preservation_path)
+        require(existing.get("taskId") == args.task_id, "RECOVERY_PRESERVATION_CONFLICT", "Recovery preservation task identity differs", taskId=args.task_id)
+        require(existing.get("reason") == "INVOKED_UNRECORDED_HOST_TIMEOUT", "RECOVERY_PRESERVATION_CONFLICT", "Recovery preservation reason differs", taskId=args.task_id)
+        require(existing.get("sourceDossierSha256") == args.source_dossier_sha256, "RECOVERY_PRESERVATION_CONFLICT", "Recovery preservation dossier binding differs", taskId=args.task_id)
+        require(existing.get("changedPathCount") == args.expected_changed_path_count, "RECOVERY_PRESERVATION_CONFLICT", "Recovery preservation changed path count differs", taskId=args.task_id)
+        return existing
+
+    require(record.get("status") == "PREPARED", "RECOVERY_PRESERVATION_STATE_INVALID", "Only a prepared task may be preserved as recovery input", taskId=args.task_id, status=record.get("status"))
+    require(record.get("codexInvocation") == "NOT_RECORDED", "RECOVERY_PRESERVATION_INVOCATION_STATE_INVALID", "Recovery preservation is only for the historical invoked-but-unrecorded state", taskId=args.task_id, codexInvocation=record.get("codexInvocation"))
+    require(args.reason == "invoked-unrecorded-host-timeout", "RECOVERY_PRESERVATION_REASON_INVALID", "Unsupported recovery preservation reason", reason=args.reason)
+    require(isinstance(args.expected_changed_path_count, int) and args.expected_changed_path_count > 0, "RECOVERY_PRESERVATION_PATH_COUNT_INVALID", "Expected recovery changed path count must be positive")
+    require(re.fullmatch(r"[0-9a-f]{64}", args.source_dossier_sha256) is not None, "RECOVERY_PRESERVATION_DOSSIER_SHA_INVALID", "Recovery dossier SHA-256 binding is invalid")
+
+    task = load_json(directory / "task-contract.json")
+    policy = load_pilot_contract(context.current_root)
+    validate_task(task, policy)
+    expected_task_hash = (directory / "task-contract.sha256").read_text(encoding="utf-8").split()[0]
+    require(sha256_file(directory / "task-contract.json") == expected_task_hash, "TASK_CONTRACT_MUTATED", "Task contract changed before recovery preservation")
+
+    worktree = Path(record["worktreePath"])
+    require(worktree.is_dir() and not worktree.is_symlink(), "RECOVERY_WORKTREE_MISSING", "Recovery worktree must exist and remain a real directory", path=str(worktree))
+    state = worktree_state(worktree)
+    require(state["detached"] and state["head"] == task["baseCommit"], "RECOVERY_WORKTREE_STATE_INVALID", "Recovery worktree must remain detached at the original task base", state=state)
+    changed = parse_changed_paths(worktree)
+    require(len(changed) == args.expected_changed_path_count, "RECOVERY_CHANGED_PATH_COUNT_MISMATCH", "Recovery worktree changed path count differs from operator binding", expected=args.expected_changed_path_count, actual=len(changed))
+    require(bool(changed), "RECOVERY_WORKTREE_CLEAN", "Recovery preservation requires a dirty recovery worktree")
+
+    integration = integration_state(context.integration_root)
+    require(integration["branch"] == context.integration_branch and integration["statusPorcelainV1"] == "", "INTEGRATION_STATE_INVALID", "Integration worktree must be clean on the integration branch before recovery preservation", state=integration)
+    require(integration["head"] != task["baseCommit"], "RECOVERY_INTEGRATION_HEAD_NOT_ADVANCED", "Recovery preservation requires integration HEAD to have advanced beyond the historical task base", integrationHead=integration["head"], taskBase=task["baseCommit"])
+
+    fingerprint = recovery_worktree_fingerprint(worktree)
+    preservation = {
+        "schemaVersion": "springmaster.agent-task-recovery-preservation.v1",
+        "status": RECOVERY_PRESERVED_INCOMPLETE,
+        "taskId": args.task_id,
+        "reason": "INVOKED_UNRECORDED_HOST_TIMEOUT",
+        "preservedAt": utc_now(),
+        "baseCommit": task["baseCommit"],
+        "integrationHead": integration["head"],
+        "worktreePath": str(worktree),
+        "worktreePreserved": True,
+        "evidenceRetained": True,
+        "codexInvocation": "NOT_RECORDED",
+        "reinvocationAllowed": False,
+        "changedPathCount": len(changed),
+        "changedPaths": changed,
+        "worktreeFingerprintSha256": fingerprint,
+        "sourceDossierSha256": args.source_dossier_sha256,
+        "newAttemptRequired": True,
+    }
+    require(not preservation_path.exists(), "RECOVERY_PRESERVATION_ALREADY_EXISTS", "Recovery preservation evidence already exists without terminal run state", path=str(preservation_path))
+    atomic_json(preservation_path, preservation)
+    preservation_sha = sha256_file(preservation_path)
+    atomic_text(directory / "recovery-preservation.sha256", f"{preservation_sha}  recovery-preservation.json\\n")
+    record["status"] = RECOVERY_PRESERVED_INCOMPLETE
+    record["recoveryPreservedAt"] = preservation["preservedAt"]
+    record["recoveryPreservationSha256"] = preservation_sha
+    record["reinvocationAllowed"] = False
+    atomic_json(directory / "run.json", record)
+    return preservation
+
+
 def cmd_cleanup(args: argparse.Namespace) -> dict[str, Any]:
     context = resolve_context(args.project_root)
     directory, record = load_run_record(context, args.task_id)
     require(record.get("status") != ABANDONED_BEFORE_INVOCATION, "ABANDONED_TASK_CLEANUP_FORBIDDEN", "An abandoned pre-invocation task has already removed its worktree and retained terminal evidence", taskId=args.task_id)
+    require(record.get("status") != RECOVERY_PRESERVED_INCOMPLETE, "RECOVERY_PRESERVED_CLEANUP_FORBIDDEN", "A recovery-preserved task must retain its worktree and evidence for the successor attempt", taskId=args.task_id)
     worktree = Path(record["worktreePath"])
     dirty = False
     if worktree.is_dir():
@@ -1657,6 +1777,11 @@ def parser() -> argparse.ArgumentParser:
     abandon = sub.add_parser("abandon-before-invocation")
     abandon.add_argument("task_id")
     abandon.add_argument("--reason", required=True, choices=("integration-head-advanced",))
+    preserve = sub.add_parser("preserve-recovery")
+    preserve.add_argument("task_id")
+    preserve.add_argument("--reason", required=True, choices=("invoked-unrecorded-host-timeout",))
+    preserve.add_argument("--expected-changed-path-count", required=True, type=int)
+    preserve.add_argument("--source-dossier-sha256", required=True)
     cleanup = sub.add_parser("cleanup")
     cleanup.add_argument("task_id")
     cleanup.add_argument("--discard", action="store_true")
@@ -1684,6 +1809,8 @@ def main() -> int:
             value = cmd_handoff(args)
         elif args.command == "abandon-before-invocation":
             value = cmd_abandon_before_invocation(args)
+        elif args.command == "preserve-recovery":
+            value = cmd_preserve_recovery(args)
         elif args.command == "cleanup":
             value = cmd_cleanup(args)
         else:

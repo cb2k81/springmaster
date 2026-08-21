@@ -93,7 +93,7 @@
     "requiredStatusBeforePromotion": "PASS",
     "writableCodexAuthorized": true
   },
-  "contractVersion": "1.9.0",
+  "contractVersion": "1.10.0",
   "decisionSource": "PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md",
   "evidence": {
     "canonicalStorage": "external-run-root",
@@ -408,6 +408,19 @@
       "requiresNewAttempt": true,
       "retainsEvidence": true,
       "terminalStatus": "ABANDONED_BEFORE_INVOCATION"
+    },
+    "recoveryPreservation": {
+      "allowedSourceStatus": "PREPARED",
+      "command": "bin/agent-task.sh preserve-recovery <task-id> --reason invoked-unrecorded-host-timeout --expected-changed-path-count <n> --source-dossier-sha256 <sha256>",
+      "preservesTaskWorktree": true,
+      "purpose": "Terminalize a forensically proven historical invoked-but-unrecorded task without deleting its immutable recovery worktree.",
+      "reinvocationAllowed": false,
+      "requiredCodexInvocation": "NOT_RECORDED",
+      "requiredIntegrationCondition": "clean integration branch advanced beyond task base",
+      "requiredWorktreeCondition": "dirty detached worktree at exact historical task base",
+      "requiresNewAttempt": true,
+      "retainsEvidence": true,
+      "terminalStatus": "RECOVERY_PRESERVED_INCOMPLETE"
     }
   },
   "taskSemantics": {

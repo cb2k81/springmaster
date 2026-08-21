@@ -325,3 +325,10 @@ NOT_RECORDED -> STARTED -> RECORDED
 The default autonomous budget is six hours of credited active time. Large gaps between heartbeat ticks receive only the bounded active-time credit declared by the host qualification contract; the remainder is excluded. The optional no-progress budget is measured on the same active clock. No operating procedure may require disabling host/VM suspend or changing user power-management settings.
 
 The foreground `invoke` command remains for bounded compatibility and calibration flows, but it uses the same start-evidence, streaming, heartbeat and active-time semantics. The Bubblewrap, Codex permission-profile, external-root, integration-worktree, Git and trusted-operator boundaries remain unchanged.
+## Recovery-Preservation für historisch gestartete, nicht aufgezeichnete Invocations
+
+Wenn ein älterer Harness einen real gestarteten Codex-Prozess wegen eines Host-Timeouts nicht als Invocation aufgezeichnet hat, darf der betroffene Task nicht erneut invoked werden. Ist sein detached Worktree zugleich ein benötigter Recovery-Seed, wird er mit `agent-task preserve-recovery` terminalisiert, ohne Worktree oder Evidence zu löschen.
+
+Der Befehl ist ausschließlich für `PREPARED / NOT_RECORDED` zulässig, verlangt einen dirty Worktree am unveränderten Task-Base, einen inzwischen fortgeschrittenen sauberen Integrations-HEAD, die erwartete Changed-Path-Anzahl und eine externe Dossier-SHA-256-Bindung. Ergebnis ist `RECOVERY_PRESERVED_INCOMPLETE` mit `reinvocationAllowed=false`, persistentem Worktree-Fingerprint und `newAttemptRequired=true`. Dieser Terminalzustand zählt nicht mehr als aktiver Pilot-Task und erlaubt dadurch den expliziten Nachfolge-Attempt.
+
+`cleanup` ist für `RECOVERY_PRESERVED_INCOMPLETE` fail-closed verboten, damit der Recovery-Worktree nicht versehentlich entfernt wird.

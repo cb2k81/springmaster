@@ -727,6 +727,37 @@ set -e
 test "${RC}" -eq 1
 BASE="$(git -C "${REPO}" rev-parse HEAD)"
 
+CURRENT_STEP=recovery-preservation-keeps-worktree-and-unblocks-successor
+TASK18="${TMP_ROOT}/task18.json"
+make_task AGENT-FIXTURE-020 implementation low '["fixture"]' README.md forbidden.txt 2 4096 "${DIFF_COMMANDS}" "${TASK18}"
+PREPARE18="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK18}")"
+WORKTREE18="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE18}")"
+printf '%s\n' 'recovery bytes that must remain immutable' > "${WORKTREE18}/README.md"
+printf '%s\n' 'integration advanced for recovery preservation' > "${REPO}/advance-18.txt"
+git -C "${REPO}" add advance-18.txt
+git -C "${REPO}" commit -q -m advance-after-prepare-18
+BASE="$(git -C "${REPO}" rev-parse HEAD)"
+PRESERVE18="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json preserve-recovery AGENT-FIXTURE-020 --reason invoked-unrecorded-host-timeout --expected-changed-path-count 1 --source-dossier-sha256 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="RECOVERY_PRESERVED_INCOMPLETE"; assert v["worktreePreserved"] is True; assert v["reinvocationAllowed"] is False; assert v["changedPathCount"]==1; assert len(v["worktreeFingerprintSha256"])==64' <<<"${PRESERVE18}"
+test -d "${WORKTREE18}"
+grep -Fx 'recovery bytes that must remain immutable' "${WORKTREE18}/README.md" >/dev/null
+STATUS18="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json status AGENT-FIXTURE-020)"
+python3 -c 'import json,sys; v=json.load(sys.stdin); assert v["status"]=="RECOVERY_PRESERVED_INCOMPLETE"; assert v["recovery-preservation"]["worktreePreserved"] is True' <<<"${STATUS18}"
+set +e
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-020 --discard > "${TMP_ROOT}/recovery-cleanup.out"
+RC=$?
+set -e
+test "${RC}" -eq 2
+grep -F 'errorCode=RECOVERY_PRESERVED_CLEANUP_FORBIDDEN' "${TMP_ROOT}/recovery-cleanup.out" >/dev/null
+TASK19="${TMP_ROOT}/task19.json"
+make_task AGENT-FIXTURE-021 analysis low '["analysis"]' README.md forbidden.txt 0 0 "${DIFF_COMMANDS}" "${TASK19}"
+PREPARE19="$("${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${TASK19}")"
+WORKTREE19="$(python3 -c 'import json,sys;print(json.load(sys.stdin)["worktreePath"])' <<<"${PREPARE19}")"
+test -d "${WORKTREE19}"
+test -d "${WORKTREE18}"
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup AGENT-FIXTURE-021 --discard >/dev/null || true
+printf '%s\n' 'RECOVERY_PRESERVATION_FIXTURE=PASS'
+
 CURRENT_STEP=multi-host-authorization-contract
 python3 - "${REPO}/bin/agent-task.py" "${REPO}/contracts/governance/agent/codex-pilot-contract.json" "${TMP_ROOT}/host-auth-unit" <<'PY_HOST_AUTH'
 import hashlib,importlib.util,json,sys,tempfile
