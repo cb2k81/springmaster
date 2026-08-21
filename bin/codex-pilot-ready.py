@@ -55,6 +55,7 @@ REQUIRED_FILES = {
     "contracts/governance/agent/agent-task-contract.schema.json",
     "contracts/governance/agent/operator-command-effect.schema.json",
     "contracts/governance/agent/codex-invocation-record.schema.json",
+    "contracts/governance/agent/codex-invocation-start.schema.json",
     "contracts/pilots/codex/business-partner-pilot-acceptance.json",
     "bin/agent-task.py",
     "bin/agent-task.sh",
@@ -312,6 +313,7 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     task_schema = load_json(root / "contracts/governance/agent/agent-task-contract.schema.json")
     effect_schema = load_json(root / "contracts/governance/agent/operator-command-effect.schema.json")
     invocation_schema = load_json(root / "contracts/governance/agent/codex-invocation-record.schema.json")
+    invocation_start_schema = load_json(root / "contracts/governance/agent/codex-invocation-start.schema.json")
     acceptance = load_json(root / "contracts/pilots/codex/business-partner-pilot-acceptance.json")
     if pilot.get("schemaVersion") != "springmaster.codex-pilot-contract.v1" or pilot.get("status") != "active":
         finding(findings, "AIA-PROJECT-001", "PILOT_CONTRACT_INVALID", "Pilot contract schema or status is invalid")
@@ -385,6 +387,21 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         and host_qualification.get("cutoverBoundary", {}).get("hostQualificationPortable") is False
         and host_qualification.get("cutoverBoundary", {}).get("acceptedImplementationCalibrationCount") == 2
         and host_qualification.get("cutoverBoundary", {}).get("automaticPromotionForbidden") is True
+        and host_qualification.get("durableInvocation", {}).get("canonicalStartOperation") == "codex-host-sandbox invoke-start"
+        and host_qualification.get("durableInvocation", {}).get("processOwner") == "process-ops/crun"
+        and host_qualification.get("durableInvocation", {}).get("singletonKeyPolicy") == "stable-task-id-derived"
+        and host_qualification.get("durableInvocation", {}).get("observerLossTerminatesWorker") is False
+        and host_qualification.get("durableInvocation", {}).get("stdoutEvidence") == "streaming-persistent-jsonl"
+        and host_qualification.get("durableInvocation", {}).get("stderrEvidence") == "streaming-persistent-file"
+        and host_qualification.get("durableInvocation", {}).get("heartbeatWritePolicy") == "atomic-replace"
+        and host_qualification.get("durableInvocation", {}).get("activeTimeBudget") is True
+        and host_qualification.get("durableInvocation", {}).get("suspendGapPolicy") == "credit-at-most-max-active-credit-per-heartbeat"
+        and host_qualification.get("durableInvocation", {}).get("terminalInvocationEvidenceRequiredAfterProcessStart") is True
+        and isinstance(host_qualification.get("durableInvocation", {}).get("defaultActiveTimeoutSeconds"), int)
+        and host_qualification.get("durableInvocation", {}).get("defaultActiveTimeoutSeconds") >= 1800
+        and isinstance(host_qualification.get("durableInvocation", {}).get("heartbeatIntervalSeconds"), int)
+        and isinstance(host_qualification.get("durableInvocation", {}).get("maxActiveCreditPerHeartbeatSeconds"), int)
+        and host_qualification.get("durableInvocation", {}).get("maxActiveCreditPerHeartbeatSeconds") >= host_qualification.get("durableInvocation", {}).get("heartbeatIntervalSeconds")
     )
     pilot_calibration_valid = (
         calibration.get("contractPath") == "contracts/governance/agent/codex-confinement-contract.json"
@@ -422,6 +439,8 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
         finding(findings, "AIA-EXECUTION-001", "OPERATOR_EFFECT_SCHEMA_INVALID", "Operator command effect schema identity or closed-object policy is invalid")
     if invocation_schema.get("$id") != "urn:springmaster:schema:codex-invocation-record:v1" or invocation_schema.get("additionalProperties") is not False:
         finding(findings, "AIA-EXECUTION-001", "INVOCATION_RECORD_SCHEMA_INVALID", "Codex invocation record schema identity or closed-object policy is invalid")
+    if invocation_start_schema.get("$id") != "urn:springmaster:schema:codex-invocation-start:v1" or invocation_start_schema.get("additionalProperties") is not False:
+        finding(findings, "AIA-EXECUTION-001", "INVOCATION_START_SCHEMA_INVALID", "Codex invocation start schema identity or closed-object policy is invalid")
     invocation = pilot.get("invocation") if isinstance(pilot.get("invocation"), dict) else {}
     expected_mode_writes = {"analysis": [], "implementation": ["task-worktree"], "qualification": []}
     expected_mode_mutations = {"analysis": "none", "implementation": "task-worktree-only", "qualification": "none"}
@@ -440,6 +459,11 @@ def evaluate(root: Path, mode: str, skip_self_tests: bool) -> dict[str, Any]:
     }
     invocation_valid = (
         invocation.get("recordOperation") == "agent-task record-invocation"
+        and invocation.get("startRecordOperation") == "agent-task record-invocation-start"
+        and invocation.get("startRecordSchemaVersion") == "springmaster.codex-invocation-start.v1"
+        and invocation.get("startRecordSchemaPath") == "contracts/governance/agent/codex-invocation-start.schema.json"
+        and invocation.get("lifecycleStates") == ["NOT_RECORDED", "STARTED", "RECORDED"]
+        and invocation.get("startedInvocationRetryPolicy") == "forbidden-same-task-id"
         and invocation.get("immutableAfterRecord") is True
         and invocation.get("requiredArgvPrefix") == ["codex", "--ask-for-approval", "never", "exec"]
         and {"--ephemeral", "--ignore-rules", "--json"} <= required_flags

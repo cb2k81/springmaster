@@ -10,6 +10,22 @@
     "separateHostAuthorizationRequired": true,
     "separateRepositoryPromotionRequired": true
   },
+  "durableInvocation": {
+    "activeTimeBudget": true,
+    "canonicalStartOperation": "codex-host-sandbox invoke-start",
+    "defaultActiveTimeoutSeconds": 21600,
+    "heartbeatIntervalSeconds": 2,
+    "heartbeatWritePolicy": "atomic-replace",
+    "maxActiveCreditPerHeartbeatSeconds": 10,
+    "noProgressBudget": "optional-active-time",
+    "observerLossTerminatesWorker": false,
+    "processOwner": "process-ops/crun",
+    "singletonKeyPolicy": "stable-task-id-derived",
+    "stderrEvidence": "streaming-persistent-file",
+    "stdoutEvidence": "streaming-persistent-jsonl",
+    "suspendGapPolicy": "credit-at-most-max-active-credit-per-heartbeat",
+    "terminalInvocationEvidenceRequiredAfterProcessStart": true
+  },
   "hostEvidence": {
     "immutableAfterCompletion": true,
     "machineIdentity": "sha256-of-machine-id-architecture-and-kernel",

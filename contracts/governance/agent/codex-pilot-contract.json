@@ -198,6 +198,11 @@
       "-P"
     ],
     "immutableAfterRecord": true,
+    "lifecycleStates": [
+      "NOT_RECORDED",
+      "STARTED",
+      "RECORDED"
+    ],
     "modeRepositoryMutationPolicies": {
       "analysis": "none",
       "implementation": "task-worktree-only",
@@ -254,6 +259,10 @@
       "--model"
     ],
     "sourceEvidenceRoot": "external-artifact-root",
+    "startRecordOperation": "agent-task record-invocation-start",
+    "startRecordSchemaPath": "contracts/governance/agent/codex-invocation-start.schema.json",
+    "startRecordSchemaVersion": "springmaster.codex-invocation-start.v1",
+    "startedInvocationRetryPolicy": "forbidden-same-task-id",
     "temporaryDirectoryWritePolicy": "forbidden-unless-contained-in-task-worktree",
     "workingDirectoryPolicy": "prepared-task-worktree"
   },

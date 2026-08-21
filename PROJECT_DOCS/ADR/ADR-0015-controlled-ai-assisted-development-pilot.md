@@ -14,7 +14,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-25
 validFrom: 2026-07-25
-lastReviewedAt: 2026-07-25
+lastReviewedAt: 2026-08-20
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -77,3 +77,13 @@ The patch implementing this ADR intentionally stops at `PROJECT_READY`. The firs
 ## Verification and promotion
 
 Project readiness is evaluated by `bin/codex-pilot-ready.sh project --live --check`. The gate is strict and read-only. Its fixtures must cover positive, finding and tool-error behavior. Writable Codex use requires a later calibration record and a separate explicit promotion change.
+
+## Durable invocation clarification (2026-08-20)
+
+Long-running governed Codex invocations use the existing `process-ops`/`crun` process ownership model. A task-bound `invoke-start` operation starts exactly one detached singleton worker and returns its persistent run ID; reconnecting observers reuse that run and do not create another Codex writer. No independent `nohup`, `setsid`, PID-file supervisor, or second process state machine is introduced.
+
+Before the worker launches the real `bwrap + codex` process it persists immutable invocation-start evidence and advances the task lifecycle from `NOT_RECORDED` to `STARTED`. A started invocation is consumed even when Codex subsequently exits non-zero, is interrupted, times out, or the worker must be reconciled after a crash. The final invocation record advances the lifecycle to `RECORDED`; `abandon-before-invocation` remains legal only in `NOT_RECORDED`.
+
+The worker streams Codex stdout and stderr directly to persistent files below the external artifact root and atomically replaces a heartbeat record while active. Runtime limits are active-time budgets, not a fixed wall-clock deadline. Each heartbeat interval credits no more than the contractually bounded active-time increment, so a host suspend or an equivalent long scheduling gap is excluded beyond that bounded credit. An optional no-progress budget uses the same active-time clock. This operating model must not require disabling VM suspend, changing power-management settings, or keeping an observer terminal open.
+
+The clarification does not widen Bubblewrap mounts, network authority, task write scope, integration authority, Git authority, external-root write authority, or human acceptance boundaries. Dry-run and Accept remain separate trusted-operator actions.

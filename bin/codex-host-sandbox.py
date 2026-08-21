@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import os
 import platform
 import shutil
+import signal
 import stat
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -203,6 +206,12 @@ def load_contract(root: Path) -> tuple[Path, dict[str, Any]]:
     require(plan_input.get("sandboxPath") == "/run/codex-input/calibration-plan.json", "HOST_CONTRACT_INVALID", "Host calibration plan sandbox path is invalid")
     require(plan_input.get("environmentVariable") == "SPRINGMASTER_CODEX_CALIBRATION_PLAN", "HOST_CONTRACT_INVALID", "Host calibration plan environment variable is invalid")
     require(plan_input.get("sourceSha256MustMatchPrepareRecord") is True and plan_input.get("filesystemSearchForbidden") is True, "HOST_CONTRACT_INVALID", "Host calibration plan input safety policy is invalid")
+    durable = value.get("durableInvocation") if isinstance(value.get("durableInvocation"), dict) else {}
+    require(durable.get("canonicalStartOperation") == "codex-host-sandbox invoke-start", "HOST_CONTRACT_INVALID", "Durable invocation start operation is invalid")
+    require(durable.get("processOwner") == "process-ops/crun" and durable.get("singletonKeyPolicy") == "stable-task-id-derived", "HOST_CONTRACT_INVALID", "Durable invocation process ownership is invalid")
+    require(durable.get("observerLossTerminatesWorker") is False, "HOST_CONTRACT_INVALID", "Durable invocation must survive observer loss")
+    require(durable.get("activeTimeBudget") is True and durable.get("suspendGapPolicy") == "credit-at-most-max-active-credit-per-heartbeat", "HOST_CONTRACT_INVALID", "Durable invocation active-time policy is invalid")
+    require(isinstance(durable.get("heartbeatIntervalSeconds"), int) and isinstance(durable.get("maxActiveCreditPerHeartbeatSeconds"), int) and durable.get("maxActiveCreditPerHeartbeatSeconds") >= durable.get("heartbeatIntervalSeconds"), "HOST_CONTRACT_INVALID", "Durable invocation heartbeat policy is invalid")
     return path, value
 
 
@@ -763,16 +772,95 @@ def host_calibration_plan_input(
     return plan_path, Path(str(input_contract["sandboxPath"])), str(input_contract["environmentVariable"])
 
 
-def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path, model: str, change_bundle: Path | None = None) -> dict[str, Any]:
+def boot_id() -> str:
+    path = Path("/proc/sys/kernel/random/boot_id")
+    if path.is_file():
+        value = path.read_text(encoding="utf-8").strip()
+        if value:
+            return value
+    return f"host-{host_id()}"
+
+
+def active_time_credit(raw_delta: float, maximum_credit: float) -> tuple[float, float]:
+    require(raw_delta >= 0.0, "ACTIVE_TIME_DELTA_INVALID", "Active-time delta must not be negative", rawDelta=raw_delta)
+    require(maximum_credit > 0.0, "ACTIVE_TIME_CREDIT_INVALID", "Maximum active-time credit must be positive", maximumCredit=maximum_credit)
+    credited = min(raw_delta, maximum_credit)
+    return credited, max(0.0, raw_delta - credited)
+
+
+def worktree_progress_fingerprint(worktree: Path) -> str:
+    completed = subprocess.run(
+        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+        cwd=worktree,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return sha256_bytes(b"git-status-error\0" + completed.stderr[-2000:])
+    digest = hashlib.sha256(completed.stdout)
+    for entry in completed.stdout.split(b"\0"):
+        if len(entry) < 4 or entry[2:3] != b" ":
+            continue
+        raw_path = entry[3:]
+        try:
+            relative = raw_path.decode("utf-8", errors="surrogateescape")
+            candidate = worktree / relative
+            stat_result = candidate.lstat()
+            digest.update(relative.encode("utf-8", errors="surrogateescape"))
+            digest.update(f"\0{stat_result.st_mode}\0{stat_result.st_size}\0{stat_result.st_mtime_ns}\0".encode("ascii"))
+        except (FileNotFoundError, OSError):
+            continue
+    return digest.hexdigest()
+
+
+def terminate_process_group(process: subprocess.Popen[bytes], *, grace_seconds: float = 10.0) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    deadline = time.monotonic() + grace_seconds
+    while process.poll() is None and time.monotonic() < deadline:
+        time.sleep(0.1)
+    if process.poll() is None:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+
+
+def invocation_evidence_dir(ctx: dict[str, Path], task_id: str, base_commit: str) -> Path:
+    return ctx["artifactRoot"] / "codex-host-qualification" / host_id() / base_commit / task_id.lower()
+
+
+def invocation_preflight(
+    root: Path,
+    task_id: str,
+    prompt_file: Path,
+    model: str,
+    change_bundle: Path | None,
+    *,
+    allowed_invocation_states: set[str] | None = None,
+) -> tuple[dict[str, Path], dict[str, Any], dict[str, Any], Path, Path, str, list[str], list[tuple[Path, Path]], dict[str, str]]:
     ctx = context(root)
     _, contract = load_contract(root)
     state = status_json(root, task_id)
+    allowed_states = allowed_invocation_states or {"NOT_RECORDED"}
+    require(state.get("codexInvocation") in allowed_states, "INVOCATION_TASK_ALREADY_CONSUMED", "Task invocation lifecycle state is not valid for this operation", taskId=task_id, codexInvocation=state.get("codexInvocation"), allowedInvocationStates=sorted(allowed_states))
     task = Path(state["worktreePath"]).resolve()
     run_dir = Path(state["runDirectory"]).resolve()
     task_contract = load_json(run_dir / "task-contract.json")
     mode = task_contract.get("mode")
     require(mode in {"analysis", "implementation", "qualification"}, "TASK_MODE_INVALID", "Unsupported task mode", mode=mode)
+    require(task_contract.get("baseCommit") == git(ctx["integration"], "rev-parse", "HEAD"), "INTEGRATION_BASE_DRIFT", "Integration HEAD changed after task preparation", taskBase=task_contract.get("baseCommit"), integrationHead=git(ctx["integration"], "rev-parse", "HEAD"))
     require(prompt_file.is_file() and not prompt_file.is_symlink(), "PROMPT_INVALID", "Prompt file is missing or unsafe", path=str(prompt_file))
+    require(isinstance(model, str) and model.strip(), "MODEL_INVALID", "Codex model is required")
     extra_env = {
         "SPRINGMASTER_AGENT_TASK_ID": task_id,
         "SPRINGMASTER_AGENT_TASK_CONTRACT": str(run_dir / "task-contract.json"),
@@ -800,38 +888,83 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
         require(contains(ctx["artifactRoot"], resolved_bundle), "CHANGE_BUNDLE_OUTSIDE_ARTIFACT_ROOT", "Change bundle must be below the external artifact root", path=str(resolved_bundle), root=str(ctx["artifactRoot"]))
         extra_env["SPRINGMASTER_CODEX_CHANGE_BUNDLE"] = str(resolved_bundle)
         reads.append("external-artifact-root-read-only")
+    return ctx, contract, task_contract, task, run_dir, str(mode), reads, readonly_inputs, extra_env
+
+
+def invoke_process(
+    root: Path,
+    bwrap: Path,
+    codex: Path,
+    task_id: str,
+    prompt_file: Path,
+    model: str,
+    change_bundle: Path | None,
+    *,
+    active_timeout_seconds: int,
+    no_progress_timeout_seconds: int | None,
+    process_binding: dict[str, Any],
+    evidence_dir: Path | None = None,
+) -> dict[str, Any]:
+    require(1 <= active_timeout_seconds <= 86400, "ACTIVE_TIMEOUT_INVALID", "Active-time budget must be between 1 and 86400 seconds", activeTimeoutSeconds=active_timeout_seconds)
+    require(no_progress_timeout_seconds is None or 1 <= no_progress_timeout_seconds <= 86400, "NO_PROGRESS_TIMEOUT_INVALID", "No-progress budget must be between 1 and 86400 seconds when enabled", noProgressTimeoutSeconds=no_progress_timeout_seconds)
+    ctx, contract, task_contract, task, run_dir, mode, reads, readonly_inputs, extra_env = invocation_preflight(root, task_id, prompt_file, model, change_bundle)
+    base_commit = str(task_contract["baseCommit"])
+    target_evidence_dir = evidence_dir or invocation_evidence_dir(ctx, task_id, base_commit)
+    if evidence_dir is None:
+        require(not target_evidence_dir.exists(), "EVIDENCE_DIRECTORY_EXISTS", "Invocation evidence directory already exists", path=str(target_evidence_dir))
+        target_evidence_dir.mkdir(parents=True, mode=0o700)
+    else:
+        require(target_evidence_dir.is_dir() and not target_evidence_dir.is_symlink(), "EVIDENCE_DIRECTORY_INVALID", "Durable invocation evidence directory is missing or unsafe", path=str(target_evidence_dir))
+    stdout_path = target_evidence_dir / "codex.stdout.jsonl"
+    stderr_path = target_evidence_dir / "codex.stderr.log"
+    heartbeat_path = target_evidence_dir / "heartbeat.json"
+    validation_path = target_evidence_dir / "codex-jsonl-validation.json"
+    effect_path = target_evidence_dir / "operator-command-effect.json"
+    start_path = target_evidence_dir / "codex-invocation-start.json"
+    invocation_path = target_evidence_dir / "codex-invocation.json"
+    result_path = target_evidence_dir / "host-invocation.json"
+    for path in (stdout_path, stderr_path, heartbeat_path, validation_path, effect_path, start_path, invocation_path, result_path):
+        require(not path.exists() and not path.is_symlink(), "INVOCATION_EVIDENCE_ALREADY_EXISTS", "Invocation evidence already exists", path=str(path))
     source_home = resolve_codex_home()
-    evidence_dir = ctx["artifactRoot"] / "codex-host-qualification" / host_id() / git(root, "rev-parse", "HEAD") / task_id.lower()
-    require(not evidence_dir.exists(), "EVIDENCE_DIRECTORY_EXISTS", "Invocation evidence directory already exists", path=str(evidence_dir))
-    evidence_dir.mkdir(parents=True, mode=0o700)
-    private_home = Path(tempfile.mkdtemp(prefix="private-codex-home-", dir=evidence_dir))
+    private_home = Path(tempfile.mkdtemp(prefix="private-codex-home-", dir=target_evidence_dir))
+    process: subprocess.Popen[bytes] | None = None
+    lifecycle_started = False
+    effect: dict[str, Any] | None = None
+    invocation: dict[str, Any] | None = None
+    auth: dict[str, Any] = {}
+    timeout_reason: str | None = None
+    requested_signal: int | None = None
+    started_at = utc_now()
+    finished_at = started_at
+    codex_cli_version = "unknown"
+    record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
+    platform_sandbox = {
+        "implementation": "linux-bwrap",
+        "workspaceRoot": str(task),
+        "additionalWritableRoots": [],
+        "operatorHomeWritable": False,
+        "operatorDownloadsWritable": False,
+        "integrationWorktreeWritable": False,
+        "gitCommonDirectoryWritable": False,
+        "externalRunRootWritable": False,
+        "externalArtifactRootWritable": False,
+        "temporaryDirectoriesWritable": False,
+    }
     try:
         auth = copy_codex_auth(source_home, private_home)
         auth.update(write_private_codex_config(private_home, writable_task=mode == "implementation"))
         resolver = prepare_resolver_dependency(private_home)
         auth.update(resolver)
-        record_sandbox = "linux-bwrap-workspace-write" if mode == "implementation" else "linux-bwrap-read-only"
         codex_argv = [str(codex), "--ask-for-approval", "never", "exec", "--ephemeral", "--ignore-rules", "--json", "--model", model, "--cd", str(task), "-"]
         outer = bwrap_prefix(bwrap=bwrap, ctx=ctx, task=task, private_home=private_home, resolver=resolver, writable_task=mode == "implementation", extra_env=extra_env, readonly_inputs=readonly_inputs)
-        prompt = prompt_file.read_text(encoding="utf-8")
-        started_at = utc_now()
-        completed = run(outer + codex_argv, input_text=prompt, timeout=1800)
-        finished_at = utc_now()
-        stdout_path = evidence_dir / "codex.stdout.jsonl"
-        stderr_path = evidence_dir / "codex.stderr.log"
-        validation_path = evidence_dir / "codex-jsonl-validation.json"
-        stdout_path.write_text(completed.stdout, encoding="utf-8")
-        stderr_path.write_text(completed.stderr, encoding="utf-8")
-        jsonl_validation = validate_codex_jsonl(completed.stdout, mode, contract)
-        atomic_json(validation_path, jsonl_validation)
-        governed_pass = completed.returncode == 0 and jsonl_validation["status"] == "PASS"
+        codex_cli_version = run([str(codex), "--version"], timeout=30).stdout.strip()
         writes = ["task-worktree"] if mode == "implementation" else []
         mutation = "task-worktree-only" if mode == "implementation" else "none"
         effect = {
             "schemaVersion": "springmaster.operator-command-effect.v1",
             "commandId": "codex-host-sandbox",
             "taskId": task_id,
-            "purpose": "Host-confined Springmaster Codex calibration",
+            "purpose": "Host-confined Springmaster Codex invocation",
             "argv": ["codex" if item == str(codex) else item for item in codex_argv],
             "workingDirectory": str(task),
             "reads": reads,
@@ -843,59 +976,226 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
             "overwritePolicy": "declared-task-paths-only",
             "environmentInputs": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
         }
-        invocation = {
-            "schemaVersion": "springmaster.codex-invocation-record.v1",
+        stdout_path.touch(mode=0o600, exist_ok=False)
+        stderr_path.touch(mode=0o600, exist_ok=False)
+        start_record = {
+            "schemaVersion": "springmaster.codex-invocation-start.v1",
             "taskId": task_id,
             "commandId": "codex-host-sandbox",
             "recordedAt": utc_now(),
-            "agent": {"name": "codex", "cliVersion": run([str(codex), "--version"]).stdout.strip(), "model": model},
+            "agent": {
+                "name": "codex",
+                "cliVersion": codex_cli_version,
+                "model": model,
+                "executablePath": str(codex),
+                "executableSha256": sha256_file(codex),
+            },
+            "process": {
+                "owner": process_binding["owner"],
+                "runId": process_binding.get("runId"),
+                "singletonKey": process_binding.get("singletonKey"),
+                "workerPid": os.getpid(),
+                "workerPgid": os.getpgrp(),
+                "bootId": boot_id(),
+            },
             "execution": {
                 "argv": effect["argv"],
                 "workingDirectory": str(task),
                 "sandboxProfile": record_sandbox,
                 "approvalPolicy": "never",
-                "platformSandbox": {
-                    "implementation": "linux-bwrap",
-                    "workspaceRoot": str(task),
-                    "additionalWritableRoots": [],
-                    "operatorHomeWritable": False,
-                    "operatorDownloadsWritable": False,
-                    "integrationWorktreeWritable": False,
-                    "gitCommonDirectoryWritable": False,
-                    "externalRunRootWritable": False,
-                    "externalArtifactRootWritable": False,
-                    "temporaryDirectoriesWritable": False,
-                },
+                "platformSandbox": platform_sandbox,
+                "environmentKeys": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
+                "startedAt": started_at,
+                "stdoutPath": str(stdout_path),
+                "stderrPath": str(stderr_path),
+                "heartbeatPath": str(heartbeat_path),
+                "activeTimeoutSeconds": active_timeout_seconds,
+                "noProgressTimeoutSeconds": no_progress_timeout_seconds,
+            },
+        }
+        atomic_json(effect_path, effect)
+        atomic_json(start_path, start_record)
+        start_record_result = run(
+            [str(root / "bin/agent-task.sh"), "--project-root", str(root), "record-invocation-start", task_id, "--effect", str(effect_path), "--start", str(start_path)],
+            cwd=root,
+            timeout=60,
+        )
+        require(start_record_result.returncode == 0, "INVOCATION_START_RECORD_REJECTED", "Agent task rejected invocation start evidence", stdout=start_record_result.stdout[-2000:], stderr=start_record_result.stderr[-2000:])
+        lifecycle_started = True
+        atomic_json(heartbeat_path, {
+            "schemaVersion": "springmaster.codex-invocation-heartbeat.v1",
+            "taskId": task_id,
+            "processRunId": process_binding.get("runId"),
+            "singletonKey": process_binding.get("singletonKey"),
+            "bootId": boot_id(),
+            "workerPid": os.getpid(),
+            "workerPgid": os.getpgrp(),
+            "codexPid": None,
+            "codexPgid": None,
+            "status": "INVOCATION_STARTED",
+            "wallClockTimestamp": utc_now(),
+            "activeElapsedSeconds": 0.0,
+            "excludedGapSeconds": 0.0,
+            "stdoutBytes": 0,
+            "stderrBytes": 0,
+            "worktreeFingerprint": worktree_progress_fingerprint(task),
+            "lastProgressAt": utc_now(),
+            "lastProgressActiveSeconds": 0.0,
+        })
+        old_handlers: dict[int, Any] = {}
+        def handle_signal(signum: int, _frame: Any) -> None:
+            nonlocal requested_signal
+            requested_signal = signum
+        for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+            old_handlers[signum] = signal.getsignal(signum)
+            signal.signal(signum, handle_signal)
+        try:
+            with prompt_file.open("rb") as prompt_handle, stdout_path.open("ab", buffering=0) as stdout_handle, stderr_path.open("ab", buffering=0) as stderr_handle:
+                process = subprocess.Popen(
+                    outer + codex_argv,
+                    cwd=task,
+                    stdin=prompt_handle,
+                    stdout=stdout_handle,
+                    stderr=stderr_handle,
+                    start_new_session=True,
+                )
+                heartbeat_contract = contract.get("durableInvocation") if isinstance(contract.get("durableInvocation"), dict) else {}
+                heartbeat_interval = float(heartbeat_contract.get("heartbeatIntervalSeconds", 2))
+                maximum_credit = float(heartbeat_contract.get("maxActiveCreditPerHeartbeatSeconds", 10))
+                require(0.1 <= heartbeat_interval <= 60.0, "HEARTBEAT_INTERVAL_INVALID", "Heartbeat interval is invalid", heartbeatIntervalSeconds=heartbeat_interval)
+                require(heartbeat_interval <= maximum_credit <= 300.0, "ACTIVE_TIME_CREDIT_INVALID", "Maximum active-time heartbeat credit is invalid", maximumCredit=maximum_credit)
+                last_tick = time.monotonic()
+                active_elapsed = 0.0
+                excluded_gap = 0.0
+                stdout_bytes = stdout_path.stat().st_size
+                stderr_bytes = stderr_path.stat().st_size
+                fingerprint = worktree_progress_fingerprint(task)
+                last_progress_active = 0.0
+                last_progress_at = utc_now()
+                while True:
+                    returncode = process.poll()
+                    now = time.monotonic()
+                    raw_delta = max(0.0, now - last_tick)
+                    credited, excluded = active_time_credit(raw_delta, maximum_credit)
+                    active_elapsed += credited
+                    excluded_gap += excluded
+                    last_tick = now
+                    new_stdout_bytes = stdout_path.stat().st_size
+                    new_stderr_bytes = stderr_path.stat().st_size
+                    new_fingerprint = worktree_progress_fingerprint(task)
+                    if (new_stdout_bytes, new_stderr_bytes, new_fingerprint) != (stdout_bytes, stderr_bytes, fingerprint):
+                        last_progress_active = active_elapsed
+                        last_progress_at = utc_now()
+                        stdout_bytes, stderr_bytes, fingerprint = new_stdout_bytes, new_stderr_bytes, new_fingerprint
+                    status = "RUNNING" if returncode is None else "PROCESS_EXITED"
+                    atomic_json(heartbeat_path, {
+                        "schemaVersion": "springmaster.codex-invocation-heartbeat.v1",
+                        "taskId": task_id,
+                        "processRunId": process_binding.get("runId"),
+                        "singletonKey": process_binding.get("singletonKey"),
+                        "bootId": boot_id(),
+                        "workerPid": os.getpid(),
+                        "workerPgid": os.getpgrp(),
+                        "codexPid": process.pid,
+                        "codexPgid": process.pid,
+                        "status": status,
+                        "wallClockTimestamp": utc_now(),
+                        "activeElapsedSeconds": round(active_elapsed, 6),
+                        "excludedGapSeconds": round(excluded_gap, 6),
+                        "stdoutBytes": new_stdout_bytes,
+                        "stderrBytes": new_stderr_bytes,
+                        "worktreeFingerprint": new_fingerprint,
+                        "lastProgressAt": last_progress_at,
+                        "lastProgressActiveSeconds": round(last_progress_active, 6),
+                    })
+                    if returncode is not None:
+                        break
+                    if requested_signal is not None:
+                        timeout_reason = f"SIGNAL_{requested_signal}"
+                        terminate_process_group(process)
+                        break
+                    if active_elapsed >= float(active_timeout_seconds):
+                        timeout_reason = "ACTIVE_TIME_TIMEOUT"
+                        terminate_process_group(process)
+                        break
+                    if no_progress_timeout_seconds is not None and (active_elapsed - last_progress_active) >= float(no_progress_timeout_seconds):
+                        timeout_reason = "NO_PROGRESS_TIMEOUT"
+                        terminate_process_group(process)
+                        break
+                    time.sleep(heartbeat_interval)
+                if process.poll() is None:
+                    process.wait(timeout=5)
+        finally:
+            for signum, previous in old_handlers.items():
+                signal.signal(signum, previous)
+        finished_at = utc_now()
+        exit_code = process.returncode if process is not None else None
+        if timeout_reason is not None:
+            execution_status = "INTERRUPTED"
+        elif exit_code == 0:
+            execution_status = "COMPLETED"
+        else:
+            execution_status = "FAILED"
+        invocation = {
+            "schemaVersion": "springmaster.codex-invocation-record.v1",
+            "taskId": task_id,
+            "commandId": "codex-host-sandbox",
+            "recordedAt": utc_now(),
+            "agent": {"name": "codex", "cliVersion": codex_cli_version, "model": model},
+            "execution": {
+                "argv": effect["argv"],
+                "workingDirectory": str(task),
+                "sandboxProfile": record_sandbox,
+                "approvalPolicy": "never",
+                "platformSandbox": platform_sandbox,
                 "environmentKeys": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
                 "startedAt": started_at,
                 "finishedAt": finished_at,
-                "status": "COMPLETED" if completed.returncode == 0 else "FAILED",
-                "exitCode": completed.returncode,
+                "status": execution_status,
+                "exitCode": exit_code,
             },
         }
-        effect_path = evidence_dir / "operator-command-effect.json"
-        invocation_path = evidence_dir / "codex-invocation.json"
-        atomic_json(effect_path, effect)
         atomic_json(invocation_path, invocation)
-        record = run([str(root / "bin/agent-task.sh"), "--project-root", str(root), "record-invocation", task_id, "--effect", str(effect_path), "--record", str(invocation_path)], cwd=root)
-        require(record.returncode == 0, "INVOCATION_RECORD_REJECTED", "Agent task rejected the invocation evidence", stdout=record.stdout[-2000:], stderr=record.stderr[-2000:])
+        record_result = run(
+            [str(root / "bin/agent-task.sh"), "--project-root", str(root), "record-invocation", task_id, "--effect", str(effect_path), "--record", str(invocation_path)],
+            cwd=root,
+            timeout=60,
+        )
+        require(record_result.returncode == 0, "INVOCATION_RECORD_REJECTED", "Agent task rejected terminal invocation evidence", stdout=record_result.stdout[-2000:], stderr=record_result.stderr[-2000:])
+        stdout_text = stdout_path.read_text(encoding="utf-8", errors="replace")
+        jsonl_validation = validate_codex_jsonl(stdout_text, mode, contract)
+        atomic_json(validation_path, jsonl_validation)
+        governed_pass = timeout_reason is None and exit_code == 0 and jsonl_validation["status"] == "PASS"
+        heartbeat = load_json(heartbeat_path)
+        heartbeat["status"] = "COMPLETED" if governed_pass else "FAILED"
+        heartbeat["wallClockTimestamp"] = utc_now()
+        heartbeat["terminalReason"] = timeout_reason
+        heartbeat["exitCode"] = exit_code
+        atomic_json(heartbeat_path, heartbeat)
         result = {
             "schemaVersion": REPORT_SCHEMA,
             "operation": "invoke",
             "status": "PASS" if governed_pass else "FAILED",
             "generatedAt": utc_now(),
             "hostId": host_id(),
-            "baselineCommit": git(root, "rev-parse", "HEAD"),
+            "baselineCommit": base_commit,
             "taskId": task_id,
             "taskMode": mode,
             "worktreePath": str(task),
             "model": model,
-            "codexCliVersion": invocation["agent"]["cliVersion"],
-            "exitCode": completed.returncode,
+            "codexCliVersion": codex_cli_version,
+            "exitCode": exit_code,
+            "terminalReason": timeout_reason,
+            "processRunId": process_binding.get("runId"),
+            "singletonKey": process_binding.get("singletonKey"),
+            "activeElapsedSeconds": heartbeat.get("activeElapsedSeconds"),
+            "excludedGapSeconds": heartbeat.get("excludedGapSeconds"),
             "sandboxArgvSha256": sha256_bytes(json.dumps(outer, separators=(",", ":")).encode("utf-8")),
             "authHandling": auth,
             "effect": {"path": str(effect_path), "sha256": sha256_file(effect_path)},
+            "invocationStart": {"path": str(start_path), "sha256": sha256_file(start_path)},
             "invocation": {"path": str(invocation_path), "sha256": sha256_file(invocation_path)},
+            "heartbeat": {"path": str(heartbeat_path), "sha256": sha256_file(heartbeat_path)},
             "stdout": {"path": str(stdout_path), "sha256": sha256_file(stdout_path)},
             "stderr": {"path": str(stderr_path), "sha256": sha256_file(stderr_path)},
             "codexJsonlValidation": {
@@ -906,10 +1206,284 @@ def invoke(root: Path, bwrap: Path, codex: Path, task_id: str, prompt_file: Path
                 "errorEventCount": jsonl_validation["errorEventCount"],
             },
         }
-        atomic_json(evidence_dir / "host-invocation.json", result)
+        atomic_json(result_path, result)
         return result
+    except Exception:
+        if lifecycle_started and process is not None and process.poll() is None:
+            terminate_process_group(process)
+        if lifecycle_started and effect is not None and not invocation_path.exists():
+            finished_at = utc_now()
+            exit_code = process.returncode if process is not None else None
+            emergency_invocation = {
+                "schemaVersion": "springmaster.codex-invocation-record.v1",
+                "taskId": task_id,
+                "commandId": "codex-host-sandbox",
+                "recordedAt": utc_now(),
+                "agent": {"name": "codex", "cliVersion": codex_cli_version, "model": model},
+                "execution": {
+                    "argv": effect["argv"],
+                    "workingDirectory": str(task),
+                    "sandboxProfile": record_sandbox,
+                    "approvalPolicy": "never",
+                    "platformSandbox": platform_sandbox,
+                    "environmentKeys": sorted(sanitized_env(Path("/run/codex-home"), extra_env).keys()),
+                    "startedAt": started_at,
+                    "finishedAt": finished_at,
+                    "status": "INTERRUPTED",
+                    "exitCode": exit_code,
+                },
+            }
+            try:
+                atomic_json(invocation_path, emergency_invocation)
+                run(
+                    [str(root / "bin/agent-task.sh"), "--project-root", str(root), "record-invocation", task_id, "--effect", str(effect_path), "--record", str(invocation_path)],
+                    cwd=root,
+                    timeout=60,
+                )
+            except Exception:
+                pass
+        raise
     finally:
         shutil.rmtree(private_home, ignore_errors=True)
+
+
+def invoke(
+    root: Path,
+    bwrap: Path,
+    codex: Path,
+    task_id: str,
+    prompt_file: Path,
+    model: str,
+    change_bundle: Path | None = None,
+    *,
+    active_timeout_seconds: int = 21600,
+    no_progress_timeout_seconds: int | None = None,
+) -> dict[str, Any]:
+    return invoke_process(
+        root,
+        bwrap,
+        codex,
+        task_id,
+        prompt_file,
+        model,
+        change_bundle,
+        active_timeout_seconds=active_timeout_seconds,
+        no_progress_timeout_seconds=no_progress_timeout_seconds,
+        process_binding={"owner": "foreground-compatibility", "runId": None, "singletonKey": None},
+    )
+
+
+def durable_request_identity(
+    *,
+    task_id: str,
+    base_commit: str,
+    model: str,
+    prompt_sha256: str,
+    change_bundle: Path | None,
+    change_bundle_sha256: str | None,
+    bwrap: Path,
+    codex: Path,
+    active_timeout_seconds: int,
+    no_progress_timeout_seconds: int | None,
+) -> dict[str, Any]:
+    return {
+        "taskId": task_id,
+        "baseCommit": base_commit,
+        "model": model,
+        "promptSha256": prompt_sha256,
+        "changeBundlePath": str(change_bundle) if change_bundle is not None else None,
+        "changeBundleSha256": change_bundle_sha256,
+        "bwrapPath": str(bwrap),
+        "bwrapSha256": sha256_file(bwrap),
+        "codexPath": str(codex),
+        "codexSha256": sha256_file(codex),
+        "activeTimeoutSeconds": active_timeout_seconds,
+        "noProgressTimeoutSeconds": no_progress_timeout_seconds,
+    }
+
+
+def invoke_start(
+    root: Path,
+    bwrap: Path,
+    codex: Path,
+    task_id: str,
+    prompt_file: Path,
+    model: str,
+    change_bundle: Path | None = None,
+    *,
+    active_timeout_seconds: int = 21600,
+    no_progress_timeout_seconds: int | None = None,
+) -> dict[str, Any]:
+    require(1 <= active_timeout_seconds <= 86400, "ACTIVE_TIMEOUT_INVALID", "Active-time budget must be between 1 and 86400 seconds", activeTimeoutSeconds=active_timeout_seconds)
+    require(no_progress_timeout_seconds is None or 1 <= no_progress_timeout_seconds <= 86400, "NO_PROGRESS_TIMEOUT_INVALID", "No-progress budget must be between 1 and 86400 seconds when enabled", noProgressTimeoutSeconds=no_progress_timeout_seconds)
+    ctx, _, task_contract, _, _, _, _, _, _ = invocation_preflight(
+        root,
+        task_id,
+        prompt_file,
+        model,
+        change_bundle,
+        allowed_invocation_states={"NOT_RECORDED", "STARTED", "RECORDED"},
+    )
+    base_commit = str(task_contract["baseCommit"])
+    evidence_dir = invocation_evidence_dir(ctx, task_id, base_commit)
+    evidence_dir.mkdir(parents=True, mode=0o700, exist_ok=True)
+    require(evidence_dir.is_dir() and not evidence_dir.is_symlink(), "EVIDENCE_DIRECTORY_INVALID", "Invocation evidence directory is unsafe", path=str(evidence_dir))
+    lock_path = evidence_dir / ".invoke-start.lock"
+    with lock_path.open("a+b") as lock_handle:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+        prompt_copy = evidence_dir / "invocation-prompt.txt"
+        request_path = evidence_dir / "invocation-request.json"
+        binding_path = evidence_dir / "process-run-binding.json"
+        durable_run_path = evidence_dir / "durable-run.json"
+        prompt_sha = sha256_file(prompt_file)
+        bundle_path = change_bundle.expanduser().resolve() if change_bundle is not None else None
+        bundle_sha = sha256_file(bundle_path) if bundle_path is not None else None
+        identity = durable_request_identity(
+            task_id=task_id,
+            base_commit=base_commit,
+            model=model,
+            prompt_sha256=prompt_sha,
+            change_bundle=bundle_path,
+            change_bundle_sha256=bundle_sha,
+            bwrap=bwrap,
+            codex=codex,
+            active_timeout_seconds=active_timeout_seconds,
+            no_progress_timeout_seconds=no_progress_timeout_seconds,
+        )
+        request_sha = sha256_bytes(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        if request_path.exists():
+            existing = load_json(request_path)
+            require(existing.get("requestSha256") == request_sha and existing.get("identity") == identity, "DURABLE_INVOCATION_REQUEST_MISMATCH", "Existing durable invocation request differs from this start request", taskId=task_id)
+            require(prompt_copy.is_file() and sha256_file(prompt_copy) == prompt_sha, "DURABLE_PROMPT_MISMATCH", "Persisted durable prompt differs from the requested prompt", taskId=task_id)
+        else:
+            require(not any(path.exists() for path in (binding_path, durable_run_path, evidence_dir / "codex-invocation-start.json", evidence_dir / "codex-invocation.json")), "DURABLE_EVIDENCE_ORPHANED", "Durable evidence exists without an immutable invocation request", taskId=task_id)
+            shutil.copyfile(prompt_file, prompt_copy)
+            prompt_copy.chmod(0o600)
+            atomic_json(request_path, {"schemaVersion": "springmaster.codex-durable-invocation-request.v1", "requestSha256": request_sha, "identity": identity, "promptPath": str(prompt_copy), "createdAt": utc_now()})
+        singleton_key = f"codex-task-{task_id.lower()}"
+        worker_command = [
+            str(root / "bin/codex-host-sandbox.sh"),
+            "--project-root", str(root),
+            "--bwrap", str(bwrap),
+            "--codex", str(codex),
+            "--format", "json",
+            "invoke-worker",
+            "--request", str(request_path),
+            "--binding", str(binding_path),
+            "--out", str(evidence_dir / "host-invocation.json"),
+        ]
+        process_ops = run(
+            [
+                str(root / "bin/process-ops.sh"), "--format", "json", "run-start",
+                "--name", "codex-invocation",
+                "--cwd", str(root),
+                "--singleton-key", singleton_key,
+                "--", *worker_command,
+            ],
+            cwd=root,
+            timeout=60,
+        )
+        require(process_ops.returncode == 0, "DURABLE_WORKER_START_FAILED", "process-ops rejected the durable Codex worker", stdout=process_ops.stdout[-4000:], stderr=process_ops.stderr[-4000:])
+        try:
+            process_value = json.loads(process_ops.stdout)
+        except json.JSONDecodeError as exc:
+            raise HostError("DURABLE_WORKER_START_INVALID", "process-ops returned invalid JSON", stdout=process_ops.stdout[-4000:]) from exc
+        run_id = process_value.get("runId")
+        require(isinstance(run_id, str) and run_id.strip(), "DURABLE_WORKER_RUN_ID_MISSING", "process-ops did not return a persistent run ID", payload=process_value)
+        binding = {
+            "schemaVersion": "springmaster.codex-process-run-binding.v1",
+            "taskId": task_id,
+            "requestSha256": request_sha,
+            "owner": "process-ops-crun",
+            "runId": run_id,
+            "singletonKey": singleton_key,
+            "startDisposition": process_value.get("startDisposition"),
+            "boundAt": utc_now(),
+        }
+        if binding_path.exists():
+            existing_binding = load_json(binding_path)
+            require(existing_binding.get("requestSha256") == request_sha and existing_binding.get("runId") == run_id and existing_binding.get("singletonKey") == singleton_key, "DURABLE_RUN_BINDING_MISMATCH", "Existing durable run binding differs from the canonical singleton run", existing=existing_binding, current=binding)
+        else:
+            atomic_json(binding_path, binding)
+        durable = {
+            "schemaVersion": "springmaster.codex-durable-run.v1",
+            "taskId": task_id,
+            "baseCommit": base_commit,
+            "requestSha256": request_sha,
+            "runId": run_id,
+            "singletonKey": singleton_key,
+            "startDisposition": process_value.get("startDisposition"),
+            "processStatus": process_value.get("status"),
+            "processPhase": process_value.get("phase"),
+            "evidenceDirectory": str(evidence_dir),
+            "resultPath": str(evidence_dir / "host-invocation.json"),
+            "bindingPath": str(binding_path),
+            "updatedAt": utc_now(),
+        }
+        atomic_json(durable_run_path, durable)
+        return {
+            "schemaVersion": REPORT_SCHEMA,
+            "operation": "invoke-start",
+            "status": "RUNNING" if process_value.get("startDisposition") in {"STARTED", "RESTARTED", "REUSED_ACTIVE"} else "TERMINAL",
+            "generatedAt": utc_now(),
+            "hostId": host_id(),
+            "baselineCommit": base_commit,
+            "taskId": task_id,
+            "runId": run_id,
+            "singletonKey": singleton_key,
+            "startDisposition": process_value.get("startDisposition"),
+            "processStatus": process_value.get("status"),
+            "evidenceDirectory": str(evidence_dir),
+            "resultPath": str(evidence_dir / "host-invocation.json"),
+            "durableRunPath": str(durable_run_path),
+        }
+
+
+def wait_for_binding(binding_path: Path, request_sha: str, *, timeout_seconds: float = 120.0) -> dict[str, Any]:
+    started = time.monotonic()
+    while True:
+        if binding_path.is_file():
+            binding = load_json(binding_path)
+            require(binding.get("requestSha256") == request_sha, "DURABLE_RUN_BINDING_MISMATCH", "Durable run binding does not match invocation request")
+            require(binding.get("owner") == "process-ops-crun" and isinstance(binding.get("runId"), str) and binding.get("runId"), "DURABLE_RUN_BINDING_INVALID", "Durable run binding is incomplete")
+            return binding
+        if time.monotonic() - started >= timeout_seconds:
+            raise HostError("DURABLE_RUN_BINDING_TIMEOUT", "Durable worker did not receive its canonical process run binding before the start barrier expired", path=str(binding_path))
+        time.sleep(0.2)
+
+
+def invoke_worker(root: Path, request_path: Path, binding_path: Path) -> dict[str, Any]:
+    request = load_json(request_path)
+    require(request.get("schemaVersion") == "springmaster.codex-durable-invocation-request.v1", "DURABLE_REQUEST_INVALID", "Durable invocation request schema is invalid")
+    identity = request.get("identity")
+    require(isinstance(identity, dict), "DURABLE_REQUEST_INVALID", "Durable invocation request identity is missing")
+    request_sha = sha256_bytes(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+    require(request.get("requestSha256") == request_sha, "DURABLE_REQUEST_HASH_MISMATCH", "Durable invocation request hash is invalid")
+    prompt_path = Path(str(request.get("promptPath", ""))).resolve()
+    require(prompt_path.is_file() and not prompt_path.is_symlink() and sha256_file(prompt_path) == identity.get("promptSha256"), "DURABLE_PROMPT_INVALID", "Persisted durable prompt is missing or changed")
+    change_bundle_raw = identity.get("changeBundlePath")
+    change_bundle = Path(change_bundle_raw).resolve() if isinstance(change_bundle_raw, str) and change_bundle_raw else None
+    if change_bundle is not None:
+        require(change_bundle.is_file() and not change_bundle.is_symlink() and sha256_file(change_bundle) == identity.get("changeBundleSha256"), "DURABLE_CHANGE_BUNDLE_INVALID", "Durable change bundle is missing or changed")
+    bwrap = Path(str(identity.get("bwrapPath", ""))).resolve()
+    codex = Path(str(identity.get("codexPath", ""))).resolve()
+    require(bwrap.is_file() and sha256_file(bwrap) == identity.get("bwrapSha256"), "DURABLE_BWRAP_CHANGED", "Bound bubblewrap executable changed before worker start")
+    require(codex.is_file() and sha256_file(codex) == identity.get("codexSha256"), "DURABLE_CODEX_CHANGED", "Bound Codex executable changed before worker start")
+    binding = wait_for_binding(binding_path, request_sha)
+    evidence_dir = request_path.parent.resolve()
+    return invoke_process(
+        root,
+        bwrap,
+        codex,
+        str(identity["taskId"]),
+        prompt_path,
+        str(identity["model"]),
+        change_bundle,
+        active_timeout_seconds=int(identity["activeTimeoutSeconds"]),
+        no_progress_timeout_seconds=identity.get("noProgressTimeoutSeconds"),
+        process_binding=binding,
+        evidence_dir=evidence_dir,
+    )
 
 
 def qualify(root: Path, inspect_path: Path, probe_path: Path, analysis_invocation_path: Path) -> dict[str, Any]:
@@ -969,7 +1543,9 @@ def parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     i = sub.add_parser("inspect"); i.add_argument("--out", type=Path)
     q = sub.add_parser("probe"); q.add_argument("--task-worktree", required=True, type=Path); q.add_argument("--out", type=Path)
-    v = sub.add_parser("invoke"); v.add_argument("--task-id", required=True); v.add_argument("--prompt", required=True, type=Path); v.add_argument("--model", required=True); v.add_argument("--change-bundle", type=Path); v.add_argument("--out", type=Path)
+    v = sub.add_parser("invoke"); v.add_argument("--task-id", required=True); v.add_argument("--prompt", required=True, type=Path); v.add_argument("--model", required=True); v.add_argument("--change-bundle", type=Path); v.add_argument("--active-timeout-seconds", type=int, default=21600); v.add_argument("--no-progress-timeout-seconds", type=int); v.add_argument("--out", type=Path)
+    vs = sub.add_parser("invoke-start"); vs.add_argument("--task-id", required=True); vs.add_argument("--prompt", required=True, type=Path); vs.add_argument("--model", required=True); vs.add_argument("--change-bundle", type=Path); vs.add_argument("--active-timeout-seconds", type=int, default=21600); vs.add_argument("--no-progress-timeout-seconds", type=int); vs.add_argument("--out", type=Path)
+    vw = sub.add_parser("invoke-worker"); vw.add_argument("--request", required=True, type=Path); vw.add_argument("--binding", required=True, type=Path); vw.add_argument("--out", type=Path)
     z = sub.add_parser("qualify"); z.add_argument("--inspect", required=True, type=Path); z.add_argument("--probe", required=True, type=Path); z.add_argument("--analysis-invocation", required=True, type=Path); z.add_argument("--out", required=True, type=Path); z.add_argument("--check", action="store_true")
     return p
 
@@ -982,12 +1558,14 @@ def main() -> int:
         codex = executable("codex", args.codex)
         if args.command == "inspect": report = inspect(root, bwrap, codex)
         elif args.command == "probe": report = probes(root, bwrap, codex, args.task_worktree.resolve())
-        elif args.command == "invoke": report = invoke(root, bwrap, codex, args.task_id, args.prompt.resolve(), args.model, args.change_bundle)
+        elif args.command == "invoke": report = invoke(root, bwrap, codex, args.task_id, args.prompt.resolve(), args.model, args.change_bundle, active_timeout_seconds=args.active_timeout_seconds, no_progress_timeout_seconds=args.no_progress_timeout_seconds)
+        elif args.command == "invoke-start": report = invoke_start(root, bwrap, codex, args.task_id, args.prompt.resolve(), args.model, args.change_bundle, active_timeout_seconds=args.active_timeout_seconds, no_progress_timeout_seconds=args.no_progress_timeout_seconds)
+        elif args.command == "invoke-worker": report = invoke_worker(root, args.request.resolve(), args.binding.resolve())
         else: report = qualify(root, args.inspect.resolve(), args.probe.resolve(), args.analysis_invocation.resolve())
         if getattr(args, "out", None): atomic_json(args.out, report)
         sys.stdout.write(render(report, args.format))
         if args.command == "qualify" and args.check and report["status"] != "PASS": return 1
-        return 0 if report.get("status") == "PASS" else 1
+        return 0 if report.get("status") in {"PASS", "RUNNING", "TERMINAL"} else 1
     except HostError as exc:
         report = {"schemaVersion": REPORT_SCHEMA, "status": "TOOL_ERROR", "errorCode": exc.code, "message": exc.message, "details": exc.details, "writableCodexAuthorized": False, "pilotWriteReady": False}
         if getattr(args, "out", None): atomic_json(args.out, report)

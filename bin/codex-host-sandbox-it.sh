@@ -51,7 +51,7 @@ chmod 600 "${TMP}/codex-home/auth.json"
 
 cat > "${TMP}/fake-bin/bwrap" <<'BWRAP'
 #!/usr/bin/env python3
-import os,subprocess,sys
+import os,subprocess,sys,time
 args=sys.argv[1:]
 if args==['--version']:
  print('bubblewrap 0.9.0-fixture'); raise SystemExit(0)
@@ -88,7 +88,7 @@ raise SystemExit(subprocess.run(command,cwd=chdir,env=os.environ.copy()).returnc
 BWRAP
 cat > "${TMP}/fake-bin/codex" <<'CODEX'
 #!/usr/bin/env python3
-import os,subprocess,sys
+import os,subprocess,sys,time
 args=sys.argv[1:]
 if args==['--version']:
  print('codex-cli fixture-1'); raise SystemExit(0)
@@ -108,7 +108,30 @@ if args and args[0]=='sandbox':
  raise SystemExit(13)
 if args and args[0]=='exec':
  prompt=sys.stdin.read()
- print('{"type":"turn.started"}')
+ print('{"type":"turn.started"}', flush=True)
+ if 'fixture-process-fail' in prompt:
+  print('fixture process failure', file=sys.stderr, flush=True)
+  raise SystemExit(7)
+ if 'fixture-streaming' in prompt:
+  print('{"type":"item.completed","item":{"id":"item_stream","type":"agent_message","text":"stream-visible"}}', flush=True)
+  time.sleep(4)
+  print('{"type":"turn.completed"}', flush=True)
+  raise SystemExit(0)
+ if 'fixture-no-progress' in prompt:
+  time.sleep(20)
+  print('{"type":"turn.completed"}', flush=True)
+  raise SystemExit(0)
+ if 'fixture-active-timeout' in prompt:
+  for index in range(100):
+   print('{"type":"item.completed","item":{"id":"item_progress_%d","type":"agent_message","text":"progress"}}' % index, flush=True)
+   time.sleep(0.2)
+  print('{"type":"turn.completed"}', flush=True)
+  raise SystemExit(0)
+ if 'fixture-suspend-gap' in prompt:
+  time.sleep(8)
+  print('{"type":"item.completed","item":{"id":"item_suspend","type":"agent_message","text":"resumed"}}', flush=True)
+  print('{"type":"turn.completed"}', flush=True)
+  raise SystemExit(0)
  if 'fixture-error-item' in prompt:
   print('{"type":"item.completed","item":{"id":"item_error","type":"error","message":"fixture inner error"}}')
  elif 'fixture-command-fail' in prompt:
@@ -194,6 +217,9 @@ printf '%s\n' 'PROBE_SCRATCH_CLEANUP_FIXTURE=PASS'
 python3 - "${TMP}/invoke.json" <<'PY'
 import json,sys
 v=json.load(open(sys.argv[1])); assert v['status']=='PASS'; assert v['taskMode']=='analysis'
+assert v['invocationStart']['sha256'] and v['heartbeat']['sha256'],v
+start=json.load(open(v['invocationStart']['path'])); assert start['schemaVersion']=='springmaster.codex-invocation-start.v1' and start['process']['owner']=='foreground-compatibility',start
+heartbeat=json.load(open(v['heartbeat']['path'])); assert heartbeat['status']=='COMPLETED',heartbeat
 j=v['codexJsonlValidation']; assert j['status']=='PASS' and j['commandExecutionCompletedCount']==0 and j['errorEventCount']==0,j
 a=v['authHandling']; assert a['permissionProfile']=='springmaster-read-only'; assert a['permissionProfileBase']==':read-only'; assert a['sandboxAuthPath']=='/run/codex-home/auth.json'; assert a['sandboxAuthAccess']=='deny'
 e=json.load(open(v['effect']['path'])); argv=e['argv']; assert argv[:4]==['codex','--ask-for-approval','never','exec']; assert '--ignore-user-config' not in argv and '--sandbox' not in argv and '-s' not in argv
@@ -309,6 +335,17 @@ else:
 print('HOST_CALIBRATION_PLAN_INPUT_FIXTURE=PASS')
 PY_PLAN_INPUT
 
+python3 - "${REPO}/bin/codex-host-sandbox.py" <<'PY_ACTIVE_TIME'
+import importlib.util,sys
+from pathlib import Path
+modp=Path(sys.argv[1]); spec=importlib.util.spec_from_file_location('host_active_time_under_test',modp); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+credited,excluded=m.active_time_credit(1905.0,10.0)
+assert credited==10.0 and excluded==1895.0,(credited,excluded)
+credited2,excluded2=m.active_time_credit(2.0,10.0)
+assert credited2==2.0 and excluded2==0.0,(credited2,excluded2)
+print('ACTIVE_TIME_SUSPEND_GAP_OVER_1800_FIXTURE=PASS')
+PY_ACTIVE_TIME
+
 python3 - "${REPO}/bin/codex-host-sandbox.py" "${REPO}/contracts/governance/agent/codex-host-qualification-contract.json" <<'PY_JSONL'
 import importlib.util,json,sys
 from pathlib import Path
@@ -378,6 +415,178 @@ NEG_CLEANUP_RC=$?
 set -e
 test "${NEG_CLEANUP_RC}" -eq 1
 python3 -c 'import json,sys;v=json.load(sys.stdin);assert v["status"]=="CLEANED_INCOMPLETE",v' <<<"${NEG_CLEANUP}"
+
+# Durable-evidence runtime fixtures: a real process failure, active-time timeout,
+# no-progress timeout, streaming visibility, and an actual SIGSTOP/SIGCONT gap.
+prepare_runtime_analysis_task() {
+  local task_id="$1"
+  local task_json="${TMP}/${task_id,,}.json"
+  python3 - "${task_json}" "${BASE}" "${task_id}" <<'PY_RUNTIME_TASK'
+import json,sys
+p,base,task_id=sys.argv[1:]
+value={
+ "schemaVersion":"springmaster.agent-task.v2","taskId":task_id,"pilotId":"springmaster-codex-pilot-v1",
+ "repositoryId":"springmaster","mode":"analysis","baseCommit":base,"integrationBranch":"main","riskClass":"low","changeClasses":["test"],
+ "allowedPaths":["README.md"],"forbiddenPaths":[".git/**","patches/**","exports/**","target/**","build/**","tmp/**"],
+ "limits":{"maxChangedFiles":0,"maxNetAddedBytes":0},
+ "capabilities":{"mayModifyTests":False,"mayModifyGovernance":False,"mayModifyContracts":False,"mayCommit":False,"mayPush":False,"network":"disabled"},
+ "qualificationCommands":[{"id":"targeted-check","argv":["git","status","--short"],"timeoutSeconds":30},{"id":"diff-check","argv":["git","diff","--check"],"timeoutSeconds":30}],
+ "requiredEvidence":["task-contract","task-contract-sha256","prepare-record","integration-pre-state","worktree-pre-state","operator-command-effect","operator-command-effect-sha256","invocation-record","invocation-record-sha256","changed-path-report","qualification-records","final-result","cleanup-disposition"],
+ "completionCriteria":{"postcheckPass":True,"allQualificationCommandsPass":True,"requiredEvidenceComplete":True,"invocationRecordRequired":True,"explicitCleanupDisposition":True}
+}
+open(p,'w').write(json.dumps(value,indent=2)+'\n')
+PY_RUNTIME_TASK
+  "${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${task_json}" >/dev/null
+}
+cleanup_incomplete_runtime_task() {
+  local task_id="$1"
+  set +e
+  "${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup "${task_id}" --discard >/dev/null
+  local rc=$?
+  set -e
+  test "${rc}" -eq 1
+}
+
+prepare_runtime_analysis_task CODEX-HOST-IT-PROCESS-FAIL-001
+printf '%s\n' 'fixture-process-fail' > "${TMP}/process-fail.prompt.txt"
+set +e
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-PROCESS-FAIL-001 --prompt "${TMP}/process-fail.prompt.txt" --model fixture-model --out "${TMP}/process-fail.json" >/dev/null
+PROCESS_FAIL_RC=$?
+set -e
+test "${PROCESS_FAIL_RC}" -eq 1
+python3 - "${TMP}/process-fail.json" <<'PY_PROCESS_FAIL'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='FAILED' and v['exitCode']==7,v
+assert v['invocationStart']['sha256'] and v['stderr']['sha256'],v
+inv=json.load(open(v['invocation']['path'])); assert inv['execution']['status']=='FAILED' and inv['execution']['exitCode']==7,inv
+PY_PROCESS_FAIL
+PROCESS_FAIL_STATUS="$(${REPO}/bin/agent-task.sh --project-root "${REPO}" --format json status CODEX-HOST-IT-PROCESS-FAIL-001)"
+python3 -c 'import json,sys;v=json.load(sys.stdin);assert v["codexInvocation"]=="RECORDED",v' <<<"${PROCESS_FAIL_STATUS}"
+cleanup_incomplete_runtime_task CODEX-HOST-IT-PROCESS-FAIL-001
+printf '%s\n' 'STARTED_FAILED_PROCESS_RECORDED_FIXTURE=PASS'
+
+# Shorten the fixture heartbeat only; production contract remains 2s/10s.
+python3 - "${REPO}/contracts/governance/agent/codex-host-qualification-contract.json" <<'PY_FAST_HEARTBEAT'
+import json,sys
+p=sys.argv[1]; v=json.load(open(p,encoding='utf-8')); v['durableInvocation']['heartbeatIntervalSeconds']=1; v['durableInvocation']['maxActiveCreditPerHeartbeatSeconds']=1
+open(p,'w',encoding='utf-8').write(json.dumps(v,indent=2,sort_keys=True)+'\n')
+PY_FAST_HEARTBEAT
+git -C "${REPO}" add -- contracts/governance/agent/codex-host-qualification-contract.json
+git -C "${REPO}" commit -q -m fixture-fast-heartbeat
+BASE="$(git -C "${REPO}" rev-parse HEAD)"
+
+prepare_runtime_analysis_task CODEX-HOST-IT-STREAMING-001
+printf '%s\n' 'fixture-streaming' > "${TMP}/streaming.prompt.txt"
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-STREAMING-001 --prompt "${TMP}/streaming.prompt.txt" --model fixture-model --out "${TMP}/streaming.json" >/dev/null &
+STREAM_PID=$!
+FIXTURE_HOST_ID="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["hostId"])' "${TMP}/inspect.json")"
+STREAM_EVIDENCE="${TMP}/artifacts/codex-host-qualification/${FIXTURE_HOST_ID}/${BASE}/codex-host-it-streaming-001"
+for _ in $(seq 1 50); do
+  if [[ -s "${STREAM_EVIDENCE}/codex.stdout.jsonl" && -f "${STREAM_EVIDENCE}/heartbeat.json" ]]; then break; fi
+  sleep 0.1
+done
+test -s "${STREAM_EVIDENCE}/codex.stdout.jsonl"
+test -f "${STREAM_EVIDENCE}/heartbeat.json"
+kill -0 "${STREAM_PID}"
+wait "${STREAM_PID}"
+python3 - "${TMP}/streaming.json" <<'PY_STREAMING'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v
+PY_STREAMING
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" postcheck CODEX-HOST-IT-STREAMING-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" qualify CODEX-HOST-IT-STREAMING-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup CODEX-HOST-IT-STREAMING-001 >/dev/null
+printf '%s\n' 'STREAMING_EVIDENCE_VISIBLE_WHILE_RUNNING_FIXTURE=PASS'
+
+prepare_runtime_analysis_task CODEX-HOST-IT-ACTIVE-TIMEOUT-001
+printf '%s\n' 'fixture-active-timeout' > "${TMP}/active-timeout.prompt.txt"
+set +e
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-ACTIVE-TIMEOUT-001 --prompt "${TMP}/active-timeout.prompt.txt" --model fixture-model --active-timeout-seconds 2 --out "${TMP}/active-timeout.json" >/dev/null
+ACTIVE_TIMEOUT_RC=$?
+set -e
+test "${ACTIVE_TIMEOUT_RC}" -eq 1
+python3 - "${TMP}/active-timeout.json" <<'PY_ACTIVE_TIMEOUT'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='FAILED' and v['terminalReason']=='ACTIVE_TIME_TIMEOUT',v
+for key in ('invocationStart','invocation','heartbeat','stdout','stderr'): assert v[key]['sha256'],(key,v)
+inv=json.load(open(v['invocation']['path'])); assert inv['execution']['status']=='INTERRUPTED',inv
+PY_ACTIVE_TIMEOUT
+cleanup_incomplete_runtime_task CODEX-HOST-IT-ACTIVE-TIMEOUT-001
+printf '%s\n' 'ACTIVE_TIME_TIMEOUT_EVIDENCE_FIXTURE=PASS'
+
+prepare_runtime_analysis_task CODEX-HOST-IT-NO-PROGRESS-001
+printf '%s\n' 'fixture-no-progress' > "${TMP}/no-progress.prompt.txt"
+set +e
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-NO-PROGRESS-001 --prompt "${TMP}/no-progress.prompt.txt" --model fixture-model --active-timeout-seconds 20 --no-progress-timeout-seconds 2 --out "${TMP}/no-progress.json" >/dev/null
+NO_PROGRESS_RC=$?
+set -e
+test "${NO_PROGRESS_RC}" -eq 1
+python3 - "${TMP}/no-progress.json" <<'PY_NO_PROGRESS'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='FAILED' and v['terminalReason']=='NO_PROGRESS_TIMEOUT',v
+assert v['activeElapsedSeconds'] >= 2,v
+PY_NO_PROGRESS
+cleanup_incomplete_runtime_task CODEX-HOST-IT-NO-PROGRESS-001
+printf '%s\n' 'NO_PROGRESS_ACTIVE_TIME_TIMEOUT_FIXTURE=PASS'
+
+prepare_runtime_analysis_task CODEX-HOST-IT-SUSPEND-GAP-001
+printf '%s\n' 'fixture-suspend-gap' > "${TMP}/suspend-gap.prompt.txt"
+"${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" --format json invoke --task-id CODEX-HOST-IT-SUSPEND-GAP-001 --prompt "${TMP}/suspend-gap.prompt.txt" --model fixture-model --active-timeout-seconds 20 --out "${TMP}/suspend-gap.json" >/dev/null &
+SUSPEND_LAUNCH_PID=$!
+SUSPEND_EVIDENCE="${TMP}/artifacts/codex-host-qualification/${FIXTURE_HOST_ID}/${BASE}/codex-host-it-suspend-gap-001"
+SUSPEND_WORKER_PID=""
+SUSPEND_CODEX_PGID=""
+for _ in $(seq 1 100); do
+  if [[ -s "${SUSPEND_EVIDENCE}/heartbeat.json" ]]; then
+    read -r SUSPEND_WORKER_PID SUSPEND_CODEX_PGID < <(
+      python3 - "${SUSPEND_EVIDENCE}/heartbeat.json" <<'PY_SUSPEND_PIDS'
+import json,sys
+v=json.load(open(sys.argv[1]))
+worker=v.get('workerPid')
+codex_pgid=v.get('codexPgid')
+if isinstance(worker,int) and worker > 1 and isinstance(codex_pgid,int) and codex_pgid > 1:
+    print(worker,codex_pgid)
+PY_SUSPEND_PIDS
+    )
+    if [[ "${SUSPEND_WORKER_PID}" =~ ^[0-9]+$ && "${SUSPEND_CODEX_PGID}" =~ ^[0-9]+$ ]] \
+      && kill -0 "${SUSPEND_WORKER_PID}" 2>/dev/null \
+      && kill -0 -- "-${SUSPEND_CODEX_PGID}" 2>/dev/null; then
+      break
+    fi
+  fi
+  SUSPEND_WORKER_PID=""
+  SUSPEND_CODEX_PGID=""
+  sleep 0.1
+done
+[[ "${SUSPEND_WORKER_PID}" =~ ^[0-9]+$ ]]
+[[ "${SUSPEND_CODEX_PGID}" =~ ^[0-9]+$ ]]
+kill -STOP -- "-${SUSPEND_CODEX_PGID}"
+kill -STOP "${SUSPEND_WORKER_PID}"
+WORKER_STATE=""
+CODEX_STATE=""
+for _ in $(seq 1 50); do
+  WORKER_STATE="$(awk '/^State:/ {print $2}' "/proc/${SUSPEND_WORKER_PID}/status" 2>/dev/null || true)"
+  CODEX_STATE="$(awk '/^State:/ {print $2}' "/proc/${SUSPEND_CODEX_PGID}/status" 2>/dev/null || true)"
+  if [[ "${WORKER_STATE}" == "T" && "${CODEX_STATE}" == "T" ]]; then
+    break
+  fi
+  sleep 0.05
+done
+[[ "${WORKER_STATE}" == "T" ]]
+[[ "${CODEX_STATE}" == "T" ]]
+sleep 3
+kill -CONT -- "-${SUSPEND_CODEX_PGID}"
+kill -CONT "${SUSPEND_WORKER_PID}"
+wait "${SUSPEND_LAUNCH_PID}"
+python3 - "${TMP}/suspend-gap.json" <<'PY_SUSPEND'
+import json,sys
+v=json.load(open(sys.argv[1])); assert v['status']=='PASS',v
+assert v['excludedGapSeconds'] >= 1.5,v
+PY_SUSPEND
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" postcheck CODEX-HOST-IT-SUSPEND-GAP-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" qualify CODEX-HOST-IT-SUSPEND-GAP-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" cleanup CODEX-HOST-IT-SUSPEND-GAP-001 >/dev/null
+printf '%s\n' 'SIGSTOP_SIGCONT_ACTIVE_GAP_FIXTURE=PASS'
 
 # End-to-end: an unpromoted host-requalification analysis consumes the exact
 # sibling plan recorded by agent-task prepare, without operator plan discovery.

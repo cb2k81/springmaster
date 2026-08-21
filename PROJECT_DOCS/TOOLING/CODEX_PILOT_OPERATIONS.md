@@ -245,6 +245,7 @@ Historische, inaktive Worktrees und alte Diagnosearchive werden nicht im Cutover
 | 2026-08-14 | Post-cutover operator tooling advanced to Toolkit `1.1.4` / Tooling `0.14.1` through `000219`; governed Codex lifecycle and trusted integration boundaries are unchanged. |
 | 2026-08-17 | Multi-host authorization model added: global project readiness is separated from host-local write authorization; additional hosts use host-bound requalification and separate additive promotion. |
 | 2026-08-14 | Staged-path inventory advanced to Toolkit `1.1.5` / Tooling `0.14.2` through `000222`; exact manifest parity and trusted integration boundaries remain unchanged. |
+| 2026-08-20 | Durable autonomous invocation added: `invoke-start` delegates to `process-ops`/`crun`, records `STARTED` before Codex launch, streams evidence, and uses suspend-aware active-time budgets without widening sandbox authority. |
 
 ## 12. Patch-ID-freies Change Bundle im Task-Worktree
 
@@ -286,3 +287,41 @@ The calibration fixture checker is bound to the exact versioned instruction fixt
 ## Deterministic host-requalification plan input
 
 For `CODEX-HOSTCAL-ANALYSIS-*`, the sibling host-requalification plan is not discovered by the agent. `agent-task prepare` records `calibrationPlanPath` and `calibrationPlanSha256`; `codex-host-sandbox invoke` revalidates them and binds the exact file read-only to `/run/codex-input/calibration-plan.json`. The sandbox environment contains `SPRINGMASTER_CODEX_CALIBRATION_PLAN` with exactly that value. The prompt must read this input directly and must not search other repository, worktree, home, temporary or host filesystem locations for calibration plans.
+
+## 13. Durable autonomous Codex invocation
+
+For autonomous tasks that can outlive an observer terminal or a host suspend/resume cycle, the canonical start operation is `invoke-start`, not the foreground compatibility `invoke`:
+
+```bash
+./bin/codex-host-sandbox.sh invoke-start \
+  --task-id <task-id> \
+  --prompt <prompt.txt> \
+  --model <model> \
+  --active-timeout-seconds 21600 \
+  --no-progress-timeout-seconds 3600 \
+  --out <durable-start.json>
+```
+
+`invoke-start` delegates process ownership to `process-ops run-start` with a stable task-derived singleton key. The returned `processRunId` is the canonical observer handle. A second start with the identical immutable request reuses the same active or terminal run; a conflicting request fails closed. Never pass `--restart-terminal` for an agent task and never automatically allocate a second Codex process after a terminal invocation.
+
+Observe or reconnect without affecting the worker:
+
+```bash
+./bin/process-ops.sh status <processRunId>
+./bin/process-ops.sh watch <processRunId>
+./bin/process-ops.sh result <processRunId> --verbose
+```
+
+Closing the observer terminal or suspending the VM does not authorize a retry. After resume, use the same `processRunId`. `stdout` is streamed as `codex.stdout.jsonl`, `stderr` as `codex.stderr.log`, and `heartbeat.json` is atomically replaced below the task's external invocation-evidence directory. The heartbeat records active elapsed time, excluded scheduling/suspend gaps, byte counts, worktree progress, process IDs, boot ID, and last progress.
+
+The agent-task invocation lifecycle is:
+
+```text
+NOT_RECORDED -> STARTED -> RECORDED
+```
+
+`STARTED` is persisted before the real Codex process is launched. Therefore an actually attempted invocation can no longer be treated as an uninvoked prepared task. `abandon-before-invocation` is allowed only from `NOT_RECORDED`. Timeouts, signals, non-zero Codex exits and governed JSONL failures retain start, stream, heartbeat and terminal invocation evidence and do not trigger automatic reinvocation.
+
+The default autonomous budget is six hours of credited active time. Large gaps between heartbeat ticks receive only the bounded active-time credit declared by the host qualification contract; the remainder is excluded. The optional no-progress budget is measured on the same active clock. No operating procedure may require disabling host/VM suspend or changing user power-management settings.
+
+The foreground `invoke` command remains for bounded compatibility and calibration flows, but it uses the same start-evidence, streaming, heartbeat and active-time semantics. The Bubblewrap, Codex permission-profile, external-root, integration-worktree, Git and trusted-operator boundaries remain unchanged.

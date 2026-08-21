@@ -29,6 +29,7 @@ TASK_SCHEMA_VERSION = "springmaster.agent-task.v2"
 PILOT_CONTRACT_SCHEMA_VERSION = "springmaster.codex-pilot-contract.v1"
 OPERATOR_EFFECT_SCHEMA_VERSION = "springmaster.operator-command-effect.v1"
 INVOCATION_RECORD_SCHEMA_VERSION = "springmaster.codex-invocation-record.v1"
+INVOCATION_START_SCHEMA_VERSION = "springmaster.codex-invocation-start.v1"
 PILOT_ID = "springmaster-codex-pilot-v1"
 REPOSITORY_ID = "springmaster"
 TASK_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
@@ -74,6 +75,7 @@ EVIDENCE_FILES = {
     "operator-command-effect": "operator-command-effect.json",
     "operator-command-effect-sha256": "operator-command-effect.sha256",
     "invocation-record": "invocation-record.json",
+    "invocation-start": "invocation-start.json",
     "invocation-record-sha256": "invocation-record.sha256",
     "changed-path-report": "changed-path-report.json",
     "final-result": "final-result.json",
@@ -758,6 +760,118 @@ def validate_invocation_record(record: dict[str, Any], task: dict[str, Any], wor
         require(isinstance(execution["exitCode"], int) and execution["exitCode"] != 0, "INVOCATION_EXIT_INVALID", "A failed invocation must have a non-zero exit code")
 
 
+def validate_invocation_start_record(record: dict[str, Any], task: dict[str, Any], worktree: Path, policy: dict[str, Any], context: Context) -> None:
+    expected_fields = {"schemaVersion", "taskId", "commandId", "recordedAt", "agent", "process", "execution"}
+    require(set(record) == expected_fields, "INVOCATION_START_FIELDS_INVALID", "Codex invocation start fields are invalid", missing=sorted(expected_fields - set(record)), unknown=sorted(set(record) - expected_fields))
+    invocation_policy = policy.get("invocation") if isinstance(policy.get("invocation"), dict) else {}
+    require(record["schemaVersion"] == invocation_policy.get("startRecordSchemaVersion") == INVOCATION_START_SCHEMA_VERSION, "INVOCATION_START_SCHEMA_INVALID", "Codex invocation start schema is invalid")
+    require(record["taskId"] == task["taskId"], "INVOCATION_START_TASK_INVALID", "Codex invocation start is bound to another task")
+    require(isinstance(record["commandId"], str) and re.fullmatch(r"[a-z][a-z0-9-]*", record["commandId"]) is not None, "INVOCATION_START_COMMAND_ID_INVALID", "Codex invocation start command ID is invalid")
+    recorded_at = parse_utc_timestamp(record["recordedAt"], code="INVOCATION_START_RECORDED_AT_INVALID", field="recordedAt")
+    agent = record["agent"]
+    require(isinstance(agent, dict) and set(agent) == {"name", "cliVersion", "model", "executablePath", "executableSha256"}, "INVOCATION_START_AGENT_INVALID", "Invocation start agent identity is invalid")
+    require(agent["name"] == invocation_policy.get("agentName") == "codex", "INVOCATION_START_AGENT_INVALID", "Only Codex invocation starts are accepted")
+    require(all(isinstance(agent[key], str) and agent[key].strip() for key in ("cliVersion", "model", "executablePath", "executableSha256")), "INVOCATION_START_AGENT_INVALID", "Codex start identity is incomplete")
+    require(Path(agent["executablePath"]).is_absolute(), "INVOCATION_START_EXECUTABLE_INVALID", "Codex executable path must be absolute")
+    require(re.fullmatch(r"[0-9a-f]{64}", agent["executableSha256"]) is not None, "INVOCATION_START_EXECUTABLE_INVALID", "Codex executable SHA-256 is invalid")
+    process = record["process"]
+    expected_process_fields = {"owner", "runId", "singletonKey", "workerPid", "workerPgid", "bootId"}
+    require(isinstance(process, dict) and set(process) == expected_process_fields, "INVOCATION_START_PROCESS_INVALID", "Invocation start process binding is invalid")
+    require(process["owner"] in {"foreground-compatibility", "process-ops-crun"}, "INVOCATION_START_PROCESS_INVALID", "Invocation process owner is invalid", owner=process["owner"])
+    if process["owner"] == "process-ops-crun":
+        require(isinstance(process["runId"], str) and process["runId"].strip(), "INVOCATION_START_RUN_ID_INVALID", "Durable invocation requires a persistent run ID")
+        require(isinstance(process["singletonKey"], str) and process["singletonKey"].strip(), "INVOCATION_START_SINGLETON_INVALID", "Durable invocation requires a singleton key")
+    else:
+        require(process["runId"] is None and process["singletonKey"] is None, "INVOCATION_START_PROCESS_INVALID", "Foreground compatibility invocation must not claim a canonical run ID")
+    require(isinstance(process["workerPid"], int) and process["workerPid"] > 0, "INVOCATION_START_PROCESS_INVALID", "Worker PID is invalid")
+    require(isinstance(process["workerPgid"], int) and process["workerPgid"] > 0, "INVOCATION_START_PROCESS_INVALID", "Worker process group is invalid")
+    require(isinstance(process["bootId"], str) and process["bootId"].strip(), "INVOCATION_START_PROCESS_INVALID", "Boot ID is required")
+    execution = record["execution"]
+    expected_execution_fields = {"argv", "workingDirectory", "sandboxProfile", "approvalPolicy", "platformSandbox", "environmentKeys", "startedAt", "stdoutPath", "stderrPath", "heartbeatPath", "activeTimeoutSeconds", "noProgressTimeoutSeconds"}
+    require(isinstance(execution, dict) and set(execution) == expected_execution_fields, "INVOCATION_START_EXECUTION_INVALID", "Invocation start execution fields are invalid")
+    argv = validate_string_list(execution["argv"], code="INVOCATION_START_ARGV_INVALID", field="execution.argv")
+    require(Path(argv[0]).name == invocation_policy.get("executableName") == "codex", "INVOCATION_START_EXECUTABLE_INVALID", "Invocation executable must be Codex", actual=argv[0])
+    validate_codex_argv(argv, task, agent, invocation_policy)
+    require(isinstance(execution["workingDirectory"], str) and Path(execution["workingDirectory"]).is_absolute(), "INVOCATION_START_CWD_INVALID", "Invocation working directory must be absolute")
+    require(Path(execution["workingDirectory"]).resolve() == worktree.resolve(), "INVOCATION_START_CWD_INVALID", "Invocation working directory must equal the prepared task worktree", expected=str(worktree), actual=execution["workingDirectory"])
+    mode_sandbox = invocation_policy.get("modeSandboxPolicies", {}).get(task["mode"], {})
+    require(execution["sandboxProfile"] == mode_sandbox.get("recordValue"), "INVOCATION_START_SANDBOX_INVALID", "Recorded sandbox profile does not match the task mode")
+    require(execution["approvalPolicy"] == invocation_policy.get("requiredApprovalPolicy") == "never", "INVOCATION_START_APPROVAL_INVALID", "Approval policy must be never")
+    validate_platform_sandbox(execution["platformSandbox"], task, worktree, invocation_policy)
+    environment_keys = validate_string_list(execution["environmentKeys"], code="INVOCATION_START_ENV_INVALID", field="execution.environmentKeys", allow_empty=True)
+    require(set(environment_keys) <= set(invocation_policy.get("environmentAllowlist", [])), "INVOCATION_START_ENV_INVALID", "Invocation start contains environment keys outside the allowlist")
+    started_at = parse_utc_timestamp(execution["startedAt"], code="INVOCATION_START_TIME_INVALID", field="startedAt")
+    require(started_at <= recorded_at, "INVOCATION_START_TIME_INVALID", "Invocation start timestamps are not monotonically ordered")
+    for field in ("stdoutPath", "stderrPath", "heartbeatPath"):
+        path = Path(execution[field])
+        require(path.is_absolute() and path_contains(context.artifact_root, path.resolve()), "INVOCATION_START_EVIDENCE_PATH_INVALID", "Streaming evidence path must remain below the external artifact root", field=field, path=str(path))
+    require(isinstance(execution["activeTimeoutSeconds"], int) and 1 <= execution["activeTimeoutSeconds"] <= 86400, "INVOCATION_START_ACTIVE_TIMEOUT_INVALID", "Active-time budget is invalid")
+    no_progress = execution["noProgressTimeoutSeconds"]
+    require(no_progress is None or (isinstance(no_progress, int) and 1 <= no_progress <= 86400), "INVOCATION_START_NO_PROGRESS_TIMEOUT_INVALID", "No-progress active-time budget is invalid")
+
+
+def validate_invocation_completion_against_start(final_record: dict[str, Any], start_record: dict[str, Any]) -> None:
+    require(final_record["taskId"] == start_record["taskId"] and final_record["commandId"] == start_record["commandId"], "INVOCATION_START_COMPLETION_MISMATCH", "Final invocation identity differs from invocation start")
+    require(final_record["agent"]["name"] == start_record["agent"]["name"], "INVOCATION_START_COMPLETION_MISMATCH", "Final invocation agent differs from invocation start")
+    for field in ("cliVersion", "model"):
+        require(final_record["agent"][field] == start_record["agent"][field], "INVOCATION_START_COMPLETION_MISMATCH", "Final invocation agent metadata differs from invocation start", field=field)
+    for field in ("argv", "workingDirectory", "sandboxProfile", "approvalPolicy", "platformSandbox", "environmentKeys", "startedAt"):
+        require(final_record["execution"][field] == start_record["execution"][field], "INVOCATION_START_COMPLETION_MISMATCH", "Final invocation execution differs from invocation start", field=field)
+
+
+def cmd_record_invocation_start(args: argparse.Namespace) -> dict[str, Any]:
+    context = resolve_context(args.project_root)
+    policy = load_pilot_contract(context.current_root)
+    directory, run_record = load_run_record(context, args.task_id)
+    require(run_record.get("status") == "PREPARED", "INVOCATION_START_STATE_INVALID", "Invocation can start only for a prepared task", status=run_record.get("status"))
+    require(run_record.get("codexInvocation") == "NOT_RECORDED", "INVOCATION_START_ALREADY_RECORDED", "Invocation start evidence already exists or the task was consumed", taskId=args.task_id, codexInvocation=run_record.get("codexInvocation"))
+    effect_target = directory / "operator-command-effect.json"
+    start_target = directory / "invocation-start.json"
+    require(not effect_target.exists() and not start_target.exists() and not (directory / "invocation-record.json").exists(), "INVOCATION_START_ALREADY_RECORDED", "Invocation lifecycle evidence already exists", taskId=args.task_id)
+    task = load_json(directory / "task-contract.json")
+    validate_task(task, policy)
+    sources: list[Path] = []
+    for raw in (args.effect, args.start):
+        source_input = Path(raw).expanduser()
+        require(source_input.is_absolute(), "INVOCATION_START_SOURCE_INVALID", "Invocation start evidence source must be absolute", path=str(source_input))
+        assert_no_symlink_components(source_input)
+        source = source_input.resolve()
+        require(source.is_file(), "INVOCATION_START_SOURCE_INVALID", "Invocation start evidence source must be a regular file", path=str(source))
+        require(path_contains(context.artifact_root, source), "INVOCATION_START_SOURCE_OUTSIDE_ARTIFACT_ROOT", "Invocation start evidence source must be staged below the explicit external artifact root", path=str(source), artifactRoot=str(context.artifact_root))
+        sources.append(source)
+    effect_source, start_source = sources
+    expected_task_hash = (directory / "task-contract.sha256").read_text(encoding="utf-8").split()[0]
+    require(sha256_file(directory / "task-contract.json") == expected_task_hash, "TASK_CONTRACT_MUTATED", "Task contract changed before invocation start recording")
+    effect = load_json(effect_source)
+    start = load_json(start_source)
+    worktree = Path(run_record["worktreePath"])
+    validate_invocation_start_record(start, task, worktree, policy, context)
+    validate_operator_effect(effect, task, start, worktree, policy)
+    require(effect["commandId"] == start["commandId"], "INVOCATION_START_COMMAND_ID_MISMATCH", "Operator effect and invocation start command IDs differ")
+    shutil.copyfile(effect_source, effect_target)
+    shutil.copyfile(start_source, start_target)
+    effect_hash = sha256_file(effect_target)
+    start_hash = sha256_file(start_target)
+    atomic_text(directory / "operator-command-effect.sha256", f"{effect_hash}  operator-command-effect.json\n")
+    atomic_text(directory / "invocation-start.sha256", f"{start_hash}  invocation-start.json\n")
+    run_record["codexInvocation"] = "STARTED"
+    run_record["invocationStartedAt"] = start["execution"]["startedAt"]
+    run_record["invocationStartRecordedAt"] = utc_now()
+    run_record["processRunId"] = start["process"].get("runId")
+    run_record["processSingletonKey"] = start["process"].get("singletonKey")
+    run_record["operatorCommandEffectSha256"] = effect_hash
+    run_record["invocationStartSha256"] = start_hash
+    atomic_json(directory / "run.json", run_record)
+    return {
+        "status": "STARTED",
+        "taskId": task["taskId"],
+        "processRunId": start["process"].get("runId"),
+        "operatorCommandEffectSha256": effect_hash,
+        "invocationStartSha256": start_hash,
+        "runDirectory": str(directory),
+    }
+
+
 def evidence_status(directory: Path, task: dict[str, Any], *, include_cleanup: bool) -> dict[str, Any]:
     required = set(task["requiredEvidence"])
     considered = set(required)
@@ -790,9 +904,16 @@ def cmd_record_invocation(args: argparse.Namespace) -> dict[str, Any]:
     policy = load_pilot_contract(context.current_root)
     directory, run_record = load_run_record(context, args.task_id)
     require(run_record.get("status") == "PREPARED", "INVOCATION_STATE_INVALID", "Invocation can be recorded only for a prepared task", status=run_record.get("status"))
+    lifecycle = run_record.get("codexInvocation")
+    require(lifecycle in {"NOT_RECORDED", "STARTED"}, "INVOCATION_STATE_INVALID", "Invocation lifecycle state cannot be terminally recorded", codexInvocation=lifecycle)
     effect_target = directory / "operator-command-effect.json"
     record_target = directory / "invocation-record.json"
-    require(not effect_target.exists() and not record_target.exists(), "INVOCATION_ALREADY_RECORDED", "Invocation evidence is immutable and already exists", taskId=args.task_id)
+    require(not record_target.exists(), "INVOCATION_ALREADY_RECORDED", "Invocation evidence is immutable and already exists", taskId=args.task_id)
+    if lifecycle == "NOT_RECORDED":
+        require(not effect_target.exists(), "INVOCATION_ALREADY_RECORDED", "Operator effect evidence already exists without a recorded invocation", taskId=args.task_id)
+    else:
+        require(effect_target.is_file() and (directory / "operator-command-effect.sha256").is_file(), "INVOCATION_START_EVIDENCE_MISSING", "Started invocation is missing immutable operator effect evidence", taskId=args.task_id)
+        require((directory / "invocation-start.json").is_file() and (directory / "invocation-start.sha256").is_file(), "INVOCATION_START_EVIDENCE_MISSING", "Started invocation is missing immutable start evidence", taskId=args.task_id)
     task = load_json(directory / "task-contract.json")
     validate_task(task, policy)
     sources: list[Path] = []
@@ -813,11 +934,22 @@ def cmd_record_invocation(args: argparse.Namespace) -> dict[str, Any]:
     validate_invocation_record(record, task, worktree, policy)
     validate_operator_effect(effect, task, record, worktree, policy)
     require(effect["commandId"] == record["commandId"], "INVOCATION_COMMAND_ID_MISMATCH", "Operator effect and invocation record command IDs differ")
-    shutil.copyfile(effect_source, effect_target)
+    if lifecycle == "STARTED":
+        expected_effect_hash = (directory / "operator-command-effect.sha256").read_text(encoding="utf-8").split()[0]
+        require(sha256_file(effect_target) == expected_effect_hash == sha256_file(effect_source), "INVOCATION_START_EFFECT_MISMATCH", "Final invocation operator effect differs from immutable start evidence")
+        start_target = directory / "invocation-start.json"
+        expected_start_hash = (directory / "invocation-start.sha256").read_text(encoding="utf-8").split()[0]
+        require(sha256_file(start_target) == expected_start_hash, "INVOCATION_START_EVIDENCE_MUTATED", "Invocation start evidence changed before completion")
+        start_record = load_json(start_target)
+        validate_invocation_start_record(start_record, task, worktree, policy, context)
+        validate_invocation_completion_against_start(record, start_record)
+        effect_hash = expected_effect_hash
+    else:
+        shutil.copyfile(effect_source, effect_target)
+        effect_hash = sha256_file(effect_target)
+        atomic_text(directory / "operator-command-effect.sha256", f"{effect_hash}  operator-command-effect.json\n")
     shutil.copyfile(record_source, record_target)
-    effect_hash = sha256_file(effect_target)
     record_hash = sha256_file(record_target)
-    atomic_text(directory / "operator-command-effect.sha256", f"{effect_hash}  operator-command-effect.json\n")
     atomic_text(directory / "invocation-record.sha256", f"{record_hash}  invocation-record.json\n")
     run_record["codexInvocation"] = "RECORDED"
     run_record["invocationRecordedAt"] = utc_now()
@@ -1511,6 +1643,10 @@ def parser() -> argparse.ArgumentParser:
     validate.add_argument("task")
     prepare = sub.add_parser("prepare")
     prepare.add_argument("task")
+    record_invocation_start = sub.add_parser("record-invocation-start")
+    record_invocation_start.add_argument("task_id")
+    record_invocation_start.add_argument("--effect", required=True)
+    record_invocation_start.add_argument("--start", required=True)
     record_invocation = sub.add_parser("record-invocation")
     record_invocation.add_argument("task_id")
     record_invocation.add_argument("--effect", required=True)
@@ -1534,6 +1670,8 @@ def main() -> int:
             value = cmd_validate(args)
         elif args.command == "prepare":
             value = cmd_prepare(args)
+        elif args.command == "record-invocation-start":
+            value = cmd_record_invocation_start(args)
         elif args.command == "record-invocation":
             value = cmd_record_invocation(args)
         elif args.command == "status":
