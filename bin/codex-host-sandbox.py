@@ -596,12 +596,25 @@ def validate_codex_jsonl(stdout: str, mode: str, contract: dict[str, Any]) -> di
         "turnFailedForbidden",
         "errorEventsForbidden",
         "startedCommandMustComplete",
-        "completedCommandExitCodeZeroRequired",
+        "completedCommandTerminalStatusRequired",
+        "completedCommandExitCodeRequired",
+        "implementationIntermediateCommandFailureAllowed",
         "outerProcessExitCodeZeroRequired",
     )
     for key in required_true_flags:
         require(policy.get(key) is True, "HOST_CONTRACT_INVALID", "Codex JSONL validation invariant must be enabled", invariant=key)
     require(mode in {"analysis", "implementation", "qualification"}, "TASK_MODE_INVALID", "Unsupported task mode", mode=mode)
+    zero_required_modes = policy.get("completedCommandExitCodeZeroRequiredModes")
+    require(
+        isinstance(zero_required_modes, list)
+        and zero_required_modes
+        and all(isinstance(item, str) and item in {"analysis", "qualification"} for item in zero_required_modes)
+        and len(set(zero_required_modes)) == len(zero_required_modes),
+        "HOST_CONTRACT_INVALID",
+        "Completed-command zero-exit modes must be a unique non-empty subset of analysis/qualification",
+        modes=zero_required_modes,
+    )
+    strict_command_success = mode in set(zero_required_modes)
 
     findings: list[dict[str, Any]] = []
     nonempty_line_count = 0
@@ -678,33 +691,42 @@ def validate_codex_jsonl(stdout: str, mode: str, contract: dict[str, Any]) -> di
 
         status = item.get("status")
         exit_code = item.get("exit_code")
-        command_failed = False
-        if status != "completed":
-            command_failed = True
+        terminal_status = status in {"completed", "failed"}
+        exit_code_present = isinstance(exit_code, int)
+        command_failed = status == "failed" or (exit_code_present and exit_code != 0)
+
+        if not terminal_status:
             findings.append({
-                "code": "CODEX_COMMAND_STATUS_NOT_COMPLETED",
+                "code": "CODEX_COMMAND_STATUS_NOT_TERMINAL",
                 "line": line_number,
                 "itemId": item_id,
                 "status": status,
             })
-        if not isinstance(exit_code, int):
-            command_failed = True
+        if not exit_code_present:
             findings.append({
                 "code": "CODEX_COMMAND_EXIT_CODE_MISSING",
                 "line": line_number,
                 "itemId": item_id,
                 "exitCode": exit_code,
             })
-        elif exit_code != 0:
-            command_failed = True
-            findings.append({
-                "code": "CODEX_COMMAND_EXIT_NONZERO",
-                "line": line_number,
-                "itemId": item_id,
-                "exitCode": exit_code,
-            })
+
         if command_failed:
             command_failed_count += 1
+            if strict_command_success:
+                if status == "failed":
+                    findings.append({
+                        "code": "CODEX_COMMAND_STATUS_FAILED",
+                        "line": line_number,
+                        "itemId": item_id,
+                        "status": status,
+                    })
+                if exit_code_present and exit_code != 0:
+                    findings.append({
+                        "code": "CODEX_COMMAND_EXIT_NONZERO",
+                        "line": line_number,
+                        "itemId": item_id,
+                        "exitCode": exit_code,
+                    })
 
     if turn_completed_count < 1:
         findings.append({"code": "CODEX_TURN_COMPLETED_MISSING"})
@@ -735,6 +757,7 @@ def validate_codex_jsonl(stdout: str, mode: str, contract: dict[str, Any]) -> di
         "commandExecutionStartedCount": len(command_started_ids),
         "commandExecutionCompletedCount": command_completed_count,
         "commandExecutionFailedCount": command_failed_count,
+        "intermediateCommandFailureAllowed": mode == "implementation",
         "findings": findings,
     }
 

@@ -155,9 +155,15 @@
     "authoritativeLayer": "outer-linux-bwrap",
     "codexApprovalPolicy": "never",
     "codexExecJsonlValidation": {
-      "completedCommandExitCodeZeroRequired": true,
+      "completedCommandExitCodeRequired": true,
+      "completedCommandExitCodeZeroRequiredModes": [
+        "analysis",
+        "qualification"
+      ],
+      "completedCommandTerminalStatusRequired": true,
       "errorEventsForbidden": true,
       "implementationCompletedCommandExecutionMinimum": 1,
+      "implementationIntermediateCommandFailureAllowed": true,
       "jsonObjectPerNonemptyLineRequired": true,
       "outerProcessExitCodeZeroRequired": true,
       "required": true,

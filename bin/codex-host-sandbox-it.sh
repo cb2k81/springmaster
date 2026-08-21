@@ -272,6 +272,59 @@ PY
 "${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup CODEX-HOST-IT-IMPLEMENTATION-001 >/dev/null
 printf '%s\n' 'CHANGE_BUNDLE_READ_SCOPE_FIXTURE=PASS'
 
+# Prove that a terminal non-zero command inside an implementation turn is
+# iterative development evidence, not an invocation failure. The turn itself,
+# error events, JSONL integrity, command completion, and outer process exit
+# remain fail-closed.
+IMPL_FAIL_TASK_JSON="${TMP}/implementation-intermediate-fail-task.json"
+python3 - "${IMPL_FAIL_TASK_JSON}" "${BASE}" <<'PY_IMPL_FAIL_TASK'
+import json,sys
+p,base=sys.argv[1:]
+value={
+ "schemaVersion":"springmaster.agent-task.v2","taskId":"CODEX-HOST-IT-IMPL-INTERMEDIATE-FAIL-001","pilotId":"springmaster-codex-pilot-v1",
+ "repositoryId":"springmaster","mode":"implementation","baseCommit":base,"integrationBranch":"main","riskClass":"low","changeClasses":["test"],
+ "allowedPaths":["README.md"],"forbiddenPaths":[".git/**","patches/**","exports/**","target/**","build/**","tmp/**"],
+ "limits":{"maxChangedFiles":1,"maxNetAddedBytes":4096},
+ "capabilities":{"mayModifyTests":True,"mayModifyGovernance":False,"mayModifyContracts":False,"mayCommit":False,"mayPush":False,"network":"disabled"},
+ "qualificationCommands":[{"id":"targeted-check","argv":["git","status","--short"],"timeoutSeconds":30},{"id":"diff-check","argv":["git","diff","--check"],"timeoutSeconds":30}],
+ "requiredEvidence":["task-contract","task-contract-sha256","prepare-record","integration-pre-state","worktree-pre-state","operator-command-effect","operator-command-effect-sha256","invocation-record","invocation-record-sha256","changed-path-report","qualification-records","final-result","cleanup-disposition"],
+ "completionCriteria":{"postcheckPass":True,"allQualificationCommandsPass":True,"requiredEvidenceComplete":True,"invocationRecordRequired":True,"explicitCleanupDisposition":True}
+}
+open(p,'w').write(json.dumps(value,indent=2)+'\n')
+PY_IMPL_FAIL_TASK
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json prepare "${IMPL_FAIL_TASK_JSON}" >/dev/null
+IMPL_FAIL_PROMPT="${TMP}/implementation-intermediate-fail.prompt.txt"
+printf '%s\n' 'fixture-command-fail' > "${IMPL_FAIL_PROMPT}"
+"${REPO}/bin/codex-host-sandbox.sh" \
+  --project-root "${REPO}" \
+  --bwrap "${TMP}/fake-bin/bwrap" \
+  --codex "${TMP}/fake-bin/codex" \
+  --format json \
+  invoke \
+  --task-id CODEX-HOST-IT-IMPL-INTERMEDIATE-FAIL-001 \
+  --prompt "${IMPL_FAIL_PROMPT}" \
+  --model fixture-model \
+  --change-bundle "${CHANGE_BUNDLE}" \
+  --out "${TMP}/implementation-intermediate-fail-invoke.json" >/dev/null
+python3 - "${TMP}/implementation-intermediate-fail-invoke.json" <<'PY_IMPL_FAIL_REPORT'
+import json,sys
+v=json.load(open(sys.argv[1]))
+assert v['status']=='PASS' and v['taskMode']=='implementation',v
+j=v['codexJsonlValidation']
+assert j['status']=='PASS',j
+assert j['commandExecutionCompletedCount']==1,j
+validation=json.load(open(j['path']))
+assert validation['status']=='PASS',validation
+assert validation['commandExecutionCompletedCount']==1,validation
+assert validation['commandExecutionFailedCount']==1,validation
+assert validation['intermediateCommandFailureAllowed'] is True,validation
+assert validation['findings']==[],validation
+PY_IMPL_FAIL_REPORT
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json postcheck CODEX-HOST-IT-IMPL-INTERMEDIATE-FAIL-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json qualify CODEX-HOST-IT-IMPL-INTERMEDIATE-FAIL-001 >/dev/null
+"${REPO}/bin/agent-task.sh" --project-root "${REPO}" --format json cleanup CODEX-HOST-IT-IMPL-INTERMEDIATE-FAIL-001 >/dev/null
+printf '%s\n' 'IMPLEMENTATION_INTERMEDIATE_COMMAND_FAILURE_ALLOWED=PASS'
+
 set +e
 COCONDO_ARTIFACT_ROOT="${TMP}/missing" "${REPO}/bin/codex-host-sandbox.sh" --project-root "${REPO}" --bwrap "${TMP}/fake-bin/bwrap" --codex "${TMP}/fake-bin/codex" inspect --out "${TMP}/negative.json" >/dev/null
 rc=$?
@@ -361,17 +414,25 @@ impl_ok=m.validate_codex_jsonl(ev(
  '{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"completed","exit_code":0}}',
  '{"type":"turn.completed"}'),'implementation',contract)
 assert impl_ok['status']=='PASS',impl_ok
-for name,text in {
- 'malformed': ev('{not-json}','{"type":"turn.completed"}'),
- 'error-item': ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"e1","type":"error","message":"boom"}}','{"type":"turn.completed"}'),
- 'impl-no-command': ev('{"type":"turn.started"}','{"type":"turn.completed"}'),
- 'impl-command-fail': ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"completed","exit_code":7}}','{"type":"turn.completed"}'),
- 'impl-command-incomplete': ev('{"type":"turn.started"}','{"type":"item.started","item":{"id":"c1","type":"command_execution"}}','{"type":"turn.completed"}'),
-}.items():
- mode='analysis' if name in {'malformed','error-item'} else 'implementation'
+impl_command_fail=m.validate_codex_jsonl(ev(
+ '{"type":"turn.started"}',
+ '{"type":"item.started","item":{"id":"c1","type":"command_execution","command":"/usr/bin/false"}}',
+ '{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"failed","exit_code":7}}',
+ '{"type":"turn.completed"}'),'implementation',contract)
+assert impl_command_fail['status']=='PASS',impl_command_fail
+assert impl_command_fail['commandExecutionFailedCount']==1,impl_command_fail
+assert impl_command_fail['intermediateCommandFailureAllowed'] is True,impl_command_fail
+
+for name,text,mode in (
+ ('malformed',ev('{not-json}','{"type":"turn.completed"}'),'analysis'),
+ ('error-item',ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"e1","type":"error","message":"boom"}}','{"type":"turn.completed"}'),'analysis'),
+ ('impl-no-command',ev('{"type":"turn.started"}','{"type":"turn.completed"}'),'implementation'),
+ ('impl-command-incomplete',ev('{"type":"turn.started"}','{"type":"item.started","item":{"id":"c1","type":"command_execution"}}','{"type":"turn.completed"}'),'implementation'),
+ ('analysis-command-fail',ev('{"type":"turn.started"}','{"type":"item.completed","item":{"id":"c1","type":"command_execution","status":"failed","exit_code":7}}','{"type":"turn.completed"}'),'analysis'),
+):
  result=m.validate_codex_jsonl(text,mode,contract)
  assert result['status']=='FAILED',(name,result)
-print('CODEX_JSONL_VALIDATION_FIXTURES=PASS_7_OF_7')
+print('CODEX_JSONL_VALIDATION_FIXTURES=PASS_8_OF_8')
 PY_JSONL
 rm -rf -- "${REPO}/bin/__pycache__"
 

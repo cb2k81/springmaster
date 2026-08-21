@@ -122,7 +122,7 @@ Only after `codex-host-sandbox invoke` itself reports `PASS` may the operator ru
 ./bin/agent-task.sh status <task-id>
 ```
 
-`invoke=PASS` requires both raw Codex process exit `0` and a fail-closed validation of the complete JSONL event stream. Codex `error` items, `turn.failed`, malformed JSONL, incomplete command executions or non-zero completed command exits make the governed invocation fail even if the outer Codex process exits `0`. Implementation mode additionally requires at least one successfully completed `command_execution`. The validation record is immutable host evidence next to stdout/stderr.
+`invoke=PASS` requires both raw Codex process exit `0` and a fail-closed validation of the complete JSONL event stream. Codex `error` items, `turn.failed`, malformed JSONL or incomplete command executions make the governed invocation fail even if the outer Codex process exits `0`. Analysis and qualification modes additionally require every terminal command execution to succeed with exit code `0`. Implementation mode deliberately treats terminal command failures/non-zero exits as iterative development evidence: they are counted in `commandExecutionFailedCount`, but they do not fail the invocation when the turn completes normally, no error event occurs, every started command terminates with an integer exit code, and the outer Codex process exits `0`. Implementation mode still requires at least one terminally completed `command_execution`. The validation record is immutable host evidence next to stdout/stderr.
 
 The harness still does not integrate the result.
 
