@@ -60,7 +60,7 @@ Verworfen. Sprint 003 arbeitet gegenüber IDM, Personnel, Contacts und GWC aussc
 
 ### Aktivierungsvoraussetzung
 
-Die Voraussetzung ist erfüllt: `SPRINGMASTER-SPRINT-002` wurde am 2026-08-14 gemäß `AMEND-002` qualifiziert mit kontrollierten Deferrals abgeschlossen und archiviert. M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` aus Sprint 002 werden nicht in Sprint 003 übernommen. Dieser Plan ist mit der M1-Materialisierung `active`; M-001 bleibt bis trusted-operator Acceptance `in-progress`.
+Die Voraussetzung ist erfüllt: `SPRINGMASTER-SPRINT-002` wurde am 2026-08-14 gemäß `AMEND-002` qualifiziert mit kontrollierten Deferrals abgeschlossen und archiviert. M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` aus Sprint 002 werden nicht in Sprint 003 übernommen. M-001 wurde über Delivery 000224 akzeptiert; M2-M7 sind in A006 implementiert. Die governed Qualification benötigt noch trusted Maven-Cache-Reseeding und einen hostseitig autorisierten externen Artefakt-Root.
 
 ## Architektur- und Contract-Auswirkungen
 
@@ -173,8 +173,8 @@ Die endgültige Aufteilung wird in der Contract-ADR entschieden. Neue technische
 M1 erstellt oder entscheidet keine ADR und keinen Standard. Die folgenden Pfade sind ausschließlich bestehende Planungsplatzhalter; Aufteilung, Benennung und Live-Nummern werden erst in M-002 gegen die dann aktuelle Authority entschieden:
 
 ```text
-PROJECT_DOCS/ADR/ADR-0016-backend-operation-semantics-and-gwc-profile.md
-PROJECT_DOCS/ADR/ADR-0017-mutation-precondition-concurrency-and-bulk-boundary.md
+PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md
+PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md
 PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md
 PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md
 PROJECT_DOCS/STANDARDS/API/MUTATION_PRECONDITION_STANDARD.md
@@ -658,7 +658,7 @@ Der aktuelle Schnitt stoppt, wenn:
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-07-30 | - | review | Vollständigen Solution Plan für den vorbereiteten Sprint angelegt. |
-| 2026-08-15 | review | active | Sprint-002-Closure und M1-Baseline verifiziert; Slice 0/M-001 als Acceptance-Kandidatin gestartet. |
+| 2026-08-15 | review | active | Sprint-002-Closure und M1-Baseline verifiziert; der M1-Schnitt wurde später als Delivery 000224 akzeptiert. |
 
 `completed` ist erst nach vollständiger Qualification und akzeptiertem Completion Report zulässig. Vor Archivierung wird der Solution Plan gemäß Sprint Governance aggregiert, promoviert, begründet archiviert oder verworfen; er ist standardmäßig kein Archivartefakt.
 

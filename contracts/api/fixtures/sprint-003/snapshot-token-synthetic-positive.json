@@ -1,0 +1,7 @@
+{
+  "operations": [
+    {"operationKey":"plans.snapshots.create","operationId":"createPlanSnapshot","method":"POST","path":"/api/plans/snapshots","operationKind":"COMMAND","operationRoles":[],"security":{"classification":"MANAGEMENT","permissions":["plans:snapshot:create"],"targetAuthorization":"NONE"},"resourceKey":"plan-snapshot","precondition":{"type":"NONE","required":false,"binding":"NONE","conflictStatus":409},"effects":{"affectedResourceKeys":["plan-snapshot"]}},
+    {"operationKey":"plans.items.apply","operationId":"applyPlanItems","method":"POST","path":"/api/plans/items/commands/apply","operationKind":"COMMAND","operationRoles":[],"security":{"classification":"MANAGEMENT","permissions":["plans:item:apply"],"targetAuthorization":"EACH_TARGET"},"resourceKey":"plan-item","precondition":{"type":"SNAPSHOT_TOKEN","required":true,"binding":"BODY","tokenField":"snapshotToken","producerOperationKey":"plans.snapshots.create","conflictStatus":409},"effects":{"affectedResourceKeys":["plan-item"]}}
+  ],
+  "resources":[{"resourceKey":"plan-snapshot","historyModel":"PLAN_SNAPSHOT","mutable":false,"snapshotTokenProducerOperationKey":"plans.snapshots.create","projection":false}]
+}

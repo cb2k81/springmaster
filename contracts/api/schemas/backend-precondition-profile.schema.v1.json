@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/backend-precondition-profile.schema.v1.json",
+  "title": "Cocondo Backend Precondition Profile V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "required", "conflictStatus"],
+  "properties": {
+    "type": {"enum": ["NONE", "EXPECTED_VERSION", "EXPECTED_VERSION_SET", "SNAPSHOT_TOKEN", "ETAG"]},
+    "required": {"type": "boolean"},
+    "binding": {"enum": ["NONE", "BODY", "HEADER", "QUERY"]},
+    "tokenField": {"type": "string", "minLength": 1},
+    "producerOperationKey": {"type": "string", "minLength": 1},
+    "conflictStatus": {"enum": [409, 412, 428]},
+    "missingStatus": {"const": 428},
+    "transactionScope": {"enum": ["SINGLE_AGGREGATE", "AGGREGATE_GRAPH", "MULTI_AGGREGATE"]}
+  }
+}

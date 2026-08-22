@@ -1,0 +1,1 @@
+{"uiSpec":{"version":"1.1","operationKey":"catalog.items.list","binding":{"method":"GET","path":"/api/demo/catalog/items","operationId":"listCatalogItems"},"pattern":"STANDARD_PAGE"}}

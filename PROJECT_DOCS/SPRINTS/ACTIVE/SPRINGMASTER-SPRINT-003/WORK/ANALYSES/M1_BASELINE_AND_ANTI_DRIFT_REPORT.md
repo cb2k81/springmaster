@@ -43,7 +43,7 @@ Quellen fuer die Werte sind `platform/versions/platform.env`, `pom.xml`, `PROJEC
 ## Authority- und Evidence-Abgleich
 
 - Akzeptierte ADRs und Standards bleiben unangetastet. M1 erzeugt keine neue Architekturentscheidung und keine Gate-Promotion.
-- Das Architecture Concept im Status `review` liefert das vollstaendige Zielbild und die stabilen 27 Capability-IDs, ist aber keine akzeptierte Detailentscheidung fuer die in M2 reservierte Semantik.
+- Das Architecture Concept liefert das vollstaendige Zielbild und die stabilen 27 Capability-IDs; die Detailentscheidungen sind inzwischen durch ADR-0017 und ADR-0018 akzeptiert.
 - Ausfuehrbarer Code und Tests belegen fuer `CAP-API-002` den Reifegrad `REFERENCE_IMPLEMENTED`. Catalog-demo bleibt dennoch `candidate-reference-slice` und `not-canonical`.
 - Fuer alle anderen Capabilities wird nur `DEFINED` materialisiert. Leere Evidence-Arrays verhindern erfundene Reifeaussagen.
 - IDM, Personnel, Contacts, GWC und sonstige gemanagte Projekte wurden weder gelesen noch veraendert. Die M1-Kompatibilitaetsbewertung verwendet ausschliesslich vorhandene Springmaster-Quellen.
@@ -57,10 +57,10 @@ Die einzige verbleibende Aktivierungsvoraussetzung des vorbereiteten Sprint-003-
 | `SPRINT_BRIEF.md` | Sprint blockiert; Sprint-002-Closure offen | Sprint aktiv; M-001 in Materialisierung |
 | `SOLUTION_PLAN.md` | Plan in Review bis Aktivierung | Plan aktiv; Slice 0/M-001 in Ausfuehrung |
 | `STATUS.md` | blocked pre-activation | active/execution; keine aktuellen Blocker |
-| `COMPLETION_REPORT.md` | Sprint nicht aktiviert | Sprint aktiv; Completion bleibt draft/pending/open |
-| `PROJECT_DOCS/index.md` | geplant, nicht aktiviert oder blockiert | aktiver Sprint mit M-001-Kandidatenmaterialisierung |
+| `COMPLETION_REPORT.md` | Sprint nicht aktiviert | Sprint aktiv; M-001 später durch Delivery 000224 akzeptiert |
+| `PROJECT_DOCS/index.md` | geplant, nicht aktiviert oder blockiert | aktiver Sprint; M-001 durch Delivery 000224 akzeptiert |
 
-Die Statuswirkung entsteht erst durch trusted-operator Acceptance. Deshalb wird M-001 in dieser Worktree-Kandidatin nicht als kanonisch abgeschlossen bezeichnet.
+Die Statuswirkung wurde durch die trusted-operator Acceptance der Delivery 000224 erreicht. M-001 ist kanonisch abgeschlossen; die A006-Recovery-Ausführung baut auf dieser akzeptierten Wahrheit und dem nicht-kanonischen A005-Recovery-Seed auf.
 
 ## Anti-Drift-Ergebnis
 
@@ -74,9 +74,9 @@ Die 32 Anforderungen bleiben im Solution Plan unveraendert adressierbar. Die Req
 
 Sprint-002 M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` bleiben kontrollierte Deferrals ausserhalb von Sprint 002. Sie werden weder als Sprint-003-Anforderungen noch als Sprint-003-Deferrals uebernommen.
 
-## M2-Reservierung
+## M2-Closure
 
-M1 entscheidet weder Operationsvokabular und Source Authority noch Resource-, History-, Projection-, Precondition-, Concurrency-, Bulk-, GWC-Effects-, Workspace- oder UI-Spec-Migrationssemantik. Diese Luecken und ihre Owner sind in `NAMING_MATRIX.md` und `CROSS_APP_PATTERN_COMPATIBILITY_MATRIX.md` sichtbar und bleiben fuer M-002 offen.
+M1 entschied diese Semantik nicht. ADR-0017 und ADR-0018 sowie die fünf aktiven Standards schließen die damaligen Lücken jetzt ohne rückwirkende Änderung der M1-Baseline.
 
 ## Harness-Backlog
 

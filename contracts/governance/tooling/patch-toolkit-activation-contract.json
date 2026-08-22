@@ -78,9 +78,9 @@
   },
   "toolkitVersion": "1.1.5",
   "versionClosure": {
-    "mavenVersion": "0.24.0-foundation-SNAPSHOT",
-    "platformVersion": "0.24.0-foundation",
-    "statePatch": "000222_patch-toolkit-staged-path-parity",
-    "toolingVersion": "0.14.2"
+    "mavenVersion": "0.25.0-foundation-SNAPSHOT",
+    "platformVersion": "0.25.0-foundation",
+    "statePatch": "000237_sprint3-autonomous-dod-recovery",
+    "toolingVersion": "0.15.0"
   }
 }

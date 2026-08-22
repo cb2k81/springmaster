@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/operation-catalog.schema.v1.json",
+  "title": "Cocondo Operation Catalog V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "operations", "aliases"],
+  "properties": {
+    "schemaVersion": {"const": "cocondo.operation-catalog.v1"},
+    "operations": {"type": "array", "items": {"$ref": "backend-operation-profile.schema.v1.json"}},
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["method", "path", "operationId", "operationKey"],
+        "properties": {
+          "method": {"type": "string"}, "path": {"type": "string"}, "operationId": {"type": "string"}, "operationKey": {"type": "string"}
+        }
+      }
+    }
+  }
+}

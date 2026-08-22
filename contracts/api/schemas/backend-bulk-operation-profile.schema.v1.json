@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/backend-bulk-operation-profile.schema.v1.json",
+  "title": "Cocondo Backend Bulk Operation Profile V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["selection", "atomicity", "execution", "targetAuthorization", "nonDisclosure", "idempotency", "limits", "outcomes", "resultDelivery"],
+  "properties": {
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "frozenBeforeExecution"],
+      "properties": {
+        "mode": {"enum": ["EXPLICIT_TARGETS", "QUERY_SNAPSHOT", "SELECTION_TOKEN"]},
+        "frozenBeforeExecution": {"type": "boolean"},
+        "selectionToken": {"type": "string", "minLength": 1}
+      }
+    },
+    "atomicity": {"enum": ["ALL_OR_NOTHING", "PER_TARGET", "PER_CHUNK"]},
+    "execution": {"enum": ["SYNCHRONOUS", "ASYNCHRONOUS"]},
+    "targetAuthorization": {"enum": ["EACH_TARGET_AT_EXECUTION"]},
+    "nonDisclosure": {"enum": ["CONCEAL_UNAUTHORIZED", "AGGREGATE_ONLY", "EXPLICIT_AUTHORIZED_ONLY"]},
+    "idempotency": {"enum": ["NOT_SUPPORTED", "IDEMPOTENCY_KEY", "NATURALLY_IDEMPOTENT"]},
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxTargets"],
+      "properties": {"maxTargets": {"type": "integer", "minimum": 1}}
+    },
+    "outcomes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "resultDelivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["INLINE", "PAGED", "ARTIFACT", "STATUS_RESOURCE"]},
+        "statusOperationKey": {"type": "string", "minLength": 1},
+        "resultOperationKey": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

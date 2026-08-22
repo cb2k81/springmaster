@@ -1,5 +1,7 @@
 # API Standards
 
+Sprint 003 adds the active, ADR-backed `GWC_BACKEND_API_PROFILE_STANDARD.md`, `BULK_OPERATION_CONTRACT_STANDARD.md` and `MUTATION_PRECONDITION_STANDARD.md`. They preserve the older endpoint, command, precheck, relationship, security and error contracts.
+
 Springmaster API standards define generic conventions for future Fachprojekt backends and for the Catalog-demo reference implementation.
 
 The initial standards were extracted from existing IDM API-readiness ADR themes. They are not copied as IDM-specific rules. Springmaster keeps only the reusable API contract and documents it as master-level convention.

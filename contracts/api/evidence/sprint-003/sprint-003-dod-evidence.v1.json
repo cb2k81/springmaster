@@ -1,0 +1,725 @@
+{
+  "schemaVersion": "cocondo.sprint-003-dod-evidence.v1",
+  "sprintId": "SPRINGMASTER-SPRINT-003",
+  "status": "DOD_QUALIFIED",
+  "requirements": [
+    {
+      "requirementId": "S003-REQ-001",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "FINAL_DOD_ORACLE_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-002",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-003",
+      "capabilityIds": [
+        "CAP-API-001"
+      ],
+      "oracleIds": [
+        "duplicate-operation-key-negative"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-004",
+      "capabilityIds": [
+        "CAP-API-001"
+      ],
+      "oracleIds": [
+        "unknown-operation-kind-negative",
+        "unknown-operation-role-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-operation-profile.schema.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-005",
+      "capabilityIds": [
+        "CAP-API-002"
+      ],
+      "oracleIds": [
+        "COMPATIBILITY_REPORT.md"
+      ],
+      "evidencePaths": [
+        "src/test/java/de/cocondo/platform/demo/teammembership/TeamMembershipControllerIntegrationTest.java"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-006",
+      "capabilityIds": [
+        "CAP-API-003",
+        "CAP-API-004"
+      ],
+      "oracleIds": [
+        "candidate-target-context-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/idm-team-membership-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-007",
+      "capabilityIds": [
+        "CAP-HIST-001",
+        "CAP-HIST-002",
+        "CAP-PROJ-001"
+      ],
+      "oracleIds": [
+        "temporal-context-missing-negative",
+        "projection-response-schema-missing-negative",
+        "append-only-standard-mutation-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/personnel-concurrency-temporal-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-008",
+      "capabilityIds": [
+        "CAP-CONC-001"
+      ],
+      "oracleIds": [
+        "snapshot-token-producer-missing-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-precondition-profile.schema.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-009",
+      "capabilityIds": [
+        "CAP-CONC-002",
+        "CAP-CONC-003"
+      ],
+      "oracleIds": [
+        "pessimistic-version-token-missing-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/contacts-optimistic-job-positive.json",
+        "contracts/api/fixtures/sprint-003/personnel-concurrency-temporal-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-010",
+      "capabilityIds": [
+        "CAP-CONC-003"
+      ],
+      "oracleIds": [
+        "pessimistic-version-token-missing-negative"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-011",
+      "capabilityIds": [
+        "CAP-BULK-001",
+        "CAP-BULK-002"
+      ],
+      "oracleIds": [
+        "bulk-atomicity-missing-negative",
+        "bulk-async-result-contract-missing-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/bulk-sync-positive.json",
+        "contracts/api/fixtures/sprint-003/bulk-async-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-012",
+      "capabilityIds": [
+        "CAP-BULK-003"
+      ],
+      "oracleIds": [
+        "bulk-query-selection-not-frozen-negative",
+        "bulk-non-disclosure-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-bulk-operation-profile.schema.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-013",
+      "capabilityIds": [
+        "CAP-BULK-001",
+        "CAP-GWC-003"
+      ],
+      "oracleIds": [
+        "CROSS_APP_QUALIFICATION_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-014",
+      "capabilityIds": [
+        "CAP-JOB-001",
+        "CAP-EXPORT-001",
+        "CAP-QUERY-003",
+        "CAP-AGG-001"
+      ],
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/contacts-optimistic-job-positive.json",
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-015",
+      "capabilityIds": [
+        "CAP-GWC-001"
+      ],
+      "oracleIds": [
+        "backend-ui-reload-graph-negative"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-016",
+      "capabilityIds": [
+        "CAP-WS-001"
+      ],
+      "oracleIds": [
+        "workspace-backend-operation-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/gwc-workspace-separation-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-017",
+      "capabilityIds": [
+        "CAP-GWC-001",
+        "CAP-GWC-002"
+      ],
+      "oracleIds": [
+        "gwc-v11-breaking-operation-key-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/gwc-v11-compat-positive.json",
+        "contracts/api/fixtures/sprint-003/gwc-compatibility-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-018",
+      "capabilityIds": [
+        "CAP-API-001",
+        "CAP-TOOL-001"
+      ],
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-019",
+      "capabilityIds": [
+        "CAP-TOOL-001",
+        "CAP-TOOL-002"
+      ],
+      "oracleIds": [
+        "backend-contract catalog/export repeated-byte comparison"
+      ],
+      "evidencePaths": [
+        "bin/backend-contract.py"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-020",
+      "capabilityIds": [
+        "CAP-API-001"
+      ],
+      "oracleIds": [
+        "TeamMembershipControllerIntegrationTest.profilesOnlyExplicitlyRegisteredOpenApiOperations"
+      ],
+      "evidencePaths": [
+        "src/main/java/de/cocondo/system/backendcontract/ApiOperationContractCustomizer.java"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-021",
+      "capabilityIds": [
+        "CAP-API-003",
+        "CAP-API-004"
+      ],
+      "oracleIds": [
+        "TeamMembershipControllerIntegrationTest"
+      ],
+      "evidencePaths": [
+        "src/main/java/de/cocondo/platform/demo/teammembership/TeamMembershipController.java"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-022",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "CROSS_APP_QUALIFICATION_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/fixture-index.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-023",
+      "capabilityIds": [
+        "CAP-API-002"
+      ],
+      "oracleIds": [
+        "COMPATIBILITY_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-024",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "backend-contract validate"
+      ],
+      "evidencePaths": [
+        "contracts/api/fixtures/sprint-003/fixture-index.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-025",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "documentation and exact-path qualification"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/index.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-026",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "CROSS_APP_QUALIFICATION_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/ANTI_DRIFT_REPORT.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-027",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-028",
+      "capabilityIds": [
+        "CAP-MIG-001",
+        "CAP-WS-002",
+        "CAP-WS-003"
+      ],
+      "oracleIds": [
+        "FINAL_DOD_ORACLE_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md",
+        "contracts/api/fixtures/sprint-003/gwc-workspace-separation-positive.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-029",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "S003-AUTONOMOUS-DOD-A006 harness"
+      ],
+      "evidencePaths": [
+        "contracts/api/evidence/sprint-003/autonomous-dod-result.v1.json"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-030",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "FINAL_DOD_ORACLE_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-031",
+      "capabilityIds": [
+        "CAP-QUAL-001"
+      ],
+      "oracleIds": [
+        "COMPATIBILITY_REPORT.md"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/ADR/ADR-0006-verification-and-gate-strategy.md"
+      ]
+    },
+    {
+      "requirementId": "S003-REQ-032",
+      "capabilityIds": [
+        "CAP-API-002",
+        "CAP-GWC-002"
+      ],
+      "oracleIds": [
+        "gwc-v11-breaking-operation-key-negative",
+        "existing Maven/OpenAPI regression suites"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/COMPATIBILITY_REPORT.md"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "capabilityId": "CAP-API-001",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "duplicate-operation-key-negative"
+      ],
+      "evidencePaths": [
+        "src/main/java/de/cocondo/system/backendcontract/ApiOperationContractRegistry.java"
+      ]
+    },
+    {
+      "capabilityId": "CAP-API-002",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "existing query regressions"
+      ],
+      "evidencePaths": [
+        "COMPATIBILITY_REPORT.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-API-003",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "TeamMembershipApiTest"
+      ],
+      "evidencePaths": [
+        "src/main/java/de/cocondo/platform/demo/teammembership/TeamMembershipController.java"
+      ]
+    },
+    {
+      "capabilityId": "CAP-API-004",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "candidate-target-context-negative"
+      ],
+      "evidencePaths": [
+        "src/main/java/de/cocondo/platform/demo/teammembership/TeamMembershipPolicy.java"
+      ]
+    },
+    {
+      "capabilityId": "CAP-CONC-001",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "snapshot-token-producer-missing-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-precondition-profile.schema.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-CONC-002",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "pessimistic-version-token-missing-negative"
+      ],
+      "evidencePaths": [
+        "contacts-optimistic-lock-background-job-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-CONC-003",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "personnel-temporal-aggregate-positive"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-HIST-001",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "precondition-snapshot-token-positive"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-HIST-002",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "append-only-standard-mutation-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-resource-semantics.schema.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-PROJ-001",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "projection-response-schema-missing-negative"
+      ],
+      "evidencePaths": [
+        "personnel-temporal-aggregate-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-BULK-001",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "bulk-atomicity-missing-negative"
+      ],
+      "evidencePaths": [
+        "bulk-contracts-synthetic-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-BULK-002",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "bulk-async-result-contract-missing-negative"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-BULK-003",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "bulk-query-selection-not-frozen-negative",
+        "bulk-non-disclosure-negative"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/backend-bulk-operation-profile.schema.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-JOB-001",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "contacts-optimistic-lock-background-job-positive"
+      ],
+      "evidencePaths": [
+        "CROSS_APP_QUALIFICATION_REPORT.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-EXPORT-001",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-QUERY-003",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-AGG-001",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "contracts/architecture/cross-app-backend-gwc-target-capabilities.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-GWC-001",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "gwc-v11-breaking-operation-key-negative"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-GWC-002",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "gwc-v12-operation-key-positive"
+      ],
+      "evidencePaths": [
+        "COMPATIBILITY_REPORT.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-GWC-003",
+      "targetMaturity": "CONTRACTED",
+      "achievedMaturity": "CONTRACTED",
+      "oracleIds": [
+        "bulk-contracts-synthetic-positive"
+      ],
+      "evidencePaths": [
+        "PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-WS-001",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "workspace-backend-operation-negative"
+      ],
+      "evidencePaths": [
+        "gwc-workspace-binding-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-WS-002",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "backend-ui-reload-graph-negative"
+      ],
+      "evidencePaths": [
+        "gwc-workspace-binding-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-WS-003",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "ANTI_DRIFT_REPORT.md"
+      ],
+      "evidencePaths": [
+        "gwc-workspace-binding-positive"
+      ]
+    },
+    {
+      "capabilityId": "CAP-TOOL-001",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "backend-contract catalog/verify"
+      ],
+      "evidencePaths": [
+        "bin/backend-contract.py"
+      ]
+    },
+    {
+      "capabilityId": "CAP-TOOL-002",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "byte-identical export comparison"
+      ],
+      "evidencePaths": [
+        "contracts/api/schemas/contract-manifest.schema.v1.json"
+      ]
+    },
+    {
+      "capabilityId": "CAP-QUAL-001",
+      "targetMaturity": "REFERENCE_IMPLEMENTED",
+      "achievedMaturity": "REFERENCE_IMPLEMENTED",
+      "oracleIds": [
+        "backend-contract validate"
+      ],
+      "evidencePaths": [
+        "CROSS_APP_QUALIFICATION_REPORT.md"
+      ]
+    },
+    {
+      "capabilityId": "CAP-MIG-001",
+      "targetMaturity": "DEFINED",
+      "achievedMaturity": "DEFINED",
+      "oracleIds": [
+        "COMPATIBILITY_REPORT.md"
+      ],
+      "evidencePaths": [
+        "FINAL_DOD_ORACLE_REPORT.md"
+      ]
+    }
+  ],
+  "terminalMetrics": {
+    "CONTRADICTORY_FINDINGS": 0,
+    "UNKNOWN_REQUIREMENTS": 0,
+    "UNMAPPED_CAPABILITIES": 0,
+    "UNTESTED_NORMATIVE_RULES": 0,
+    "NONDETERMINISTIC_ARTIFACTS": 0
+  }
+}

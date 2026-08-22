@@ -1,0 +1,36 @@
+{
+  "operations": [
+    {
+      "operationKey": "teams.members.bulk-remove",
+      "operationId": "bulkRemoveTeamMembers",
+      "method": "POST",
+      "path": "/api/demo/team-memberships/commands/delete-multiple",
+      "operationKind": "COMMAND",
+      "operationRoles": ["BULK_COMMAND"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["demo:team-membership:delete"],
+        "targetAuthorization": "EACH_TARGET"
+      },
+      "precondition": {
+        "type": "EXPECTED_VERSION_SET",
+        "required": true,
+        "binding": "BODY",
+        "tokenField": "expectedVersions",
+        "conflictStatus": 409
+      },
+      "effects": {"affectedResourceKeys": ["team-membership"]},
+      "bulkProfile": {
+        "selection": {"mode": "EXPLICIT_TARGETS", "frozenBeforeExecution": true},
+        "atomicity": "ALL_OR_NOTHING",
+        "execution": "SYNCHRONOUS",
+        "targetAuthorization": "EACH_TARGET_AT_EXECUTION",
+        "nonDisclosure": "AGGREGATE_ONLY",
+        "idempotency": "NATURALLY_IDEMPOTENT",
+        "limits": {"maxTargets": 100},
+        "outcomes": ["SUCCEEDED", "REJECTED"],
+        "resultDelivery": {"mode": "INLINE"}
+      }
+    }
+  ]
+}

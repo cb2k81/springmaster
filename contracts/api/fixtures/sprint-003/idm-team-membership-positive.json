@@ -1,0 +1,7 @@
+{
+  "operations": [
+    {"operationKey":"teams.members.list","operationId":"listTeamMembers","method":"GET","path":"/api/demo/teams/{teamId}/members","operationKind":"QUERY","operationRoles":["RELATION_LIST"],"security":{"classification":"MANAGEMENT","permissions":["demo:team-membership:read"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"resourceKey":"team-membership","effects":{"affectedResourceKeys":[]}},
+    {"operationKey":"teams.members.add","operationId":"addTeamMember","method":"POST","path":"/api/demo/teams/{teamId}/members","operationKind":"COMMAND","operationRoles":[],"security":{"classification":"MANAGEMENT","permissions":["demo:team-membership:create"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"resourceKey":"team-membership","precondition":{"type":"NONE","required":false,"binding":"NONE","conflictStatus":409},"effects":{"affectedResourceKeys":["team-membership"]}}
+  ],
+  "resources":[{"resourceKey":"team-membership","historyModel":"NONE","mutable":true,"projection":false}]
+}

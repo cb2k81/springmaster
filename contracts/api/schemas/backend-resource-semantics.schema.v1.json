@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/backend-resource-semantics.schema.v1.json",
+  "title": "Cocondo Backend Resource Semantics V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["resourceKey", "historyModel", "mutable", "projection"],
+  "properties": {
+    "resourceKey": {"type": "string", "minLength": 1},
+    "historyModel": {"enum": ["NONE", "ROOT_VERSION", "PLAN_SNAPSHOT", "APPEND_ONLY", "TEMPORAL_RELATION"]},
+    "mutable": {"type": "boolean"},
+    "temporalContextRequired": {"type": "boolean"},
+    "snapshotTokenProducerOperationKey": {"type": "string", "minLength": 1},
+    "projection": {"type": "boolean"},
+    "projectionResponseSchema": {"type": "string", "minLength": 1}
+  }
+}

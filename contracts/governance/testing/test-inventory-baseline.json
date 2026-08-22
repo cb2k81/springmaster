@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.6.0",
+  "baselineVersion": "1.7.0",
   "status": "sealed-report-only",
   "generatedAt": "2026-07-23T11:11:07.843888Z",
   "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
@@ -221,6 +221,45 @@
       ]
     },
     {
+      "path": "src/test/java/de/cocondo/platform/demo/teammembership/TeamMembershipApiTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "contract",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/demo/teammembership/TeamMembershipControllerIntegrationTest.java",
+      "suiteId": "java-demo-surefire",
+      "testLevel": "integration",
+      "annotations": [
+        "SpringBootTest",
+        "MockMvc",
+        "OpenAPI"
+      ],
+      "environment": [
+        "java-21",
+        "spring-test-context"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/platform/tooling/backendcontract/BackendContractToolIntegrationTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "integration",
+      "annotations": [],
+      "environment": [
+        "java-21",
+        "python-3",
+        "filesystem-temp"
+      ]
+    },
+    {
       "path": "src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java",
       "suiteId": "java-tooling-surefire",
       "testLevel": "acceptance",
@@ -330,6 +369,15 @@
     },
     {
       "path": "src/test/java/de/cocondo/system/dto/CoreDtoMarkerTypesTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/backendcontract/ApiOperationContractRegistryTest.java",
       "suiteId": "java-core-surefire",
       "testLevel": "unit",
       "annotations": [],
@@ -1028,7 +1076,7 @@
     }
   ],
   "summary": {
-    "javaTestClassCount": 49,
+    "javaTestClassCount": 53,
     "toolingEntrypointCount": 40,
     "sourceFixtureCount": 21,
     "mavenRunner": "surefire",

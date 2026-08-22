@@ -1,8 +1,8 @@
 ---
-documentId: SPRINGMASTER-SPRINT-003-M1-REQUIREMENT-TEST-MATRIX
-title: Sprint 003 Requirements-to-Test Matrix
+documentId: SPRINGMASTER-SPRINT-003-REQUIREMENTS-TO-TEST
+title: Sprint 003 Requirements to Test Matrix
 documentType: report
-status: draft
+status: final
 authority: evidence
 scopeLevel: project
 scopePaths:
@@ -11,62 +11,51 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-08-15
-validFrom: null
-lastReviewedAt: 2026-08-15
+validFrom: 2026-08-20
+lastReviewedAt: 2026-08-20
 reviewBy: 2026-08-31
 supersedes: []
 supersededBy: null
 temporary: true
 sprintId: SPRINGMASTER-SPRINT-003
 ---
+# Sprint 003 Requirements to Test Matrix
 
-# Sprint 003 Requirements-to-Test Matrix
+M-001 was accepted through Delivery 000224. Every requirement is technically qualified and has detailed nonempty oracle/evidence references in `contracts/api/evidence/sprint-003/sprint-003-dod-evidence.v1.json`.
 
-## Statusregel
+| Requirement | Primary qualification oracle | Result |
+|---|---|---|
+| S003-REQ-001 | Final DoD / catalog evidence | QUALIFIED |
+| S003-REQ-002 | 27-capability invariant | QUALIFIED |
+| S003-REQ-003 | duplicate operation key oracle | QUALIFIED |
+| S003-REQ-004 | kind and role oracles | QUALIFIED |
+| S003-REQ-005 | Compatibility Report | QUALIFIED |
+| S003-REQ-006 | target-context oracle | QUALIFIED |
+| S003-REQ-007 | history/temporal/projection oracles | QUALIFIED |
+| S003-REQ-008 | precondition oracles | QUALIFIED |
+| S003-REQ-009 | consistency/version-token oracles | QUALIFIED |
+| S003-REQ-010 | transaction classification oracle | QUALIFIED |
+| S003-REQ-011 | sync/async Bulk oracles | QUALIFIED |
+| S003-REQ-012 | Bulk security/selection oracles | QUALIFIED |
+| S003-REQ-013 | Cross-App Qualification Report | QUALIFIED |
+| S003-REQ-014 | catalog deferral invariant | QUALIFIED |
+| S003-REQ-015 | backend UI-reload negative oracle | QUALIFIED |
+| S003-REQ-016 | Workspace separation oracle | QUALIFIED |
+| S003-REQ-017 | GWC v1.1 compatibility oracle | QUALIFIED |
+| S003-REQ-018 | ADR-0017 authority matrix | QUALIFIED |
+| S003-REQ-019 | repeated catalog/export byte comparison | QUALIFIED |
+| S003-REQ-020 | opt-in OpenAPI runtime test | QUALIFIED |
+| S003-REQ-021 | Team-Membership API test | QUALIFIED |
+| S003-REQ-022 | immutable/synthetic fixture suite | QUALIFIED |
+| S003-REQ-023 | application-specific boundary review | QUALIFIED |
+| S003-REQ-024 | 28-fixture validator suite | QUALIFIED |
+| S003-REQ-025 | exact-path/documentation evidence | QUALIFIED |
+| S003-REQ-026 | zero-contradiction report | QUALIFIED |
+| S003-REQ-027 | maturity/deferral invariant | QUALIFIED |
+| S003-REQ-028 | follow-up boundary evidence | QUALIFIED |
+| S003-REQ-029 | governed A006 task result | DOD_QUALIFIED candidate; postcheck and trusted prequalification PASS; canonical qualification pending |
+| S003-REQ-030 | trusted integration boundary review | QUALIFIED |
+| S003-REQ-031 | report-only gate boundary review | QUALIFIED |
+| S003-REQ-032 | OpenAPI/Generated-Slice/GWC compatibility | QUALIFIED |
 
-Jede Sprint-003-Anforderung besitzt genau eine Primaerzeile. `CANDIDATE_NOT_ACCEPTED` bezeichnet in diesem Worktree materialisierte, aber noch nicht trusted-operator-akzeptierte M1-Evidence. `PLANNED/NOT_YET_IMPLEMENTED` bezeichnet kuenftige Tests oder Reports und ist ausdruecklich kein Testpass.
-
-| Requirement | Primary | Owner-Milestone | Primaerer Test oder Oracle | Status |
-|---|---|---|---|---|
-| `S003-REQ-001` | yes | M-001 | Baseline-/Anti-Drift-Report plus Sprint-/Index-Konsistenzpruefung | CANDIDATE_NOT_ACCEPTED |
-| `S003-REQ-002` | yes | M-001 | Catalog-Invariant: exakt 27 IDs, Pflichtfelder und Reife-Allowlist | CANDIDATE_NOT_ACCEPTED |
-| `S003-REQ-003` | yes | M-002 | positives/negatives Operationsidentitaets-Schema-Fixture | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-004` | yes | M-002 | Operationskind-/Rollen-Kombinationsfixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-005` | yes | M-002 | bestehende Query-, Command-, Relationship- und Error-Regressionen plus Compatibility Report | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-006` | yes | M-002 | Security-/Relation-/Candidate-/Capability-Schemafixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-007` | yes | M-002 | Personnel-/Contacts-Resource-, History- und Projection-Fixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-008` | yes | M-002 | Precondition-Schemafixtures fuer alle akzeptierten Typen und Bindings | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-009` | yes | M-002 | Concurrency-Contract-Fixtures fuer Baseline und additive Strategien | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-010` | yes | M-002 | Transaction-Scope-Schemafixtures und spaetere Runtime-Tests | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-011` | yes | M-002 | synchrone/asynchrone Bulk-Contract-Fixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-012` | yes | M-002 | Bulk-Matrix fuer Selection, Atomicity, Security, Preconditions, Idempotenz, Limits und Outcomes | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-013` | yes | M-002 | positive/negative Abgrenzungsfixtures Bulk/Composite/GWC Batch/Job | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-014` | yes | M-002 | Catalog-Deferral-Invariant fuer Job, Export, Delta und Aggregation | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-015` | yes | M-002 | Backend-Effects-/GWC-Refresh-/Workspace-Reload-Mappingfixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-016` | yes | M-002 | Standard-Page-vs-Workspace-Negativfixture | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-017` | yes | M-002 | Application-UI-Spec-v1.1-Regression und vNext-Migrationsfixture | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-018` | yes | M-002 | Source-Authority- und Drift-Negativfixtures | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-019` | yes | M-004 | deterministischer Operation-Catalog-/Bundle-Zweitlauf und Hashvergleich | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-020` | yes | M-005 | opt-in OpenAPI-Runtime-Tests inklusive unprofilierter Negativ-/Regressionfaelle | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-021` | yes | M-005 | Team-Membership-Controller-, Service-, OpenAPI- und Capability-Tests | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-022` | yes | M-006 | read-only IDM-/Personnel-/Contacts-/Bulk-/GWC-Fixture-Suite | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-023` | yes | M-002 | Compatibility-Negativfixture gegen erzwungene Fachlogik-/Entity-/Tabellen-/Lock-Aenderung | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-024` | yes | M-003 | positives und negatives Fixture je akzeptierter normativer Regel | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-025` | yes | M-001 | Exact-path-, Front-Matter-, Sprint- und Documentation-Governance-Pruefung | CANDIDATE_NOT_ACCEPTED |
-| `S003-REQ-026` | yes | M-006 | Cross-App Non-Contradiction Report mit Findingstatuspruefung | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-027` | yes | M-007 | Catalog-Diff-Negativtest gegen stilles Entfernen von Capability oder Deferral | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-028` | yes | M-007 | Folgesprint-Readiness-/Handoff-Contract-Pruefung | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-029` | yes | M-001 | agent-task Post-State-/Scope-Evidence aus dem autorisierten Harness | CANDIDATE_NOT_ACCEPTED |
-| `S003-REQ-030` | yes | M-001 | Review der unveraenderten menschlichen Accept-/Promotion-/Versionierungsgrenzen | CANDIDATE_NOT_ACCEPTED |
-| `S003-REQ-031` | yes | M-007 | Gate-Registry-Pruefung: neue Regeln report-only, keine implizite Strict-Promotion | PLANNED/NOT_YET_IMPLEMENTED |
-| `S003-REQ-032` | yes | M-006 | Generated-Slice-V1-, GWC-v1.1- und bestehende OpenAPI-Regressionen | PLANNED/NOT_YET_IMPLEMENTED |
-
-## Vollstaendigkeit und Evidence-Grenze
-
-Die Matrix bindet `S003-REQ-001..032` ohne Luecke oder Doppel-Primary. Sie behauptet keinen bestandenen M2-M7-Test. Auch die M1-Zeilen bleiben bis trusted-operator Acceptance Kandidaten-Evidence; die spaetere Qualification muss konkrete Reports und Testergebnisse eintragen.
-
-## Lifecycle
-
-| Datum | Vorher | Nachher | Grund |
-|---|---|---|---|
-| 2026-08-15 | - | draft | Alle 32 Anforderungen an primaere M1- oder geplante Qualification-Oracles gebunden, ohne kuenftige Evidence als bestanden auszugeben. |
+`QUALIFIED` means technical DoD, not trusted Candidate/Dry-run/Human-Accept integration.

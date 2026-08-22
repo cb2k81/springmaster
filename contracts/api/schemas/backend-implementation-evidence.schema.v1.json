@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/backend-implementation-evidence.schema.v1.json",
+  "title": "Cocondo Backend Implementation Evidence V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evidenceId", "sourceKind", "sourceProject", "sourceSha256", "capabilityIds", "requirementIds", "references"],
+  "properties": {
+    "evidenceId": {"type": "string", "minLength": 1},
+    "sourceKind": {"enum": ["IMMUTABLE_REFERENCE", "SYNTHETIC_CONTRACT"]},
+    "sourceProject": {"type": ["string", "null"]},
+    "sourceSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "capabilityIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^CAP-[A-Z]+-[0-9]{3}$"}},
+    "requirementIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^S003-REQ-[0-9]{3}$"}},
+    "references": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+  }
+}

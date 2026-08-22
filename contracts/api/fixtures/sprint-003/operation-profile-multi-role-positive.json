@@ -1,0 +1,19 @@
+{
+  "operations": [
+    {
+      "operationKey": "teams.members.options",
+      "operationId": "listTeamMemberOptions",
+      "method": "GET",
+      "path": "/api/demo/teams/{teamId}/members/options",
+      "operationKind": "QUERY",
+      "operationRoles": ["CANDIDATE_LIST", "REFERENCE_LOOKUP"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["demo:team-membership:read"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "effects": {"affectedResourceKeys": []}
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-003-COMPLETION
 title: Cross-App Backend Contract Foundation and GWC Readiness – Completion Report
 documentType: sprint-completion-report
-status: draft
+status: final
 authority: evidence
 scopeLevel: project
 scopePaths:
@@ -11,91 +11,69 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-07-30
-validFrom: null
-lastReviewedAt: 2026-08-15
+validFrom: 2026-08-20
+lastReviewedAt: 2026-08-21
 reviewBy: null
 supersedes: []
 supersededBy: null
 temporary: false
 sprintId: SPRINGMASTER-SPRINT-003
-qualificationStatus: pending
+qualificationStatus: blocked
 closureStatus: open
 closedAt: null
 ---
-
 # Cross-App Backend Contract Foundation and GWC Readiness – Completion Report
 
 ## Ergebnisübersicht
 
-Sprint 003 ist aktiv; M-001 befindet sich in der Materialisierung. Dieses Dokument bleibt der vorbereitete dauerhafte Qualification- und Closure-Nachweis und wird erst finalisiert, nachdem alle Anforderungen, Teilziele, Cross-App-Fixtures, Deferrals, SemVer-Auswirkungen und Stop- oder Promotionsentscheidungen bewertet wurden.
-
-Aktueller Zustand: `active`, Phase `execution`, M-001 `in-progress`. Der M1-Schnitt ist bis trusted-operator Acceptance nur Kandidaten-Evidence. Es besteht keine Behauptung, dass die geplanten M2-Semantiken, Schemas, Runtime-Typen, Referenzslices oder GWC-Bindings bereits umgesetzt oder qualifiziert sind.
+M-001 was accepted via Delivery 000224. The A006 recovery implementation closes the remaining M2-M7 technical scope: 32/32 requirements and 27/27 capabilities have explicit oracle and evidence references. Maturity is exactly 11 `CONTRACTED`, 9 `DEFINED`, 7 `REFERENCE_IMPLEMENTED`; no capability is `CANONICAL` or `ROLLED_OUT`.
 
 ## Anforderungen und Teilziele
 
-| Bezug | Aktueller Zustand | Abschlussnachweis |
+| Milestone | Result | Durable evidence |
 |---|---|---|
-| S003-REQ-001 bis S003-REQ-032 | gemappt; Qualification ausstehend | M1-Requirements-to-Capability- und Requirements-to-Test-Matrix; keine Completion-Behauptung |
-| M-001 | in Ausführung | Baseline, Capability Catalog und fünf M1-Analysen als Acceptance-Kandidatin materialisiert |
-| M-002 | ausstehend | akzeptierte ADRs, Standards und Authority Matrix |
-| M-003 | ausstehend | Schemas, positive/negative Fixtures und Diagnosecodes |
-| M-004 | ausstehend | Validator, Operation Catalog, Manifest und reproduzierbarer Handoff |
-| M-005 | ausstehend | opt-in OpenAPI-Runtime und Team-Membership-Referenzslice |
-| M-006 | ausstehend | IDM-, Personnel-, Contacts-, Bulk- und GWC-Qualification |
-| M-007 | ausstehend | Full Regression, Deferral-Schutz, SemVer und Folgesprint-Handoff |
+| M-001 | completed | accepted Delivery 000224 and M1 matrices |
+| M-002 | completed | ADR-0017, ADR-0018 and five standards |
+| M-003 | completed | seven schemas, twelve positive and sixteen negative fixtures |
+| M-004 | completed | `bin/backend-contract.py`, canonical catalog/manifest/export oracles |
+| M-005 | completed | nine public Core profile types, opt-in customizer, Team-Membership slice/tests |
+| M-006 | completed | Cross-App, Compatibility, Anti-Drift and Final DoD reports |
+| M-007 | completed | exact version values, DoD evidence and autonomous terminal result |
 
 ## Definition of Done und Qualification
 
-Qualification-Status: `pending`.
-
-Die Definition of Done aus dem Sprint Brief wird bei Closure kriteriumsweise mit `erfüllt`, `deferiert` oder `blockiert` bewertet. Ein Contract-Entwurf, einzelner Fixture-Test oder report-only Gate ersetzt keine akzeptierte normative Entscheidung und keine ausführbare Runtime-Evidence.
+All task-scoped product criteria are implemented. A006 corrected the registered report paths and the exact patch-toolkit version closure; documentation, sprint, contract and Maven product checks reached green. Authoritative qualification remains blocked until the trusted lifecycle reseeds the task-local Maven cache and runs the process-operations selfcheck with a policy-approved writable external artifact root.
 
 ## Akzeptierte Änderungen
 
-Bisher liegt ausschließlich die M1-Aktivierungs- und Baseline-Kandidatin vor:
-
-- 27-Capability-Catalog mit verifizierten Ist-/Zielreifegraden;
-- Baseline-/Anti-Drift-Report, Compatibility- und Naming-Matrix;
-- Requirements-to-Capability- und Requirements-to-Test-Matrix;
-- aktivierter Sprint Brief und Solution Plan;
-- aktuelle Statusquelle, weiterhin offener Completion Report und konsistenter Index.
-
-Fachliche Entscheidungen, Schemas, Runtime-Implementierungen und Generator-Handoffs werden erst nach M1-Acceptance in separat qualifizierten Schnitten ergänzt. Diese Liste ist keine Aussage über eine bereits akzeptierte Änderung.
+ADR-0017, ADR-0018, five standards, seven schemas, the deterministic tool, the opt-in Java profile runtime and Team-Membership candidate/reference slice form the technical result.
 
 ## Dauerhafte Promotionen
 
-Noch keine.
-
-Mögliche spätere Promotionen umfassen akzeptierte ADRs und Standards, versionierte Contract-Familien, Operation Catalog und Contract-Handoff, minimale OpenAPI-Runtime, Referenzslice sowie Cross-App-Qualification. Jede Promotion benötigt eigene Evidence.
+The two ADRs and five standards are accepted/active. Capability maturity is promoted only to its pre-existing target and never to `CANONICAL` or `ROLLED_OUT`.
 
 ## Offene Findings, Risiken und Schulden
 
-- Trusted-operator Acceptance der M1-Kandidatin ist offen.
-- ADR-Aufteilung, Source Authority, Contract-Granularität und alle reservierten M2-Semantiken sind noch zu entscheiden.
-- Komplexe Aggregate-, Concurrency-, Bulk-, Job- und Workspace-Runtimes bleiben kontrollierte Deferrals.
-- Der Lifecycle bleibt `PILOT_WRITE_READY`/`PROMOTED`; `PILOT_COMPLETED` ist nicht erreicht.
-- Sprint-002 M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009` sind keine Sprint-003-Deferrals.
+IDM and Personnel patterns are immutable references with recorded hashes. Contacts proves optimistic `persistenceVersion` and a real Spring Batch job lifecycle only; it does not prove Snapshot Token. Snapshot Token, Generic Bulk and UI Spec 1.2 migration fixtures are synthetic. GWC provenance intentionally has `sourceSha256=null` and makes no statement about live GWC.
+
+## Deliberate deferrals
+
+No generic History Engine, multi-aggregate lock runtime, Bulk runtime, Job runtime, export/aggregation/delta framework, Workspace runtime or managed-project migration was built. Team Membership remains deterministic in-memory candidate/reference evidence and does not canonicalize Catalog-demo.
 
 ## Temporäre Dokumente
 
-| Pfad | Entscheidung | Ziel oder Begründung |
-|---|---|---|
-| SOLUTION_PLAN.md | aggregate | Dauerhafte Entscheidungen werden bei Closure in ADRs, Standards, Contracts und diesen Report promoviert. |
-| STATUS.md | discard | Der finale Zustand wird vollständig im Completion Report aggregiert. |
-| WORK/ANALYSES/*.md | undecided | Behandlung wird vor Closure einzeln als promote, aggregate, archive oder discard entschieden. |
+Sprint WORK analyses and qualification reports remain temporary evidence until trusted integration/archival decides aggregation. They are not alternate normative sources.
 
 ## SemVer- und Releasebewertung
 
-Erwartet wird für spätere qualifizierte Tooling-Slices mindestens ein kompatibler `minor`-Impact. Der M1-Aktivierungsschnitt bewirkt keinen Komponenten- oder Foundation-Versionsbump und keine Releaseempfehlung.
+Foundation `0.25.0-foundation`; Maven `0.25.0-foundation-SNAPSHOT`; Core `0.5.0`; Tooling `0.15.0`; Demo `0.3.0`; Template `0.3.1`; Update `0.10.0`; State Patch `000237_sprint3-autonomous-dod-recovery`.
 
 ## Nicht erreichte Ziele und Folgebedarf
 
-M-001 bis M-007 sind noch nicht abgeschlossen. Zuerst ist die M1-Kandidatin durch den trusted operator zu prüfen und zu akzeptieren. Danach folgen M-002-Entscheidungen, Schemas und Oracles, Tooling und Handoff, minimale Runtime und Referenzslice, Cross-App-/GWC-Qualification sowie Closure und Folgesprint-Handoff.
+This report records implementation-complete, qualification-blocked evidence. It does not claim `DOD_QUALIFIED`, Delivery materialization, dry-run, or human acceptance. Maven-cache reseeding, host-side postcheck and those integration steps remain trusted-operator boundaries.
 
 ## Lifecycle
 
-| Datum | Vorher | Nachher | Grund |
+| Date | From | To | Reason |
 |---|---|---|---|
-| 2026-07-30 | – | draft | Dauerhaften Completion- und Qualification-Nachweis vorbereitet. |
-| 2026-07-31 | draft | draft | Aktivierungsblocker, Teilziele, Reifegrenzen und Deferrals mit Brief und Solution Plan abgeglichen. |
-| 2026-08-15 | draft | draft | Sprint aktiviert und M-001-Materialisierung erfasst; Qualification pending, Closure open und Completion bis trusted-operator Acceptance ausdrücklich nicht behauptet. |
+| 2026-08-20 | pending | qualified-with-deferrals | Technical M2-M7 DoD qualified; trusted closure remains open. |

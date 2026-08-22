@@ -1,0 +1,8 @@
+{
+  "operations": [
+    {"operationKey":"personnel.assignments.update","operationId":"updatePersonnelAssignment","method":"PUT","path":"/api/personnel/assignments/{id}","operationKind":"COMMAND","operationRoles":["ENTITY_UPDATE"],"security":{"classification":"MANAGEMENT","permissions":["personnel:assignment:update"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"resourceKey":"personnel-assignment","precondition":{"type":"EXPECTED_VERSION_SET","required":true,"binding":"BODY","tokenField":"expectedVersions","conflictStatus":409},"effects":{"affectedResourceKeys":["personnel-assignment"]}},
+    {"operationKey":"personnel.assignments.temporal-projection","operationId":"readPersonnelAssignmentProjection","method":"GET","path":"/api/personnel/assignments/projection","operationKind":"QUERY","operationRoles":["PROJECTION_READ","TEMPORAL_READ"],"security":{"classification":"MANAGEMENT","permissions":["personnel:assignment:read"],"targetAuthorization":"NONE"},"resourceKey":"personnel-assignment-projection","temporalContext":"effectiveAt","projectionResponseSchema":"PersonnelAssignmentProjectionDTO","effects":{"affectedResourceKeys":[]}}
+  ],
+  "resources":[{"resourceKey":"personnel-assignment-projection","historyModel":"TEMPORAL_RELATION","mutable":false,"temporalContextRequired":true,"projection":true,"projectionResponseSchema":"PersonnelAssignmentProjectionDTO"}],
+  "consistency":{"strategy":"MIXED","transactionScope":"AGGREGATE_GRAPH","lockOrder":"APPLICATION_SPECIFIC"}
+}

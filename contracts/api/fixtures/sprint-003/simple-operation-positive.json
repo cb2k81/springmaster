@@ -1,0 +1,5 @@
+{
+  "operations": [
+    {"operationKey":"catalog.items.list","operationId":"listCatalogItems","method":"GET","path":"/api/demo/catalog/items","operationKind":"QUERY","operationRoles":["ENTITY_LIST"],"security":{"classification":"MANAGEMENT","permissions":["catalog:item:read"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}
+  ]
+}

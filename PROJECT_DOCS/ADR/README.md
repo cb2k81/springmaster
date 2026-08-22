@@ -33,6 +33,8 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0014-process-execution-observation-and-recovery.md` | Accepted | dynamic path resolution, single worker owner, terminal-safe observation and recovery |
 | `ADR-0015-controlled-ai-assisted-development-pilot.md` | Accepted | Springmaster-only AI-assisted development pilot, external task boundaries and staged Codex cutover |
 | `ADR-0016-host-local-multi-host-codex-authorization.md` | Accepted | host-local multi-host Codex authorization, requalification and CLI capability binding |
+| `ADR-0017-backend-operation-semantics-and-gwc-profile.md` | Accepted | stable operation identity, OpenAPI profile authority and additive GWC binding |
+| `ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md` | Accepted | precondition, history, consistency, transaction and bulk boundaries |
 
 ## Planned ADR backlog
 

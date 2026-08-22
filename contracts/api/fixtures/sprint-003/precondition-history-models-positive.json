@@ -1,0 +1,10 @@
+{
+  "operations": [
+    {"operationKey":"people.records.update-etag","operationId":"updatePersonWithEtag","method":"PUT","path":"/api/people/{id}","operationKind":"COMMAND","operationRoles":["ENTITY_UPDATE"],"security":{"classification":"MANAGEMENT","permissions":["people:update"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"resourceKey":"person","precondition":{"type":"ETAG","required":true,"binding":"HEADER","tokenField":"If-Match","conflictStatus":412,"missingStatus":428},"effects":{"affectedResourceKeys":["person"]}},
+    {"operationKey":"ledger.entries.append","operationId":"appendLedgerEntry","method":"POST","path":"/api/ledger/entries","operationKind":"COMMAND","operationRoles":["ENTITY_CREATE"],"security":{"classification":"MANAGEMENT","permissions":["ledger:entry:create"],"targetAuthorization":"NONE"},"resourceKey":"ledger-entry","precondition":{"type":"NONE","required":false,"binding":"NONE","conflictStatus":409},"effects":{"affectedResourceKeys":["ledger-entry"]}}
+  ],
+  "resources":[
+    {"resourceKey":"person","historyModel":"ROOT_VERSION","mutable":true,"projection":false},
+    {"resourceKey":"ledger-entry","historyModel":"APPEND_ONLY","mutable":false,"projection":false}
+  ]
+}

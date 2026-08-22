@@ -1,0 +1,6 @@
+{
+  "operations": [
+    {"operationKey":"catalog.items.list","operationId":"listCatalogItems","method":"GET","path":"/api/demo/catalog/items","operationKind":"QUERY","operationRoles":["ENTITY_LIST"],"security":{"classification":"MANAGEMENT","permissions":["catalog:item:read"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}
+  ],
+  "uiSpec":{"version":"1.2","binding":{"operationKey":"catalog.items.list","method":"GET","path":"/api/demo/catalog/items","operationId":"listCatalogItems"},"v11Aliases":[{"method":"GET","path":"/api/demo/catalog/items","operationId":"listCatalogItems","operationKey":"catalog.items.list"}],"pattern":"STANDARD_PAGE","refresh":{"resourceKeys":["catalog-item"]}}
+}

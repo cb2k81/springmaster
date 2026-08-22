@@ -1,5 +1,7 @@
 # Springmaster Standards
 
+Sprint 003 adds the active architecture standards `ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md` and `ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md`, backed by ADR-0018.
+
 Springmaster standards define conventions and validation rules for backend projects built from or supplied by Springmaster.
 
 Springmaster standards are not project-local notes. They are master-level rules that should be demonstrated in the reference project and verified by tools where possible.

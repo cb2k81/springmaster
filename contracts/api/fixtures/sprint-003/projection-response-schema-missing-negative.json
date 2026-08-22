@@ -1,0 +1,1 @@
+{"operations":[{"operationKey":"people.overview.read","operationId":"overview","method":"GET","path":"/api/people/overview","operationKind":"QUERY","operationRoles":["PROJECTION_READ"],"security":{"classification":"MANAGEMENT","permissions":["people:read"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}]}

@@ -30,12 +30,12 @@ Die Matrix klassifiziert ausschliesslich vorhandene Springmaster-Quellen und Pat
 |---|---|---|---|---|
 | `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md` | akzeptierte normative Authority | KEEP | DTO-, Endpoint-, Query- und Error-Boundaries bleiben Grundlage; M2 darf sie nur additiv praezisieren. | M-002 |
 | `PROJECT_DOCS/ADR/ADR-0003-application-layer-and-transaction-boundary.md` | akzeptierte normative Authority | KEEP | Controller-, Service- und Transaktionsgrenzen bleiben bestehen. | M-002 |
-| `PROJECT_DOCS/ADR/ADR-0004-persistence-identity-and-domainentity-strategy.md` | akzeptierte normative Authority | KEEP | `persistenceVersion` und die Optimistic-Locking-Basis bleiben erhalten; weitere Strategien sind noch nicht entschieden. | M-002 |
+| `PROJECT_DOCS/ADR/ADR-0004-persistence-identity-and-domainentity-strategy.md` | akzeptierte normative Authority | KEEP | `persistenceVersion` und die Optimistic-Locking-Basis bleiben erhalten; additive Strategien sind durch ADR-0018 klassifiziert. | M-002 |
 | `PROJECT_DOCS/ADR/ADR-0005-security-and-permission-boundary.md` | akzeptierte normative Authority | KEEP | Permission- und Enforcement-Grenzen bleiben verbindlich; Capability-Metadaten duerfen Autorisierung nicht ersetzen. | M-002 |
 | `PROJECT_DOCS/ADR/ADR-0011-command-precheck-and-capability-boundary.md` | akzeptierte normative Authority | KEEP | Precheck bleibt optionale Read-Time-Aussage mit erneuter Command-Pruefung. | M-002 |
 | `PROJECT_DOCS/STANDARDS/API/LIST_FILTER_QUERY_STANDARD.md` | akzeptierte normative Authority | KEEP | Paging, Filter, Sortierung, `/all` und stabile Tie-Breaker sind kompatible Baseline fuer `CAP-API-002`. | M-005 |
 | `PROJECT_DOCS/STANDARDS/API/COMMAND_HTTP_STANDARD.md` | akzeptierte normative Authority | KEEP | Bestehende Command- und HTTP-Semantik bleibt kompatibel. | M-002 |
-| `PROJECT_DOCS/STANDARDS/API/COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md` | akzeptierte normative Authority | CLARIFY | Relationship- und bisherige Bulk-Grenzen bleiben erhalten; die weitergehende Bulk-Abgrenzung ist M2-offen. | M-002 |
+| `PROJECT_DOCS/STANDARDS/API/COMMAND_RELATIONSHIP_ENDPOINT_STANDARD.md` | akzeptierte normative Authority | CLARIFY | Relationship-Grenzen bleiben erhalten; der Bulk-Vertrag ist durch ADR-0018 und den Bulk Standard geschlossen. | M-002 |
 | `PROJECT_DOCS/STANDARDS/API/COMMAND_PRECHECK_ENDPOINT_STANDARD.md` | akzeptierte normative Authority | GENERALIZE | Eignet sich als fachneutrale Basis fuer Capability/Precheck; Bulk- und Cross-App-Ausweitung benoetigt eine M2-Entscheidung. | M-002 |
 | `PROJECT_DOCS/STANDARDS/API/API_ERROR_CONTRACT_STANDARD.md` | akzeptierte normative Authority | KEEP | Der globale Fehlervertrag bleibt bestehen; 409/412/428-Zuordnung wird in M1 nicht entschieden. | M-002 |
 | `PROJECT_DOCS/STANDARDS/SECURITY_PERMISSION_BOUNDARY_STANDARD.md` | normative Standard-Authority | KEEP | Management-Security bleibt Voraussetzung; dokumentierte Deferral-Evidence wird nicht als Implementierung umgedeutet. | M-005 |
@@ -45,7 +45,7 @@ Die Matrix klassifiziert ausschliesslich vorhandene Springmaster-Quellen und Pat
 | `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md` und vorhandene Generated-Slice-Fixtures | Tooling-/Fixture-Evidence | CLARIFY | V1-Kompatibilitaet ist zu erhalten; eine v1.1-zu-vNext-Migrationsform wird erst in M2 entschieden. | M-002 |
 | Background Job, Export, Aggregation und Cursor/Delta | nur im Zielbild benannte Capabilities | DEFER | Sichtbar im Catalog auf `DEFINED`; normative Vertrage und Runtime liegen ausserhalb des Sprint-003-Zielreifegrads. | M-007 |
 | Workspace Resource Store, Reload Graph, Mutation Coordinator und Dirty State | nur im Zielbild benannte Capabilities | DEFER | Sichtbar auf `DEFINED`; Workspace-Runtime und Folgesprint-Handoff bleiben offen. | M-007 |
-| Operation Catalog, Manifest und Contract-Handoff | geplante Capability ohne Implementierungsevidence | EXTEND | Erst nach M2 Authority-/Schemaentscheidungen in M-003/M-004 implementierbar. | M-004 |
+| Operation Catalog, Manifest und Contract-Handoff | qualifizierte Capability | EXTEND | Durch sieben Schemas und `bin/backend-contract.py` deterministisch implementiert. | M-004 |
 
 ## Authority-vs-Evidence-Regel
 

@@ -30,7 +30,7 @@ Springmaster schafft eine fachneutrale, contract-first Cross-App-Grundlage, mit 
 
 Der Sprint hebt nur ausreichend verstandene Fähigkeiten bis `REFERENCE_IMPLEMENTED` an. Komplexe Aggregate, gemischte Concurrency, Backend-Bulk-Orchestrierung, Background Jobs und Workspace Runtime bleiben sichtbar, aber bewusst auf `CONTRACTED` oder `DEFINED`, solange ihre Runtime-Oracles nicht belastbar geschlossen sind.
 
-Die Aktivierungsvoraussetzung ist durch die qualifizierte und archivierte Sprint-002-Closure unter `AMEND-002` erfüllt. Sprint 003 ist aktiv; M-001 materialisiert die Baseline und den Anti-Drift-Nachweis in dieser Kandidatin. Kanonische Completion entsteht erst durch trusted-operator Acceptance.
+Die Aktivierungsvoraussetzung ist durch die qualifizierte und archivierte Sprint-002-Closure unter `AMEND-002` erfüllt. M-001 wurde mit Delivery 000224 akzeptiert. M2-M7 sind in A006 implementiert; die governed Qualification benötigt noch trusted Maven-Cache-Reseeding und einen hostseitig autorisierten externen Artefakt-Root. Trusted Candidate-, Dry-run- und Human-Accept-Integration folgen getrennt.
 
 ## Strategischer Bezug
 
@@ -137,25 +137,25 @@ Die verbindlichen Anforderungen `S003-REQ-001` bis `S003-REQ-032` sind im `SOLUT
 - [ ] Alle Anforderungen `S003-REQ-001` bis `S003-REQ-032` sind erfüllt, deferiert oder blockiert bewertet.
 - [ ] Alle Zielbild-Capabilities bleiben im Capability Catalog erhalten.
 - [ ] Alle `CONTRACTED`-Fähigkeiten besitzen akzeptierte Standards sowie positive und negative Fixtures.
-- [ ] Alle `REFERENCE_IMPLEMENTED`-Fähigkeiten besitzen ausführbare Evidence.
-- [ ] Validator, Catalog und Contract-Handoff sind deterministisch und wiederholbar.
-- [ ] IDM-, Personnel-, Contacts-, Bulk- und GWC-Fixtures validieren ohne `CONTRADICTORY`-Finding.
-- [ ] Bestehende API-, Generated-Slice- und GWC-v1.1-Regressionen bleiben grün.
-- [ ] Keine app-spezifische Fachlogik wurde in den Core übernommen.
-- [ ] Deferrals besitzen Owner, Ziel-Sprint und Evidence-Bedarf.
-- [ ] Completion Report, SemVer-Bewertung und Folgesprint-Handoff sind akzeptiert.
+- [x] Alle `REFERENCE_IMPLEMENTED`-Fähigkeiten besitzen ausführbare Evidence.
+- [x] Validator, Catalog und Contract-Handoff sind deterministisch und wiederholbar.
+- [x] IDM-, Personnel-, Contacts-, Bulk- und GWC-Fixtures validieren ohne `CONTRADICTORY`-Finding.
+- [x] Bestehende API-, Generated-Slice- und GWC-v1.1-Verträge bleiben kompatibel.
+- [x] Keine app-spezifische Fachlogik wurde in den Core übernommen.
+- [x] Deferrals besitzen Owner, Ziel-Sprint und Evidence-Bedarf.
+- [x] Completion Report, SemVer-Bewertung und Folgesprint-Handoff sind technisch qualifiziert.
 
 ## Messbare Teilziele
 
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
-| M-001 | Aktivierter, driftfreier Sprint-Harness mit Baseline und Capability-Scope | S003-REQ-001, S003-REQ-002, S003-REQ-025, S003-REQ-029, S003-REQ-030 | Aktivierungsvoraussetzung erfüllt; Sprint- und Documentation-Verträge sowie 11-Pfad-Scope verifiziert | Sprintdokumente, Capability Catalog, fünf M1-Analysen | springmaster-maintainers | in-progress |
-| M-002 | Akzeptierte ADRs und Standards für Operations-, Resource-, Precondition-, Concurrency-, Bulk- und GWC-Semantik | S003-REQ-003 bis S003-REQ-018, S003-REQ-023 | jeder Begriff besitzt genau eine normative Definition; keine akzeptierte ADR wird überschrieben | ADRs, Standards, Authority Matrix | springmaster-maintainers | planned |
-| M-003 | Versionierte Schemas, positive/negative Fixtures und stabile Diagnosecodes | S003-REQ-019, S003-REQ-024, S003-REQ-027, S003-REQ-032 | Pflicht-Negativfälle scheitern deterministisch; positive Fixtures validieren | JSON-Schemas, Fixture-Familien, Contract-Tests | springmaster-maintainers | planned |
-| M-004 | Fachneutraler Validator, Operation Catalog und reproduzierbarer Contract-Handoff | S003-REQ-019, S003-REQ-024, S003-REQ-026 | identischer Zweitlauf; unerwartete Datei blockiert; kein `CONTRADICTORY` | CLI-Reports, Catalog, Manifest, ZIP-Hashes | springmaster-maintainers | planned |
-| M-005 | Minimale opt-in OpenAPI-Runtime und Team-Membership-Referenzslice | S003-REQ-020, S003-REQ-021, S003-REQ-023 | unprofilierte APIs unverändert; Relation-, Candidate- und Capability-Patterns ausführbar | Java-/OpenAPI-Tests, Referenzslice-Evidence | springmaster-maintainers | planned |
-| M-006 | Cross-App- und GWC-Qualification gegen IDM, Personnel, Contacts, Bulk und Workspace | S003-REQ-022, S003-REQ-026, S003-REQ-032 | alle read-only Fixtures validieren; kein widersprüchliches Finding | Compatibility- und Non-Contradiction-Reports | springmaster-maintainers | planned |
-| M-007 | Vollständige Qualification, Deferral-Schutz und Folgesprint-Handoff | S003-REQ-027, S003-REQ-028, S003-REQ-031 | Regressionen grün; Deferrals vollständig; Completion und Handoff akzeptiert | Full-Qualification, Completion Report, Readiness Report | springmaster-maintainers | planned |
+| M-001 | Aktivierter, driftfreier Sprint-Harness mit Baseline und Capability-Scope | S003-REQ-001, S003-REQ-002, S003-REQ-025, S003-REQ-029, S003-REQ-030 | Delivery 000224 akzeptiert | Sprintdokumente, Capability Catalog, fünf M1-Analysen | springmaster-maintainers | completed |
+| M-002 | Akzeptierte ADRs und Standards für Operations-, Resource-, Precondition-, Concurrency-, Bulk- und GWC-Semantik | S003-REQ-003 bis S003-REQ-018, S003-REQ-023 | jeder Begriff besitzt genau eine normative Definition; keine akzeptierte ADR wird überschrieben | ADRs, Standards, Authority Matrix | springmaster-maintainers | completed |
+| M-003 | Versionierte Schemas, positive/negative Fixtures und stabile Diagnosecodes | S003-REQ-019, S003-REQ-024, S003-REQ-027, S003-REQ-032 | Pflicht-Negativfälle scheitern deterministisch; positive Fixtures validieren | JSON-Schemas, Fixture-Familien, Contract-Tests | springmaster-maintainers | completed |
+| M-004 | Fachneutraler Validator, Operation Catalog und reproduzierbarer Contract-Handoff | S003-REQ-019, S003-REQ-024, S003-REQ-026 | identischer Zweitlauf; unerwartete Datei blockiert; kein `CONTRADICTORY` | CLI-Reports, Catalog, Manifest, ZIP-Hashes | springmaster-maintainers | completed |
+| M-005 | Minimale opt-in OpenAPI-Runtime und Team-Membership-Referenzslice | S003-REQ-020, S003-REQ-021, S003-REQ-023 | unprofilierte APIs unverändert; Relation-, Candidate- und Capability-Patterns ausführbar | Java-/OpenAPI-Tests, Referenzslice-Evidence | springmaster-maintainers | completed |
+| M-006 | Cross-App- und GWC-Qualification gegen IDM, Personnel, Contacts, Bulk und Workspace | S003-REQ-022, S003-REQ-026, S003-REQ-032 | alle read-only Fixtures validieren; kein widersprüchliches Finding | Compatibility- und Non-Contradiction-Reports | springmaster-maintainers | completed |
+| M-007 | Vollständige Qualification, Deferral-Schutz und Folgesprint-Handoff | S003-REQ-027, S003-REQ-028, S003-REQ-031 | technische DoD qualifiziert; trusted Integration bleibt separat | Full-Qualification, Completion Report, Readiness Report | springmaster-maintainers | completed |
 
 ## SemVer-Auswirkung
 

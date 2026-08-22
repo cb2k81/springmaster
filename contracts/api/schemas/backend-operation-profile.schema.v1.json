@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/backend-operation-profile.schema.v1.json",
+  "title": "Cocondo Backend Operation Profile V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operationKey", "operationId", "method", "path", "operationKind", "operationRoles", "security", "effects"],
+  "properties": {
+    "operationKey": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"},
+    "operationId": {"type": "string", "minLength": 1},
+    "method": {"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]},
+    "path": {"type": "string", "pattern": "^/api/"},
+    "operationKind": {"enum": ["QUERY", "COMMAND", "PRECHECK", "CAPABILITY_EVALUATION"]},
+    "operationRoles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["ENTITY_LIST", "ENTITY_DETAIL", "ENTITY_CREATE", "ENTITY_UPDATE", "ENTITY_DELETE", "REFERENCE_LOOKUP", "RELATION_LIST", "CANDIDATE_LIST", "OVERVIEW_LIST", "HISTORY_LIST", "PROJECTION_READ", "TEMPORAL_READ", "BULK_COMMAND", "BULK_STATUS", "EXPORT", "AGGREGATION", "DELTA_READ"]}
+    },
+    "security": {"$ref": "#/$defs/security"},
+    "precondition": {"$ref": "backend-precondition-profile.schema.v1.json"},
+    "resourceKey": {"type": "string", "minLength": 1},
+    "targetContextRequired": {"type": "boolean"},
+    "temporalContext": {"type": "string", "minLength": 1},
+    "projectionResponseSchema": {"type": "string", "minLength": 1},
+    "effects": {"$ref": "#/$defs/effects"},
+    "bulkProfile": {"$ref": "backend-bulk-operation-profile.schema.v1.json"}
+  },
+  "$defs": {
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "permissions", "targetAuthorization"],
+      "properties": {
+        "classification": {"enum": ["PUBLIC", "AUTHENTICATED", "MANAGEMENT", "TECHNICAL", "SYSTEM"]},
+        "permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "targetAuthorization": {"enum": ["NONE", "REQUEST_CONTEXT", "EACH_TARGET"]}
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["affectedResourceKeys"],
+      "properties": {
+        "affectedResourceKeys": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

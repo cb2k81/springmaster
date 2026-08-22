@@ -1,0 +1,1 @@
+{"operations":[{"operationKey":"people.history.list","operationId":"history","method":"GET","path":"/api/people/history","operationKind":"QUERY","operationRoles":["HISTORY_LIST","TEMPORAL_READ"],"security":{"classification":"MANAGEMENT","permissions":["people:history:read"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}]}

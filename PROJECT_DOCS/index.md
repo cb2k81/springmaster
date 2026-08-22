@@ -28,6 +28,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 - `PROJECT_DOCS/ADR/ADR-0015-controlled-ai-assisted-development-pilot.md` — accepted Springmaster-only AI-agent pilot and staged Codex cutover
 - `PROJECT_DOCS/ADR/ADR-0016-host-local-multi-host-codex-authorization.md` — accepted host-local multi-host Codex authorization and requalification
+- `PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md` — accepted operation identity, OpenAPI authority and GWC profile boundary
+- `PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md` — accepted precondition, consistency, history and bulk boundary
 
 - `PROJECT_DOCS/ADR/ADR-0001-springmaster-bootstrap.md`
 - `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`
@@ -156,6 +158,11 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/STANDARDS/API/REQUEST_VALIDATION_OPENAPI_GATE.md`
 - `PROJECT_DOCS/STANDARDS/API/REQUIRED_FIELDS_OPENAPI_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/API/WRITE_API_CONTRACT_REPORT.md`
+- `PROJECT_DOCS/STANDARDS/API/GWC_BACKEND_API_PROFILE_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/API/BULK_OPERATION_CONTRACT_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/API/MUTATION_PRECONDITION_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/ARCHITECTURE/RESOURCE_HISTORY_AND_PROJECTION_STANDARD.md`
+- `PROJECT_DOCS/STANDARDS/ARCHITECTURE/TRANSACTION_AND_CONSISTENCY_CLASSIFICATION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/CONTROLLER_SERVICE_USECASE_TRANSACTION_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/DOMAIN_ENTITY_PERSISTENCE_STANDARD.md`
 - `PROJECT_DOCS/STANDARDS/MAPPING_STANDARD.md`
@@ -175,9 +182,13 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## SPRINTS
 
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — active problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — active solution and execution plan; M-001 is in materialization and M-002..M-007 remain planned
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — single current status source for active M-001 execution; trusted-operator Acceptance remains open
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable draft qualification and closure report; `qualificationStatus=pending`, `closureStatus=open`
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — active solution plan; M-001 accepted via 000224 and M2-M7 technically qualified
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — current technical `DOD_QUALIFIED` status and trusted integration boundary
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable technical qualification and controlled-deferral report
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/CROSS_APP_QUALIFICATION_REPORT.md`
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/COMPATIBILITY_REPORT.md`
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/ANTI_DRIFT_REPORT.md`
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/FINAL_DOD_ORACLE_REPORT.md`
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/M1_BASELINE_AND_ANTI_DRIFT_REPORT.md` — temporary M1 candidate evidence for the exact baseline and anti-drift result
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/CROSS_APP_PATTERN_COMPATIBILITY_MATRIX.md` — temporary M1 authority/evidence compatibility classification without pattern promotion
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/NAMING_MATRIX.md` — temporary M1 naming and gap inventory with all reserved semantics open for M-002
@@ -275,4 +286,5 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-08-14 | active | active | Tooling `0.14.2` / Toolkit `1.1.5` corrects staged-path rename inventory through `000222`; Sprint 003 is not started. |
 | 2026-08-14 | active | active | Sprint 002 gemäß AMEND-002 am erreichten Codex-Cutover-/Write-Readiness-Ziel qualifiziert mit Deferrals geschlossen und archiviert; Sprint 003 bleibt geplant und nicht aktiviert, seine Sprint-2-Closure-Voraussetzung ist erfüllt. |
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |
-| 2026-08-15 | active | active | Sprint 003 nach verifizierter Sprint-002-Closure aktiviert; M-001 als noch nicht trusted-operator-akzeptierte Materialisierung in Ausführung, M-002..M-007 geplant und Completion draft/pending/open. |
+| 2026-08-15 | active | active | Sprint 003 nach verifizierter Sprint-002-Closure aktiviert; der damalige M1-Schnitt wurde später als Delivery 000224 akzeptiert. |
+| 2026-08-20 | active | active | M-001-Acceptance 000224 und technische M2-M7-DoD-Qualification mit separater trusted Integration reflektiert. |

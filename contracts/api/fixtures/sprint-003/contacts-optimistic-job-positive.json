@@ -1,0 +1,7 @@
+{
+  "operations": [
+    {"operationKey":"contacts.people.update","operationId":"updateContact","method":"PUT","path":"/api/contacts/people/{id}","operationKind":"COMMAND","operationRoles":["ENTITY_UPDATE"],"security":{"classification":"MANAGEMENT","permissions":["contacts:person:update"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"resourceKey":"contact","precondition":{"type":"EXPECTED_VERSION","required":true,"binding":"BODY","tokenField":"persistenceVersion","conflictStatus":409},"effects":{"affectedResourceKeys":["contact"]}},
+    {"operationKey":"contacts.import.status","operationId":"getContactImportStatus","method":"GET","path":"/api/contacts/imports/{id}","operationKind":"QUERY","operationRoles":["BULK_STATUS"],"security":{"classification":"MANAGEMENT","permissions":["contacts:import:read"],"targetAuthorization":"REQUEST_CONTEXT"},"targetContextRequired":true,"effects":{"affectedResourceKeys":[]}}
+  ],
+  "implementationEvidence":{"optimisticPersistenceVersion":true,"backgroundJobLifecycle":"SPRING_BATCH","snapshotToken":false}
+}

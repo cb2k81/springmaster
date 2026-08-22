@@ -1,0 +1,1 @@
+{"operations":[{"operationKey":"teams.members.options","operationId":"options","method":"GET","path":"/api/teams/{id}/members/options","operationKind":"QUERY","operationRoles":["CANDIDATE_LIST"],"security":{"classification":"MANAGEMENT","permissions":["teams:member:read"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}]}

@@ -1,0 +1,1 @@
+{"operations":[{"operationKey":"workspace.open","operationId":"openWorkspace","method":"POST","path":"/api/workspace/open","operationKind":"COMMAND","operationRoles":["WORKSPACE"],"security":{"classification":"MANAGEMENT","permissions":["workspace:open"],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}]}

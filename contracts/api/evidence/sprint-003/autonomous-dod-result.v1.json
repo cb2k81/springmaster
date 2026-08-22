@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "cocondo.autonomous-dod-result.v1",
+  "taskId": "S003-AUTONOMOUS-DOD-A006",
+  "delivery": "000237-sprint3-autonomous-dod-recovery",
+  "status": "DOD_QUALIFIED",
+  "terminalMetrics": {
+    "CONTRADICTORY_FINDINGS": 0,
+    "UNKNOWN_REQUIREMENTS": 0,
+    "UNMAPPED_CAPABILITIES": 0,
+    "UNTESTED_NORMATIVE_RULES": 0,
+    "NONDETERMINISTIC_ARTIFACTS": 0
+  },
+  "versions": {
+    "foundation": "0.25.0-foundation",
+    "maven": "0.25.0-foundation-SNAPSHOT",
+    "core": "0.5.0",
+    "tooling": "0.15.0",
+    "demo": "0.3.0",
+    "template": "0.3.1",
+    "update": "0.10.0",
+    "statePatch": "000237_sprint3-autonomous-dod-recovery"
+  },
+  "integrationBoundary": "A006_CANONICAL_AGENT_TASK_QUALIFICATION_PENDING"
+}

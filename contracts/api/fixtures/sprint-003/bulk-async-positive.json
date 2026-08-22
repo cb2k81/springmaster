@@ -1,0 +1,64 @@
+{
+  "operations": [
+    {
+      "operationKey": "teams.members.bulk-import",
+      "operationId": "startTeamMemberImport",
+      "method": "POST",
+      "path": "/api/demo/team-memberships/commands/import",
+      "operationKind": "COMMAND",
+      "operationRoles": ["BULK_COMMAND"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["demo:team-membership:create"],
+        "targetAuthorization": "EACH_TARGET"
+      },
+      "precondition": {"type": "NONE", "required": false, "binding": "NONE", "conflictStatus": 409},
+      "effects": {"affectedResourceKeys": ["team-membership"]},
+      "bulkProfile": {
+        "selection": {"mode": "QUERY_SNAPSHOT", "frozenBeforeExecution": true},
+        "atomicity": "PER_TARGET",
+        "execution": "ASYNCHRONOUS",
+        "targetAuthorization": "EACH_TARGET_AT_EXECUTION",
+        "nonDisclosure": "CONCEAL_UNAUTHORIZED",
+        "idempotency": "IDEMPOTENCY_KEY",
+        "limits": {"maxTargets": 1000},
+        "outcomes": ["SUCCEEDED", "REJECTED", "FAILED"],
+        "resultDelivery": {
+          "mode": "STATUS_RESOURCE",
+          "statusOperationKey": "teams.members.bulk-import.status",
+          "resultOperationKey": "teams.members.bulk-import.result"
+        }
+      }
+    },
+    {
+      "operationKey": "teams.members.bulk-import.status",
+      "operationId": "getTeamMemberImportStatus",
+      "method": "GET",
+      "path": "/api/demo/team-memberships/imports/{id}",
+      "operationKind": "QUERY",
+      "operationRoles": ["BULK_STATUS"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["demo:team-membership:read"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "effects": {"affectedResourceKeys": []}
+    },
+    {
+      "operationKey": "teams.members.bulk-import.result",
+      "operationId": "getTeamMemberImportResult",
+      "method": "GET",
+      "path": "/api/demo/team-memberships/imports/{id}/result",
+      "operationKind": "QUERY",
+      "operationRoles": ["BULK_STATUS"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["demo:team-membership:read"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "effects": {"affectedResourceKeys": []}
+    }
+  ]
+}

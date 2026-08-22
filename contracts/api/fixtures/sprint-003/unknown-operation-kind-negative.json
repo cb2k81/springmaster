@@ -1,0 +1,1 @@
+{"operations":[{"operationKey":"teams.members.list","operationId":"list","method":"GET","path":"/api/a","operationKind":"WORKSPACE","operationRoles":[],"security":{"classification":"PUBLIC","permissions":[],"targetAuthorization":"NONE"},"effects":{"affectedResourceKeys":[]}}]}

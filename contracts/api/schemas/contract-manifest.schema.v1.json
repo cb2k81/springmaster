@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cocondo.de/contracts/api/contract-manifest.schema.v1.json",
+  "title": "Cocondo Contract Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "catalogSha256", "fixtureIndexSha256", "files", "provenance"],
+  "properties": {
+    "schemaVersion": {"const": "cocondo.contract-manifest.v1"},
+    "catalogSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "fixtureIndexSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+        "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      }
+    },
+    "provenance": {"type": "array", "items": {"type": "object"}}
+  }
+}
