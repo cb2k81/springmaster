@@ -92,6 +92,18 @@
       "normalization": "none"
     },
     {
+      "path": "src/test/resources/tooling/codex-host-calibration-v1/c046125370249d5e8a42208d/A005/task-1.txt",
+      "fixtureType": "golden-text",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-calibration-it.sh",
+        "bin/codex-calibration-fixture-check.py"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "exact-utf8"
+    },
+    {
       "path": "src/test/resources/tooling/codex-host-qualification-v1/expected-cases.json",
       "fixtureType": "expected-case-catalog",
       "owner": "springmaster-maintainers",
