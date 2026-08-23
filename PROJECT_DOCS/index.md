@@ -181,24 +181,18 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — active problem, scope, requirements and Definition of Done for the cross-app backend contract foundation and GWC readiness sprint
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/SOLUTION_PLAN.md` — active solution plan; M-001 accepted via 000224 and M2-M7 technically qualified
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/STATUS.md` — current technical `DOD_QUALIFIED` status and trusted integration boundary
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — durable technical qualification and controlled-deferral report
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/CROSS_APP_QUALIFICATION_REPORT.md`
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/COMPATIBILITY_REPORT.md`
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/ANTI_DRIFT_REPORT.md`
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/FINAL_DOD_ORACLE_REPORT.md`
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/M1_BASELINE_AND_ANTI_DRIFT_REPORT.md` — temporary M1 candidate evidence for the exact baseline and anti-drift result
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/CROSS_APP_PATTERN_COMPATIBILITY_MATRIX.md` — temporary M1 authority/evidence compatibility classification without pattern promotion
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/NAMING_MATRIX.md` — temporary M1 naming and gap inventory with all reserved semantics open for M-002
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/REQUIREMENTS_TO_CAPABILITY_MATRIX.md` — temporary primary mapping for all 32 Sprint-003 requirements
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-003/WORK/ANALYSES/REQUIREMENTS_TO_TEST_MATRIX.md` — temporary primary test/Oracle mapping without unimplemented pass claims
+
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — active Sprint-004 problem space, requirements, DoD, non-goals and architecture guardrails
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SOLUTION_PLAN.md` — active controlled solution and single-task Codex execution plan
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/STATUS.md` — single current Sprint-004 status source before S004-A001 execution
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — non-terminal Sprint-004 completion report; qualification and closure remain pending
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-002/SPRINT_BRIEF.md` — archivierter, durch AMEND-002 abgeschlossener Sprintvertrag für Codex Cutover und Write-Readiness
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-002/COMPLETION_REPORT.md` — finaler Abschlussnachweis mit kontrollierten Deferrals für M-004/M-005 und `CAP-REQ-005` bis `CAP-REQ-009`; `PILOT_COMPLETED` nicht beansprucht
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-003/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des qualifiziert abgeschlossenen Cross-App-Backend-Contract-Sprints
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-003/COMPLETION_REPORT.md` — finaler Sprint-003-Nachweis für DOD_QUALIFIED, Patch 000242 Acceptance und Post-Accept-Closure
 
 ## TEMPLATES
 
@@ -288,3 +282,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-07-31 | active | active | Cross-app backend/GWC target concept and Sprint 003 solution plan indexed |
 | 2026-08-15 | active | active | Sprint 003 nach verifizierter Sprint-002-Closure aktiviert; der damalige M1-Schnitt wurde später als Delivery 000224 akzeptiert. |
 | 2026-08-20 | active | active | M-001-Acceptance 000224 und technische M2-M7-DoD-Qualification mit separater trusted Integration reflektiert. |
+| 2026-08-22 | active | active | Sprint 003 nach akzeptiertem Patch 000242 und Post-Accept-Verifikation archiviert; Sprint 004 mit field-proven Backend Contracts und Runtime Primitives aktiviert. |

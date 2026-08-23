@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-003-BRIEF
 title: Cross-App Backend Contract Foundation and GWC Readiness – Sprint Brief
 documentType: sprint-brief
-status: active
+status: archived
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -12,8 +12,8 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-30
 validFrom: 2026-08-15
-lastReviewedAt: 2026-08-15
-reviewBy: 2026-08-31
+lastReviewedAt: 2026-08-22
+reviewBy: null
 supersedes: []
 supersededBy: null
 temporary: false
@@ -189,3 +189,4 @@ Keine.
 | 2026-07-30 | – | planned | Sprint Brief auf Basis des vollständigen Solution Plans angelegt. |
 | 2026-07-31 | planned | blocked | Aktivierung bis zum qualifizierten Abschluss von Sprint 002 oder einem akzeptierten disjunkten Amendment gesperrt. |
 | 2026-08-15 | blocked | active | Sprint-002-Closure unter AMEND-002 verifiziert; Sprint 003 aktiviert und M-001 als noch nicht akzeptierte Materialisierung in Ausführung genommen. |
+| 2026-08-22 | active | archived | Sprint 003 nach akzeptiertem Patch 000242 und finaler Post-Accept-Verifikation qualifiziert geschlossen und archiviert. |
