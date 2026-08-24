@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "cocondo.backend-contract-fixture-index.v1",
+  "fixtures": [
+    {
+      "fixtureId": "personnel-000248-single-expected-version-positive",
+      "path": "contracts/api/fixtures/sprint-004/personnel-single-expected-version-positive.json",
+      "expectedResult": "PASS",
+      "expectedDiagnosticCode": null,
+      "capabilityIds": ["CAP-CONC-001", "CAP-CONC-002"],
+      "requirementIds": ["S004-REQ-004", "S004-REQ-010", "S004-REQ-011"],
+      "sourceKind": "IMMUTABLE_REFERENCE",
+      "sourceProject": "Personnel",
+      "sourceSha256": "541b6f97d22ca6aeb532f6d3f25f6f09fc16591ef7161791b5160a98f6cffb61"
+    },
+    {
+      "fixtureId": "personnel-000248-v3-workforce-positive",
+      "path": "contracts/api/fixtures/sprint-004/personnel-v3-workforce-positive.json",
+      "expectedResult": "PASS",
+      "expectedDiagnosticCode": null,
+      "capabilityIds": ["CAP-API-003", "CAP-API-004", "CAP-CONC-001", "CAP-CONC-002", "CAP-CONC-003", "CAP-HIST-002", "CAP-PROJ-001"],
+      "requirementIds": ["S004-REQ-004", "S004-REQ-005", "S004-REQ-013", "S004-REQ-014", "S004-REQ-015"],
+      "sourceKind": "IMMUTABLE_REFERENCE",
+      "sourceProject": "Personnel",
+      "sourceSha256": "541b6f97d22ca6aeb532f6d3f25f6f09fc16591ef7161791b5160a98f6cffb61"
+    },
+    {
+      "fixtureId": "sprint-003-backend-ui-reload-graph-negative",
+      "path": "contracts/api/fixtures/sprint-003/backend-ui-reload-graph-negative.json",
+      "expectedResult": "FAIL",
+      "expectedDiagnosticCode": "BACKEND_CONTRACT_UI_RELOAD_GRAPH_FORBIDDEN",
+      "capabilityIds": ["CAP-GWC-001"],
+      "requirementIds": ["S004-REQ-007", "S004-REQ-017"],
+      "sourceKind": "SYNTHETIC_CONTRACT",
+      "sourceProject": null,
+      "sourceSha256": null
+    },
+    {
+      "fixtureId": "sprint-003-workspace-backend-operation-negative",
+      "path": "contracts/api/fixtures/sprint-003/workspace-backend-operation-negative.json",
+      "expectedResult": "FAIL",
+      "expectedDiagnosticCode": "BACKEND_CONTRACT_WORKSPACE_OPERATION_FORBIDDEN",
+      "capabilityIds": ["CAP-WS-001"],
+      "requirementIds": ["S004-REQ-007", "S004-REQ-017"],
+      "sourceKind": "SYNTHETIC_CONTRACT",
+      "sourceProject": null,
+      "sourceSha256": null
+    },
+    {
+      "fixtureId": "sprint-003-pessimistic-version-token-missing-negative",
+      "path": "contracts/api/fixtures/sprint-003/pessimistic-version-token-missing-negative.json",
+      "expectedResult": "FAIL",
+      "expectedDiagnosticCode": "BACKEND_CONTRACT_VERSION_TOKEN_REQUIRED",
+      "capabilityIds": ["CAP-CONC-002", "CAP-CONC-003"],
+      "requirementIds": ["S004-REQ-012", "S004-REQ-013", "S004-REQ-014"],
+      "sourceKind": "SYNTHETIC_CONTRACT",
+      "sourceProject": null,
+      "sourceSha256": null
+    }
+  ]
+}

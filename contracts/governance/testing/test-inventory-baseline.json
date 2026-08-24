@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.7.0",
+  "baselineVersion": "1.8.0",
   "status": "sealed-report-only",
   "generatedAt": "2026-07-23T11:11:07.843888Z",
   "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
@@ -260,6 +260,16 @@
       ]
     },
     {
+      "path": "src/test/java/de/cocondo/platform/tooling/backendcontract/Sprint004FieldQualificationEvidenceTest.java",
+      "suiteId": "java-tooling-surefire",
+      "testLevel": "contract",
+      "annotations": [],
+      "environment": [
+        "java-21",
+        "python-3"
+      ]
+    },
+    {
       "path": "src/test/java/de/cocondo/platform/tooling/ProjectNewInstantiationAcceptanceTest.java",
       "suiteId": "java-tooling-surefire",
       "testLevel": "acceptance",
@@ -378,6 +388,15 @@
     },
     {
       "path": "src/test/java/de/cocondo/system/backendcontract/ApiOperationContractRegistryTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/concurrency/ExpectedVersionGuardTest.java",
       "suiteId": "java-core-surefire",
       "testLevel": "unit",
       "annotations": [],
@@ -550,6 +569,15 @@
     },
     {
       "path": "src/test/java/de/cocondo/system/query/ResultSetQueryOperationsTest.java",
+      "suiteId": "java-core-surefire",
+      "testLevel": "unit",
+      "annotations": [],
+      "environment": [
+        "java-21"
+      ]
+    },
+    {
+      "path": "src/test/java/de/cocondo/system/time/ClockBusinessDateProviderTest.java",
       "suiteId": "java-core-surefire",
       "testLevel": "unit",
       "annotations": [],
@@ -1076,7 +1104,7 @@
     }
   ],
   "summary": {
-    "javaTestClassCount": 53,
+    "javaTestClassCount": 56,
     "toolingEntrypointCount": 40,
     "sourceFixtureCount": 21,
     "mavenRunner": "surefire",
@@ -1089,6 +1117,6 @@
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
   ],
-  "lastUpdatedAt": "2026-08-01",
-  "lastUpdateReason": "Register Codex change-bundle integration coverage."
+  "lastUpdatedAt": "2026-08-23",
+  "lastUpdateReason": "Register Sprint-004 field qualification and Core primitive tests."
 }

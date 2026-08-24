@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-08-22
 validFrom: null
-lastReviewedAt: 2026-08-22
+lastReviewedAt: 2026-08-24
 reviewBy: null
 supersedes: []
 supersededBy: null
@@ -27,11 +27,11 @@ closedAt: null
 
 ## Ergebnisübersicht
 
-Sprint 004 ist aktiv. Dieser Report ist absichtlich nicht terminal. Codex darf ihn bis zum Implementation Handoff nur mit tatsächlich erzeugter Implementierungs-Evidence aktualisieren; `qualificationStatus`, `closureStatus` und `closedAt` bleiben bis zur Trusted-Host-Qualification unverändert.
+Sprint 004 ist aktiv und A002 ist implementation-complete. Dieser Report bleibt absichtlich nicht terminal: `qualificationStatus`, `closureStatus` und `closedAt` bleiben bis zur Trusted-Host-Qualification unverändert.
 
 ## Anforderungen und Teilziele
 
-`S004-REQ-001` bis `S004-REQ-024` sowie M-001 bis M-005 sind im Sprint Brief kanonisch definiert. Die Ergebnisbewertung wird aus der späteren Qualification Evidence geschlossen und nicht vorweggenommen.
+M-001 bis M-004 besitzen task-lokale Implementation Evidence. RW-01 bis RW-07 sind maschinenlesbar PASS, die beiden Core-Primitives und der 409-Adapter sind implementiert, und die zwei autorisierten Standards sind präzisiert. M-005 sowie die terminale Bewertung aller `S004-REQ-001` bis `S004-REQ-024` bleiben Trusted-Host-Verantwortung.
 
 ## Definition of Done und Qualification
 
@@ -45,7 +45,13 @@ Ein erfolgreicher Codex-Run, ein grüner Worktree oder ein Handoff erfüllt die 
 
 ## Akzeptierte Änderungen
 
-Noch keine Sprint-004-Änderung akzeptiert.
+- source-bound Personnel-000248 Field Fixtures und 7/7 PASS Evidence;
+- fachfreie `BusinessDateProvider`- und `ClockBusinessDateProvider`-Core-Boundary;
+- fachfreier `ExpectedVersionGuard`, Conflict-Exception und HTTP-409-Adapter;
+- explizite 400/409/412/428-Abgrenzung im Mutation-Precondition-Standard;
+- generische Post-Lock-Revalidation- und Fail-Closed-Sequenz im Transaction/Consistency-Standard.
+
+Keine dieser Änderungen ist in diesem Report bereits als kanonisch akzeptiert behauptet.
 
 ## Dauerhafte Promotionen
 
@@ -53,7 +59,8 @@ Noch keine. Erwartete dauerhafte Promotionen nach Qualification: fachfreie Core-
 
 ## Offene Findings, Risiken und Schulden
 
-- Keine Pflicht-DoD darf als Deferral geschlossen werden.
+- Canonical Closure wartet ausdrücklich auf Trusted-Host-Qualification; keine Pflicht-DoD wird durch den Agenten geschlossen.
+- Maven-Qualification wurde im Agent-Sandbox durch den nicht beschreibbaren vorkonfigurierten Host-Cache und fehlenden Netzwerkzugang für einen Task-Temp-Cache blockiert. Der eigenständige Sprint-004-Backend-Fixture-Validator ist PASS.
 - Personnel-, GWC- und Managed-Target-Mutation bleibt ausgeschlossen.
 - Harness-/Tooling-Deferrals aus Sprint 003 bleiben außerhalb dieses Sprints.
 
@@ -67,14 +74,15 @@ Noch keine. Erwartete dauerhafte Promotionen nach Qualification: fachfreie Core-
 
 ## SemVer- und Releasebewertung
 
-Erwartet: Core minor und Foundation minor. Konkrete Werte sind bis zur Trusted-Host-Closure offen. Keine Releasefreigabe wird vorweggenommen.
+Bewertet: Core minor und Foundation minor, da zwei additive öffentliche Core-Boundaries hinzukommen. Konkrete Werte und `PLATFORM_STATE_PATCH` sind bis zur Trusted-Host-Closure offen. Keine Releasefreigabe wird vorweggenommen.
 
 ## Nicht erreichte Ziele und Folgebedarf
 
-Noch nicht bewertbar; Sprint ist aktiv.
+Trusted-Host-Qualification, Version Truth, Acceptance, terminale Requirement-Bewertung und Sprint-Closure stehen aus. Es gibt keinen implementierungsseitig bekannten allgemeinen Contract Gap.
 
 ## Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-08-22 | - | draft | Nichtterminaler Completion Report für den aktiven Sprint angelegt. |
+| 2026-08-24 | execution | qualification-pending | A002-Implementation Evidence ergänzt; kanonische Closure bleibt offen. |

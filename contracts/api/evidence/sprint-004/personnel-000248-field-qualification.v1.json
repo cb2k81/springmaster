@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "cocondo.sprint-004-field-qualification.v1",
+  "evidenceId": "S004-PERSONNEL-000248-FIELD-QUALIFICATION",
+  "sourceProject": "Personnel",
+  "sourceExportSha256": "541b6f97d22ca6aeb532f6d3f25f6f09fc16591ef7161791b5160a98f6cffb61",
+  "acceptedSourceCommit": "1094199a84aeb809865d2992ef2aab65d8488226",
+  "acceptedSourcePatch": "000248_personnel_workspace_post_wsf2_contract_guardrails",
+  "excludedCandidatePatch": "000249_personnel_workforce_discovery_contract_freeze",
+  "excludedCandidatePaths": [
+    "PROJECT_DOCS/ADR/PERS_ADR_0036_PERSON_ORGANISATION_AND_ORGANISATION_LINEAGE.md",
+    "PROJECT_DOCS/ADR/PERS_ADR_0045_WORKSPACE_API_CONTRACT.md",
+    "PROJECT_DOCS/ADR/PERS_ADR_0046_PLANNED_WORKFORCE_P1A.md",
+    "PROJECT_DOCS/PLANNING/PERSONNEL_STAFFING_PLAN_WORKSPACE_BACKEND_IMPLEMENTATION_PLAN.md",
+    "PROJECT_DOCS/REGISTERS/PERSONNEL_ARCHITECTURE_DECISION_REGISTER.md",
+    "PROJECT_DOCS/REGISTERS/PERSONNEL_CONTRACT_TRACEABILITY_REGISTER.md",
+    "PROJECT_DOCS/REGISTERS/PERSONNEL_TEST_TRACEABILITY_REGISTER.md",
+    "PROJECT_DOCS/REGISTERS/PERSONNEL_USE_CASE_IMPLEMENTATION_REGISTER.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_BUSINESS_TERMS_AND_POLICIES.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_FUNCTIONAL_REQUIREMENT_CATALOG.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_INVARIANT_AND_CAPACITY_CATALOG.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_ROLES_AND_CAPABILITIES.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_USE_CASE_ACCEPTANCE_SCENARIOS.md",
+    "PROJECT_DOCS/REQUIREMENTS/PERSONNEL_USE_CASE_CATALOG.md",
+    "PROJECT_DOCS/index.md",
+    "src/main/resources/doc/governance/PERSONNEL_PERMISSION_MATRIX.md",
+    "patches/logs/composite/CHANGELOG-PERSONNEL-WORKFORCE-DISCOVERY-CONTRACT-FREEZE.md"
+  ],
+  "cases": [
+    {
+      "caseId": "RW-01",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/application/concurrency/ExpectedVersionGuard.java",
+        "src/main/java/de/cocondo/app/domain/personnel/classification/careergroup/CareerGroupCommandService.java"
+      ],
+      "springmasterMapping": {
+        "precondition": "EXPECTED_VERSION",
+        "transactionScope": "SINGLE_AGGREGATE",
+        "consistency": "OPTIMISTIC",
+        "fixtureIds": ["personnel-000248-single-expected-version-positive"]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-02",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3PlannedWorkforceCommandService.java",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/api/v3/V3PlannedWorkforceController.java"
+      ],
+      "springmasterMapping": {
+        "precondition": "EXPECTED_VERSION_SET",
+        "transactionScope": "MULTI_AGGREGATE",
+        "fixtureIds": ["personnel-000248-v3-workforce-positive"]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-03",
+      "sourceReferences": [
+        "PROJECT_DOCS/STANDARDS/PERSONNEL_TRANSACTION_LOCK_AND_CONCURRENCY_STANDARD.md",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3PlannedWorkforceCommandService.java"
+      ],
+      "springmasterMapping": {
+        "consistency": "MIXED",
+        "lockOrder": "APPLICATION_SPECIFIC",
+        "postLockRevalidation": true,
+        "fixtureIds": [
+          "personnel-000248-v3-workforce-positive",
+          "sprint-003-pessimistic-version-token-missing-negative"
+        ]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-04",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/temporal/BusinessDateProvider.java",
+        "src/main/java/de/cocondo/app/domain/personnel/temporal/SystemBusinessDateProvider.java",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3StaffingPlanWorkspaceQueryService.java"
+      ],
+      "springmasterMapping": {
+        "operationRole": "TEMPORAL_READ",
+        "historyModel": "TEMPORAL_RELATION",
+        "fixtureIds": ["personnel-000248-v3-workforce-positive"]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-05",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3StaffingPlanWorkspaceQueryService.java",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/api/v3/V3StaffingPlanWorkspaceController.java"
+      ],
+      "springmasterMapping": {
+        "operationRole": "PROJECTION_READ",
+        "projectionResponseRequired": true,
+        "fixtureIds": ["personnel-000248-v3-workforce-positive"]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-06",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3PlannedWorkforceAccessPolicy.java",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3PlannedWorkforceQueryService.java"
+      ],
+      "springmasterMapping": {
+        "securityClassification": "MANAGEMENT",
+        "operationPermissionRequired": true,
+        "targetAuthorization": "REQUEST_CONTEXT",
+        "nonDisclosure": "FAIL_CLOSED_NOT_FOUND",
+        "fixtureIds": ["personnel-000248-v3-workforce-positive"]
+      },
+      "result": "PASS"
+    },
+    {
+      "caseId": "RW-07",
+      "sourceReferences": [
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/application/v3/V3StaffingPlanWorkspaceQueryService.java",
+        "src/main/java/de/cocondo/app/domain/personnel/staffing/api/v3/V3StaffingPlanWorkspaceController.java"
+      ],
+      "springmasterMapping": {
+        "workspaceBackendOperation": false,
+        "backendUiReloadGraph": false,
+        "fixtureIds": [
+          "sprint-003-workspace-backend-operation-negative",
+          "sprint-003-backend-ui-reload-graph-negative"
+        ]
+      },
+      "result": "PASS"
+    }
+  ]
+}

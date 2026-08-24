@@ -12,16 +12,16 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-08-22
 validFrom: 2026-08-22
-lastReviewedAt: 2026-08-22
+lastReviewedAt: 2026-08-24
 reviewBy: 2026-08-31
 supersedes: []
 supersededBy: null
 temporary: true
 sprintId: SPRINGMASTER-SPRINT-004
-sprintPhase: execution
+sprintPhase: qualification
 overallStatus: active
 lastDriftResult: none
-lastDriftAt: 2026-08-22
+lastDriftAt: 2026-08-24
 expectedVersionImpact: minor
 ---
 
@@ -29,29 +29,29 @@ expectedVersionImpact: minor
 
 ## Aktueller Stand
 
-Sprintziel, DoR, DoD, Nichtziele, Architekturleitplanken und der Single-Task-Zuschnitt `S004-A001` sind bestätigt. Vor der Codex-Invocation muss der Live-Checkout die hostseitige Sprint-Aktivierung enthalten; ein noch vorhandener stale Sprint-003-Active-/Closure-Zustand wird dabei ausschließlich gegen bereits akzeptierte Post-Sprint-003-Evidence reconciled, nicht erneut qualifiziert.
+`S004-A002` ist im Task-Worktree implementiert. Die sieben Real-World-Cases sind source-bound als PASS abgebildet, die Business-Date- und Expected-Version-Core-Primitives sind implementiert, und der globale API-Adapter bildet stale Body-Versionen auf `409 / CONFLICT` ab. Die aktiven Precondition- und Transaction/Consistency-Standards enthalten die feldbewährten fachfreien Präzisierungen.
 
-Personnel ist ausschließlich read-only Field-Evidence. Der qualifizierte Referenzanker ist Commit `1094199a84aeb809865d2992ef2aab65d8488226`; durch den unqualifizierten Personnel-Patch `000249` veränderte Exportpfade sind von positiver Acceptance Evidence ausgeschlossen.
+Personnel blieb ausschließlich immutable Prompt-Evidence. Der qualifizierte Referenzanker ist Commit `1094199a84aeb809865d2992ef2aab65d8488226`; alle durch den unqualifizierten Personnel-Patch `000249` veränderten Exportpfade sind in der maschinenlesbaren Evidence von positiver Acceptance Evidence ausgeschlossen.
 
 ## Teilziele
 
 | ID | Status | Evidence oder Blocker |
 |---|---|---|
-| M-001 | in-progress | Field-Qualification-Scope und immutable Personnel-000248-Evidence-Satz festgelegt; Umsetzung durch S004-A001 ausstehend. |
-| M-002 | planned | Business-Date-Core wird in S004-A001 umgesetzt. |
-| M-003 | planned | Expected-Version-Core und 409-Adapter werden in S004-A001 umgesetzt. |
-| M-004 | planned | Concurrency-Contract-Härtung wird in S004-A001 umgesetzt. |
-| M-005 | planned | Qualification und Closure bleiben Trusted-Host-Verantwortung nach A001. |
+| M-001 | completed | RW-01 bis RW-07 sind in Sprint-004-Fixtures und Field-Evidence PASS; kein Contract Gap oder neuer Enumwert. |
+| M-002 | completed | Frameworkfreie Business-Date-Boundary und Clock-Adapter mit deterministischen Tests. |
+| M-003 | completed | Expected-Version-Guard, Conflict-Exception und globaler 409-Adapter mit Tests. |
+| M-004 | completed | Generische komplexe Mutationssequenz normiert; Lockordnung und konkrete Mechanik bleiben application-specific. |
+| M-005 | planned | Trusted-Host-Qualification, Version Truth und kanonische Closure stehen aus. |
 
 ## Blocker und Erkenntnisse
 
-- `SPRINT_BRIEF.md` muss gemäß Sprint Governance vor Execution aktiv sein; Sprint-004-Aktivierung ist daher hostseitige Vorbedingung und kein Codex-Arbeitsschritt.
-- Der Task Contract wird erst nach dieser Aktivierung an den dann aktuellen sauberen Main-HEAD gebunden.
-- Keine inhaltliche Blockade des Sprintziels ist bekannt.
+- Der bestehende Backend-Contract-Validator qualifiziert den Sprint-004-Index mit fünf erwartungskonformen positiven/negativen Fixtures.
+- Maven-Qualification bleibt Trusted-Host-Aufgabe; im Agent-Sandbox war der konfigurierte Host-Cache nicht beschreibbar und der alternative Task-Temp-Cache wegen gesperrtem Netzwerk nicht befüllbar.
+- Keine inhaltliche Blockade und kein allgemeiner Contract Gap ist bekannt.
 
 ## Drift-Bewertung
 
-`lastDriftResult=none`. Der Personnel-Vergleich hat den zuvor diskutierten Lösungszuschnitt präzisiert, ohne Sprintziel, Nichtziele oder Architekturgrenzen nach der Bestätigung dieses Briefs zu verändern.
+`lastDriftResult=none`. Implementierung, Fixtures und Evidence bleiben innerhalb der akzeptierten ADR-0017/0018-Wertebereiche. `WORKSPACE` bleibt außerhalb der Backend-Operation-Semantik; keine UI-Reload- oder Dirty-State-Semantik wurde in Backend Effects aufgenommen.
 
 ## Risiken und technische Schulden
 
@@ -65,10 +65,27 @@ Erwartet: `PLATFORM_CORE_VERSION` minor und Foundation minor. Konkrete Versionsw
 
 ## Nächster kontrollierter Schritt
 
-Hostseitige Sprint-Aktivierung gegen die akzeptierte Post-Sprint-003-Baseline abschließen, neuen Main-HEAD binden und danach genau `S004-A001` materialisieren und invoken.
+Trusted-Host-Qualification des nichtterminalen A002-Ergebnisses ausführen. Erst danach dürfen Version Truth, Acceptance und Sprint-Closure entschieden werden.
+
+## A002 Handoff State
+
+```text
+S004_A002_IMPLEMENTATION=COMPLETE
+S004_A002_POSTCHECK_EXPECTED=PASS
+SPRINT004_PHASE=qualification
+SPRINT004_OVERALL_STATUS=active
+SPRINT004_QUALIFICATION=TRUSTED_HOST_PENDING
+SPRINT004_CLOSURE=OPEN
+SPRINT004_RESULT=NOT_YET_QUALIFIED
+PERSONNEL_MUTATED=false
+GWC_MUTATED=false
+MANAGED_TARGET_MUTATED=false
+HARNESS_CHANGED=false
+```
 
 ## Lifecycle
 
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-08-22 | - | active | Sprintvertrag bestätigt; Execution wartet nur auf hostseitige Aktivierungsbindung und Task-Materialisierung. |
+| 2026-08-24 | execution | qualification | A002-Implementierung und source-bound Field-Evidence vollständig; Trusted-Host-Qualification ausstehend. |

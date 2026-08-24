@@ -66,6 +66,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/CORE/CORE_DTO_LIST_METADATA_FOUNDATION.md`
 - `PROJECT_DOCS/CORE/CORE_ENTITY_SERVICE_SEQUENCE_INVENTORY.md`
 - `PROJECT_DOCS/CORE/CORE_GLOBAL_API_ERROR_CONTRACT.md`
+- `PROJECT_DOCS/CORE/CORE_BUSINESS_DATE_BOUNDARY.md` — frameworkfreie, Clock-gesteuerte Business-Date-Core-Boundary
+- `PROJECT_DOCS/CORE/CORE_EXPECTED_VERSION_GUARD.md` — fachfreie Body-Expected-Version-Prüfung und 409-Conflict-Grenze
 - `PROJECT_DOCS/CORE/CORE_ID_GENERATOR_IMPLEMENTATION.md`
 - `PROJECT_DOCS/CORE/CORE_MIGRATION_RULES.md`
 - `PROJECT_DOCS/CORE/CORE_NAMESPACE_STRATEGY.md`
@@ -184,8 +186,9 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — active Sprint-004 problem space, requirements, DoD, non-goals and architecture guardrails
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SOLUTION_PLAN.md` — active controlled solution and single-task Codex execution plan
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/STATUS.md` — single current Sprint-004 status source before S004-A001 execution
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/STATUS.md` — current Sprint-004 qualification-pending status after A002 implementation
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — non-terminal Sprint-004 completion report; qualification and closure remain pending
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/WORK/ANALYSES/FIELD_QUALIFICATION_REPORT.md` — source-bound Personnel-000248 mapping for RW-01 through RW-07
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis

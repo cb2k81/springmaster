@@ -2,6 +2,7 @@ package de.cocondo.system.http;
 
 import de.cocondo.system.entity.validation.ValidationException;
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.exception.ExpectedVersionConflictException;
 import de.cocondo.system.exception.ResourceNotFoundException;
 import de.cocondo.system.observability.CorrelationIdSupport;
 import jakarta.servlet.http.HttpServletRequest;
@@ -116,6 +117,20 @@ public class GlobalApiExceptionHandler {
                 HttpStatus.CONFLICT,
                 ApiErrorType.CONFLICT,
                 safeClientMessage(exception, "Resource conflict"),
+                exception.getMessageKey(),
+                request
+        ));
+    }
+
+    @ExceptionHandler(ExpectedVersionConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleExpectedVersionConflict(
+            ExpectedVersionConflictException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error(
+                HttpStatus.CONFLICT,
+                ApiErrorType.CONFLICT,
+                safeClientMessage(exception, "Expected version conflict"),
                 exception.getMessageKey(),
                 request
         ));

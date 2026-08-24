@@ -1,0 +1,38 @@
+{
+  "operations": [
+    {
+      "operationKey": "personnel.career-groups.revise",
+      "operationId": "s004Rw01ExpectedVersionEvidence",
+      "method": "PUT",
+      "path": "/api/field-evidence/personnel/career-groups/{id}",
+      "operationKind": "COMMAND",
+      "operationRoles": ["ENTITY_UPDATE"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["field-evidence:career-group:update"],
+        "targetAuthorization": "NONE"
+      },
+      "resourceKey": "field-evidence-personnel-career-group",
+      "precondition": {
+        "type": "EXPECTED_VERSION",
+        "required": true,
+        "binding": "BODY",
+        "tokenField": "expectedVersion",
+        "conflictStatus": 409
+      },
+      "effects": {"affectedResourceKeys": ["field-evidence-personnel-career-group"]}
+    }
+  ],
+  "resources": [
+    {
+      "resourceKey": "field-evidence-personnel-career-group",
+      "historyModel": "ROOT_VERSION",
+      "mutable": true
+    }
+  ],
+  "consistency": {
+    "strategy": "OPTIMISTIC",
+    "transactionScope": "SINGLE_AGGREGATE",
+    "lockOrder": "APPLICATION_SPECIFIC"
+  }
+}

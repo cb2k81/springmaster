@@ -1,0 +1,96 @@
+{
+  "operations": [
+    {
+      "operationKey": "personnel.planned-workforce.carry-forward",
+      "operationId": "carryForwardTargetPlanningV3PlannedWorkforce",
+      "method": "POST",
+      "path": "/api/field-evidence/personnel/target-planning/v3/planned-workforce/commands/carry-forward",
+      "operationKind": "COMMAND",
+      "operationRoles": ["ENTITY_UPDATE"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["field-evidence:planned-workforce:update"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "resourceKey": "field-evidence-personnel-planned-workforce",
+      "precondition": {
+        "type": "EXPECTED_VERSION_SET",
+        "required": true,
+        "binding": "BODY",
+        "tokenField": "expectedVersions",
+        "conflictStatus": 409
+      },
+      "effects": {
+        "affectedResourceKeys": ["field-evidence-personnel-planned-workforce", "field-evidence-personnel-planned-allocation"]
+      }
+    },
+    {
+      "operationKey": "personnel.staffing-plan.workspace-context.read",
+      "operationId": "getTargetPlanningV3WorkspaceContext",
+      "method": "GET",
+      "path": "/api/field-evidence/personnel/target-planning/v3/plans/{planId}/context",
+      "operationKind": "QUERY",
+      "operationRoles": ["PROJECTION_READ", "TEMPORAL_READ"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["field-evidence:planned-workforce:read"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "resourceKey": "field-evidence-personnel-staffing-plan-workspace-context",
+      "temporalContext": "businessDate",
+      "projectionResponseSchema": "V3StaffingPlanWorkspaceContextDTO",
+      "effects": {"affectedResourceKeys": []}
+    },
+    {
+      "operationKey": "personnel.staffing-plan.capacity.read",
+      "operationId": "getTargetPlanningV3WorkspaceCapacity",
+      "method": "GET",
+      "path": "/api/field-evidence/personnel/target-planning/v3/plans/{planId}/capacity",
+      "operationKind": "QUERY",
+      "operationRoles": ["PROJECTION_READ"],
+      "security": {
+        "classification": "MANAGEMENT",
+        "permissions": ["field-evidence:planned-workforce:read"],
+        "targetAuthorization": "REQUEST_CONTEXT"
+      },
+      "targetContextRequired": true,
+      "resourceKey": "field-evidence-personnel-staffing-plan-capacity",
+      "projectionResponseSchema": "V3StaffingPlanCapacityDTO",
+      "effects": {"affectedResourceKeys": []}
+    }
+  ],
+  "resources": [
+    {
+      "resourceKey": "field-evidence-personnel-planned-workforce",
+      "historyModel": "ROOT_VERSION",
+      "mutable": true
+    },
+    {
+      "resourceKey": "field-evidence-personnel-planned-allocation",
+      "historyModel": "ROOT_VERSION",
+      "mutable": true
+    },
+    {
+      "resourceKey": "field-evidence-personnel-staffing-plan-workspace-context",
+      "historyModel": "TEMPORAL_RELATION",
+      "mutable": false,
+      "temporalContextRequired": true,
+      "projection": true,
+      "projectionResponseSchema": "V3StaffingPlanWorkspaceContextDTO"
+    },
+    {
+      "resourceKey": "field-evidence-personnel-staffing-plan-capacity",
+      "historyModel": "NONE",
+      "mutable": false,
+      "projection": true,
+      "projectionResponseSchema": "V3StaffingPlanCapacityDTO"
+    }
+  ],
+  "consistency": {
+    "strategy": "MIXED",
+    "transactionScope": "MULTI_AGGREGATE",
+    "lockOrder": "APPLICATION_SPECIFIC"
+  }
+}

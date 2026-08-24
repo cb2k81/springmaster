@@ -3,6 +3,7 @@ package de.cocondo.system.http;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.cocondo.system.exception.EntityAlreadyExistsException;
+import de.cocondo.system.exception.ExpectedVersionConflictException;
 import de.cocondo.system.exception.ResourceNotFoundException;
 import de.cocondo.system.observability.CorrelationIdSupport;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,23 @@ class GlobalApiExceptionHandlerTest {
         assertThat(response.getBody().getErrorType()).isEqualTo(ApiErrorType.CONFLICT.name());
         assertThat(response.getBody().getMessage()).contains("SKU");
         assertThat(response.getBody().getMessageKey()).isEqualTo("catalog.item.conflict");
+    }
+
+    @Test
+    void handlesExpectedVersionConflictWithCanonicalConflictEnvelope() {
+        MockHttpServletRequest request = request("PUT", "/api/demo/catalog/items/item-1");
+
+        ResponseEntity<ApiErrorResponse> response = handler.handleExpectedVersionConflict(
+                new ExpectedVersionConflictException(),
+                request
+        );
+
+        assertThat(response.getStatusCode().value()).isEqualTo(409);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getErrorType()).isEqualTo(ApiErrorType.CONFLICT.name());
+        assertThat(response.getBody().getMessage()).isEqualTo("Expected version conflict");
+        assertThat(response.getBody().getMessageKey())
+                .isEqualTo("springmaster.resource.expected-version-conflict");
     }
 
     @Test
