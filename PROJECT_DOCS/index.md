@@ -107,7 +107,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md`
 ## GOVERNANCE
 
-- `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` — active canonical source for the five general Springmaster project goals
+- `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` — active canonical source for the seven general Springmaster project goals, including autonomous development and portable managed-development cutover goals
 
 - `PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md` — active normative task, worktree, evidence, calibration and stop boundaries
 
