@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-08-14
+lastReviewedAt: 2026-08-25
 reviewBy: 2026-10-22
 supersedes: []
 supersededBy: null
@@ -30,6 +30,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/ADR/ADR-0016-host-local-multi-host-codex-authorization.md` — accepted host-local multi-host Codex authorization and requalification
 - `PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md` — accepted operation identity, OpenAPI authority and GWC profile boundary
 - `PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md` — accepted precondition, consistency, history and bulk boundary
+- `PROJECT_DOCS/ADR/ADR-0019-autonomous-logical-run-repair-orchestration.md` — accepted outer Logical-Run repair orchestration to Pre-Accept without weakening agent, host or patch trust boundaries
 
 - `PROJECT_DOCS/ADR/ADR-0001-springmaster-bootstrap.md`
 - `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`
@@ -183,6 +184,11 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TARGET_UPDATES/ZBM_INITIALIZATION_CONCEPT_TEST.md`
 ## SPRINTS
 
+
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — aktiver Problem- und Auftragsraum für Autonomous Repair Loop V1 und GOAL-006
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SOLUTION_PLAN.md` — kontrollierter Lösungsplan für Logical Run, immutable Successor-Attempts und automatische Pre-Accept-Promotion
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/STATUS.md` — einzige aktuelle Sprint-005-Statusquelle
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — nichtterminaler Sprint-005-Abschlussnachweis; Product Qualification und Closure stehen aus
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des qualifiziert abgeschlossenen Field-Proven-Backend-Contract-Sprints
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — finaler Sprint-004-Nachweis für 24/24 Requirements, 7/7 Real-World-Cases, Produkt-Acceptance und Trusted-Host-Version-Closure
