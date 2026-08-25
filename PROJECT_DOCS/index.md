@@ -184,11 +184,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## SPRINTS
 
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — active Sprint-004 problem space, requirements, DoD, non-goals and architecture guardrails
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/SOLUTION_PLAN.md` — active controlled solution and single-task Codex execution plan
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/STATUS.md` — current Sprint-004 qualification-pending status after A002 implementation
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — non-terminal Sprint-004 completion report; qualification and closure remain pending
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-004/WORK/ANALYSES/FIELD_QUALIFICATION_REPORT.md` — source-bound Personnel-000248 mapping for RW-01 through RW-07
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des qualifiziert abgeschlossenen Field-Proven-Backend-Contract-Sprints
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — finaler Sprint-004-Nachweis für 24/24 Requirements, 7/7 Real-World-Cases, Produkt-Acceptance und Trusted-Host-Version-Closure
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des Engineering Qualification Pilot
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-001/COMPLETION_REPORT.md` — finaler Qualification-, Impact- und Closure-Nachweis

@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-004-BRIEF
 title: Field-Proven Backend Contracts and Runtime Primitives - Sprint Brief
 documentType: sprint-brief
-status: active
+status: archived
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -12,8 +12,8 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-08-22
 validFrom: 2026-08-22
-lastReviewedAt: 2026-08-22
-reviewBy: 2026-08-31
+lastReviewedAt: 2026-08-25
+reviewBy: null
 supersedes: []
 supersededBy: null
 temporary: false
@@ -273,3 +273,4 @@ Keine.
 |---|---|---|---|
 | 2026-08-22 | - | planned | Sprint-004-Vertrag aus Post-Sprint-003- und Personnel-000248-Vergleich abgeleitet. |
 | 2026-08-22 | planned | active | Auftrag, Scope, DoR, DoD, Nichtziele und Stop-Kriterien vor Execution bestätigt. |
+| 2026-08-25 | active | archived | Trusted-Host-Qualification, Produkt-Acceptance, Version Closure und Sprint-Archivierung vollständig geschlossen. |

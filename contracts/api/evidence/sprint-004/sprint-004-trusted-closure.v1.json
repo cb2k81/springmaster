@@ -1,0 +1,184 @@
+{
+  "acceptedProduct": {
+    "artifactId": "urn:uuid:dfec9a9e-2264-4e7a-bc33-6f84706c248a",
+    "artifactSha256": "31ec1884f95d1984c4344d9550526972f5ded6d5f5507f9b7906908aa0d8190f",
+    "commit": "178a8ff645cb0ea226439e994b55a7a2094b169e",
+    "patchId": "000247_s004-a003-field-proven-contracts"
+  },
+  "capabilities": {
+    "businessDateCorePrimitive": true,
+    "expectedVersionConflictHttp409": true,
+    "expectedVersionCorePrimitive": true,
+    "genericLockOrderDefined": false,
+    "genericMultiAggregateCoordinator": false,
+    "optimisticDefaultPreserved": true
+  },
+  "closedAt": "2026-08-25",
+  "closureAuthority": "trusted-host",
+  "closureBaseCommit": "2ec5719ace2b65b65ccb89ad0d6390c60f9b839d",
+  "next": "AUTONOMOUS_REPAIR_LOOP_V1",
+  "qualification": {
+    "managedRunId": "run-20260824T142715Z-4a7cb83f309c",
+    "postcheckChangedPathCount": 23,
+    "postcheckFindingCount": 0,
+    "qualificationCommandsPassed": 11,
+    "qualificationCommandsTotal": 11,
+    "status": "QUALIFIED",
+    "taskId": "S004-FIELD-PROVEN-CONTRACTS-A003"
+  },
+  "realWorldCases": [
+    {
+      "id": "RW-01",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-02",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-03",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-04",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-05",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-06",
+      "status": "PASS"
+    },
+    {
+      "id": "RW-07",
+      "status": "PASS"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "S004-REQ-001",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-002",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-003",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-004",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-005",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-006",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-007",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-008",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-009",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-010",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-011",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-012",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-013",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-014",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-015",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-016",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-017",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-018",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-019",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-020",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-021",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-022",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-023",
+      "status": "PASS"
+    },
+    {
+      "id": "S004-REQ-024",
+      "status": "PASS"
+    }
+  ],
+  "schemaVersion": "springmaster.sprint-004-trusted-closure.v1",
+  "sprintId": "SPRINGMASTER-SPRINT-004",
+  "status": "DOD_QUALIFIED",
+  "temporaryDocuments": {
+    "SOLUTION_PLAN.md": "discard",
+    "STATUS.md": "discard",
+    "WORK/ANALYSES/FIELD_QUALIFICATION_REPORT.md": "discard"
+  },
+  "terminal": {
+    "externalProjectMutations": 0,
+    "harnessScopeChanges": 0,
+    "newRuntimeDependencies": 0,
+    "personnelSpecificContractValues": 0,
+    "unintendedPublicApiBreaks": 0,
+    "unresolvedRealWorldContractGaps": 0,
+    "untestedNewNormativeRules": 0
+  },
+  "versions": {
+    "core": "0.6.0",
+    "demo": "0.3.0",
+    "foundation": "0.26.0-foundation",
+    "maven": "0.26.0-foundation-SNAPSHOT",
+    "statePatch": "000249_s004-trusted-closure",
+    "template": "0.3.1",
+    "tooling": "0.15.0",
+    "update": "0.10.0"
+  }
+}
