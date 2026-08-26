@@ -78,9 +78,9 @@
   },
   "toolkitVersion": "1.1.5",
   "versionClosure": {
-    "mavenVersion": "0.25.0-foundation-SNAPSHOT",
-    "platformVersion": "0.25.0-foundation",
-    "statePatch": "000237_sprint3-autonomous-dod-recovery",
-    "toolingVersion": "0.15.0"
+    "mavenVersion": "0.26.0-foundation-SNAPSHOT",
+    "platformVersion": "0.26.0-foundation",
+    "statePatch": "000251_post-s004-version-closure-activation-hotfix",
+    "toolingVersion": "0.15.1"
   }
 }

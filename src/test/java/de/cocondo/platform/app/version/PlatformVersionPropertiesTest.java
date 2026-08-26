@@ -2,6 +2,8 @@ package de.cocondo.platform.app.version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,5 +53,27 @@ class PlatformVersionPropertiesTest {
                 .getTextContent()
                 .trim();
         assertThat(mavenVersion).isEqualTo(canonical.getProperty("PLATFORM_VERSION") + "-SNAPSHOT");
+    }
+
+    @Test
+    void patchToolkitActivationVersionClosureTracksCanonicalVersionTruth() throws Exception {
+        Properties canonical = new Properties();
+        try (InputStream input = Files.newInputStream(projectRoot.resolve("platform/versions/platform.env"))) {
+            canonical.load(input);
+        }
+        JsonNode closure = new ObjectMapper()
+                .readTree(projectRoot.resolve(
+                        "contracts/governance/tooling/patch-toolkit-activation-contract.json").toFile())
+                .path("versionClosure");
+
+        assertThat(closure.isMissingNode()).isFalse();
+        assertThat(closure.path("platformVersion").asText())
+                .isEqualTo(canonical.getProperty("PLATFORM_VERSION"));
+        assertThat(closure.path("toolingVersion").asText())
+                .isEqualTo(canonical.getProperty("PLATFORM_TOOLING_VERSION"));
+        assertThat(closure.path("statePatch").asText())
+                .isEqualTo(canonical.getProperty("PLATFORM_STATE_PATCH"));
+        assertThat(closure.path("mavenVersion").asText())
+                .isEqualTo(canonical.getProperty("PLATFORM_VERSION") + "-SNAPSHOT");
     }
 }
