@@ -205,6 +205,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TEMPLATES/project-skeleton/README.md`
 ## TOOLING
 
+- `PROJECT_DOCS/TOOLING/CODEX_AUTONOMOUS_RUN_OPERATIONS.md` — candidate operator contract for durable ADR-0019 Logical Runs, repair evidence and the Pre-Accept human boundary
 - `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — promoted Codex pilot readiness, external-root, task preparation, handoff and diagnostic procedure
 - `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md` — normative host-command effect declaration and explicit authorization boundary
 

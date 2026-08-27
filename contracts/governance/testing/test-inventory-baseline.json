@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.test-inventory-baseline.v1",
-  "baselineVersion": "1.8.0",
+  "baselineVersion": "1.9.0",
   "status": "sealed-report-only",
   "generatedAt": "2026-07-23T11:11:07.843888Z",
   "sourceGitHead": "2353022e246397b160c458debda2dd0b746ce60c",
@@ -595,6 +595,13 @@
       "mutationClass": "isolated-mutation"
     },
     {
+      "path": "bin/codex-autonomous-run-it.sh",
+      "suiteId": "tooling-agent-pilot-fixtures",
+      "testLevel": "integration",
+      "runnerId": "bash",
+      "mutationClass": "isolated-mutation"
+    },
+    {
       "path": "bin/codex-calibration-it.sh",
       "suiteId": "tooling-agent-pilot-fixtures",
       "testLevel": "integration",
@@ -870,6 +877,17 @@
   ],
   "sourceFixtures": [
     {
+      "path": "src/test/resources/tooling/codex-autonomous-run-v1/expected-cases.json",
+      "fixtureType": "expected-case-catalog",
+      "owner": "springmaster-maintainers",
+      "consumers": [
+        "bin/codex-autonomous-run-it.sh"
+      ],
+      "authority": "contract-evidence",
+      "mutationPolicy": "reviewed-contract-change-only",
+      "normalization": "none"
+    },
+    {
       "path": "src/test/resources/tooling/codex-calibration-v1/expected-cases.json",
       "fixtureType": "expected-case-catalog",
       "owner": "springmaster-maintainers",
@@ -1105,8 +1123,8 @@
   ],
   "summary": {
     "javaTestClassCount": 56,
-    "toolingEntrypointCount": 40,
-    "sourceFixtureCount": 21,
+    "toolingEntrypointCount": 41,
+    "sourceFixtureCount": 22,
     "mavenRunner": "surefire",
     "failsafeImplemented": false,
     "coveragePolicyStatus": "unresolved"
@@ -1117,6 +1135,6 @@
     "H2 evidence is not MariaDB-specific evidence.",
     "Architecture tests are not yet a distinct executable suite."
   ],
-  "lastUpdatedAt": "2026-08-23",
-  "lastUpdateReason": "Register Sprint-004 field qualification and Core primitive tests."
+  "lastUpdatedAt": "2026-08-25",
+  "lastUpdateReason": "Register Sprint-005 Autonomous Logical Run regression and expected-case catalog."
 }

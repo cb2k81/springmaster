@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:codex-autonomous-run-state:v1",
+  "title": "Springmaster Autonomous Logical Run State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "logicalRunId", "requestSha256", "state", "attemptOrdinal", "attempts", "nextAction", "activeSeconds"],
+  "properties": {
+    "schemaVersion": {"const": "springmaster.codex-autonomous-run-state.v1"},
+    "logicalRunId": {"type": "string"},
+    "requestSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"enum": ["READY", "ATTEMPT_RUNNING", "REPAIR_PENDING", "PROMOTING", "PREACCEPT", "STOPPED"]},
+    "attemptOrdinal": {"type": "integer", "minimum": 0},
+    "attemptId": {"type": ["string", "null"]},
+    "attempts": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "lastFailureClass": {"type": ["string", "null"]},
+    "blockerClass": {"type": ["string", "null"]},
+    "lastFailureFingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "lastWorktreeFingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "processRunId": {"type": ["string", "null"]},
+    "patchId": {"type": ["string", "null"]},
+    "patchArtifactId": {"type": ["string", "null"]},
+    "dryRunId": {"type": ["string", "null"]},
+    "nextAction": {"type": "string"},
+    "activeSeconds": {"type": "integer", "minimum": 0},
+    "blocker": {"type": "object"},
+    "promotion": {"type": "object"}
+  }
+}
