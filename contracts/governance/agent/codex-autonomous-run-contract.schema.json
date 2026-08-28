@@ -1,16 +1,25 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:springmaster:schema:codex-autonomous-run:v1",
+  "$id": "urn:springmaster:schema:codex-autonomous-run:v2",
   "title": "Springmaster Autonomous Logical Run Contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "logicalRunId", "taskTemplate", "prompt", "model", "budgets", "patch"],
+  "required": ["schemaVersion", "logicalRunId", "taskTemplate", "prompt", "model", "codexRuntime", "budgets", "patch"],
   "properties": {
-    "schemaVersion": {"const": "springmaster.codex-autonomous-run.v1"},
+    "schemaVersion": {"const": "springmaster.codex-autonomous-run.v2"},
     "logicalRunId": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,50}$"},
     "taskTemplate": {"$ref": "agent-task-contract.schema.json", "description": "Complete immutable springmaster.agent-task.v2 authorization template; taskId is replaced by the deterministic logicalRunId-A<ordinal> identity."},
     "prompt": {"type": "string", "minLength": 1},
     "model": {"type": "string", "minLength": 1},
+    "codexRuntime": {
+      "type": "object", "additionalProperties": false,
+      "required": ["executable", "version", "sha256"],
+      "properties": {
+        "executable": {"type": "string", "pattern": "^/"},
+        "version": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
     "budgets": {
       "type": "object", "additionalProperties": false,
       "required": ["maxAttempts", "activeTimeSeconds", "attemptActiveTimeoutSeconds", "noProgressTimeoutSeconds"],

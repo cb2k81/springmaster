@@ -19,7 +19,7 @@ import time
 from typing import Any
 import zipfile
 
-SCHEMA = "springmaster.codex-autonomous-run.v1"
+SCHEMA = "springmaster.codex-autonomous-run.v2"
 STATE_SCHEMA = "springmaster.codex-autonomous-run-state.v1"
 PACKET_SCHEMA = "springmaster.codex-autonomous-repair-packet.v1"
 TERMINAL = {"PREACCEPT", "STOPPED"}
@@ -134,7 +134,7 @@ def validate_task(task: dict[str, Any]) -> None:
 
 
 def validate_contract(value: dict[str, Any]) -> None:
-    required = {"schemaVersion", "logicalRunId", "taskTemplate", "prompt", "model", "budgets", "patch"}
+    required = {"schemaVersion", "logicalRunId", "taskTemplate", "prompt", "model", "codexRuntime", "budgets", "patch"}
     fail(set(value) == required, "MALFORMED_EVIDENCE", "Logical Run contract fields differ", expected=sorted(required), actual=sorted(value))
     fail(value["schemaVersion"] == SCHEMA, "MALFORMED_EVIDENCE", "Logical Run schema version is unsupported")
     logical_id = value["logicalRunId"]
@@ -142,6 +142,12 @@ def validate_contract(value: dict[str, Any]) -> None:
     fail(len(f"{logical_id}-A999") <= 64, "MALFORMED_EVIDENCE", "logicalRunId is too long for deterministic task IDs")
     fail(isinstance(value["prompt"], str) and value["prompt"].strip(), "MALFORMED_EVIDENCE", "prompt is required")
     fail(isinstance(value["model"], str) and value["model"].strip(), "MALFORMED_EVIDENCE", "model is required")
+    runtime = value["codexRuntime"]
+    fail(isinstance(runtime, dict) and set(runtime) == {"executable", "version", "sha256"}, "MALFORMED_EVIDENCE", "Codex runtime identity fields differ")
+    executable = runtime.get("executable")
+    fail(isinstance(executable, str) and Path(executable).is_absolute(), "MALFORMED_EVIDENCE", "Codex runtime executable must be an absolute path")
+    fail(isinstance(runtime.get("version"), str) and runtime["version"].strip(), "MALFORMED_EVIDENCE", "Codex runtime version is required")
+    fail(isinstance(runtime.get("sha256"), str) and re.fullmatch(r"[0-9a-f]{64}", runtime["sha256"]) is not None, "MALFORMED_EVIDENCE", "Codex runtime SHA-256 is invalid")
     budgets = value["budgets"]
     fail(set(budgets) == {"maxAttempts", "activeTimeSeconds", "attemptActiveTimeoutSeconds", "noProgressTimeoutSeconds"}, "MALFORMED_EVIDENCE", "Budget fields differ")
     fail(isinstance(budgets["maxAttempts"], int) and 1 <= budgets["maxAttempts"] <= 20, "MALFORMED_EVIDENCE", "maxAttempts is outside 1..20")
@@ -300,7 +306,25 @@ def repair_packet(contract: dict[str, Any], task: dict[str, Any], ordinal: int, 
     return {"schemaVersion": PACKET_SCHEMA, "logicalRunId": contract["logicalRunId"], "failedAttemptId": task["taskId"], "failedAttemptOrdinal": ordinal, "successorAttemptId": successor, "baseCommit": task["baseCommit"], "worktreeFingerprint": fingerprint(worktree, paths), "changedPaths": paths, "postcheckResult": post, "qualificationResults": qualifications, "failureFingerprint": failure, "previousFailureFingerprint": previous, "authorizationOraclesUnchanged": True, "predecessorChangeBundle": {k: bundle[k] for k in ("bundleId", "bundlePath", "bundleSha256")}}
 
 
+def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Path:
+    runtime = contract["codexRuntime"]
+    executable = Path(runtime["executable"])
+    try:
+        is_regular = executable.is_file() and not executable.is_symlink()
+        is_executable = os.access(executable, os.X_OK)
+        actual_sha256 = sha_file(executable) if is_regular else None
+    except OSError as exc:
+        raise RunError("HOST_TOOL_ERROR", "Bound Codex runtime cannot be inspected", path=str(executable), error=str(exc)) from exc
+    fail(is_regular and is_executable, "HOST_TOOL_ERROR", "Bound Codex runtime must be an executable regular non-symlink file", path=str(executable))
+    fail(actual_sha256 == runtime["sha256"], "HOST_TOOL_ERROR", "Bound Codex runtime SHA-256 drifted", path=str(executable), expected=runtime["sha256"], actual=actual_sha256)
+    completed = run([str(executable), "--version"], project, timeout=30)
+    actual_version = completed.stdout.strip() if completed.returncode == 0 else None
+    fail(completed.returncode == 0 and actual_version == runtime["version"], "HOST_TOOL_ERROR", "Bound Codex runtime version drifted", path=str(executable), expected=runtime["version"], actual=actual_version, stderr=completed.stderr[-2000:])
+    return executable
+
+
 def invoke_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any], directory: Path, ordinal: int, bundle: dict[str, Any] | None, packet_path: Path | None) -> tuple[dict[str, Any], dict[str, Any], Path]:
+    codex = verify_codex_runtime(project, contract)
     task = task_for(contract, ordinal); attempt_id = task["taskId"]; attempt_dir = directory / "attempts" / f"A{ordinal:03d}"; attempt_dir.mkdir(parents=True, exist_ok=True)
     task_path = attempt_dir / "task-contract.json"; atomic(task_path, task)
     validate, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "validate", str(task_path)], project)
@@ -313,7 +337,7 @@ def invoke_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any
         prompt = "Apply the bound predecessor bundle first by running exactly ./bin/codex-change-bundle.sh apply. Then repair every finding in the immutable repair packet without changing authorization or oracle boundaries.\nRepair packet: " + str(packet_path) + "\n\n" + prompt
     prompt_path = attempt_dir / "prompt.txt"; prompt_path.write_text(prompt, encoding="utf-8"); prompt_path.chmod(0o444)
     invocation_path = attempt_dir / "host-invocation.json"
-    argv = [str(project / "bin/codex-host-sandbox.sh"), "--project-root", str(project), "--format", "json", "invoke-start", "--task-id", attempt_id, "--prompt", str(prompt_path), "--model", contract["model"], "--active-timeout-seconds", str(contract["budgets"]["attemptActiveTimeoutSeconds"]), "--no-progress-timeout-seconds", str(contract["budgets"]["noProgressTimeoutSeconds"]), "--out", str(invocation_path)]
+    argv = [str(project / "bin/codex-host-sandbox.sh"), "--project-root", str(project), "--codex", str(codex), "--format", "json", "invoke-start", "--task-id", attempt_id, "--prompt", str(prompt_path), "--model", contract["model"], "--active-timeout-seconds", str(contract["budgets"]["attemptActiveTimeoutSeconds"]), "--no-progress-timeout-seconds", str(contract["budgets"]["noProgressTimeoutSeconds"]), "--out", str(invocation_path)]
     if bundle is not None: argv.extend(["--change-bundle", bundle["bundlePath"]])
     started, completed = run_json(argv, project)
     fail(completed.returncode == 0 and started.get("runId"), "HOST_TOOL_ERROR", "Durable Codex invocation did not start", evidence=started)

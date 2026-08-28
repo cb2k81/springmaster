@@ -22,9 +22,21 @@ repo=tmp/'repo'; repo.mkdir(); git(repo,'init','-q'); git(repo,'config','user.na
 (repo/'product.txt').write_text('base\n'); (repo/'qualify.sh').write_text('#!/usr/bin/env bash\nexit 0\n'); os.chmod(repo/'qualify.sh',0o755)
 git(repo,'add','product.txt','qualify.sh'); git(repo,'commit','-qm','base'); base=git(repo,'rev-parse','HEAD')
 
+fake_codex=tmp/'codex-fixture'; fake_codex.write_text('#!/usr/bin/env bash\nprintf \"%s\\n\" \"codex-cli fixture-1.0\"\n'); os.chmod(fake_codex,0o755)
+runtime={'executable':str(fake_codex),'version':'codex-cli fixture-1.0','sha256':m.sha_file(fake_codex)}
+
 task={'schemaVersion':'springmaster.agent-task.v2','taskId':'IGNORED-001','pilotId':'springmaster-codex-pilot-v1','repositoryId':'springmaster','mode':'implementation','baseCommit':base,'integrationBranch':'main','riskClass':'high','changeClasses':['tooling'],'allowedPaths':['product.txt'],'forbiddenPaths':['.git/**'],'limits':{'maxChangedFiles':1,'maxNetAddedBytes':4096},'capabilities':{'mayModifyTests':False,'mayModifyGovernance':False,'mayModifyContracts':False,'mayCommit':False,'mayPush':False,'network':'disabled'},'qualificationCommands':[{'id':'q-one','argv':['./qualify.sh'],'timeoutSeconds':5},{'id':'q-two','argv':['./qualify.sh'],'timeoutSeconds':5}],'requiredEvidence':['task-contract']*13,'completionCriteria':{'postcheckPass':True,'allQualificationCommandsPass':True,'requiredEvidenceComplete':True,'invocationRecordRequired':True,'explicitCleanupDisposition':True}}
-contract={'schemaVersion':m.SCHEMA,'logicalRunId':'FIXTURE-RUN','taskTemplate':task,'prompt':'repair','model':'fixture','budgets':{'maxAttempts':3,'activeTimeSeconds':60,'attemptActiveTimeoutSeconds':30,'noProgressTimeoutSeconds':10},'patch':{'name':'fixture','title':'Fixture','scope':'tooling'}}
+contract={'schemaVersion':m.SCHEMA,'logicalRunId':'FIXTURE-RUN','taskTemplate':task,'prompt':'repair','model':'fixture','codexRuntime':runtime,'budgets':{'maxAttempts':3,'activeTimeSeconds':60,'attemptActiveTimeoutSeconds':30,'noProgressTimeoutSeconds':10},'patch':{'name':'fixture','title':'Fixture','scope':'tooling'}}
 m.validate_contract(contract); assert m.task_for(contract,2)['taskId']=='FIXTURE-RUN-A002'; assert m.authorization_snapshot(m.task_for(contract,1))==m.authorization_snapshot(m.task_for(contract,2))
+assert m.verify_codex_runtime(repo,contract)==fake_codex
+for field,value in [('sha256','0'*64),('version','codex-cli wrong')]:
+    bad=json.loads(json.dumps(contract)); bad['codexRuntime'][field]=value
+    try: m.verify_codex_runtime(repo,bad); raise AssertionError(field)
+    except m.RunError as exc: assert exc.code=='HOST_TOOL_ERROR'
+unsafe=tmp/'codex-symlink'; unsafe.symlink_to(fake_codex)
+bad=json.loads(json.dumps(contract)); bad['codexRuntime']['executable']=str(unsafe)
+try: m.verify_codex_runtime(repo,bad); raise AssertionError('symlink')
+except m.RunError as exc: assert exc.code=='HOST_TOOL_ERROR'
 candidate_branch=m.candidate_branch(contract['logicalRunId']); assert candidate_branch=='change/fixture-run-candidate'
 project_env={}
 for raw in (root/'.cocondo/tooling/project.env').read_text().splitlines():
@@ -72,6 +84,9 @@ assert 'run-start' in source_text and '--singleton-key' in source_text and 'resu
 assert 'cleanup_physical_attempt(project, task["taskId"], "FAILED")' in source_text
 assert 'cleanup_physical_attempt(project, task["taskId"], "HANDED_OFF")' in source_text
 assert 'task_status.get("status") in {"HANDED_OFF", "CLEANED"}' in source_text
+assert 'SCHEMA = "springmaster.codex-autonomous-run.v2"' in source_text
+assert 'def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Path:' in source_text
+assert '"--codex", str(codex)' in source_text
 
 # invoke-start owns a durable run before agent-task necessarily leaves
 # PREPARED/NOT_RECORDED. A resumed observer follows that run and never invokes
@@ -102,6 +117,8 @@ finally:
 assert invoked_task['taskId']=='FIXTURE-RUN-A001' and invoked_result['status']=='PASS' and invoked_worktree==source
 assert invoke_state['state']=='ATTEMPT_RUNNING' and invoke_state['processRunId']=='durable-invocation-001'
 assert sum('invoke-start' in argv for argv in invoke_commands)==1
+invoke_argv=next(argv for argv in invoke_commands if 'invoke-start' in argv)
+assert '--codex' in invoke_argv and invoke_argv[invoke_argv.index('--codex')+1]==str(fake_codex)
 
 attempt_dir=tmp/'logical-run'/'attempts'/'A001'; attempt_dir.mkdir(parents=True)
 invocation_path=attempt_dir/'host-invocation.json'
