@@ -177,6 +177,10 @@ def authorization_snapshot(task: dict[str, Any]) -> bytes:
     return canonical({key: task[key] for key in fields})
 
 
+def candidate_branch(logical_id: str) -> str:
+    return f"change/{logical_id.lower()}-candidate"
+
+
 def integration_guard(project: Path, base: str) -> None:
     head = run(["git", "rev-parse", "HEAD"], project)
     status = run(["git", "status", "--porcelain=v1", "--untracked-files=all"], project)
@@ -356,7 +360,7 @@ def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], dire
     worktree_root = Path(os.environ.get("COCONDO_WORKTREE_ROOT", ""))
     fail(worktree_root.is_absolute() and worktree_root.is_dir(), "HOST_TOOL_ERROR", "COCONDO_WORKTREE_ROOT is required for trusted candidate")
     candidate = worktree_root / f"{contract['logicalRunId'].lower()}-candidate"
-    branch = f"candidate/{contract['logicalRunId'].lower()}"
+    branch = candidate_branch(contract["logicalRunId"])
     if not candidate.exists():
         created = run(["git", "worktree", "add", "-b", branch, str(candidate), task["baseCommit"]], project)
         fail(created.returncode == 0, "HOST_TOOL_ERROR", "Trusted candidate worktree creation failed", stderr=created.stderr[-2000:])

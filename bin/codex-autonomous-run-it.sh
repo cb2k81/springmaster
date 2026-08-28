@@ -6,7 +6,7 @@ TMP_ROOT="$(mktemp -d /tmp/codex-autonomous-run-it.XXXXXX)"
 trap 'rm -rf "${TMP_ROOT}"' EXIT
 
 python3 - "${ROOT}" "${TMP_ROOT}" <<'PY'
-import importlib.util,json,os,pathlib,shutil,stat,subprocess,sys,zipfile
+import fnmatch,importlib.util,json,os,pathlib,shutil,stat,subprocess,sys,zipfile
 root,tmp=map(pathlib.Path,sys.argv[1:])
 spec=importlib.util.spec_from_file_location('runner',root/'bin/codex-autonomous-run.py'); m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 catalog=json.loads((root/'src/test/resources/tooling/codex-autonomous-run-v1/expected-cases.json').read_text())
@@ -25,6 +25,13 @@ git(repo,'add','product.txt','qualify.sh'); git(repo,'commit','-qm','base'); bas
 task={'schemaVersion':'springmaster.agent-task.v2','taskId':'IGNORED-001','pilotId':'springmaster-codex-pilot-v1','repositoryId':'springmaster','mode':'implementation','baseCommit':base,'integrationBranch':'main','riskClass':'high','changeClasses':['tooling'],'allowedPaths':['product.txt'],'forbiddenPaths':['.git/**'],'limits':{'maxChangedFiles':1,'maxNetAddedBytes':4096},'capabilities':{'mayModifyTests':False,'mayModifyGovernance':False,'mayModifyContracts':False,'mayCommit':False,'mayPush':False,'network':'disabled'},'qualificationCommands':[{'id':'q-one','argv':['./qualify.sh'],'timeoutSeconds':5},{'id':'q-two','argv':['./qualify.sh'],'timeoutSeconds':5}],'requiredEvidence':['task-contract']*13,'completionCriteria':{'postcheckPass':True,'allQualificationCommandsPass':True,'requiredEvidenceComplete':True,'invocationRecordRequired':True,'explicitCleanupDisposition':True}}
 contract={'schemaVersion':m.SCHEMA,'logicalRunId':'FIXTURE-RUN','taskTemplate':task,'prompt':'repair','model':'fixture','budgets':{'maxAttempts':3,'activeTimeSeconds':60,'attemptActiveTimeoutSeconds':30,'noProgressTimeoutSeconds':10},'patch':{'name':'fixture','title':'Fixture','scope':'tooling'}}
 m.validate_contract(contract); assert m.task_for(contract,2)['taskId']=='FIXTURE-RUN-A002'; assert m.authorization_snapshot(m.task_for(contract,1))==m.authorization_snapshot(m.task_for(contract,2))
+candidate_branch=m.candidate_branch(contract['logicalRunId']); assert candidate_branch=='change/fixture-run-candidate'
+project_env={}
+for raw in (root/'.cocondo/tooling/project.env').read_text().splitlines():
+    if '=' in raw and not raw.lstrip().startswith('#'):
+        key,value=raw.split('=',1); project_env[key.strip()]=value.strip()
+allowed_branches=json.loads(project_env['CPATCH_ALLOWED_BRANCHES_JSON'])
+assert any(fnmatch.fnmatchcase(candidate_branch,pattern) for pattern in allowed_branches),(candidate_branch,allowed_branches)
 
 lag={'status':'FAILED','execution':{'status':'COMPLETED','exitCode':0},'jsonlValidation':{'parseErrorCount':0,'turnCompletedCount':1,'turnFailedCount':0,'findings':[{'code':'CODEX_ERROR_ITEM','message':'in-process app-server event stream lagged; dropped 7 events'}]}}
 assert m.stream_lag_only(lag)
