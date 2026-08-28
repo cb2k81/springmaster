@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:springmaster:schema:codex-autonomous-repair-packet:v1",
+  "title": "Springmaster Autonomous Repair Packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "logicalRunId", "failedAttemptId", "failedAttemptOrdinal", "successorAttemptId", "baseCommit", "worktreeFingerprint", "changedPaths", "postcheckResult", "qualificationResults", "failureFingerprint", "previousFailureFingerprint", "authorizationOraclesUnchanged", "predecessorChangeBundle"],
+  "properties": {
+    "schemaVersion": {"const": "springmaster.codex-autonomous-repair-packet.v1"},
+    "logicalRunId": {"type": "string"},
+    "failedAttemptId": {"type": "string"},
+    "failedAttemptOrdinal": {"type": "integer", "minimum": 1},
+    "successorAttemptId": {"type": "string"},
+    "baseCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "worktreeFingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "changedPaths": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "postcheckResult": {"type": "object"},
+    "qualificationResults": {"type": "array", "items": {"type": "object"}},
+    "failureFingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "previousFailureFingerprint": {"type": ["string", "null"]},
+    "authorizationOraclesUnchanged": {"const": true},
+    "predecessorChangeBundle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bundleId", "bundlePath", "bundleSha256"],
+      "properties": {"bundleId": {"type": "string"}, "bundlePath": {"type": "string"}, "bundleSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    }
+  }
+}

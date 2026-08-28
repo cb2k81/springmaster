@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "springmaster.codex-autonomous-run-cases.v1",
+  "cases": [
+    {"id": "first-attempt-success", "expected": "PREACCEPT", "expectedExit": 0},
+    {"id": "one-repair-successor", "expected": "PREACCEPT"},
+    {"id": "consolidated-qualification-findings", "expected": "REPAIR_PACKET"},
+    {"id": "scope-expansion", "expected": "SCOPE_EXPANSION_REQUIRED", "expectedExit": 1},
+    {"id": "host-tool-failure", "expected": "HOST_TOOL_ERROR", "expectedExit": 2},
+    {"id": "identical-fingerprint-no-progress", "expected": "NO_PROGRESS"},
+    {"id": "max-attempt-exhaustion", "expected": "REPAIR_BUDGET_EXHAUSTED"},
+    {"id": "known-stream-lag-only", "expected": "TRANSPORT_DEGRADED_CONTINUE"},
+    {"id": "unknown-codex-error", "expected": "HOST_TOOL_ERROR"},
+    {"id": "observer-restart-resume", "expected": "NO_DUPLICATE_WRITER"},
+    {"id": "invoke-start-lifecycle-lag", "expected": "FOLLOW_DURABLE_NO_REINVOKE"},
+    {"id": "consumed-task-not-reinvoked", "expected": "IMMUTABLE_ATTEMPT_IDS"},
+    {"id": "carry-forward-bytes-modes", "expected": "BYTE_MODE_EXACT"},
+    {"id": "umask-077-mode-normalization", "expected": "DECLARED_MODE"},
+    {"id": "inconsistent-path-cardinality", "expected": "MALFORMED_EVIDENCE"},
+    {"id": "fresh-complete-final-qualification", "expected": "FRESH_COMPLETE"},
+    {"id": "main-clean-through-preaccept", "expected": "UNCHANGED_CLEAN"},
+    {"id": "automatic-patch-accept-forbidden", "expected": "ABSENT"},
+    {"id": "deterministic-evidence", "expected": "CANONICAL_JSON"}
+  ]
+}
