@@ -341,12 +341,24 @@ def resume_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any
     return task, load_json(invocation_path), worktree
 
 
+def cleanup_physical_attempt(project: Path, task_id: str, expected_status: str) -> None:
+    status, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "status", task_id], project)
+    fail(completed.returncode == 0 and status.get("taskId") == task_id, "HOST_TOOL_ERROR", "Physical attempt status cannot be resolved before cleanup", evidence=status)
+    current = status.get("status")
+    if current == "CLEANED":
+        return
+    fail(current == expected_status, "HOST_TOOL_ERROR", "Physical attempt is not at the expected cleanup boundary", taskId=task_id, expectedStatus=expected_status, actualStatus=current)
+    cleaned, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "cleanup", task_id, "--discard"], project)
+    fail(completed.returncode == 0 and cleaned.get("status") == "CLEANED", "HOST_TOOL_ERROR", "Physical attempt cleanup failed", taskId=task_id, expectedStatus=expected_status, evidence=cleaned)
+
+
 def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], directory: Path, task: dict[str, Any]) -> None:
     promotion = state.setdefault("promotion", {})
     task_status, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "status", task["taskId"]], project)
     fail(completed.returncode == 0, "HOST_TOOL_ERROR", "Qualified task status cannot be resolved", evidence=task_status)
-    if task_status.get("status") == "HANDED_OFF":
+    if task_status.get("status") in {"HANDED_OFF", "CLEANED"}:
         handoff = {"status": "HANDED_OFF", "handoffManifest": task_status.get("handoffManifest")}
+        fail(isinstance(handoff["handoffManifest"], str) and handoff["handoffManifest"], "MALFORMED_EVIDENCE", "Persisted handoff manifest is missing after handoff or cleanup", taskId=task["taskId"], taskStatus=task_status.get("status"))
         manifest_path = Path(str(handoff["handoffManifest"]))
         handoff_manifest = load_json(manifest_path)
         handoff["patchPath"] = str(manifest_path.parent / handoff_manifest["patch"]["path"])
@@ -416,6 +428,8 @@ def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], dire
     patch_id = created_patch.get("patchId") or inspect.get("patchId") or inspect_manifest.get("patchId")
     artifact_id = created_patch.get("artifactId") or inspect.get("artifactId") or inspect_manifest.get("artifactId")
     fail(isinstance(patch_id, str) and patch_id and isinstance(dry.get("runId"), str), "MALFORMED_EVIDENCE", "Pre-Accept identities are incomplete", patchId=patch_id, artifactId=artifact_id, dryRunId=dry.get("runId"))
+    cleanup_physical_attempt(project, task["taskId"], "HANDED_OFF")
+    promotion.update({"stage": "ATTEMPT_CLEANED", "physicalAttemptStatus": "CLEANED"}); save_state(directory, state)
     state.update({"state": "PREACCEPT", "patchId": patch_id, "patchArtifactId": artifact_id, "dryRunId": dry["runId"], "lastFailureClass": None, "blockerClass": None, "nextAction": "HUMAN_ACCEPT_REQUIRED"}); save_state(directory, state)
 
 
@@ -434,6 +448,7 @@ def worker(project: Path, directory: Path) -> int:
         bundle = None; packet_path = None
         if state.get("state") == "REPAIR_PENDING":
             predecessor = ordinal - 1
+            cleanup_physical_attempt(project, task_for(contract, predecessor)["taskId"], "FAILED")
             packet_path = directory / "repair-packets" / f"A{predecessor:03d}.json"
             packet = load_json(packet_path)
             bundle = packet.get("predecessorChangeBundle")
@@ -478,6 +493,7 @@ def worker(project: Path, directory: Path) -> int:
             packet_path = directory / "repair-packets" / f"A{ordinal:03d}.json"; atomic(packet_path, packet); packet_path.chmod(0o444)
             previous_fingerprint, previous_work = packet["failureFingerprint"], packet["worktreeFingerprint"]
             state.update({"state": "REPAIR_PENDING", "lastFailureClass": "QUALIFICATION_FAILURE", "lastFailureFingerprint": previous_fingerprint, "lastWorktreeFingerprint": previous_work, "processRunId": None, "nextAction": "CREATE_SUCCESSOR"}); save_state(directory, state)
+            cleanup_physical_attempt(project, task["taskId"], "FAILED")
             ordinal += 1
         raise RunError("REPAIR_BUDGET_EXHAUSTED", "Maximum attempts exhausted")
     except RunError as exc:

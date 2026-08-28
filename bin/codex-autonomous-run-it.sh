@@ -69,6 +69,9 @@ source_text=(root/'bin/codex-autonomous-run.py').read_text()
 assert '"patch-accept"' not in source_text and "'patch-accept'" not in source_text
 assert '"push"' not in source_text and "'push'" not in source_text
 assert 'run-start' in source_text and '--singleton-key' in source_text and 'resume_attempt' in source_text
+assert 'cleanup_physical_attempt(project, task["taskId"], "FAILED")' in source_text
+assert 'cleanup_physical_attempt(project, task["taskId"], "HANDED_OFF")' in source_text
+assert 'task_status.get("status") in {"HANDED_OFF", "CLEANED"}' in source_text
 
 # invoke-start owns a durable run before agent-task necessarily leaves
 # PREPARED/NOT_RECORDED. A resumed observer follows that run and never invokes
@@ -123,6 +126,41 @@ assert resumed_task['taskId']=='FIXTURE-RUN-A001' and resumed_invocation['status
 assert len(observed_commands)==2
 assert sum('invoke-start' in argv for argv in observed_commands)==0
 assert sum('wait' in argv for argv in observed_commands)==1
+
+# Repair continuation and successful promotion must release the one-active-task slot
+# only through the canonical Agent Task cleanup disposition. Cleanup is idempotent
+# so a worker crash after worktree removal can safely resume.
+cleanup_globals=m.cleanup_physical_attempt.__globals__
+original_cleanup_run_json=cleanup_globals['run_json']
+cleanup_commands=[]
+def cleanup_run_json(argv,cwd,timeout=None):
+    cleanup_commands.append(argv)
+    completed=subprocess.CompletedProcess(argv,0,'{}','')
+    if 'status' in argv:
+        return {'status':'FAILED','taskId':'FIXTURE-RUN-A001'},completed
+    assert 'cleanup' in argv and '--discard' in argv
+    return {'status':'CLEANED','taskId':'FIXTURE-RUN-A001'},completed
+try:
+    cleanup_globals['run_json']=cleanup_run_json
+    m.cleanup_physical_attempt(repo,'FIXTURE-RUN-A001','FAILED')
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
+assert sum('status' in argv for argv in cleanup_commands)==1
+assert sum('cleanup' in argv for argv in cleanup_commands)==1
+assert any('--discard' in argv for argv in cleanup_commands)
+
+already_cleaned_commands=[]
+def already_cleaned_run_json(argv,cwd,timeout=None):
+    already_cleaned_commands.append(argv)
+    completed=subprocess.CompletedProcess(argv,0,'{}','')
+    assert 'status' in argv
+    return {'status':'CLEANED','taskId':'FIXTURE-RUN-A001','handoffManifest':'/immutable/handoff.json'},completed
+try:
+    cleanup_globals['run_json']=already_cleaned_run_json
+    m.cleanup_physical_attempt(repo,'FIXTURE-RUN-A001','FAILED')
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
+assert len(already_cleaned_commands)==1 and 'status' in already_cleaned_commands[0]
 
 # Simulate the repair state machine with public-primitive outcomes while retaining immutable attempts.
 def simulate(qmatrix, invocation_matrix=None, post_codes=None, max_attempts=3):
