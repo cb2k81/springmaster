@@ -188,6 +188,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — aktiver Problem- und Auftragsraum für Autonomous Repair Loop V1 und GOAL-006
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SOLUTION_PLAN.md` — kontrollierter Lösungsplan für Logical Run, immutable Successor-Attempts und automatische Pre-Accept-Promotion
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/STATUS.md` — einzige aktuelle Sprint-005-Statusquelle
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/WORK/ANALYSES/AUTONOMOUS_REPAIR_LOOP_PREACCEPT_CHECKPOINT.md` — finaler operativer Checkpoint des qualifizierten A004-Stands vor PREACCEPT
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — nichtterminaler Sprint-005-Abschlussnachweis; Product Qualification und Closure stehen aus
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des qualifiziert abgeschlossenen Field-Proven-Backend-Contract-Sprints
