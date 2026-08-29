@@ -22,6 +22,7 @@ import zipfile
 SCHEMA = "springmaster.codex-autonomous-run.v2"
 STATE_SCHEMA = "springmaster.codex-autonomous-run-state.v1"
 PACKET_SCHEMA = "springmaster.codex-autonomous-repair-packet.v1"
+HOST_REPORT_SCHEMA = "springmaster.codex-host-qualification-report.v1"
 TERMINAL = {"PREACCEPT", "STOPPED"}
 REPAIRABLE = {"QUALIFICATION_FAILURE", "POSTCHECK_REPAIRABLE"}
 STREAM_LAG = re.compile(r"^in-process app-server event stream lagged; dropped [1-9][0-9]* events$")
@@ -323,6 +324,49 @@ def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Path:
     return executable
 
 
+def durable_start_binding(started: dict[str, Any], task: dict[str, Any]) -> tuple[str, Path]:
+    fail(started.get("schemaVersion") == HOST_REPORT_SCHEMA and started.get("operation") == "invoke-start", "MALFORMED_EVIDENCE", "Durable invocation start receipt has an unsupported contract", evidence=started)
+    fail(started.get("status") in {"RUNNING", "TERMINAL"}, "MALFORMED_EVIDENCE", "Durable invocation start receipt has an invalid status", evidence=started)
+    fail(started.get("taskId") == task["taskId"] and started.get("baselineCommit") == task["baseCommit"], "MALFORMED_EVIDENCE", "Durable invocation start receipt identity differs from the physical attempt", evidence=started)
+    run_id = started.get("runId")
+    evidence_raw = started.get("evidenceDirectory")
+    result_raw = started.get("resultPath")
+    fail(isinstance(run_id, str) and run_id and isinstance(evidence_raw, str) and isinstance(result_raw, str), "MALFORMED_EVIDENCE", "Durable invocation start receipt is incomplete", evidence=started)
+    evidence_dir = Path(evidence_raw); result_path = Path(result_raw)
+    fail(evidence_dir.is_absolute() and result_path.is_absolute(), "MALFORMED_EVIDENCE", "Durable invocation evidence paths must be absolute", evidenceDirectory=evidence_raw, resultPath=result_raw)
+    fail(str(evidence_dir) == os.path.normpath(str(evidence_dir)) and str(result_path) == os.path.normpath(str(result_path)), "MALFORMED_EVIDENCE", "Durable invocation evidence paths are not canonical", evidenceDirectory=evidence_raw, resultPath=result_raw)
+    fail(result_path.parent == evidence_dir and result_path.name == "host-invocation.json", "MALFORMED_EVIDENCE", "Durable invocation result path is outside the bound evidence directory", evidenceDirectory=evidence_raw, resultPath=result_raw)
+    fail(evidence_dir.is_dir() and not evidence_dir.is_symlink() and evidence_dir.resolve() == evidence_dir, "MALFORMED_EVIDENCE", "Durable invocation evidence directory is missing or unsafe", evidenceDirectory=evidence_raw)
+    return run_id, result_path
+
+
+def start_receipt_identity(value: dict[str, Any]) -> dict[str, Any]:
+    fields = ("schemaVersion", "operation", "status", "baselineCommit", "taskId", "runId", "singletonKey", "evidenceDirectory", "resultPath", "durableRunPath")
+    return {key: value.get(key) for key in fields}
+
+
+def observe_terminal_invocation(project: Path, contract: dict[str, Any], task: dict[str, Any], started: dict[str, Any]) -> dict[str, Any]:
+    run_id, result_path = durable_start_binding(started, task)
+    observed: dict[str, Any] | None = None
+    wait_returncode: int | None = None
+    if not result_path.is_file():
+        observed, completed = run_json([str(project / "bin/process-ops.sh"), "--project-root", str(project), "--format", "json", "wait", run_id, "--timeout", str(contract["budgets"]["activeTimeSeconds"])], project)
+        wait_returncode = completed.returncode
+    fail(result_path.is_file(), "HOST_TOOL_ERROR", "Durable invocation terminal result is missing after observation", runId=run_id, resultPath=str(result_path), waitReturnCode=wait_returncode, evidence=observed)
+    fail(not result_path.is_symlink() and result_path.resolve() == result_path, "MALFORMED_EVIDENCE", "Durable invocation terminal result path is unsafe", resultPath=str(result_path))
+    invocation = load_json(result_path)
+    fail(invocation.get("schemaVersion") == HOST_REPORT_SCHEMA, "MALFORMED_EVIDENCE", "Durable invocation terminal result schema is unsupported", resultPath=str(result_path), evidence=invocation)
+    terminal_status = invocation.get("status")
+    fail(terminal_status in {"PASS", "FAILED", "TOOL_ERROR"}, "MALFORMED_EVIDENCE", "Durable invocation terminal result has an invalid status", resultPath=str(result_path), evidence=invocation)
+    if terminal_status in {"PASS", "FAILED"}:
+        fail(invocation.get("operation") == "invoke", "MALFORMED_EVIDENCE", "Durable invocation terminal result operation is invalid", evidence=invocation)
+        fail(invocation.get("taskId") == task["taskId"] and invocation.get("baselineCommit") == task["baseCommit"], "MALFORMED_EVIDENCE", "Durable invocation terminal result identity differs from the physical attempt", evidence=invocation)
+        fail(invocation.get("processRunId") == run_id, "MALFORMED_EVIDENCE", "Durable invocation terminal result is bound to another process run", expectedRunId=run_id, actualRunId=invocation.get("processRunId"))
+    elif wait_returncode not in {None, 0}:
+        fail(False, "HOST_TOOL_ERROR", "Durable invocation worker failed with tool evidence", runId=run_id, waitReturnCode=wait_returncode, evidence=invocation)
+    return invocation
+
+
 def invoke_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any], directory: Path, ordinal: int, bundle: dict[str, Any] | None, packet_path: Path | None) -> tuple[dict[str, Any], dict[str, Any], Path]:
     codex = verify_codex_runtime(project, contract)
     task = task_for(contract, ordinal); attempt_id = task["taskId"]; attempt_dir = directory / "attempts" / f"A{ordinal:03d}"; attempt_dir.mkdir(parents=True, exist_ok=True)
@@ -336,16 +380,18 @@ def invoke_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any
         # Change-bundle manifests are successor-bound; raw predecessor evidence is retained in the packet.
         prompt = "Apply the bound predecessor bundle first by running exactly ./bin/codex-change-bundle.sh apply. Then repair every finding in the immutable repair packet without changing authorization or oracle boundaries.\nRepair packet: " + str(packet_path) + "\n\n" + prompt
     prompt_path = attempt_dir / "prompt.txt"; prompt_path.write_text(prompt, encoding="utf-8"); prompt_path.chmod(0o444)
-    invocation_path = attempt_dir / "host-invocation.json"
-    argv = [str(project / "bin/codex-host-sandbox.sh"), "--project-root", str(project), "--codex", str(codex), "--format", "json", "invoke-start", "--task-id", attempt_id, "--prompt", str(prompt_path), "--model", contract["model"], "--active-timeout-seconds", str(contract["budgets"]["attemptActiveTimeoutSeconds"]), "--no-progress-timeout-seconds", str(contract["budgets"]["noProgressTimeoutSeconds"]), "--out", str(invocation_path)]
+    start_receipt_path = attempt_dir / "host-invocation-start.json"
+    argv = [str(project / "bin/codex-host-sandbox.sh"), "--project-root", str(project), "--codex", str(codex), "--format", "json", "invoke-start", "--task-id", attempt_id, "--prompt", str(prompt_path), "--model", contract["model"], "--active-timeout-seconds", str(contract["budgets"]["attemptActiveTimeoutSeconds"]), "--no-progress-timeout-seconds", str(contract["budgets"]["noProgressTimeoutSeconds"]), "--out", str(start_receipt_path)]
     if bundle is not None: argv.extend(["--change-bundle", bundle["bundlePath"]])
     started, completed = run_json(argv, project)
-    fail(completed.returncode == 0 and started.get("runId"), "HOST_TOOL_ERROR", "Durable Codex invocation did not start", evidence=started)
-    state.update({"state": "ATTEMPT_RUNNING", "attemptOrdinal": ordinal, "attemptId": attempt_id, "processRunId": started["runId"], "nextAction": "OBSERVE_ATTEMPT"}); save_state(directory, state)
-    observed, completed = run_json([str(project / "bin/process-ops.sh"), "--project-root", str(project), "--format", "json", "wait", str(started["runId"]), "--timeout", str(contract["budgets"]["activeTimeSeconds"])], project)
-    fail(completed.returncode == 0, "HOST_TOOL_ERROR", "Durable invocation observation failed", evidence=observed)
-    fail(invocation_path.is_file(), "HOST_TOOL_ERROR", "Host invocation evidence is missing", path=str(invocation_path))
-    invocation = load_json(invocation_path)
+    fail(completed.returncode == 0, "HOST_TOOL_ERROR", "Durable Codex invocation did not start", evidence=started)
+    run_id, _ = durable_start_binding(started, task)
+    fail(start_receipt_path.is_file() and not start_receipt_path.is_symlink(), "MALFORMED_EVIDENCE", "Persisted durable invocation start receipt is missing or unsafe", path=str(start_receipt_path))
+    persisted_start = load_json(start_receipt_path)
+    durable_start_binding(persisted_start, task)
+    fail(start_receipt_identity(persisted_start) == start_receipt_identity(started), "MALFORMED_EVIDENCE", "Persisted durable invocation start receipt differs from command result", returned=started, persisted=persisted_start)
+    state.update({"state": "ATTEMPT_RUNNING", "attemptOrdinal": ordinal, "attemptId": attempt_id, "processRunId": run_id, "nextAction": "OBSERVE_ATTEMPT"}); save_state(directory, state)
+    invocation = observe_terminal_invocation(project, contract, task, persisted_start)
     return task, invocation, worktree
 
 
@@ -355,14 +401,14 @@ def resume_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any
     status, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "status", task["taskId"]], project)
     fail(completed.returncode == 0 and status.get("taskId") == task["taskId"], "HOST_TOOL_ERROR", "Persisted physical attempt cannot be resolved", evidence=status)
     worktree = Path(status["worktreePath"])
-    invocation_path = directory / "attempts" / f"A{ordinal:03d}" / "host-invocation.json"
-    if not invocation_path.is_file():
-        process_id = state.get("processRunId")
-        fail(isinstance(process_id, str), "MALFORMED_EVIDENCE", "Running attempt has no process binding")
-        observed, result = run_json([str(project / "bin/process-ops.sh"), "--project-root", str(project), "--format", "json", "wait", process_id, "--timeout", str(contract["budgets"]["activeTimeSeconds"])], project)
-        fail(result.returncode == 0, "HOST_TOOL_ERROR", "Resumed invocation observation failed", evidence=observed)
-    fail(invocation_path.is_file(), "HOST_TOOL_ERROR", "Resumed host invocation evidence is missing")
-    return task, load_json(invocation_path), worktree
+    start_receipt_path = directory / "attempts" / f"A{ordinal:03d}" / "host-invocation-start.json"
+    fail(start_receipt_path.is_file() and not start_receipt_path.is_symlink(), "MALFORMED_EVIDENCE", "Running attempt has no persisted durable invocation start receipt", path=str(start_receipt_path))
+    started = load_json(start_receipt_path)
+    run_id, _ = durable_start_binding(started, task)
+    process_id = state.get("processRunId")
+    fail(isinstance(process_id, str) and process_id == run_id, "MALFORMED_EVIDENCE", "Running attempt process binding differs from its durable invocation receipt", stateRunId=process_id, receiptRunId=run_id)
+    invocation = observe_terminal_invocation(project, contract, task, started)
+    return task, invocation, worktree
 
 
 def cleanup_physical_attempt(project: Path, task_id: str, expected_status: str) -> None:

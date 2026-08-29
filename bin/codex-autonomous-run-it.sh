@@ -87,11 +87,26 @@ assert 'task_status.get("status") in {"HANDED_OFF", "CLEANED"}' in source_text
 assert 'SCHEMA = "springmaster.codex-autonomous-run.v2"' in source_text
 assert 'def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Path:' in source_text
 assert '"--codex", str(codex)' in source_text
+assert 'def observe_terminal_invocation(project: Path, contract: dict[str, Any], task: dict[str, Any], started: dict[str, Any]) -> dict[str, Any]:' in source_text
+assert 'host-invocation-start.json' in source_text and 'resultPath' in source_text
 
 # invoke-start owns a durable run before agent-task necessarily leaves
-# PREPARED/NOT_RECORDED. A resumed observer follows that run and never invokes
-# the already running physical task again.
+# PREPARED/NOT_RECORDED. The receipt is not the terminal invocation result:
+# after process-ops observation the runner must dereference the immutable
+# resultPath and validate that result against task/base/run identity.
 invoke_dir=tmp/'invoke-return-race'
+invoke_evidence=tmp/'durable-evidence'/'invoke-return-race'; invoke_evidence.mkdir(parents=True)
+invoke_terminal=invoke_evidence/'host-invocation.json'
+invoke_start={
+    'schemaVersion':m.HOST_REPORT_SCHEMA,'operation':'invoke-start','status':'RUNNING',
+    'baselineCommit':base,'taskId':'FIXTURE-RUN-A001','runId':'durable-invocation-001',
+    'singletonKey':'codex-task-fixture-run-a001','evidenceDirectory':str(invoke_evidence),
+    'resultPath':str(invoke_terminal),'durableRunPath':str(invoke_evidence/'durable-run.json')}
+def terminal(status='PASS',**overrides):
+    value={'schemaVersion':m.HOST_REPORT_SCHEMA,'operation':'invoke','status':status,'baselineCommit':base,
+           'taskId':'FIXTURE-RUN-A001','processRunId':'durable-invocation-001','worktreePath':str(source)}
+    value.update(overrides); return value
+
 invoke_state={}
 invoke_commands=[]
 invoke_globals=m.invoke_attempt.__globals__
@@ -104,10 +119,10 @@ def invoke_run_json(argv,cwd,timeout=None):
     if 'agent-task.sh' in argv[0] and 'prepare' in argv:
         return {'status':'PREPARED','taskId':'FIXTURE-RUN-A001','worktreePath':str(source),'codexInvocation':'NOT_RECORDED'},completed
     if 'codex-host-sandbox.sh' in argv[0] and 'invoke-start' in argv:
-        return {'status':'RUNNING','runId':'durable-invocation-001'},completed
+        receipt_path=pathlib.Path(argv[argv.index('--out')+1]); receipt_path.parent.mkdir(parents=True,exist_ok=True); receipt_path.write_text(json.dumps(invoke_start))
+        return dict(invoke_start),completed
     assert 'process-ops.sh' in argv[0] and 'wait' in argv and 'durable-invocation-001' in argv
-    result_path=invoke_dir/'attempts'/'A001'/'host-invocation.json'
-    result_path.write_text(json.dumps({'status':'PASS'}))
+    invoke_terminal.write_text(json.dumps(terminal()))
     return {'status':'COMPLETED','runId':'durable-invocation-001'},completed
 try:
     invoke_globals['run_json']=invoke_run_json
@@ -116,12 +131,19 @@ finally:
     invoke_globals['run_json']=original_invoke_run_json
 assert invoked_task['taskId']=='FIXTURE-RUN-A001' and invoked_result['status']=='PASS' and invoked_worktree==source
 assert invoke_state['state']=='ATTEMPT_RUNNING' and invoke_state['processRunId']=='durable-invocation-001'
+assert json.loads((invoke_dir/'attempts'/'A001'/'host-invocation-start.json').read_text())['status']=='RUNNING'
+assert json.loads(invoke_terminal.read_text())['operation']=='invoke'
 assert sum('invoke-start' in argv for argv in invoke_commands)==1
 invoke_argv=next(argv for argv in invoke_commands if 'invoke-start' in argv)
 assert '--codex' in invoke_argv and invoke_argv[invoke_argv.index('--codex')+1]==str(fake_codex)
 
+# A resumed observer follows the persisted RUNNING receipt, waits only while
+# the terminal result is absent, and never invokes the consumed task again.
 attempt_dir=tmp/'logical-run'/'attempts'/'A001'; attempt_dir.mkdir(parents=True)
-invocation_path=attempt_dir/'host-invocation.json'
+resume_evidence=tmp/'durable-evidence'/'resume'; resume_evidence.mkdir(parents=True)
+resume_terminal=resume_evidence/'host-invocation.json'
+resume_start=dict(invoke_start,evidenceDirectory=str(resume_evidence),resultPath=str(resume_terminal),durableRunPath=str(resume_evidence/'durable-run.json'))
+(attempt_dir/'host-invocation-start.json').write_text(json.dumps(resume_start))
 lag_state={'processRunId':'durable-invocation-001'}
 observed_commands=[]
 resume_globals=m.resume_attempt.__globals__
@@ -130,9 +152,9 @@ def lagged_run_json(argv,cwd,timeout=None):
     observed_commands.append(argv)
     completed=subprocess.CompletedProcess(argv,0,'{}','')
     if 'agent-task.sh' in argv[0] and 'status' in argv:
-        return {'status':'PREPARED','taskId':'FIXTURE-RUN-A001','worktreePath':str(source),'codexInvocation':'NOT_RECORDED'},completed
+        return {'status':'PREPARED','taskId':'FIXTURE-RUN-A001','worktreePath':str(source),'codexInvocation':'RECORDED'},completed
     assert 'process-ops.sh' in argv[0] and 'wait' in argv and 'durable-invocation-001' in argv
-    invocation_path.write_text(json.dumps({'status':'PASS'}))
+    resume_terminal.write_text(json.dumps(terminal()))
     return {'status':'COMPLETED','runId':'durable-invocation-001'},completed
 try:
     resume_globals['run_json']=lagged_run_json
@@ -143,6 +165,43 @@ assert resumed_task['taskId']=='FIXTURE-RUN-A001' and resumed_invocation['status
 assert len(observed_commands)==2
 assert sum('invoke-start' in argv for argv in observed_commands)==0
 assert sum('wait' in argv for argv in observed_commands)==1
+
+# Once terminal result evidence exists, resume does not need another wait.
+already_terminal=[]
+def terminal_run_json(argv,cwd,timeout=None):
+    already_terminal.append(argv)
+    completed=subprocess.CompletedProcess(argv,0,'{}','')
+    assert 'agent-task.sh' in argv[0] and 'status' in argv
+    return {'status':'PREPARED','taskId':'FIXTURE-RUN-A001','worktreePath':str(source),'codexInvocation':'RECORDED'},completed
+try:
+    resume_globals['run_json']=terminal_run_json
+    _,already_result,_=m.resume_attempt(repo,contract,lag_state,tmp/'logical-run',1)
+finally:
+    resume_globals['run_json']=original_run_json
+assert already_result['status']=='PASS' and len(already_terminal)==1 and 'status' in already_terminal[0]
+
+# Terminal evidence is fail-closed bound to the exact start receipt identity.
+negative_evidence=tmp/'durable-evidence'/'negative'; negative_evidence.mkdir(parents=True)
+negative_result=negative_evidence/'host-invocation.json'
+negative_start=dict(invoke_start,evidenceDirectory=str(negative_evidence),resultPath=str(negative_result),durableRunPath=str(negative_evidence/'durable-run.json'))
+for override in ({'processRunId':'wrong-run'},{'taskId':'WRONG-A001'},{'baselineCommit':'0'*40}):
+    negative_result.write_text(json.dumps(terminal(**override)))
+    try: m.observe_terminal_invocation(repo,contract,m.task_for(contract,1),negative_start); raise AssertionError(override)
+    except m.RunError as exc: assert exc.code=='MALFORMED_EVIDENCE'
+negative_result.unlink()
+unsafe_result=negative_evidence/'real-result.json'; unsafe_result.write_text(json.dumps(terminal())); negative_result.symlink_to(unsafe_result)
+try: m.observe_terminal_invocation(repo,contract,m.task_for(contract,1),negative_start); raise AssertionError('symlink-result')
+except m.RunError as exc: assert exc.code=='MALFORMED_EVIDENCE'
+negative_result.unlink(); unsafe_result.unlink()
+missing_calls=[]
+def missing_result_run_json(argv,cwd,timeout=None):
+    missing_calls.append(argv); return {'status':'COMPLETED','runId':'durable-invocation-001'},subprocess.CompletedProcess(argv,0,'{}','')
+try:
+    resume_globals['run_json']=missing_result_run_json
+    try: m.observe_terminal_invocation(repo,contract,m.task_for(contract,1),negative_start); raise AssertionError('missing-result')
+    except m.RunError as exc: assert exc.code=='HOST_TOOL_ERROR'
+finally: resume_globals['run_json']=original_run_json
+assert len(missing_calls)==1 and 'wait' in missing_calls[0]
 
 # Repair continuation and successful promotion must release the one-active-task slot
 # only through the canonical Agent Task cleanup disposition. Cleanup is idempotent
