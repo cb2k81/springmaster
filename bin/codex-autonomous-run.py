@@ -411,15 +411,60 @@ def resume_attempt(project: Path, contract: dict[str, Any], state: dict[str, Any
     return task, invocation, worktree
 
 
-def cleanup_physical_attempt(project: Path, task_id: str, expected_status: str) -> None:
+def validate_failed_repair_packet(task: dict[str, Any], packet_path: Path) -> None:
+    fail(packet_path.is_file() and not packet_path.is_symlink(), "MALFORMED_EVIDENCE", "Repair packet is missing or unsafe before failed-attempt cleanup", taskId=task["taskId"], path=str(packet_path))
+    fail(packet_path.stat().st_mode & 0o222 == 0, "MALFORMED_EVIDENCE", "Repair packet is not immutable before failed-attempt cleanup", taskId=task["taskId"], path=str(packet_path))
+    packet = load_json(packet_path)
+    fail(packet.get("schemaVersion") == PACKET_SCHEMA and packet.get("failedAttemptId") == task["taskId"], "MALFORMED_EVIDENCE", "Repair packet identity differs before failed-attempt cleanup", taskId=task["taskId"], evidence=packet)
+    results = packet.get("qualificationResults")
+    declared = task["qualificationCommands"]
+    fail(isinstance(results, list) and len(results) == len(declared), "MALFORMED_EVIDENCE", "Repair packet does not contain the complete diagnostic qualification sweep", taskId=task["taskId"], expectedCount=len(declared), actualCount=len(results) if isinstance(results, list) else None)
+    for expected, actual in zip(declared, results):
+        fail(isinstance(actual, dict) and actual.get("id") == expected["id"] and actual.get("argv") == expected["argv"] and actual.get("timeoutSeconds") == expected["timeoutSeconds"], "MALFORMED_EVIDENCE", "Repair packet qualification identity differs from the immutable task", taskId=task["taskId"], expected=expected, actual=actual)
+        fail(actual.get("status") in {"PASS", "FAIL"} and isinstance(actual.get("exitCode"), int), "MALFORMED_EVIDENCE", "Repair packet qualification result is incomplete", taskId=task["taskId"], result=actual)
+        fail(isinstance(actual.get("logSha256"), str) and re.fullmatch(r"[0-9a-f]{64}", actual["logSha256"]) is not None and isinstance(actual.get("logTail"), str), "MALFORMED_EVIDENCE", "Repair packet qualification log binding is incomplete", taskId=task["taskId"], result=actual)
+    fail(any(item.get("status") == "FAIL" for item in results), "MALFORMED_EVIDENCE", "Failed-attempt repair packet contains no failing diagnostic qualification", taskId=task["taskId"])
+    bundle = packet.get("predecessorChangeBundle")
+    fail(isinstance(bundle, dict) and isinstance(bundle.get("bundlePath"), str) and isinstance(bundle.get("bundleSha256"), str), "MALFORMED_EVIDENCE", "Repair packet predecessor bundle binding is incomplete", taskId=task["taskId"], evidence=bundle)
+    bundle_path = Path(bundle["bundlePath"])
+    fail(bundle_path.is_file() and not bundle_path.is_symlink() and sha_file(bundle_path) == bundle["bundleSha256"], "MALFORMED_EVIDENCE", "Repair packet predecessor bundle is missing or changed before cleanup", taskId=task["taskId"], path=str(bundle_path))
+
+
+def validate_failed_cleanup_disposition(task_id: str, value: dict[str, Any]) -> None:
+    disposition = value.get("cleanup-disposition") if isinstance(value.get("cleanup-disposition"), dict) else value
+    fail(disposition.get("status") == "CLEANED_INCOMPLETE" and disposition.get("taskId") == task_id, "HOST_TOOL_ERROR", "Failed physical attempt has an unexpected incomplete cleanup disposition", taskId=task_id, evidence=disposition)
+    fail(disposition.get("evidenceRetained") is True and disposition.get("discardAuthorized") is True, "HOST_TOOL_ERROR", "Failed physical attempt incomplete cleanup did not retain evidence with explicit discard", taskId=task_id, evidence=disposition)
+    required = disposition.get("requiredEvidence")
+    fail(isinstance(required, dict) and required.get("cleanupIncluded") is True and required.get("complete") is False, "HOST_TOOL_ERROR", "Failed physical attempt incomplete cleanup evidence summary is malformed", taskId=task_id, evidence=required)
+    fail(required.get("missing") == ["qualification-records"], "HOST_TOOL_ERROR", "Failed physical attempt cleanup is incomplete for an unexpected evidence class", taskId=task_id, missing=required.get("missing"))
+
+
+def cleanup_physical_attempt(project: Path, task: dict[str, Any], expected_status: str, repair_packet_path: Path | None = None) -> str:
+    task_id = task["taskId"]
+    if expected_status == "FAILED":
+        fail(repair_packet_path is not None, "MALFORMED_EVIDENCE", "Failed-attempt cleanup requires its immutable repair packet", taskId=task_id)
+        validate_failed_repair_packet(task, repair_packet_path)
+    else:
+        fail(repair_packet_path is None, "MALFORMED_EVIDENCE", "Repair packet may bind cleanup only for a failed attempt", taskId=task_id, expectedStatus=expected_status)
     status, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "status", task_id], project)
     fail(completed.returncode == 0 and status.get("taskId") == task_id, "HOST_TOOL_ERROR", "Physical attempt status cannot be resolved before cleanup", evidence=status)
     current = status.get("status")
     if current == "CLEANED":
-        return
+        return "CLEANED"
+    if expected_status == "FAILED" and current == "CLEANED_INCOMPLETE":
+        validate_failed_cleanup_disposition(task_id, status)
+        return "CLEANED_INCOMPLETE"
     fail(current == expected_status, "HOST_TOOL_ERROR", "Physical attempt is not at the expected cleanup boundary", taskId=task_id, expectedStatus=expected_status, actualStatus=current)
     cleaned, completed = run_json([str(project / "bin/agent-task.sh"), "--project-root", str(project), "--format", "json", "cleanup", task_id, "--discard"], project)
-    fail(completed.returncode == 0 and cleaned.get("status") == "CLEANED", "HOST_TOOL_ERROR", "Physical attempt cleanup failed", taskId=task_id, expectedStatus=expected_status, evidence=cleaned)
+    if cleaned.get("status") == "CLEANED":
+        fail(completed.returncode == 0 and cleaned.get("taskId") == task_id, "HOST_TOOL_ERROR", "Physical attempt cleanup failed", taskId=task_id, expectedStatus=expected_status, evidence=cleaned)
+        return "CLEANED"
+    if expected_status == "FAILED" and cleaned.get("status") == "CLEANED_INCOMPLETE":
+        fail(completed.returncode == 1, "HOST_TOOL_ERROR", "Failed physical attempt incomplete cleanup returned an unexpected exit code", taskId=task_id, returnCode=completed.returncode, evidence=cleaned)
+        validate_failed_cleanup_disposition(task_id, cleaned)
+        return "CLEANED_INCOMPLETE"
+    fail(False, "HOST_TOOL_ERROR", "Physical attempt cleanup failed", taskId=task_id, expectedStatus=expected_status, returnCode=completed.returncode, evidence=cleaned)
+    raise AssertionError("unreachable")
 
 
 def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], directory: Path, task: dict[str, Any]) -> None:
@@ -498,7 +543,7 @@ def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], dire
     patch_id = created_patch.get("patchId") or inspect.get("patchId") or inspect_manifest.get("patchId")
     artifact_id = created_patch.get("artifactId") or inspect.get("artifactId") or inspect_manifest.get("artifactId")
     fail(isinstance(patch_id, str) and patch_id and isinstance(dry.get("runId"), str), "MALFORMED_EVIDENCE", "Pre-Accept identities are incomplete", patchId=patch_id, artifactId=artifact_id, dryRunId=dry.get("runId"))
-    cleanup_physical_attempt(project, task["taskId"], "HANDED_OFF")
+    cleanup_physical_attempt(project, task, "HANDED_OFF")
     promotion.update({"stage": "ATTEMPT_CLEANED", "physicalAttemptStatus": "CLEANED"}); save_state(directory, state)
     state.update({"state": "PREACCEPT", "patchId": patch_id, "patchArtifactId": artifact_id, "dryRunId": dry["runId"], "lastFailureClass": None, "blockerClass": None, "nextAction": "HUMAN_ACCEPT_REQUIRED"}); save_state(directory, state)
 
@@ -518,9 +563,10 @@ def worker(project: Path, directory: Path) -> int:
         bundle = None; packet_path = None
         if state.get("state") == "REPAIR_PENDING":
             predecessor = ordinal - 1
-            cleanup_physical_attempt(project, task_for(contract, predecessor)["taskId"], "FAILED")
+            predecessor_task = task_for(contract, predecessor)
             packet_path = directory / "repair-packets" / f"A{predecessor:03d}.json"
             packet = load_json(packet_path)
+            cleanup_physical_attempt(project, predecessor_task, "FAILED", packet_path)
             bundle = packet.get("predecessorChangeBundle")
             fail(isinstance(bundle, dict) and sha_file(Path(bundle["bundlePath"])) == bundle.get("bundleSha256"), "MALFORMED_EVIDENCE", "Persisted successor bundle is missing or changed")
         while ordinal <= contract["budgets"]["maxAttempts"]:
@@ -563,7 +609,7 @@ def worker(project: Path, directory: Path) -> int:
             packet_path = directory / "repair-packets" / f"A{ordinal:03d}.json"; atomic(packet_path, packet); packet_path.chmod(0o444)
             previous_fingerprint, previous_work = packet["failureFingerprint"], packet["worktreeFingerprint"]
             state.update({"state": "REPAIR_PENDING", "lastFailureClass": "QUALIFICATION_FAILURE", "lastFailureFingerprint": previous_fingerprint, "lastWorktreeFingerprint": previous_work, "processRunId": None, "nextAction": "CREATE_SUCCESSOR"}); save_state(directory, state)
-            cleanup_physical_attempt(project, task["taskId"], "FAILED")
+            cleanup_physical_attempt(project, task, "FAILED", packet_path)
             ordinal += 1
         raise RunError("REPAIR_BUDGET_EXHAUSTED", "Maximum attempts exhausted")
     except RunError as exc:

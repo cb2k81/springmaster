@@ -81,8 +81,9 @@ source_text=(root/'bin/codex-autonomous-run.py').read_text()
 assert '"patch-accept"' not in source_text and "'patch-accept'" not in source_text
 assert '"push"' not in source_text and "'push'" not in source_text
 assert 'run-start' in source_text and '--singleton-key' in source_text and 'resume_attempt' in source_text
-assert 'cleanup_physical_attempt(project, task["taskId"], "FAILED")' in source_text
-assert 'cleanup_physical_attempt(project, task["taskId"], "HANDED_OFF")' in source_text
+assert 'cleanup_physical_attempt(project, task, "FAILED", packet_path)' in source_text
+assert 'cleanup_physical_attempt(project, task, "HANDED_OFF")' in source_text
+assert 'validate_failed_cleanup_disposition' in source_text and 'validate_failed_repair_packet' in source_text
 assert 'task_status.get("status") in {"HANDED_OFF", "CLEANED"}' in source_text
 assert 'SCHEMA = "springmaster.codex-autonomous-run.v2"' in source_text
 assert 'def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Path:' in source_text
@@ -204,39 +205,112 @@ finally: resume_globals['run_json']=original_run_json
 assert len(missing_calls)==1 and 'wait' in missing_calls[0]
 
 # Repair continuation and successful promotion must release the one-active-task slot
-# only through the canonical Agent Task cleanup disposition. Cleanup is idempotent
-# so a worker crash after worktree removal can safely resume.
+# only through the canonical Agent Task cleanup disposition. Canonical qualification
+# is intentionally fail-fast on a failed attempt, while the outer diagnostic sweep
+# is complete. Therefore a repairable failed attempt may end CLEANED_INCOMPLETE only
+# for qualification-records, and only after its complete repair packet and bundle are
+# immutable. Final successful attempts remain strict CLEANED.
 cleanup_globals=m.cleanup_physical_attempt.__globals__
 original_cleanup_run_json=cleanup_globals['run_json']
+failed_task=m.task_for(contract,1)
+failed_results=[]
+for i,item in enumerate(failed_task['qualificationCommands']):
+    failed_results.append({'id':item['id'],'argv':item['argv'],'timeoutSeconds':item['timeoutSeconds'],'status':'FAIL' if i==0 else 'PASS','exitCode':7 if i==0 else 0,'logSha256':f'{i+1:064x}','logTail':'bounded'})
+repair_packet_path=tmp/'failed-repair-packet.json'
+repair_packet_path.write_text(json.dumps({'schemaVersion':m.PACKET_SCHEMA,'failedAttemptId':failed_task['taskId'],'qualificationResults':failed_results,'predecessorChangeBundle':{'bundlePath':str(bundle_path),'bundleSha256':m.sha_file(bundle_path)}}))
+repair_packet_path.chmod(0o444)
+
 cleanup_commands=[]
 def cleanup_run_json(argv,cwd,timeout=None):
     cleanup_commands.append(argv)
     completed=subprocess.CompletedProcess(argv,0,'{}','')
     if 'status' in argv:
-        return {'status':'FAILED','taskId':'FIXTURE-RUN-A001'},completed
+        return {'status':'FAILED','taskId':failed_task['taskId']},completed
     assert 'cleanup' in argv and '--discard' in argv
-    return {'status':'CLEANED','taskId':'FIXTURE-RUN-A001'},completed
+    return {'status':'CLEANED','taskId':failed_task['taskId']},completed
 try:
     cleanup_globals['run_json']=cleanup_run_json
-    m.cleanup_physical_attempt(repo,'FIXTURE-RUN-A001','FAILED')
+    assert m.cleanup_physical_attempt(repo,failed_task,'FAILED',repair_packet_path)=='CLEANED'
 finally:
     cleanup_globals['run_json']=original_cleanup_run_json
 assert sum('status' in argv for argv in cleanup_commands)==1
 assert sum('cleanup' in argv for argv in cleanup_commands)==1
 assert any('--discard' in argv for argv in cleanup_commands)
 
+incomplete_disposition={'status':'CLEANED_INCOMPLETE','taskId':failed_task['taskId'],'evidenceRetained':True,'discardAuthorized':True,'requiredEvidence':{'cleanupIncluded':True,'complete':False,'missing':['qualification-records']}}
+incomplete_commands=[]
+def incomplete_cleanup_run_json(argv,cwd,timeout=None):
+    incomplete_commands.append(argv)
+    if 'status' in argv:
+        return {'status':'FAILED','taskId':failed_task['taskId']},subprocess.CompletedProcess(argv,0,'{}','')
+    assert 'cleanup' in argv and '--discard' in argv
+    return dict(incomplete_disposition),subprocess.CompletedProcess(argv,1,'{}','')
+try:
+    cleanup_globals['run_json']=incomplete_cleanup_run_json
+    assert m.cleanup_physical_attempt(repo,failed_task,'FAILED',repair_packet_path)=='CLEANED_INCOMPLETE'
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
+assert sum('cleanup' in argv for argv in incomplete_commands)==1
+
+# Resume after a cleanup/write-state race accepts the exact same terminal incomplete
+# disposition without trying to remove the worktree twice.
+already_incomplete=[]
+def already_incomplete_run_json(argv,cwd,timeout=None):
+    already_incomplete.append(argv)
+    completed=subprocess.CompletedProcess(argv,0,'{}','')
+    assert 'status' in argv
+    return {'status':'CLEANED_INCOMPLETE','taskId':failed_task['taskId'],'cleanup-disposition':dict(incomplete_disposition)},completed
+try:
+    cleanup_globals['run_json']=already_incomplete_run_json
+    assert m.cleanup_physical_attempt(repo,failed_task,'FAILED',repair_packet_path)=='CLEANED_INCOMPLETE'
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
+assert len(already_incomplete)==1 and 'status' in already_incomplete[0]
+
+# Incomplete cleanup is not a generic bypass: another missing evidence class, a
+# truncated diagnostic sweep, or an incomplete final-success cleanup remains fatal.
+bad_missing=json.loads(json.dumps(incomplete_disposition)); bad_missing['requiredEvidence']['missing']=['final-result']
+def bad_missing_run_json(argv,cwd,timeout=None):
+    if 'status' in argv:
+        return {'status':'CLEANED_INCOMPLETE','taskId':failed_task['taskId'],'cleanup-disposition':bad_missing},subprocess.CompletedProcess(argv,0,'{}','')
+    raise AssertionError(argv)
+try:
+    cleanup_globals['run_json']=bad_missing_run_json
+    try: m.cleanup_physical_attempt(repo,failed_task,'FAILED',repair_packet_path); raise AssertionError('unexpected-missing-evidence')
+    except m.RunError as exc: assert exc.code=='HOST_TOOL_ERROR'
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
+
+bad_packet=tmp/'bad-repair-packet.json'
+bad_packet.write_text(json.dumps({'schemaVersion':m.PACKET_SCHEMA,'failedAttemptId':failed_task['taskId'],'qualificationResults':failed_results[:-1],'predecessorChangeBundle':{'bundlePath':str(bundle_path),'bundleSha256':m.sha_file(bundle_path)}})); bad_packet.chmod(0o444)
+try:
+    m.cleanup_physical_attempt(repo,failed_task,'FAILED',bad_packet); raise AssertionError('truncated-diagnostic-sweep')
+except m.RunError as exc: assert exc.code=='MALFORMED_EVIDENCE'
+
 already_cleaned_commands=[]
 def already_cleaned_run_json(argv,cwd,timeout=None):
     already_cleaned_commands.append(argv)
     completed=subprocess.CompletedProcess(argv,0,'{}','')
     assert 'status' in argv
-    return {'status':'CLEANED','taskId':'FIXTURE-RUN-A001','handoffManifest':'/immutable/handoff.json'},completed
+    return {'status':'CLEANED','taskId':failed_task['taskId'],'handoffManifest':'/immutable/handoff.json'},completed
 try:
     cleanup_globals['run_json']=already_cleaned_run_json
-    m.cleanup_physical_attempt(repo,'FIXTURE-RUN-A001','FAILED')
+    assert m.cleanup_physical_attempt(repo,failed_task,'FAILED',repair_packet_path)=='CLEANED'
 finally:
     cleanup_globals['run_json']=original_cleanup_run_json
 assert len(already_cleaned_commands)==1 and 'status' in already_cleaned_commands[0]
+
+final_task=m.task_for(contract,2)
+def final_incomplete_run_json(argv,cwd,timeout=None):
+    if 'status' in argv:
+        return {'status':'HANDED_OFF','taskId':final_task['taskId']},subprocess.CompletedProcess(argv,0,'{}','')
+    return dict(incomplete_disposition,taskId=final_task['taskId']),subprocess.CompletedProcess(argv,1,'{}','')
+try:
+    cleanup_globals['run_json']=final_incomplete_run_json
+    try: m.cleanup_physical_attempt(repo,final_task,'HANDED_OFF'); raise AssertionError('final-incomplete-cleanup')
+    except m.RunError as exc: assert exc.code=='HOST_TOOL_ERROR'
+finally:
+    cleanup_globals['run_json']=original_cleanup_run_json
 
 # Simulate the repair state machine with public-primitive outcomes while retaining immutable attempts.
 def simulate(qmatrix, invocation_matrix=None, post_codes=None, max_attempts=3):
