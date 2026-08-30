@@ -45,6 +45,38 @@ for raw in (root/'.cocondo/tooling/project.env').read_text().splitlines():
 allowed_branches=json.loads(project_env['CPATCH_ALLOWED_BRANCHES_JSON'])
 assert any(fnmatch.fnmatchcase(candidate_branch,pattern) for pattern in allowed_branches),(candidate_branch,allowed_branches)
 
+# cpatch derives its project root from the invoked wrapper path, not from cwd.
+# Reproduce that boundary with the real cpatch wrapper in a disposable linked
+# worktree and a fixture launcher that exposes the same BASH_SOURCE root rule.
+boundary_repo=tmp/'cpatch-root-boundary'; boundary_repo.mkdir(); git(boundary_repo,'init','-q'); git(boundary_repo,'config','user.name','Fixture'); git(boundary_repo,'config','user.email','fixture@invalid')
+(boundary_repo/'bin').mkdir()
+shutil.copy2(root/'bin/cpatch',boundary_repo/'bin/cpatch'); os.chmod(boundary_repo/'bin/cpatch',0o755)
+(boundary_repo/'bin/cocondo-toolkit-launcher.sh').write_text('''#!/usr/bin/env bash
+set -euo pipefail
+TOOL="${1:?tool namespace required}"
+shift
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+printf 'ROOT=%s\n' "${ROOT}"
+printf 'TOOL=%s\n' "${TOOL}"
+printf 'ARGS=%s\n' "$*"
+''')
+os.chmod(boundary_repo/'bin/cocondo-toolkit-launcher.sh',0o755)
+git(boundary_repo,'add','bin/cpatch','bin/cocondo-toolkit-launcher.sh'); git(boundary_repo,'commit','-qm','cpatch boundary fixture')
+boundary_candidate=tmp/'cpatch-root-boundary-candidate'; git(boundary_repo,'worktree','add','-q','-b','change/cpatch-boundary-candidate',str(boundary_candidate),'HEAD')
+def cpatch_root(executable,cwd,*argv):
+    r=subprocess.run([str(executable),*argv],cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    assert r.returncode==0,(r.stdout,r.stderr)
+    values=dict(line.split('=',1) for line in r.stdout.splitlines() if '=' in line)
+    return values
+wrong=cpatch_root(boundary_repo/'bin/cpatch',boundary_candidate,'workspace','init','--name','fixture','--scope','tooling')
+assert pathlib.Path(wrong['ROOT'])==boundary_repo
+workspace=cpatch_root(boundary_candidate/'bin/cpatch',boundary_candidate,'workspace','init','--name','fixture','--scope','tooling')
+assert pathlib.Path(workspace['ROOT'])==boundary_candidate and workspace['TOOL']=='workspace'
+create=cpatch_root(boundary_candidate/'bin/cpatch',boundary_candidate,'create','--base','HEAD^','--head','HEAD','--scope','tooling','--patch-id','fixture','--title','Fixture','--output',str(tmp/'delivery'))
+assert pathlib.Path(create['ROOT'])==boundary_candidate and create['TOOL']=='patch' and create['ARGS'].startswith('create ')
+plan=cpatch_root(boundary_repo/'bin/cpatch',boundary_repo,'plan','fixture.zip')
+assert pathlib.Path(plan['ROOT'])==boundary_repo and plan['TOOL']=='patch' and plan['ARGS']=='plan fixture.zip'
+
 lag={'status':'FAILED','execution':{'status':'COMPLETED','exitCode':0},'jsonlValidation':{'parseErrorCount':0,'turnCompletedCount':1,'turnFailedCount':0,'findings':[{'code':'CODEX_ERROR_ITEM','message':'in-process app-server event stream lagged; dropped 7 events'}]}}
 assert m.stream_lag_only(lag)
 mixed=json.loads(json.dumps(lag)); mixed['jsonlValidation']['findings'].append({'code':'CODEX_ERROR_ITEM','message':'unknown'})
@@ -90,6 +122,11 @@ assert 'def verify_codex_runtime(project: Path, contract: dict[str, Any]) -> Pat
 assert '"--codex", str(codex)' in source_text
 assert 'def observe_terminal_invocation(project: Path, contract: dict[str, Any], task: dict[str, Any], started: dict[str, Any]) -> dict[str, Any]:' in source_text
 assert 'host-invocation-start.json' in source_text and 'resultPath' in source_text
+assert 'candidate_cpatch = candidate / "bin/cpatch"' in source_text
+assert '[str(candidate_cpatch), "workspace", "init"' in source_text
+assert '[str(candidate_cpatch), "create"' in source_text
+assert '[str(project / "bin/cpatch"), "inspect"' in source_text
+assert '[str(project / "bin/cpatch"), "plan"' in source_text
 
 # invoke-start owns a durable run before agent-task necessarily leaves
 # PREPARED/NOT_RECORDED. The receipt is not the terminal invocation result:

@@ -520,9 +520,11 @@ def promote(project: Path, contract: dict[str, Any], state: dict[str, Any], dire
     artifacts = sorted(delivery.glob("*.zip"))
     created_patch: dict[str, Any] = {}
     if not artifacts:
-        ws, completed = run_json([str(project / "bin/cpatch"), "workspace", "init", "--name", contract["patch"]["name"], "--scope", contract["patch"]["scope"], "--format", "json"], candidate)
+        candidate_cpatch = candidate / "bin/cpatch"
+        fail(candidate_cpatch.is_file() and not candidate_cpatch.is_symlink(), "HOST_TOOL_ERROR", "Candidate-local cpatch wrapper is unavailable", path=str(candidate_cpatch))
+        ws, completed = run_json([str(candidate_cpatch), "workspace", "init", "--name", contract["patch"]["name"], "--scope", contract["patch"]["scope"], "--format", "json"], candidate)
         fail(completed.returncode == 0, "HOST_TOOL_ERROR", "cpatch workspace binding failed", evidence=ws)
-        created_patch, completed = run_json([str(project / "bin/cpatch"), "create", "--base", task["baseCommit"], "--head", candidate_head, "--scope", contract["patch"]["scope"], "--patch-id", contract["patch"]["name"], "--title", contract["patch"]["title"], "--output", str(delivery), "--format", "json"], candidate)
+        created_patch, completed = run_json([str(candidate_cpatch), "create", "--base", task["baseCommit"], "--head", candidate_head, "--scope", contract["patch"]["scope"], "--patch-id", contract["patch"]["name"], "--title", contract["patch"]["title"], "--output", str(delivery), "--format", "json"], candidate)
         fail(completed.returncode == 0, "HOST_TOOL_ERROR", "cpatch create failed", evidence=created_patch)
         artifacts = sorted(delivery.glob("*.zip"))
     fail(len(artifacts) == 1 and artifacts[0].is_file(), "MALFORMED_EVIDENCE", "cpatch create output cardinality is not exactly one immutable ZIP", artifacts=[str(x) for x in artifacts], evidence=created_patch)
