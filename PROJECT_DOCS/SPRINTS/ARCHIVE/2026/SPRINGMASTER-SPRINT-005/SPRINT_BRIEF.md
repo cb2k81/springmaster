@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-SPRINT-005-BRIEF
 title: Autonomous Repair Loop V1 - Sprint Brief
 documentType: sprint-brief
-status: active
+status: archived
 authority: directive
 scopeLevel: project
 scopePaths:
@@ -12,8 +12,8 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-08-25
 validFrom: 2026-08-25
-lastReviewedAt: 2026-08-25
-reviewBy: 2026-09-07
+lastReviewedAt: 2026-08-30
+reviewBy: null
 supersedes: []
 supersededBy: null
 temporary: false

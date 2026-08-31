@@ -185,10 +185,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## SPRINTS
 
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — aktiver Problem- und Auftragsraum für Autonomous Repair Loop V1 und GOAL-006
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/SOLUTION_PLAN.md` — kontrollierter Lösungsplan für Logical Run, immutable Successor-Attempts und automatische Pre-Accept-Promotion
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/STATUS.md` — einzige aktuelle Sprint-005-Statusquelle
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — nichtterminaler Sprint-005-Abschlussnachweis; Product Qualification und Closure stehen aus
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — archivierter Problem- und Anforderungsraum des qualifiziert abgeschlossenen Autonomous-Repair-Loop-Sprints
+- `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — finaler Sprint-005-Nachweis für 28/28 Requirements, realen Repair-Canary bis PREACCEPT, Product Acceptance und Trusted-Host-Closure
 
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/SPRINT_BRIEF.md` — archivierter Problem- und Auftragsraum des qualifiziert abgeschlossenen Field-Proven-Backend-Contract-Sprints
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-004/COMPLETION_REPORT.md` — finaler Sprint-004-Nachweis für 24/24 Requirements, 7/7 Real-World-Cases, Produkt-Acceptance und Trusted-Host-Version-Closure
@@ -205,7 +203,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TEMPLATES/project-skeleton/README.md`
 ## TOOLING
 
-- `PROJECT_DOCS/TOOLING/CODEX_AUTONOMOUS_RUN_OPERATIONS.md` — candidate operator contract for durable ADR-0019 Logical Runs, repair evidence and the Pre-Accept human boundary
+- `PROJECT_DOCS/TOOLING/CODEX_AUTONOMOUS_RUN_OPERATIONS.md` — active operator guide for durable ADR-0019 Logical Runs, repair evidence and the Pre-Accept human boundary
 - `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — promoted Codex pilot readiness, external-root, task preparation, handoff and diagnostic procedure
 - `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md` — normative host-command effect declaration and explicit authorization boundary
 
@@ -220,6 +218,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TOOLING/GENERATED_SLICE_PATCH_BLUEPRINT_DRY_RUN.md`
 - `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_CONTRACT.md`
 - `PROJECT_DOCS/TOOLING/GENERATED_SLICE_SPEC_FIXTURE_GATE.md`
+- `PROJECT_DOCS/TOOLING/PATCH_QUALIFICATION_AND_DELIVERY_OPTIMIZATION_REQUIREMENTS.md` — active future-R5 requirements for risk-based qualification planning, standard delivery orchestration, durable receipts and safe evidence reuse
 - `PROJECT_DOCS/TOOLING/PATCH_ACCEPT_VERIFY_WORKFLOW.md`
 - `PROJECT_DOCS/TOOLING/PATCH_ARTIFACT_PREFLIGHT_HARDENING.md`
 - `PROJECT_DOCS/TOOLING/PATCH_BASELINE_LIVE_HASH_PREFLIGHT_GUARD.md`

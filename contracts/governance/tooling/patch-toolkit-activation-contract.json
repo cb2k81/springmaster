@@ -78,9 +78,9 @@
   },
   "toolkitVersion": "1.1.5",
   "versionClosure": {
-    "mavenVersion": "0.26.0-foundation-SNAPSHOT",
-    "platformVersion": "0.26.0-foundation",
-    "statePatch": "000251_post-s004-version-closure-activation-hotfix",
-    "toolingVersion": "0.15.1"
+    "mavenVersion": "0.27.0-foundation-SNAPSHOT",
+    "platformVersion": "0.27.0-foundation",
+    "statePatch": "000262_s005-trusted-closure",
+    "toolingVersion": "0.16.0"
   }
 }

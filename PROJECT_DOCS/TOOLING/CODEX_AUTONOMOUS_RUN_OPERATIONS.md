@@ -2,7 +2,7 @@
 documentId: SPRINGMASTER-CODEX-AUTONOMOUS-RUN-OPERATIONS
 title: Codex Autonomous Logical Run Operations
 documentType: guide
-status: draft
+status: active
 authority: informative
 scopeLevel: component
 scopePaths:
@@ -11,9 +11,9 @@ appliesTo:
   - springmaster
 owner: springmaster-maintainers
 createdAt: 2026-08-25
-validFrom: null
-lastReviewedAt: 2026-08-25
-reviewBy: null
+validFrom: 2026-08-30
+lastReviewedAt: 2026-08-30
+reviewBy: 2027-02-28
 supersedes: []
 supersededBy: null
 temporary: false
@@ -61,3 +61,16 @@ The sole Host false-negative exception is an otherwise FAILED raw invocation wit
 After fresh qualification, the trusted worker creates the verified noncanonical Agent Task handoff, materializes and commits a separate candidate, runs cpatch create/inspect/plan, and starts the canonical dry-run through `process-ops`. It verifies that integration `main` remains clean at the original base before persisting `PREACCEPT`.
 
 Human patch acceptance remains a separate operator decision. Automatic patch accept, agent commit, direct integration mutation, push and cross-project mutation are forbidden.
+
+## Proven operating boundaries
+
+The accepted S005 implementation and real self-use canary establish the following operational rules:
+
+- `COCONDO_WORKTREE_ROOT`, `COCONDO_AGENT_RUN_ROOT` and `COCONDO_ARTIFACT_ROOT` are part of the runtime contract for every start, status, result and resume operation. Observers must bind the same external roots as the writer.
+- Long-lived operator or delivery receipts must not be stored below writer-owned `patches/work/`. That workspace can be cleaned by downstream canonical writers. Durable run evidence belongs in the existing external run/artifact roots; `patches/work/` remains a current diagnostic handoff workspace.
+- Candidate-side `cpatch workspace init` and `cpatch create` must invoke the Candidate-local `bin/cpatch`; using the integration wrapper with only `cwd=candidate` is insufficient because the launcher derives its project root from its own script path.
+- `cpatch inspect`, `cpatch plan`, canonical patch dry-run and patch accept run from the clean integration checkout. Patch dry-run and accept are started directly through `process-ops`; they are not nested inside a generic detached worker.
+- A transport or observer failure after a durable run was started does not authorize a blind retry. Inspect canonical run and logical-run evidence first; resume or diagnose only according to the persisted state.
+- Runtime/log paths created by tooling must be ignored or external by contract. Delivery wrappers must not make the integration checkout dirty before a canonical patch operation.
+
+These rules standardize the boundaries proven during Sprint 005. They do not add acceptance, push, cross-project mutation or agent-write authority.
