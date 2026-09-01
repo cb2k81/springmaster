@@ -36,6 +36,7 @@ Standards define rules and conventions. ADRs explain why foundational choices ar
 | `ADR-0017-backend-operation-semantics-and-gwc-profile.md` | Accepted | stable operation identity, OpenAPI profile authority and additive GWC binding |
 | `ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md` | Accepted | precondition, history, consistency, transaction and bulk boundaries |
 | `ADR-0019-autonomous-logical-run-repair-orchestration.md` | Accepted | one Logical Run, immutable repair attempts, consolidated failure feedback and automatic promotion to Pre-Accept |
+| `ADR-0020-enabling-governance-and-recoverable-tooling.md` | Accepted | enabling governance, recoverable tooling, progressive qualification and explicit development-versus-delivery boundaries |
 
 ## Planned ADR backlog
 

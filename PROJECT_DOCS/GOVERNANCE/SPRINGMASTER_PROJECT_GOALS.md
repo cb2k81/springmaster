@@ -15,7 +15,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-28
 validFrom: 2026-07-28
-lastReviewedAt: 2026-08-24
+lastReviewedAt: 2026-09-01
 reviewBy: 2027-01-28
 supersedes: []
 supersededBy: null
@@ -115,9 +115,24 @@ Erwartete Ergebnisse:
 - Zielprojekt-Evidence, Worktrees, Runs und Artefakte bleiben projektbezogen namespaced; Cross-Project-Writes, direkte Springmaster-Mutation aus einem Target und ungeprüfte globale Rollouts bleiben verboten;
 - mindestens eine reale abgeleitete Fachanwendung muss einen echten fachlichen Logical Run einschließlich mindestens eines automatisch reparierten Fehlers bis `PREACCEPT` nachweisen; der fachliche Patch bleibt auch dort einer separaten menschlichen Accept-Entscheidung unterworfen.
 
+### GOAL-008: Enabling Governance und Developer Productivity
+
+Springmaster standardisiert und unterstützt die Projektumsetzung so, dass der qualifizierte Standardweg einfacher, verständlicher und besser reparierbar ist als projektspezifische Sonderwege. Governance und Tooling schützen reale Invarianten, dürfen aber keine unnötige Selbstblockade erzeugen.
+
+Erwartete Ergebnisse:
+
+- der Standardweg reduziert projektspezifische Entscheidungen, manuelle Kommandos und Recovery-Schritte;
+- Safety Invariants und akzeptierte Architekturverträge werden von austauschbaren Standard-Prozess- und Toolpfaden klar getrennt;
+- defektes oder ungeeignetes Tooling besitzt einen kontrollierten Maintenance-/Recovery-Pfad und muss nicht durch eine funktionsfähige Instanz seiner selbst repariert werden;
+- normale lokale Entwicklung benötigt kein Patchartefakt, solange keine konkrete Delivery-, Acceptance- oder Risikogrenze dies verlangt;
+- Qualification ist progressiv und risikobasiert, volle Qualification bleibt an den definierten Integrations- und Trust Boundaries erhalten;
+- Evidence ist proportional, referenziert bestehende unveränderliche Nachweise und vermeidet unnötige Repository-, Archiv- und Build-Replikation;
+- erwartbare Blocks liefern actionable Diagnostik und einen sicheren Recovery-Pfad;
+- Managed Projects können Springmaster-Fähigkeiten granular nutzen, ohne dass unabhängige Fachentwicklung an nicht benötigtem oder defektem Tooling hängen bleibt.
+
 ## 3. Zielbeziehungen und Priorisierung
 
-Die sieben Ziele sind gleichrangige Bestandteile des Projektauftrags. Ein Sprint darf ein Ziel priorisieren, muss Auswirkungen auf die übrigen Ziele jedoch bewerten. Sicherheit, Nachvollziehbarkeit und Vertragskonsistenz haben Vorrang vor kurzfristiger Geschwindigkeit.
+Die acht Ziele sind gleichrangige Bestandteile des Projektauftrags. Ein Sprint darf ein Ziel priorisieren, muss Auswirkungen auf die übrigen Ziele jedoch bewerten. Sicherheit, Nachvollziehbarkeit und Vertragskonsistenz haben Vorrang vor kurzfristiger Geschwindigkeit.
 
 Bei Zielkonflikten gilt:
 
@@ -138,7 +153,7 @@ Nicht aus diesen Zielen ableitbar sind:
 
 ## 5. Steuerungs- und Abnahmekriterien
 
-Die Zielerreichung wird über konkrete Sprintanforderungen, messbare Teilziele, Gate-Evidence, Versionsentscheidungen und Completion Reports bewertet. Jeder aktive Sprint muss seinen strategischen Bezug auf mindestens eines der Ziel-IDs `GOAL-001` bis `GOAL-007` ausweisen.
+Die Zielerreichung wird über konkrete Sprintanforderungen, messbare Teilziele, Gate-Evidence, Versionsentscheidungen und Completion Reports bewertet. Jeder aktive Sprint muss seinen strategischen Bezug auf mindestens eines der Ziel-IDs `GOAL-001` bis `GOAL-008` ausweisen.
 
 Eine Zielaussage gilt nur dann als erreicht, wenn Code, Contracts, Tests, Evidence und aktuelle Dokumentation dieselbe Aussage tragen. Historische Changelogs und archivierte Sprints sind Nachweise, aber keine aktuelle Zielquelle.
 
@@ -185,3 +200,15 @@ Diese drei Nachweisstufen sind aktuell für Sprint 005 bis Sprint 007 vorgesehen
 |---|---|---|---|
 | 2026-07-28 | nicht kanonisch persistiert | active | Die fünf allgemeinen Projektziele aus historischen Sprint- und Projektkontexten werden als dauerhafte Zielquelle konsolidiert. |
 | 2026-08-24 | active | active | `GOAL-006` und `GOAL-007` ergänzen autonome agentische Entwicklung bis Pre-Accept und die portable Managed Development Platform als verbindliche Cutover-Ziele; die nächste Nachweisfolge und messbare Cutover-Abnahme werden festgelegt. |
+| 2026-09-01 | active | active | `GOAL-008` und die nach Sprint 005 repriorisierte Roadmap verankern Enabling Governance, Tool-Recovery und Developer Productivity vor weiterer Portabilitätsbreite. |
+
+### Roadmap-Repriorisierung nach Sprint 005
+
+Nach der qualifizierten Autonomous-Repair-Foundation aus Sprint 005 wird die bisherige Nachweisfolge neu priorisiert. Portabilität bleibt Ziel, wird aber erst auf einer vereinfachten und recovery-fähigen Governance-/Tooling-Basis qualifiziert.
+
+1. **Sprint 006 – Governance & Tooling Simplification / Managed Project Recovery**: Self-Lock beseitigen, Maintenance-/Recovery-Pfad qualifizieren, Patchsystem aus dem normalen Development Hot Path lösen, progressive Qualification und proportionale Evidence umsetzen und die Entwicklung in Personnel und ZBM wieder praktisch unterstützen.
+2. **Portable Managed Development Platform – Folgequalifikation**: die vereinfachten Governance-, Harness-, Tooling- und Project-Adapter-Fähigkeiten versioniert auf Managed Projects übertragen und aktualisieren.
+3. **Real-World Cutover Qualification – Folgequalifikation**: mindestens eine reale Fachanwendung beweist den qualifizierten Normal- und Repair-Pfad bis `PREACCEPT` ohne projektfremde Sondermechanismen.
+4. **GWC Conformance – nach P0/P1 beziehungsweise parallel nur ohne Blockerwirkung**: aus den vorhandenen Backend-/Operation-Profile-Verträgen einen ausführbaren `GWC_CONFORMANT`-Nachweis für Managed Projects ableiten, ohne vor der Tooling-Vereinfachung einen zusätzlichen Blocker zu schaffen.
+
+Die Abhängigkeit lautet damit: **nutzbare Governance und reparierbares Tooling vor Portabilitätsbreite; Portabilität vor breitem Real-World-Cutover.** GWC-Conformance bleibt ein wichtiges Produktziel, wird aber nicht vor die Wiederherstellung eines einfachen Entwicklungswegs priorisiert.

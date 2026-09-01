@@ -1,5 +1,12 @@
 # springmaster
 
+## Leitprinzip: Standardisieren, unterstützen, nicht blockieren
+
+Springmaster standardisiert wiederkehrende Architektur-, Governance-, Qualitäts- und Delivery-Entscheidungen, damit Fachprojekte **weniger** projektspezifische Komplexität tragen müssen. Standards und Tools sollen sichere Wege vereinfachen, nicht funktionierende Projektentwicklung durch vermeidbare Prozesskopplung blockieren.
+
+Dazu trennt Springmaster harte Safety-/Trust-Boundary-Regeln von bevorzugten Tool- und Prozesspfaden. Defektes Tooling besitzt einen kontrollierten Recovery-Weg; Qualification ist risikobasiert und progressiv; das Patchsystem bleibt ein Delivery-/Acceptance-Mechanismus und ist nicht automatisch der normale lokale Development Hot Path. Die dauerhafte Entscheidung steht in `PROJECT_DOCS/ADR/ADR-0020-enabling-governance-and-recoverable-tooling.md`.
+
+
 `springmaster` is the Cocondo Java/Spring Boot platform source project.
 
 It provides four connected capabilities:

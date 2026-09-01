@@ -34,6 +34,21 @@ Springmaster ist die kanonische Entwicklungs- und Verteilungsbasis für Cocondo-
 
 Springmaster ist kein Sammelplatz für projektspezifische Fachlogik und kein automatischer Remediator für bestehende Zielprojekte.
 
+## Leitprinzip: Standardisieren, unterstützen, nicht blockieren
+
+Nach ADR-0020 ist Governance ein Enabler der Projektumsetzung. Sicherheit, Architekturverträge und Trust Boundaries bleiben verbindlich; Prozess- und Toolmechanismen dürfen jedoch nicht zum Selbstzweck werden.
+
+- Bevorzuge den kleinsten sicheren Standardweg, der die Aufgabe vollständig löst.
+- Erzeuge keine zusätzliche Patch-, Evidence-, Export- oder Qualification-Schicht ohne konkreten Vertrags-, Risiko- oder Delivery-Grund.
+- Ein defektes oder ungeeignetes Tool darf seine eigene Reparatur nicht unmöglich machen. Nutze dann den autorisierten Maintenance-/Recovery-Weg in einem isolierten Branch oder Worktree und qualifiziere die Reparatur vor Integration vollständig.
+- Git ist der normale lokale Entwicklungspfad. Ein cpatch gehört an eine echte Delivery-/Acceptance-Grenze oder in einen Auftrag, der ausdrücklich ein Patchartefakt verlangt; er ist nicht generell Voraussetzung jeder lokalen Änderung.
+- Qualification beginnt möglichst gezielt und wird risikogerecht erweitert. Volle Qualification bleibt an den dafür definierten Integrations-, Release- und Trust Boundaries verbindlich.
+- Evidence muss die Entscheidung oder Diagnose erklären und reproduzierbar machen. Referenziere unveränderliche vorhandene Evidence, statt historische Repository-, Export- oder Buildbestände unnötig zu duplizieren.
+- Jeder erwartbare Block soll Ursache, Kategorie, Recoverability und den kleinsten sicheren nächsten Schritt nennen.
+- Eine Governance-Regel oder ein Tool darf keine strengere Verpflichtung erzeugen, als aus einer akzeptierten normativen Quelle ableitbar ist.
+
+Der Qualitätsmaßstab lautet damit nicht nur `sicher`, `deterministisch` und `beweisbar`, sondern ebenso `einfach`, `verständlich`, `reparierbar` und `projektfreundlich`.
+
 ## Quellen der Wahrheit
 
 Nutze Quellen in dieser Reihenfolge und für ihren jeweiligen Zweck:

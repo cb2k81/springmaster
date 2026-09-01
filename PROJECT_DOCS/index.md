@@ -31,6 +31,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/ADR/ADR-0017-backend-operation-semantics-and-gwc-profile.md` — accepted operation identity, OpenAPI authority and GWC profile boundary
 - `PROJECT_DOCS/ADR/ADR-0018-mutation-precondition-concurrency-and-bulk-boundary.md` — accepted precondition, consistency, history and bulk boundary
 - `PROJECT_DOCS/ADR/ADR-0019-autonomous-logical-run-repair-orchestration.md` — accepted outer Logical-Run repair orchestration to Pre-Accept without weakening agent, host or patch trust boundaries
+- `PROJECT_DOCS/ADR/ADR-0020-enabling-governance-and-recoverable-tooling.md` — accepted enabling-governance decision: standardize/support without self-blocking; controlled tooling recovery and progressive qualification
 
 - `PROJECT_DOCS/ADR/ADR-0001-springmaster-bootstrap.md`
 - `PROJECT_DOCS/ADR/ADR-0002-api-boundary-and-endpoint-contract.md`
@@ -108,7 +109,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/DOCUMENTATION_GOVERNANCE.md`
 ## GOVERNANCE
 
-- `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` — active canonical source for the seven general Springmaster project goals, including autonomous development and portable managed-development cutover goals
+- `PROJECT_DOCS/GOVERNANCE/SPRINGMASTER_PROJECT_GOALS.md` — active canonical source for the eight general Springmaster project goals, including enabling governance and developer productivity, including autonomous development and portable managed-development cutover goals
 
 - `PROJECT_DOCS/GOVERNANCE/AI_AGENT_DEVELOPMENT_GOVERNANCE.md` — active normative task, worktree, evidence, calibration and stop boundaries
 
@@ -185,6 +186,13 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 ## SPRINTS
 
 
+
+### SPRINGMASTER-SPRINT-006 - active
+
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SPRINT_BRIEF.md` — active Sprint-006 problem space, 32 requirements, DoR/DoD, real-world canaries and P0/P1/P2 priorities
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SOLUTION_PLAN.md` — active solution plan for canonical producers, recovery, Engineering/Delivery separation, DEV portability and managed-project qualification
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/STATUS.md` — current Sprint-006 status; M-001 in progress, M-002..M-007 planned
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/COMPLETION_REPORT.md` — draft/non-terminal completion evidence; no S006 product completion claimed
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — archivierter Problem- und Anforderungsraum des qualifiziert abgeschlossenen Autonomous-Repair-Loop-Sprints
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — finaler Sprint-005-Nachweis für 28/28 Requirements, realen Repair-Canary bis PREACCEPT, Product Acceptance und Trusted-Host-Closure
 
