@@ -60,6 +60,9 @@ Detailverträge können als Tooling-/Managed-Project-Standards oder maschinenles
 - Personnel-/ZBM-Feldbefunde source-bound erfassen.
 - Developer-Interaction-, Teststart-, Laufzeit-, Evidence-Größen- und Recovery-Metriken definieren.
 - Maintenance-/Recovery-Vertrag inklusive erlaubter und verbotener Operationen materialisieren.
+- Umsetzungsschnitt: bestehende Engineering-Contracts um `maintenance-recovery` erweitern; kein Repair-Executor, cpatch-Producer, Supervisor oder allgemeines Break-glass-Tool.
+- Positive Canary: absichtlich defektes kopiertes Gate über unabhängigen Bootstrap im isolierten Fixture reparieren, targeted und anschließend am normalen vollständigen Fixture-Boundary prüfen; Integration und fremde Dateien bleiben byte-identisch.
+- Negative Oracles: Pfad-/Capability-Ausweitung, direkte Main-Mutation, Push, falscher PASS und fehlende finale Qualification werden fail-closed abgelehnt.
 
 ### M-002 - Kanonischer Producer, Patch-State-Truth, Runner und Source-Diff
 
@@ -145,6 +148,8 @@ Jeder Slice startet mit kleinster aussagekräftiger Verifikation und erweitert b
 
 Für Runner werden expected-success/expected-failure, ERR-Trap-Interaktion, Phasenstatus, Follow-/Result-Trennung und Diagnose-vor-Rollback getestet. Source-Diff-Fixtures laufen mindestens unter `LC_ALL=C` und einer UTF-8-Locale.
 
+Für M-001 validiert `engineering-contracts-it.sh` den Recovery Record hermetisch. Die defekte Gate-Kopie ist keine Bootstrap-Voraussetzung; erst nach isolierter Reparatur wird sie targeted und über den normalen vollständigen Fixture-Boundary aufgerufen. Hash- und Sentinel-Prüfungen sichern die unveränderte Integration und nicht autorisierte Nachbarpfade.
+
 Fresh-Checkout-Qualification deckt Checkout ohne `.env`, lokal gebootstrapte `.env`, Secret-Erhalt, DB-Setup, Build ohne Deployment und fehlende notwendige lokale Secrets mit actionable Diagnose ab.
 
 ## Messkriterien
@@ -220,3 +225,4 @@ Patchnummern werden live vergeben; Sprintplanung erfindet keine IDs.
 | Datum | Ereignis | Entscheidung |
 |---|---|---|
 | 2026-09-01 | Solution Framing | Enabling Governance, kanonische Producer und getrennte Engineering-/Delivery-Flows als S006-Lösungsrichtung bestätigt. |
+| 2026-09-02 | M-001 implementation candidate | ADR-0020 als bestehender Engineering-Recovery-Record mit hermetischer Self-Repair-Canary und negativen Scope-/Capability-/Truth-Oracles materialisiert. |

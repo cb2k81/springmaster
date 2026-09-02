@@ -10,6 +10,7 @@ python3 - "${PROJECT_ROOT}" "${RUN_DIR}" <<'PY'
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import shutil
 import subprocess
@@ -27,6 +28,16 @@ source_contract_root = project_root / "contracts/governance/engineering"
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def tree_hash(path: Path) -> str:
+    digest = hashlib.sha256()
+    for item in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        digest.update(item.relative_to(path).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(item.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def classification(change_id: str = "SPRINGMASTER-S01", classes: list[str] | None = None, risk: str = "low", indicators: list[str] | None = None, flags: dict[str, bool] | None = None) -> dict:
@@ -122,6 +133,82 @@ def base_completion(status: str = "qualified", criterion_status: str = "passed")
     }
 
 
+def recovery_record(integration_hash: str) -> dict:
+    return {
+        "schemaVersion": "springmaster.maintenance-recovery.v1",
+        "recordId": "MAINT-REC-DEFECTIVE-GATE",
+        "authority": "PROJECT_DOCS/ADR/ADR-0020-enabling-governance-and-recoverable-tooling.md",
+        "classification": classification(
+            change_id="SPRINGMASTER-S006-M001",
+            classes=["contract", "test", "tooling"],
+            risk="critical",
+            indicators=["public-or-reusable-contract", "central-security-or-integrity-boundary"],
+        ),
+        "defect": {
+            "component": "copied-contract-gate",
+            "entrypoint": "bin/defective-gate.sh",
+            "reasonCode": "INTENTIONAL_FIXTURE_DEFECT",
+            "category": "TOOLING",
+            "message": "Copied gate exits before validating its input",
+        },
+        "baseline": {
+            "gitHead": "4a28f2de2d4cf33f2b772e96745f2bcbf317a28d",
+            "integrationRef": "main",
+            "integrationTreeSha256": integration_hash,
+        },
+        "isolatedWorktree": {
+            "path": "fixture/isolated-repair",
+            "baseCommit": "4a28f2de2d4cf33f2b772e96745f2bcbf317a28d",
+            "detached": True,
+            "integrationWorktree": False,
+        },
+        "authorizedRepairPaths": ["bin/defective-gate.sh"],
+        "actualRepairPaths": ["bin/defective-gate.sh"],
+        "authorizedCapabilities": [
+            "read-source",
+            "edit-authorized-paths",
+            "run-unaffected-bootstrap",
+            "run-targeted-qualification",
+            "run-final-qualification",
+            "prepare-integration-disposition",
+        ],
+        "usedCapabilities": [
+            "read-source",
+            "edit-authorized-paths",
+            "run-unaffected-bootstrap",
+            "run-targeted-qualification",
+            "run-final-qualification",
+            "prepare-integration-disposition",
+        ],
+        "forbiddenOperations": ["direct-main-mutation", "push", "cross-project-mutation"],
+        "observedForbiddenOperations": [],
+        "unaffectedBootstrapCommands": ["python3 fixture/unaffected-bootstrap.py"],
+        "targetedQualification": {
+            "profileId": "fast",
+            "command": "bash bin/defective-gate.sh",
+            "status": "passed",
+            "exitCode": 0,
+            "reportRefs": ["fixture/targeted.txt"],
+        },
+        "finalQualification": {
+            "profileId": "qualification",
+            "command": "bash bin/full-boundary.sh",
+            "status": "passed",
+            "exitCode": 0,
+            "reportRefs": ["fixture/full-boundary.txt"],
+        },
+        "disposition": {
+            "integration": "requires-human-integration",
+            "delivery": "not-requested",
+        },
+        "recoverability": {
+            "recoverable": True,
+            "maintenanceAllowed": True,
+            "safeNextAction": "Review the isolated diff before the separately authorized integration boundary.",
+        },
+    }
+
+
 failures: list[str] = []
 results: list[dict] = []
 for expected in expectations:
@@ -147,6 +234,77 @@ for expected in expectations:
         write_json(path, value)
     elif case_id == "tool-error-missing-contract-root":
         shutil.rmtree(contract_root)
+    elif case_id.startswith("recovery-"):
+        value = recovery_record("a" * 64)
+        if case_id == "recovery-positive-self-repair":
+            integration_root = case_dir / "integration-main"
+            isolated_root = case_dir / "isolated-repair"
+            gate = integration_root / "bin/defective-gate.sh"
+            full_boundary = integration_root / "bin/full-boundary.sh"
+            gate.parent.mkdir(parents=True)
+            gate.write_text("#!/usr/bin/env bash\nset -euo pipefail\nexit 17\n", encoding="utf-8")
+            full_boundary.write_text(
+                "#!/usr/bin/env bash\nset -euo pipefail\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\nbash \"${SCRIPT_DIR}/defective-gate.sh\"\n",
+                encoding="utf-8",
+            )
+            unrelated = integration_root / "UNRELATED.txt"
+            unrelated.write_bytes(b"byte-identical sentinel\n")
+            before_hash = tree_hash(integration_root)
+            unrelated_before = unrelated.read_bytes()
+            shutil.copytree(integration_root, isolated_root)
+
+            defective = subprocess.run(
+                ["bash", str(isolated_root / "bin/defective-gate.sh")],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            if defective.returncode != 17:
+                failures.append(f"{case_id}: copied gate was not intentionally defective")
+            bootstrap = subprocess.run(
+                [sys.executable, "-c", "from pathlib import Path; p=Path(__import__('sys').argv[1]); assert p.is_file() and p.read_bytes()", str(isolated_root / "bin/defective-gate.sh")],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            if bootstrap.returncode != 0:
+                failures.append(f"{case_id}: unaffected bootstrap failed: {bootstrap.stderr!r}")
+            (isolated_root / "bin/defective-gate.sh").write_text(
+                "#!/usr/bin/env bash\nset -euo pipefail\nprintf '%s\\n' 'COPIED_GATE=PASS'\n",
+                encoding="utf-8",
+            )
+            targeted = subprocess.run(["bash", str(isolated_root / "bin/defective-gate.sh")], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            full = subprocess.run(["bash", str(isolated_root / "bin/full-boundary.sh")], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            changed = sorted(
+                item.relative_to(isolated_root).as_posix()
+                for item in isolated_root.rglob("*")
+                if item.is_file() and item.read_bytes() != (integration_root / item.relative_to(isolated_root)).read_bytes()
+            )
+            if targeted.returncode != 0 or full.returncode != 0:
+                failures.append(f"{case_id}: repaired gate did not pass targeted/full qualification")
+            if tree_hash(integration_root) != before_hash or unrelated.read_bytes() != unrelated_before:
+                failures.append(f"{case_id}: integration main or unrelated sentinel changed")
+            if changed != ["bin/defective-gate.sh"]:
+                failures.append(f"{case_id}: isolated repair changed unexpected paths: {changed!r}")
+            value = recovery_record(before_hash)
+            value["targetedQualification"]["exitCode"] = targeted.returncode
+            value["finalQualification"]["exitCode"] = full.returncode
+        elif case_id == "recovery-path-expansion":
+            value["actualRepairPaths"].append("bin/unrelated.sh")
+        elif case_id == "recovery-capability-expansion":
+            value["usedCapabilities"].append("cross-project-mutation")
+        elif case_id == "recovery-direct-main-mutation":
+            value["observedForbiddenOperations"].append("direct-main-mutation")
+        elif case_id == "recovery-push":
+            value["observedForbiddenOperations"].append("push")
+        elif case_id == "recovery-false-pass":
+            value["targetedQualification"]["exitCode"] = 17
+        elif case_id == "recovery-missing-final-qualification":
+            value["finalQualification"]["status"] = "not-executed"
+            value["finalQualification"]["exitCode"] = 0
+            value["finalQualification"]["reportRefs"] = []
+        write_json(input_path, value)
+        command.extend(["maintenance-recovery", "--input", str(input_path)])
     elif case_id.startswith("profiles-"):
         value = classification()
         if case_id == "profiles-high-contract":
@@ -202,6 +360,9 @@ for expected in expectations:
     report = json.loads(out_path.read_text(encoding="utf-8")) if out_path.is_file() else {}
     actual_status = report.get("status")
     ok = completed.returncode == expected["expectedExit"] and actual_status == expected["expectedStatus"]
+    expected_finding_code = expected.get("expectedFindingCode")
+    if expected_finding_code and expected_finding_code not in {finding.get("code") for finding in report.get("findings", [])}:
+        ok = False
 
     if case_id == "profiles-low-documentation" and report.get("details", {}).get("profileSelection", {}).get("requiredProfiles") != ["qualification"]:
         ok = False

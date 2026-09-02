@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-09-01
 validFrom: 2026-09-01
-lastReviewedAt: 2026-09-01
+lastReviewedAt: 2026-09-02
 reviewBy: 2026-09-30
 supersedes: []
 supersededBy: null
@@ -21,7 +21,7 @@ sprintId: SPRINGMASTER-SPRINT-006
 sprintPhase: execution
 overallStatus: active
 lastDriftResult: none
-lastDriftAt: 2026-09-01
+lastDriftAt: 2026-09-02
 expectedVersionImpact: minor
 currentMilestone: M-001
 ---
@@ -30,7 +30,7 @@ currentMilestone: M-001
 
 ## Aktueller Stand
 
-Sprint 006 ist aktiviert. ADR-0020 und GOAL-008 bilden die Enabling-Governance-Foundation. M-001 beginnt mit der Reibungs-/Authority-Inventur und dem Recovery Contract; ausführbare S006-Tooling-Produktänderungen sind noch nicht als abgeschlossen behauptet.
+Sprint 006 ist aktiviert. ADR-0020 und GOAL-008 bilden die Enabling-Governance-Foundation. Der M-001-Implementierungskandidat materialisiert die Reibungs-/Authority-Inventur, den Recovery Record und eine hermetische Self-Repair-Canary. M-001 bleibt bis zur unabhängigen Qualification `in-progress`; Integration, Delivery, Acceptance oder Sprint-Closure werden nicht behauptet.
 
 ```text
 OVERALL_STATUS=active
@@ -39,13 +39,15 @@ SPRINT_PHASE=execution
 LAST_DRIFT_RESULT=none
 QUALIFICATION_STATUS=pending
 CLOSURE_STATUS=open
+M001_IMPLEMENTATION_CANDIDATE=materialized
+M001_TRUSTED_HOST_QUALIFICATION=pending
 ```
 
 ## Teilziele
 
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
-| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassifikation, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Governance/Contracts + Baseline Report | Springmaster | in-progress |
+| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassifikation, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Contract/Validator/25 hermetische IT-Fälle + Baseline Report; Trusted Host offen | Springmaster | in-progress |
 | M-002 | Kanonischer Producer, State Truth, Runner und Source-Diff | REQ-008..010, REQ-014..018 | Producer->Preflight PASS; State eindeutig; Runner/Scope-Fixtures PASS | Tooling Code + IT/Evidence | Springmaster | planned |
 | M-003 | Engineering-/Delivery-Trennung und Progressive Qualification | REQ-006..007, REQ-011..013, REQ-019 | normaler Change ohne Vorab-cpatch; Delivery weiter fail-closed | Tooling/Governance + Regression | Springmaster | planned |
 | M-004 | DEV-/Build-Portabilität und project-owned Tooling | REQ-020..025, REQ-028..029 | Fresh Checkout, Env/DB/Build und project-owned tooling qualifiziert | Managed-Project Fixtures + Host Tests | Springmaster | planned |
@@ -59,7 +61,7 @@ Keine. Die Sprintaktivierung materialisiert Auftrag und Authority, nicht die Pro
 
 ## Aktives Teilziel
 
-M-001: Safety-/Contract-/Process-/Guidance-Klassifikation, belastbare Feldbaseline aus Personnel/ZBM sowie der Maintenance-/Recovery-Vertrag.
+M-001: Der exakte Zehn-Pfade-Schnitt ist materialisiert. `maintenance-recovery-contract.json` bindet ADR-0020 an bestehende Change-/Risk-, Profile-, Execution-/Finding- und Completion-Vokabulare. Der positive Fixture repariert nur eine absichtlich defekte Gate-Kopie über einen unabhängigen Bootstrap und prüft targeted sowie am vollständigen Fixture-Boundary; negative Fälle schützen Scope, Capability, Main, Push und Qualification Truth. Unabhängige Qualification bleibt offen.
 
 ## Blockierte Teilziele
 
@@ -70,6 +72,7 @@ Keine formal blockierten Teilziele. M-002 bis M-007 warten geplant auf die vorge
 - Personnel-P3 ist ein realer Produktfehler plus hohe operative Qualification-/Evidence-Kosten; beides wird getrennt bewertet.
 - ZBM meldet wiederholte Patch-/Runner-/DEV-Setup-Reibung. Das Handoff ist Design Evidence; die konkrete aktuelle Live-Root-Cause bleibt bis zur Feldinventur offen.
 - Die bisherigen S006-Aktivierungsversuche r2/r3/r4 gelten als zusätzliche Developer-Experience-Evidence: ein fragiler Textanker sowie manuell erzeugte, vom Sprint-Gate abgelehnte Statuswerte dürfen nicht zum zukünftigen Standardweg werden.
+- Die immutable A002-Inventur klassifiziert die Producer-Lücke als Version-/Distribution-/Adoption-/Dokumentations-/DX-Drift und `TRUE_GAP_CURRENT=false`; ein neuer Producer ist deshalb ausdrücklich nicht Bestandteil von M-001.
 
 ## Drift-Bewertung
 
@@ -90,7 +93,7 @@ Erwartet: Tooling und Update jeweils mindestens `minor`, Foundation gegebenenfal
 
 ## Nächster kontrollierter Schritt
 
-M-001 materialisiert zuerst die verbindliche Risiko-/Regelklassifikation und misst den Ist-Aufwand an den vorhandenen Personnel-/ZBM-Feldabläufen. Daraus werden die minimalen M-002-Verträge und deren negative/positive Fixtures abgeleitet.
+Den M-001-Kandidaten mit den vollständigen repository-kontrollierten und Trusted-Host-Oracles qualifizieren. Erst nach unabhängiger Evidence darf M-001 abgeschlossen und M-002 als aktiver Umsetzungsschnitt fortgeschrieben werden.
 
 ## Amendments
 
@@ -101,3 +104,4 @@ Keine.
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-09-01 | planned | active | Sprint 006 nach akzeptierter Enabling-Governance-Foundation und konkretisierten Personnel-/ZBM-Feldanforderungen aktiviert. |
+| 2026-09-02 | active | active | M-001-Implementierungskandidat samt Recovery Contract, Inventory und hermetischer Self-Repair-Canary materialisiert; Qualification und Acceptance bleiben offen. |

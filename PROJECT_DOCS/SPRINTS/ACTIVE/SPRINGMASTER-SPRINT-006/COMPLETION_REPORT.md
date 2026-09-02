@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-09-01
 validFrom: null
-lastReviewedAt: 2026-09-01
+lastReviewedAt: 2026-09-02
 reviewBy: 2026-09-30
 supersedes: []
 supersededBy: null
@@ -37,7 +37,7 @@ CLOSURE_STATUS=open
 
 ## Anforderungen und Teilziele
 
-Alle `S006-REQ-001` bis `S006-REQ-032` sind bei Aktivierung offen. M-001 ist `in-progress`; M-002 bis M-007 sind `planned`. Die Statuswerte werden nur aus akzeptierten Change- und Qualification-Evidence fortgeschrieben.
+Der M-001-Implementierungskandidat deckt `S006-REQ-001` bis `S006-REQ-005` durch Inventory, Recovery Contract/Validator, Guide sowie positive und negative hermetische Fixtures ab. Die Anforderungen bleiben bis zur unabhängigen Qualification und Acceptance nicht final geschlossen. M-001 ist `in-progress`; M-002 bis M-007 sind `planned`.
 
 ## Definition of Done und Qualification
 
@@ -74,11 +74,11 @@ FALSE_QUALIFICATION_CLAIMS=0
 
 ## Akzeptierte Änderungen
 
-Bei Anlage dieses nichtterminalen Reports sind **keine Sprint-006-Produkt-/Tooling-Slices als abgeschlossen** zu verbuchen. Die akzeptierte Governance-/Sprintaktivierung ist die Ausgangsbasis des Sprints und ersetzt keine spätere Engineering Completion oder Field Qualification.
+Es ist weiterhin **kein Sprint-006-Slice als abgeschlossen oder akzeptiert** zu verbuchen. Der M-001-Candidate erweitert den bestehenden Engineering-Validator um einen ADR-0020-gebundenen Maintenance-Recovery-Record. Er führt keinen Repair-Executor, cpatch-Producer, Supervisor oder allgemeinen Break-glass-Befehl ein.
 
 ## Test- und Qualification-Nachweis
 
-Noch offen. Jeder S006-Slice erhält seine risikogerechte gezielte Qualification; die Closure benötigt die vollständige relevante Trusted-Host-Qualification plus reale Personnel-/ZBM-Field-Evidence.
+Für M-001 sind Contract- und IT-Oracles Bestandteil des Kandidaten. Die hermetische positive Fixture repariert nur die defekte Gate-Kopie, erhält Integration und unrelated Sentinel byte-identisch und führt targeted sowie den vollständigen Fixture-Boundary aus. Negative Fixtures lehnen Pfad-/Capability-Ausweitung, Main-Mutation, Push, falschen PASS und fehlende finale Qualification ab. Repositoryweite und Trusted-Host-Qualification sowie spätere Personnel-/ZBM-Field-Evidence bleiben separat offen.
 
 ## Offene Findings, Risiken und Schulden
 
@@ -86,7 +86,7 @@ Offen sind bei Aktivierung insbesondere:
 
 - fehlender kanonischer Patch Artifact Producer beziehungsweise gemeinsame Producer-/Validator-Modellquelle;
 - Patch-/Tooling-State-Truth und Fresh-Checkout-Rekonstruktion;
-- Self-Repair/Maintenance-Vertrag und actionable Blocking;
+- unabhängige Qualification und Acceptance des materialisierten Self-Repair/Maintenance-Vertrags;
 - Runner-/Expected-Failure-/Phase-/Source-Diff-Härtung;
 - progressive Qualification und Evidence-Minimierung;
 - Env-/DBTool-/Build-/Fresh-Checkout-Portabilität;
@@ -115,3 +115,4 @@ Alle S006-Produktziele sind zum Aktivierungszeitpunkt noch offen. Ein grüner Do
 | Datum | Vorher | Nachher | Grund |
 |---|---|---|---|
 | 2026-09-01 | - | draft | Nichtterminale Completion-Evidence für den aktivierten Sprint 006 angelegt. |
+| 2026-09-02 | draft | draft | M-001-Kandidat und lokale Contract-/Fixture-Evidence aufgenommen, ohne Qualification, Integration oder Abschluss zu behaupten. |

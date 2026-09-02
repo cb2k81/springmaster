@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Springmaster engineering classification, profile, evidence and completion contracts."""
+"""Validate Springmaster engineering and maintenance-recovery contracts."""
 from __future__ import annotations
 
 import argparse
@@ -17,6 +17,7 @@ CONTRACT_FILES = {
     "profiles": ("engineering-profile-contract.json", "springmaster.engineering-profile-contract.v1"),
     "evidence": ("engineering-evidence-contract.json", "springmaster.engineering-evidence-contract.v1"),
     "completion": ("engineering-completion-contract.json", "springmaster.engineering-completion-contract.v1"),
+    "recovery": ("maintenance-recovery-contract.json", "springmaster.maintenance-recovery-contract.v1"),
 }
 
 
@@ -83,6 +84,7 @@ def semantic_contract_findings(contracts: dict[str, dict[str, Any]]) -> list[dic
     profiles = contracts["profiles"]
     evidence = contracts["evidence"]
     completion = contracts["completion"]
+    recovery = contracts["recovery"]
 
     risk_levels = classification.get("riskLevels")
     risk_ids = ids(risk_levels)
@@ -168,6 +170,35 @@ def semantic_contract_findings(contracts: dict[str, dict[str, Any]]) -> list[dic
         findings.append(issue("COMPLETION_CRITERIA_COUNT", "engineering-completion-contract.json", "Exactly 14 completion criteria are required", actual=len(criterion_ids)))
     for value in duplicate_values(criterion_ids):
         findings.append(issue("DUPLICATE_COMPLETION_CRITERION", "engineering-completion-contract.json", f"Duplicate completion criterion: {value}"))
+
+    reused = recovery.get("reusedContracts")
+    expected_reused = {
+        "changeClassesAndRiskLevels": classification.get("schemaVersion"),
+        "qualificationProfiles": profiles.get("schemaVersion"),
+        "executionAndFindingStates": evidence.get("schemaVersion"),
+        "completionTruth": completion.get("schemaVersion"),
+    }
+    if reused != expected_reused:
+        findings.append(issue(
+            "RECOVERY_REUSED_CONTRACTS_MISMATCH",
+            "maintenance-recovery-contract.json",
+            "Recovery vocabulary must reference the four current engineering contracts",
+            expected=expected_reused,
+            actual=reused,
+        ))
+    if recovery.get("ruleSource") != "PROJECT_DOCS/ADR/ADR-0020-enabling-governance-and-recoverable-tooling.md":
+        findings.append(issue("RECOVERY_AUTHORITY_INVALID", "maintenance-recovery-contract.json", "Recovery authority must be ADR-0020"))
+    profile_id_set = set(profile_ids)
+    for profile_id in recovery.get("targetedProfiles", []):
+        if profile_id not in profile_id_set:
+            findings.append(issue("RECOVERY_TARGETED_PROFILE_UNKNOWN", "maintenance-recovery-contract.json", f"Unknown targeted profile: {profile_id!r}"))
+    if recovery.get("finalProfile") not in profile_id_set:
+        findings.append(issue("RECOVERY_FINAL_PROFILE_UNKNOWN", "maintenance-recovery-contract.json", "finalProfile must reference an engineering profile"))
+    if recovery.get("passStatus") not in evidence.get("executionStatuses", []):
+        findings.append(issue("RECOVERY_PASS_STATUS_UNKNOWN", "maintenance-recovery-contract.json", "passStatus must reuse an engineering execution status"))
+    mandatory_forbidden = recovery.get("mandatoryForbiddenOperations")
+    if not isinstance(mandatory_forbidden, list) or set(mandatory_forbidden) != {"direct-main-mutation", "push", "cross-project-mutation"}:
+        findings.append(issue("RECOVERY_FORBIDDEN_OPERATIONS_INVALID", "maintenance-recovery-contract.json", "Main mutation, push and cross-project mutation must remain forbidden"))
 
     return findings
 
@@ -265,6 +296,163 @@ def require_fields(value: dict[str, Any], required: list[str], path: str, findin
     for field in required:
         if field not in value:
             findings.append(issue("FIELD_MISSING", path, f"Missing required field: {field}"))
+
+
+def string_list(value: Any, path: str, findings: list[dict[str, Any]], *, non_empty: bool = False) -> list[str]:
+    if not isinstance(value, list) or any(not isinstance(item, str) or not item for item in value):
+        findings.append(issue("STRING_LIST_INVALID", path, "Value must be a string list"))
+        return []
+    if non_empty and not value:
+        findings.append(issue("STRING_LIST_EMPTY", path, "Value must not be empty"))
+    for duplicate in duplicate_values(value):
+        findings.append(issue("STRING_LIST_DUPLICATE", path, f"Duplicate value: {duplicate}"))
+    return value
+
+
+def validate_qualification(
+    value: Any,
+    contracts: dict[str, dict[str, Any]],
+    path: str,
+    *,
+    final: bool,
+) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    recovery = contracts["recovery"]
+    evidence = contracts["evidence"]
+    if not isinstance(value, dict):
+        return [issue("RECOVERY_QUALIFICATION_INVALID", path, "Qualification must be an object")]
+    require_fields(value, recovery.get("qualificationRequiredFields", []), path, findings)
+    profile_id = value.get("profileId")
+    allowed_profiles = [recovery.get("finalProfile")] if final else recovery.get("targetedProfiles", [])
+    if profile_id not in allowed_profiles:
+        findings.append(issue("RECOVERY_QUALIFICATION_PROFILE_INVALID", path, f"Profile {profile_id!r} is not allowed here"))
+    status = value.get("status")
+    if status not in evidence.get("executionStatuses", []):
+        findings.append(issue("RECOVERY_QUALIFICATION_STATUS_UNKNOWN", path, f"Unknown execution status: {status!r}"))
+    if not isinstance(value.get("command"), str) or not value.get("command", "").strip():
+        findings.append(issue("RECOVERY_QUALIFICATION_COMMAND_INVALID", path, "command must be a non-empty string"))
+    if not isinstance(value.get("exitCode"), int):
+        findings.append(issue("RECOVERY_QUALIFICATION_EXIT_INVALID", path, "exitCode must be an integer"))
+    if not isinstance(value.get("reportRefs"), list):
+        findings.append(issue("RECOVERY_QUALIFICATION_REPORT_REFS_INVALID", path, "reportRefs must be a list"))
+    if status == recovery.get("passStatus") and value.get("exitCode") != recovery.get("successExitCode"):
+        findings.append(issue("RECOVERY_FALSE_PASS", path, "A passed qualification requires exitCode 0"))
+    return findings
+
+
+def validate_recovery(value: Any, contracts: dict[str, dict[str, Any]], path: str = "maintenanceRecovery") -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    contract = contracts["recovery"]
+    if not isinstance(value, dict):
+        return [issue("RECOVERY_INVALID_SHAPE", path, "Maintenance recovery record must be a JSON object")], {}
+    require_fields(value, contract.get("requiredFields", []), path, findings)
+    if value.get("schemaVersion") != contract.get("recordSchema"):
+        findings.append(issue("RECOVERY_SCHEMA_INVALID", path, f"Expected schema {contract.get('recordSchema')!r}"))
+    record_id = value.get("recordId")
+    if not isinstance(record_id, str) or not re.fullmatch(contract.get("recordIdPattern", r".+"), record_id):
+        findings.append(issue("RECOVERY_ID_INVALID", path, "recordId does not match the contract pattern"))
+    if value.get("authority") != contract.get("ruleSource"):
+        findings.append(issue("RECOVERY_AUTHORITY_MISMATCH", path, "authority must reference ADR-0020"))
+
+    classification_findings, selection = validate_classification(value.get("classification"), contracts, f"{path}.classification")
+    findings.extend(classification_findings)
+
+    defect = value.get("defect")
+    if not isinstance(defect, dict):
+        findings.append(issue("RECOVERY_DEFECT_INVALID", path, "defect must be an object"))
+    else:
+        require_fields(defect, contract.get("defectRequiredFields", []), f"{path}.defect", findings)
+        for field in ("component", "entrypoint", "reasonCode", "message"):
+            if not isinstance(defect.get(field), str) or not defect.get(field, "").strip():
+                findings.append(issue("RECOVERY_DEFECT_FIELD_INVALID", f"{path}.defect", f"{field} must be a non-empty string"))
+        if defect.get("category") not in contract.get("failureCategories", []):
+            findings.append(issue("RECOVERY_FAILURE_CATEGORY_INVALID", f"{path}.defect", f"Unknown category: {defect.get('category')!r}"))
+
+    baseline = value.get("baseline")
+    if not isinstance(baseline, dict):
+        findings.append(issue("RECOVERY_BASELINE_INVALID", path, "baseline must be an object"))
+    else:
+        require_fields(baseline, contract.get("baselineRequiredFields", []), f"{path}.baseline", findings)
+        if not isinstance(baseline.get("gitHead"), str) or not re.fullmatch(r"[0-9a-f]{40}", baseline.get("gitHead", "")):
+            findings.append(issue("RECOVERY_BASELINE_GIT_HEAD_INVALID", f"{path}.baseline", "gitHead must be a lowercase 40-character SHA-1"))
+        if not isinstance(baseline.get("integrationTreeSha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", baseline.get("integrationTreeSha256", "")):
+            findings.append(issue("RECOVERY_BASELINE_TREE_HASH_INVALID", f"{path}.baseline", "integrationTreeSha256 must be a lowercase SHA-256"))
+
+    worktree = value.get("isolatedWorktree")
+    if not isinstance(worktree, dict):
+        findings.append(issue("RECOVERY_WORKTREE_INVALID", path, "isolatedWorktree must be an object"))
+    else:
+        require_fields(worktree, contract.get("worktreeRequiredFields", []), f"{path}.isolatedWorktree", findings)
+        if worktree.get("detached") is not True:
+            findings.append(issue("RECOVERY_WORKTREE_NOT_DETACHED", f"{path}.isolatedWorktree", "Recovery worktree must be detached"))
+        if worktree.get("integrationWorktree") is True:
+            findings.append(issue("RECOVERY_INTEGRATION_WORKTREE_FORBIDDEN", f"{path}.isolatedWorktree", "Recovery cannot execute in the integration worktree"))
+        if isinstance(baseline, dict) and worktree.get("baseCommit") != baseline.get("gitHead"):
+            findings.append(issue("RECOVERY_WORKTREE_BASE_MISMATCH", f"{path}.isolatedWorktree", "baseCommit must equal baseline gitHead"))
+
+    authorized_paths = string_list(value.get("authorizedRepairPaths"), f"{path}.authorizedRepairPaths", findings, non_empty=True)
+    actual_paths = string_list(value.get("actualRepairPaths"), f"{path}.actualRepairPaths", findings, non_empty=True)
+    repair_path_pattern = contract.get("repairPathPattern", r".+")
+    for repair_path in authorized_paths + actual_paths:
+        if not re.fullmatch(repair_path_pattern, repair_path):
+            findings.append(issue("RECOVERY_REPAIR_PATH_INVALID", path, f"Repair path must be a literal repository-relative path: {repair_path!r}"))
+    unauthorized_paths = sorted(set(actual_paths) - set(authorized_paths))
+    if unauthorized_paths:
+        findings.append(issue("RECOVERY_PATH_EXPANSION", path, "Actual repair paths exceed authorization", paths=unauthorized_paths))
+
+    allowed_capabilities = set(contract.get("allowedCapabilities", []))
+    authorized_capabilities = string_list(value.get("authorizedCapabilities"), f"{path}.authorizedCapabilities", findings, non_empty=True)
+    used_capabilities = string_list(value.get("usedCapabilities"), f"{path}.usedCapabilities", findings, non_empty=True)
+    unknown_capabilities = sorted(set(authorized_capabilities) - allowed_capabilities)
+    if unknown_capabilities:
+        findings.append(issue("RECOVERY_CAPABILITY_UNKNOWN", path, "Authorized capabilities are not defined by the recovery contract", capabilities=unknown_capabilities))
+    expanded_capabilities = sorted(set(used_capabilities) - set(authorized_capabilities))
+    if expanded_capabilities:
+        findings.append(issue("RECOVERY_CAPABILITY_EXPANSION", path, "Used capabilities exceed authorization", capabilities=expanded_capabilities))
+
+    forbidden = string_list(value.get("forbiddenOperations"), f"{path}.forbiddenOperations", findings)
+    missing_forbidden = sorted(set(contract.get("mandatoryForbiddenOperations", [])) - set(forbidden))
+    if missing_forbidden:
+        findings.append(issue("RECOVERY_FORBIDDEN_OPERATION_MISSING", path, "Mandatory forbidden operations are missing", operations=missing_forbidden))
+    observed_forbidden = string_list(value.get("observedForbiddenOperations"), f"{path}.observedForbiddenOperations", findings)
+    if observed_forbidden:
+        findings.append(issue("RECOVERY_FORBIDDEN_OPERATION_OBSERVED", path, "A forbidden operation was observed", operations=observed_forbidden))
+
+    commands = string_list(value.get("unaffectedBootstrapCommands"), f"{path}.unaffectedBootstrapCommands", findings, non_empty=True)
+    entrypoint = defect.get("entrypoint") if isinstance(defect, dict) else None
+    if isinstance(entrypoint, str) and any(entrypoint in command for command in commands):
+        findings.append(issue("RECOVERY_SELF_DEPENDENCY", path, "The defective entrypoint cannot be a repair prerequisite"))
+
+    findings.extend(validate_qualification(value.get("targetedQualification"), contracts, f"{path}.targetedQualification", final=False))
+    findings.extend(validate_qualification(value.get("finalQualification"), contracts, f"{path}.finalQualification", final=True))
+    targeted_qualification = value.get("targetedQualification")
+    if isinstance(targeted_qualification, dict) and targeted_qualification.get("status") != contract.get("passStatus"):
+        findings.append(issue("RECOVERY_TARGETED_QUALIFICATION_MISSING", f"{path}.targetedQualification", "Recovery requires a passed targeted qualification"))
+    final_qualification = value.get("finalQualification")
+    if isinstance(final_qualification, dict) and final_qualification.get("status") != contract.get("passStatus"):
+        findings.append(issue("RECOVERY_FINAL_QUALIFICATION_MISSING", f"{path}.finalQualification", "Recovery requires a passed final qualification before disposition"))
+
+    disposition = value.get("disposition")
+    if not isinstance(disposition, dict):
+        findings.append(issue("RECOVERY_DISPOSITION_INVALID", path, "disposition must be an object"))
+    else:
+        require_fields(disposition, ["integration", "delivery"], f"{path}.disposition", findings)
+        if disposition.get("integration") not in contract.get("integrationDispositions", []):
+            findings.append(issue("RECOVERY_INTEGRATION_DISPOSITION_INVALID", f"{path}.disposition", "Unknown integration disposition"))
+        if disposition.get("delivery") not in contract.get("deliveryDispositions", []):
+            findings.append(issue("RECOVERY_DELIVERY_DISPOSITION_INVALID", f"{path}.disposition", "Unknown delivery disposition"))
+
+    recoverability = value.get("recoverability")
+    if not isinstance(recoverability, dict):
+        findings.append(issue("RECOVERY_RECOVERABILITY_INVALID", path, "recoverability must be an object"))
+    else:
+        require_fields(recoverability, contract.get("recoverabilityRequiredFields", []), f"{path}.recoverability", findings)
+        if not isinstance(recoverability.get("recoverable"), bool) or not isinstance(recoverability.get("maintenanceAllowed"), bool):
+            findings.append(issue("RECOVERY_RECOVERABILITY_FLAGS_INVALID", f"{path}.recoverability", "recoverable and maintenanceAllowed must be boolean"))
+        if not isinstance(recoverability.get("safeNextAction"), str) or not recoverability.get("safeNextAction", "").strip():
+            findings.append(issue("RECOVERY_SAFE_NEXT_ACTION_INVALID", f"{path}.recoverability", "safeNextAction must be a non-empty string"))
+
+    return findings, {"recordId": record_id, "profileSelection": selection, "recoverable": recoverability.get("recoverable") if isinstance(recoverability, dict) else None}
 
 
 def validate_evidence(value: Any, contracts: dict[str, dict[str, Any]], path: str = "evidence") -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -510,12 +698,12 @@ def build_report(operation: str, findings: list[dict[str, Any]], tool_errors: li
 
 def parser() -> argparse.ArgumentParser:
     project_root = Path(__file__).resolve().parent.parent
-    result = argparse.ArgumentParser(prog="engineering-contracts.py", description="Validate Springmaster engineering contracts and records.")
+    result = argparse.ArgumentParser(prog="engineering-contracts.py", description="Validate Springmaster engineering and maintenance-recovery contracts and records.")
     result.add_argument("--contract-root", type=Path, default=project_root / "contracts/governance/engineering")
     result.add_argument("--out", type=Path, help="Write a deterministic JSON report")
     result.add_argument("--check", action="store_true", help="Return exit 1 when validation findings exist")
     sub = result.add_subparsers(dest="operation", required=True)
-    sub.add_parser("contracts", help="Validate the four engineering contracts")
+    sub.add_parser("contracts", help="Validate the engineering and maintenance-recovery contracts")
     profiles = sub.add_parser("profiles", help="Validate a change classification and select required profiles")
     profiles.add_argument("--input", type=Path, required=True)
     evidence = sub.add_parser("evidence", help="Validate an engineering evidence record")
@@ -523,6 +711,8 @@ def parser() -> argparse.ArgumentParser:
     completion = sub.add_parser("completion", help="Validate an engineering completion record against evidence")
     completion.add_argument("--input", type=Path, required=True)
     completion.add_argument("--evidence", type=Path, required=True)
+    recovery = sub.add_parser("maintenance-recovery", help="Validate a maintenance-recovery record")
+    recovery.add_argument("--input", type=Path, required=True)
     return result
 
 
@@ -551,6 +741,11 @@ def main() -> int:
             completion_findings, result = validate_completion(value, evidence, contracts)
             findings.extend(completion_findings)
             details["completion"] = result
+        elif args.operation == "maintenance-recovery":
+            value = load_json(args.input.resolve())
+            recovery_findings, result = validate_recovery(value, contracts)
+            findings.extend(recovery_findings)
+            details["maintenanceRecovery"] = result
     except ToolError as exc:
         item: dict[str, Any] = {"code": exc.code, "message": exc.message}
         if exc.path:

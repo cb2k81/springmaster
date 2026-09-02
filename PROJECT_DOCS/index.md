@@ -193,6 +193,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SOLUTION_PLAN.md` — active solution plan for canonical producers, recovery, Engineering/Delivery separation, DEV portability and managed-project qualification
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/STATUS.md` — current Sprint-006 status; M-001 in progress, M-002..M-007 planned
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/COMPLETION_REPORT.md` — draft/non-terminal completion evidence; no S006 product completion claimed
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/WORK/ANALYSES/S006_P0_TOOLING_INVENTORY.md` — immutable A002 P0 authority/gap inventory and M-001 recovery disposition
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — archivierter Problem- und Anforderungsraum des qualifiziert abgeschlossenen Autonomous-Repair-Loop-Sprints
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — finaler Sprint-005-Nachweis für 28/28 Requirements, realen Repair-Canary bis PREACCEPT, Product Acceptance und Trusted-Host-Closure
 
@@ -211,6 +212,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 - `PROJECT_DOCS/TEMPLATES/project-skeleton/README.md`
 ## TOOLING
 
+- `PROJECT_DOCS/TOOLING/MAINTENANCE_RECOVERY.md` — ADR-0020 maintenance-recovery record, progressive qualification and hermetic self-repair canary guide
 - `PROJECT_DOCS/TOOLING/CODEX_AUTONOMOUS_RUN_OPERATIONS.md` — active operator guide for durable ADR-0019 Logical Runs, repair evidence and the Pre-Accept human boundary
 - `PROJECT_DOCS/TOOLING/CODEX_PILOT_OPERATIONS.md` — promoted Codex pilot readiness, external-root, task preparation, handoff and diagnostic procedure
 - `PROJECT_DOCS/TOOLING/OPERATOR_COMMAND_EFFECT_CONTRACT.md` — normative host-command effect declaration and explicit authorization boundary
@@ -297,3 +299,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-08-15 | active | active | Sprint 003 nach verifizierter Sprint-002-Closure aktiviert; der damalige M1-Schnitt wurde später als Delivery 000224 akzeptiert. |
 | 2026-08-20 | active | active | M-001-Acceptance 000224 und technische M2-M7-DoD-Qualification mit separater trusted Integration reflektiert. |
 | 2026-08-22 | active | active | Sprint 003 nach akzeptiertem Patch 000242 und Post-Accept-Verifikation archiviert; Sprint 004 mit field-proven Backend Contracts und Runtime Primitives aktiviert. |
+| 2026-09-02 | active | active | Sprint-006-P0-Inventur und ADR-0020-Maintenance-Recovery-Guide indexiert. |
