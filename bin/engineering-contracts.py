@@ -200,6 +200,40 @@ def semantic_contract_findings(contracts: dict[str, dict[str, Any]]) -> list[dic
     if not isinstance(mandatory_forbidden, list) or set(mandatory_forbidden) != {"direct-main-mutation", "push", "cross-project-mutation"}:
         findings.append(issue("RECOVERY_FORBIDDEN_OPERATIONS_INVALID", "maintenance-recovery-contract.json", "Main mutation, push and cross-project mutation must remain forbidden"))
 
+    worktree_policy = recovery.get("worktreeIsolationPolicy")
+    expected_worktree_policy = {
+        "allowAttachedIsolatedBranch": True,
+        "allowDetachedWorktree": True,
+        "integrationWorktreeForbidden": True,
+    }
+    if worktree_policy != expected_worktree_policy:
+        findings.append(issue(
+            "RECOVERY_WORKTREE_POLICY_INVALID",
+            "maintenance-recovery-contract.json",
+            "Recovery must allow an isolated attached branch or detached worktree while forbidding the integration worktree",
+        ))
+
+    qualification_evidence_statuses = recovery.get("qualificationEvidenceStatuses")
+    if (
+        not isinstance(qualification_evidence_statuses, list)
+        or not qualification_evidence_statuses
+        or any(status not in evidence.get("executionStatuses", []) for status in qualification_evidence_statuses)
+        or recovery.get("passStatus") not in qualification_evidence_statuses
+    ):
+        findings.append(issue(
+            "RECOVERY_QUALIFICATION_EVIDENCE_STATUSES_INVALID",
+            "maintenance-recovery-contract.json",
+            "Qualification evidence statuses must reuse execution statuses and include the recovery pass status",
+        ))
+
+    blocked_disposition = recovery.get("blockedDisposition")
+    if not isinstance(blocked_disposition, dict) or blocked_disposition.get("integration") not in recovery.get("integrationDispositions", []) or blocked_disposition.get("delivery") not in recovery.get("deliveryDispositions", []):
+        findings.append(issue("RECOVERY_BLOCKED_DISPOSITION_INVALID", "maintenance-recovery-contract.json", "blockedDisposition must use known integration and delivery dispositions"))
+
+    successful_requires = recovery.get("successfulRecoveryRequires")
+    if successful_requires != {"recoverable": True, "maintenanceAllowed": True}:
+        findings.append(issue("RECOVERY_SUCCESS_REQUIREMENTS_INVALID", "maintenance-recovery-contract.json", "Successful recovery must require recoverable=true and maintenanceAllowed=true"))
+
     return findings
 
 
@@ -333,8 +367,11 @@ def validate_qualification(
         findings.append(issue("RECOVERY_QUALIFICATION_COMMAND_INVALID", path, "command must be a non-empty string"))
     if not isinstance(value.get("exitCode"), int):
         findings.append(issue("RECOVERY_QUALIFICATION_EXIT_INVALID", path, "exitCode must be an integer"))
-    if not isinstance(value.get("reportRefs"), list):
-        findings.append(issue("RECOVERY_QUALIFICATION_REPORT_REFS_INVALID", path, "reportRefs must be a list"))
+    report_refs = value.get("reportRefs")
+    if not isinstance(report_refs, list) or any(not isinstance(ref, str) or not ref.strip() for ref in report_refs):
+        findings.append(issue("RECOVERY_QUALIFICATION_REPORT_REFS_INVALID", path, "reportRefs must be a list of non-empty strings"))
+    elif status in recovery.get("qualificationEvidenceStatuses", []) and not report_refs:
+        findings.append(issue("RECOVERY_QUALIFICATION_REPORT_REFS_MISSING", path, "An executed qualification status requires at least one evidence reference"))
     if status == recovery.get("passStatus") and value.get("exitCode") != recovery.get("successExitCode"):
         findings.append(issue("RECOVERY_FALSE_PASS", path, "A passed qualification requires exitCode 0"))
     return findings
@@ -375,6 +412,8 @@ def validate_recovery(value: Any, contracts: dict[str, dict[str, Any]], path: st
         require_fields(baseline, contract.get("baselineRequiredFields", []), f"{path}.baseline", findings)
         if not isinstance(baseline.get("gitHead"), str) or not re.fullmatch(r"[0-9a-f]{40}", baseline.get("gitHead", "")):
             findings.append(issue("RECOVERY_BASELINE_GIT_HEAD_INVALID", f"{path}.baseline", "gitHead must be a lowercase 40-character SHA-1"))
+        if not isinstance(baseline.get("integrationRef"), str) or not baseline.get("integrationRef", "").strip():
+            findings.append(issue("RECOVERY_BASELINE_INTEGRATION_REF_INVALID", f"{path}.baseline", "integrationRef must be a non-empty string"))
         if not isinstance(baseline.get("integrationTreeSha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", baseline.get("integrationTreeSha256", "")):
             findings.append(issue("RECOVERY_BASELINE_TREE_HASH_INVALID", f"{path}.baseline", "integrationTreeSha256 must be a lowercase SHA-256"))
 
@@ -383,15 +422,19 @@ def validate_recovery(value: Any, contracts: dict[str, dict[str, Any]], path: st
         findings.append(issue("RECOVERY_WORKTREE_INVALID", path, "isolatedWorktree must be an object"))
     else:
         require_fields(worktree, contract.get("worktreeRequiredFields", []), f"{path}.isolatedWorktree", findings)
-        if worktree.get("detached") is not True:
-            findings.append(issue("RECOVERY_WORKTREE_NOT_DETACHED", f"{path}.isolatedWorktree", "Recovery worktree must be detached"))
-        if worktree.get("integrationWorktree") is True:
+        if not isinstance(worktree.get("path"), str) or not worktree.get("path", "").strip():
+            findings.append(issue("RECOVERY_WORKTREE_PATH_INVALID", f"{path}.isolatedWorktree", "path must be a non-empty string"))
+        if not isinstance(worktree.get("detached"), bool):
+            findings.append(issue("RECOVERY_WORKTREE_DETACHED_INVALID", f"{path}.isolatedWorktree", "detached must be boolean"))
+        if not isinstance(worktree.get("integrationWorktree"), bool):
+            findings.append(issue("RECOVERY_INTEGRATION_WORKTREE_FLAG_INVALID", f"{path}.isolatedWorktree", "integrationWorktree must be boolean"))
+        elif worktree.get("integrationWorktree") is True:
             findings.append(issue("RECOVERY_INTEGRATION_WORKTREE_FORBIDDEN", f"{path}.isolatedWorktree", "Recovery cannot execute in the integration worktree"))
         if isinstance(baseline, dict) and worktree.get("baseCommit") != baseline.get("gitHead"):
             findings.append(issue("RECOVERY_WORKTREE_BASE_MISMATCH", f"{path}.isolatedWorktree", "baseCommit must equal baseline gitHead"))
 
-    authorized_paths = string_list(value.get("authorizedRepairPaths"), f"{path}.authorizedRepairPaths", findings, non_empty=True)
-    actual_paths = string_list(value.get("actualRepairPaths"), f"{path}.actualRepairPaths", findings, non_empty=True)
+    authorized_paths = string_list(value.get("authorizedRepairPaths"), f"{path}.authorizedRepairPaths", findings)
+    actual_paths = string_list(value.get("actualRepairPaths"), f"{path}.actualRepairPaths", findings)
     repair_path_pattern = contract.get("repairPathPattern", r".+")
     for repair_path in authorized_paths + actual_paths:
         if not re.fullmatch(repair_path_pattern, repair_path):
@@ -426,11 +469,11 @@ def validate_recovery(value: Any, contracts: dict[str, dict[str, Any]], path: st
     findings.extend(validate_qualification(value.get("targetedQualification"), contracts, f"{path}.targetedQualification", final=False))
     findings.extend(validate_qualification(value.get("finalQualification"), contracts, f"{path}.finalQualification", final=True))
     targeted_qualification = value.get("targetedQualification")
-    if isinstance(targeted_qualification, dict) and targeted_qualification.get("status") != contract.get("passStatus"):
-        findings.append(issue("RECOVERY_TARGETED_QUALIFICATION_MISSING", f"{path}.targetedQualification", "Recovery requires a passed targeted qualification"))
     final_qualification = value.get("finalQualification")
-    if isinstance(final_qualification, dict) and final_qualification.get("status") != contract.get("passStatus"):
-        findings.append(issue("RECOVERY_FINAL_QUALIFICATION_MISSING", f"{path}.finalQualification", "Recovery requires a passed final qualification before disposition"))
+    targeted_passed = isinstance(targeted_qualification, dict) and targeted_qualification.get("status") == contract.get("passStatus")
+    final_passed = isinstance(final_qualification, dict) and final_qualification.get("status") == contract.get("passStatus")
+    if final_passed and not targeted_passed:
+        findings.append(issue("RECOVERY_QUALIFICATION_SEQUENCE_INVALID", f"{path}.finalQualification", "Final qualification cannot pass before targeted qualification passes"))
 
     disposition = value.get("disposition")
     if not isinstance(disposition, dict):
@@ -451,6 +494,25 @@ def validate_recovery(value: Any, contracts: dict[str, dict[str, Any]], path: st
             findings.append(issue("RECOVERY_RECOVERABILITY_FLAGS_INVALID", f"{path}.recoverability", "recoverable and maintenanceAllowed must be boolean"))
         if not isinstance(recoverability.get("safeNextAction"), str) or not recoverability.get("safeNextAction", "").strip():
             findings.append(issue("RECOVERY_SAFE_NEXT_ACTION_INVALID", f"{path}.recoverability", "safeNextAction must be a non-empty string"))
+
+    successful_recovery = targeted_passed and final_passed
+    blocked_disposition = contract.get("blockedDisposition") or {}
+    if isinstance(disposition, dict) and not final_passed:
+        if disposition.get("integration") != blocked_disposition.get("integration") or disposition.get("delivery") != blocked_disposition.get("delivery"):
+            findings.append(issue("RECOVERY_FINAL_QUALIFICATION_MISSING", f"{path}.finalQualification", "A non-passed final qualification cannot authorize integration or delivery disposition"))
+    if successful_recovery and (not authorized_paths or not actual_paths):
+        findings.append(issue("RECOVERY_SUCCESSFUL_REPAIR_PATHS_MISSING", path, "A successfully qualified recovery requires authorized and actual repair paths"))
+    if isinstance(recoverability, dict) and isinstance(recoverability.get("recoverable"), bool) and isinstance(recoverability.get("maintenanceAllowed"), bool):
+        recoverable = recoverability["recoverable"]
+        maintenance_allowed = recoverability["maintenanceAllowed"]
+        if maintenance_allowed and not recoverable:
+            findings.append(issue("RECOVERY_RECOVERABILITY_STATE_INVALID", f"{path}.recoverability", "maintenanceAllowed=true requires recoverable=true"))
+        if successful_recovery:
+            required = contract.get("successfulRecoveryRequires") or {}
+            if recoverable is not required.get("recoverable") or maintenance_allowed is not required.get("maintenanceAllowed"):
+                findings.append(issue("RECOVERY_RECOVERABILITY_STATE_INVALID", f"{path}.recoverability", "A successfully qualified repair requires recoverable=true and maintenanceAllowed=true"))
+        if actual_paths and not maintenance_allowed:
+            findings.append(issue("RECOVERY_REPAIR_WITHOUT_MAINTENANCE_AUTHORITY", path, "actualRepairPaths require maintenanceAllowed=true"))
 
     return findings, {"recordId": record_id, "profileSelection": selection, "recoverable": recoverability.get("recoverable") if isinstance(recoverability, dict) else None}
 

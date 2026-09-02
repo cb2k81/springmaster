@@ -23,31 +23,34 @@ overallStatus: active
 lastDriftResult: none
 lastDriftAt: 2026-09-02
 expectedVersionImpact: minor
-currentMilestone: M-001
+currentMilestone: M-002
 ---
 
 # Governance & Tooling Simplification / Managed Project Recovery - Status
 
 ## Aktueller Stand
 
-Sprint 006 ist aktiviert. ADR-0020 und GOAL-008 bilden die Enabling-Governance-Foundation. Der M-001-Implementierungskandidat materialisiert die Reibungs-/Authority-Inventur, den Recovery Record und eine hermetische Self-Repair-Canary. M-001 bleibt bis zur unabhängigen Qualification `in-progress`; Integration, Delivery, Acceptance oder Sprint-Closure werden nicht behauptet.
+Sprint 006 ist aktiv. ADR-0020 und GOAL-008 bilden die Enabling-Governance-Foundation. M-001 ist auf dem Trusted Host qualifiziert und über Delivery `000267_s006-p0-m001-maintenance-recovery` akzeptiert. Der anschließende Source-Review hat die Recovery-Semantik für isolierte Branches, blockierte Records und Evidence-Pflichtfelder nachgeschärft; diese Post-Accept-Findings sind im M-001-Closure-Schnitt geschlossen. Sprint-Closure wird ausdrücklich nicht behauptet; M-002 ist der nächste geplante Umsetzungsschnitt.
 
 ```text
 OVERALL_STATUS=active
-CURRENT_MILESTONE=M-001
+CURRENT_MILESTONE=M-002
 SPRINT_PHASE=execution
 LAST_DRIFT_RESULT=none
 QUALIFICATION_STATUS=pending
 CLOSURE_STATUS=open
-M001_IMPLEMENTATION_CANDIDATE=materialized
-M001_TRUSTED_HOST_QUALIFICATION=pending
+M001_STATUS=completed
+M001_ACCEPTANCE=accepted
+M001_ACCEPTED_PATCH=000267_s006-p0-m001-maintenance-recovery
+M001_TRUSTED_HOST_QUALIFICATION=passed
+M001_POST_ACCEPT_REVIEW=closed
 ```
 
 ## Teilziele
 
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
-| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassifikation, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Contract/Validator/25 hermetische IT-Fälle + Baseline Report; Trusted Host offen | Springmaster | in-progress |
+| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassifikation, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Contract/Validator/32 hermetische IT-Fälle + A002 Baseline + vollständige Trusted-Host-Matrix + akzeptierte Delivery 000267 + Post-Accept-Review-Closure | Springmaster | completed |
 | M-002 | Kanonischer Producer, State Truth, Runner und Source-Diff | REQ-008..010, REQ-014..018 | Producer->Preflight PASS; State eindeutig; Runner/Scope-Fixtures PASS | Tooling Code + IT/Evidence | Springmaster | planned |
 | M-003 | Engineering-/Delivery-Trennung und Progressive Qualification | REQ-006..007, REQ-011..013, REQ-019 | normaler Change ohne Vorab-cpatch; Delivery weiter fail-closed | Tooling/Governance + Regression | Springmaster | planned |
 | M-004 | DEV-/Build-Portabilität und project-owned Tooling | REQ-020..025, REQ-028..029 | Fresh Checkout, Env/DB/Build und project-owned tooling qualifiziert | Managed-Project Fixtures + Host Tests | Springmaster | planned |
@@ -57,11 +60,11 @@ M001_TRUSTED_HOST_QUALIFICATION=pending
 
 ## Abgeschlossene Teilziele
 
-Keine. Die Sprintaktivierung materialisiert Auftrag und Authority, nicht die Produkt-DoD.
+M-001 ist abgeschlossen. Der Recovery Contract bindet ADR-0020 an die bestehenden Change-/Risk-, Profile-, Execution-/Finding- und Completion-Vokabulare. Die Trusted-Host-Qualification lief mit der vollständigen Originalmatrix, der kanonische Dry Run war findings-frei und Delivery `000267_s006-p0-m001-maintenance-recovery` wurde akzeptiert. Der Post-Accept-Review schloss anschließend die semantischen Lücken für attached isolated branches, blockierte Recovery-Records, nicht-leere Baseline-/Worktree-Bindings und Qualification-Evidence.
 
 ## Aktives Teilziel
 
-M-001: Der exakte Zehn-Pfade-Schnitt ist materialisiert. `maintenance-recovery-contract.json` bindet ADR-0020 an bestehende Change-/Risk-, Profile-, Execution-/Finding- und Completion-Vokabulare. Der positive Fixture repariert nur eine absichtlich defekte Gate-Kopie über einen unabhängigen Bootstrap und prüft targeted sowie am vollständigen Fixture-Boundary; negative Fälle schützen Scope, Capability, Main, Push und Qualification Truth. Unabhängige Qualification bleibt offen.
+Kein M-002-Code ist durch den M-001-Closure-Schnitt vorweggenommen. M-002 ist der nächste geplante Umsetzungsschnitt und darf nun aus der sauberen akzeptierten M-001-Baseline gestartet werden.
 
 ## Blockierte Teilziele
 
@@ -93,7 +96,7 @@ Erwartet: Tooling und Update jeweils mindestens `minor`, Foundation gegebenenfal
 
 ## Nächster kontrollierter Schritt
 
-Den M-001-Kandidaten mit den vollständigen repository-kontrollierten und Trusted-Host-Oracles qualifizieren. Erst nach unabhängiger Evidence darf M-001 abgeschlossen und M-002 als aktiver Umsetzungsschnitt fortgeschrieben werden.
+M-002 auf der sauberen akzeptierten M-001-Baseline starten. Dabei bleiben die in M-001 bestätigten Safety-/Recovery-Invarianten unverändert; insbesondere darf der Producer-/State-/Runner-Schnitt keine zweite Vertragswahrheit erzeugen.
 
 ## Amendments
 
@@ -105,3 +108,4 @@ Keine.
 |---|---|---|---|
 | 2026-09-01 | planned | active | Sprint 006 nach akzeptierter Enabling-Governance-Foundation und konkretisierten Personnel-/ZBM-Feldanforderungen aktiviert. |
 | 2026-09-02 | active | active | M-001-Implementierungskandidat samt Recovery Contract, Inventory und hermetischer Self-Repair-Canary materialisiert; Qualification und Acceptance bleiben offen. |
+| 2026-09-02 | active | active | M-001 nach vollständiger Trusted-Host-Qualification und Acceptance 000267 abgeschlossen; Post-Accept-Review-Findings zum Recovery-Vertrag im Closure-Schnitt geschlossen, M-002 ist nächster geplanter Slice. |

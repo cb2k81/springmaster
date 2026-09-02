@@ -1,6 +1,6 @@
 {
   "schemaVersion": "springmaster.maintenance-recovery-contract.v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.0.1",
   "status": "report-only",
   "ruleSource": "PROJECT_DOCS/ADR/ADR-0020-enabling-governance-and-recoverable-tooling.md",
   "recordSchema": "springmaster.maintenance-recovery.v1",
@@ -57,5 +57,19 @@
   "deliveryDispositions": ["not-requested", "requires-cpatch", "requires-human-accept"],
   "recoverabilityRequiredFields": ["recoverable", "maintenanceAllowed", "safeNextAction"],
   "passStatus": "passed",
-  "successExitCode": 0
+  "successExitCode": 0,
+  "worktreeIsolationPolicy": {
+    "allowAttachedIsolatedBranch": true,
+    "allowDetachedWorktree": true,
+    "integrationWorktreeForbidden": true
+  },
+  "qualificationEvidenceStatuses": ["passed", "passed-with-findings", "blocked", "tool-error"],
+  "blockedDisposition": {
+    "integration": "not-requested",
+    "delivery": "not-requested"
+  },
+  "successfulRecoveryRequires": {
+    "recoverable": true,
+    "maintenanceAllowed": true
+  }
 }

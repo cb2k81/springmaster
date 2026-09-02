@@ -37,7 +37,7 @@ CLOSURE_STATUS=open
 
 ## Anforderungen und Teilziele
 
-Der M-001-Implementierungskandidat deckt `S006-REQ-001` bis `S006-REQ-005` durch Inventory, Recovery Contract/Validator, Guide sowie positive und negative hermetische Fixtures ab. Die Anforderungen bleiben bis zur unabhängigen Qualification und Acceptance nicht final geschlossen. M-001 ist `in-progress`; M-002 bis M-007 sind `planned`.
+M-001 deckt `S006-REQ-001` bis `S006-REQ-005` durch Inventory, Recovery Contract/Validator, Guide sowie positive und negative hermetische Fixtures ab. Der Slice wurde mit der vollständigen Trusted-Host-Matrix qualifiziert und über Delivery `000267_s006-p0-m001-maintenance-recovery` akzeptiert. Ein Post-Accept-Review identifizierte und schloss anschließend semantische Lücken für isolierte Branches, blockierte Recovery-Records und Evidence-Pflichtfelder. M-001 ist `completed`; M-002 bis M-007 bleiben `planned`.
 
 ## Definition of Done und Qualification
 
@@ -74,11 +74,11 @@ FALSE_QUALIFICATION_CLAIMS=0
 
 ## Akzeptierte Änderungen
 
-Es ist weiterhin **kein Sprint-006-Slice als abgeschlossen oder akzeptiert** zu verbuchen. Der M-001-Candidate erweitert den bestehenden Engineering-Validator um einen ADR-0020-gebundenen Maintenance-Recovery-Record. Er führt keinen Repair-Executor, cpatch-Producer, Supervisor oder allgemeinen Break-glass-Befehl ein.
+M-001 ist als erster Sprint-006-Slice abgeschlossen und akzeptiert. Der Slice erweitert den bestehenden Engineering-Validator um einen ADR-0020-gebundenen Maintenance-Recovery-Record; der Post-Accept-Closure-Schnitt korrigiert ausschließlich dessen Authority-/State-/Evidence-Semantik und die zugehörige Statuswahrheit. M-001 führt weiterhin keinen Repair-Executor, cpatch-Producer, Supervisor oder allgemeinen Break-glass-Befehl ein. Der **Sprint 006 insgesamt bleibt offen**.
 
 ## Test- und Qualification-Nachweis
 
-Für M-001 sind Contract- und IT-Oracles Bestandteil des Kandidaten. Die hermetische positive Fixture repariert nur die defekte Gate-Kopie, erhält Integration und unrelated Sentinel byte-identisch und führt targeted sowie den vollständigen Fixture-Boundary aus. Negative Fixtures lehnen Pfad-/Capability-Ausweitung, Main-Mutation, Push, falschen PASS und fehlende finale Qualification ab. Repositoryweite und Trusted-Host-Qualification sowie spätere Personnel-/ZBM-Field-Evidence bleiben separat offen.
+Für M-001 sind Contract- und IT-Oracles Bestandteil der akzeptierten Evidence. Die hermetische Self-Repair-Fixture repariert nur die defekte Gate-Kopie, erhält Integration und unrelated Sentinel byte-identisch und führt targeted sowie den vollständigen Fixture-Boundary aus. Insgesamt 32 IT-Fälle decken zusätzlich einen attached isolated branch, einen gültig blockierten Record sowie negative Pfad-/Capability-, Main-/Push-, Qualification-, Binding-, Evidence- und Recoverability-Fälle ab. Repositoryweite und Trusted-Host-Qualification einschließlich `ctool-doctor` und `cpatch doctor` waren vor und nach Acceptance grün; spätere Personnel-/ZBM-Field-Evidence bleibt separat offen.
 
 ## Offene Findings, Risiken und Schulden
 
@@ -86,7 +86,6 @@ Offen sind bei Aktivierung insbesondere:
 
 - fehlender kanonischer Patch Artifact Producer beziehungsweise gemeinsame Producer-/Validator-Modellquelle;
 - Patch-/Tooling-State-Truth und Fresh-Checkout-Rekonstruktion;
-- unabhängige Qualification und Acceptance des materialisierten Self-Repair/Maintenance-Vertrags;
 - Runner-/Expected-Failure-/Phase-/Source-Diff-Härtung;
 - progressive Qualification und Evidence-Minimierung;
 - Env-/DBTool-/Build-/Fresh-Checkout-Portabilität;
@@ -108,7 +107,7 @@ Die Aktivierung allein erzeugt keinen Komponenten-Bump und keine Releasefreigabe
 
 ## Nicht erreichte Ziele und Folgebedarf
 
-Alle S006-Produktziele sind zum Aktivierungszeitpunkt noch offen. Ein grüner Dokumentations-/Aktivierungspatch ist ausdrücklich kein Nachweis dafür, dass Tooling-Vereinfachung, Portabilität oder Field Recovery bereits umgesetzt wurden.
+M-001 ist erreicht. M-002 bis M-007 und damit insbesondere Producer-/State-/Runner-Vereinfachung, Engineering-/Delivery-Trennung, DEV-/Fresh-Checkout-Portabilität, Personnel-/ZBM-Feldqualification, Managed-Project-Portability und GWC-Conformance bleiben offen. Ein grüner einzelner Slice ist ausdrücklich kein Nachweis für Sprint-Closure.
 
 ## Lifecycle
 
@@ -116,3 +115,4 @@ Alle S006-Produktziele sind zum Aktivierungszeitpunkt noch offen. Ein grüner Do
 |---|---|---|---|
 | 2026-09-01 | - | draft | Nichtterminale Completion-Evidence für den aktivierten Sprint 006 angelegt. |
 | 2026-09-02 | draft | draft | M-001-Kandidat und lokale Contract-/Fixture-Evidence aufgenommen, ohne Qualification, Integration oder Abschluss zu behaupten. |
+| 2026-09-02 | draft | draft | M-001 nach Trusted-Host-Qualification und Acceptance 000267 als abgeschlossen verbucht; Post-Accept-Review-Findings zum Recovery-Vertrag geschlossen. Sprint-Completion bleibt ausdrücklich offen. |

@@ -27,7 +27,7 @@ The normative authority is ADR-0020. The machine-readable record contract is `co
 
 ## Purpose and decision boundary
 
-Maintenance recovery is permitted only when a required standard entrypoint is demonstrably defective, incomplete or unsuitable for its own repair. The repair occurs in an isolated branch or detached worktree at an exact baseline. The defective entrypoint is not a bootstrap prerequisite; unaffected repository, language or build verifiers provide the initial safe checks.
+Maintenance recovery is permitted only when a required standard entrypoint is demonstrably defective, incomplete or unsuitable for its own repair. The repair occurs in an isolated branch or detached worktree at an exact baseline. The `detached` record flag describes which of these two supported isolation forms is used; it is not a requirement to detach. The integration worktree itself remains forbidden. The defective entrypoint is not a bootstrap prerequisite; unaffected repository, language or build verifiers provide the initial safe checks.
 
 The path restores the standard entrypoint. It does not authorize direct `main` mutation, push, cross-project mutation, scope/capability expansion, acceptance, or a false PASS. Integration and delivery remain separate dispositions with their existing human and cpatch boundaries.
 
@@ -36,12 +36,12 @@ The path restores the standard entrypoint. It does not authorize direct `main` m
 A `springmaster.maintenance-recovery.v1` record captures:
 
 - the defective component, entrypoint, reason code, category and explanation;
-- baseline commit and integration-tree fingerprint plus the isolated worktree binding;
+- baseline commit, a non-empty integration ref and integration-tree fingerprint plus the isolated branch/worktree binding;
 - exact authorized and actually changed repair paths;
 - authorized and used capabilities;
 - the mandatory prohibitions `direct-main-mutation`, `push` and `cross-project-mutation`, and any observed violation;
 - bootstrap commands independent of the defective entrypoint;
-- targeted and final qualification executions;
+- targeted and final qualification executions, with non-empty evidence references for executed outcomes such as `passed`, `passed-with-findings`, `blocked` or `tool-error`;
 - integration and delivery disposition;
 - recoverability, maintenance eligibility and the smallest safe next action.
 
@@ -50,15 +50,15 @@ Classification reuses change classes and risks from `change-classification-contr
 ## Progressive flow
 
 ```text
-exact baseline + isolated worktree
+exact baseline + isolated branch / detached worktree
   -> unaffected bootstrap/verifier
-  -> edit only authorized repair paths
+  -> edit only authorized repair paths when maintenance is allowed
   -> targeted qualification of the repaired entrypoint
   -> normal full qualification boundary
-  -> reviewable integration/delivery disposition
+  -> reviewable integration/delivery disposition only after qualification
 ```
 
-The final qualification uses the normal `qualification` profile and must be recorded as `passed` with exit code `0`. A targeted PASS with a nonzero exit, a missing final qualification, or a forbidden observed operation makes the record invalid.
+A recovery that requests an integration or delivery disposition requires targeted and final qualification to be recorded as `passed`; a passed qualification requires exit code `0` and at least one evidence reference. A blocked recovery record may instead keep qualification `blocked` or `not-executed`, but then both integration and delivery disposition remain `not-requested`. A final PASS before targeted PASS, a qualified repair declared non-recoverable or maintenance-disallowed, or a forbidden observed operation makes the record invalid.
 
 ## Validation
 
@@ -69,14 +69,15 @@ Validate contracts and a concrete record with:
 ./bin/engineering-contracts.sh --check maintenance-recovery --input <record.json>
 ```
 
-`bin/engineering-contracts-it.sh` provides a hermetic canary. It copies an intentionally defective gate into isolated fixture trees, performs an unaffected bootstrap check, repairs only the authorized copy, runs targeted verification and the normal full fixture boundary, and proves the integration tree and unrelated sentinel remain byte-identical. Negative fixtures reject path and capability expansion, direct-main mutation, push, false PASS and missing final qualification.
+`bin/engineering-contracts-it.sh` provides a hermetic canary. It copies an intentionally defective gate into isolated fixture trees, performs an unaffected bootstrap check, repairs only the authorized copy, runs targeted verification and the normal full fixture boundary, and proves the integration tree and unrelated sentinel remain byte-identical. A second positive record proves that an attached isolated branch is as valid as a detached worktree, and a positive blocked record proves fail-closed disposition without false qualification. Negative fixtures reject path and capability expansion, direct-main mutation, push, false PASS, missing final qualification, empty worktree/integration bindings, missing PASS evidence, and contradictory recoverability flags.
 
 ## Blocking result
 
-If recovery is not safe, report the defect `reasonCode`, its `PRODUCT|TOOLING|ENVIRONMENT|GOVERNANCE` category, `recoverable=false`, `maintenanceAllowed=false`, and a non-empty `safeNextAction`. Unknown or untrusted state remains fail-closed. A blocked record never broadens authority.
+If recovery is not safe, report the defect `reasonCode`, its `PRODUCT|TOOLING|ENVIRONMENT|GOVERNANCE` category, coherent `recoverable` / `maintenanceAllowed` flags, and a non-empty `safeNextAction`. `maintenanceAllowed=true` requires `recoverable=true`. A blocked record may have no actual repair paths and may leave final qualification `not-executed`; it must keep integration and delivery disposition at `not-requested`. Unknown or untrusted state remains fail-closed. A blocked record never broadens authority.
 
 ## Lifecycle
 
 | Date | State | Reason |
 |---|---|---|
 | 2026-09-02 | active | M-001 materialized ADR-0020 as a validated recovery record and hermetic self-repair canary. |
+| 2026-09-02 | active | Post-accept review aligned attached-branch vs. detached-worktree semantics, blocked records, evidence references and non-empty baseline/worktree bindings with ADR-0020. |

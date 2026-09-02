@@ -225,7 +225,7 @@ SPRINT006_RESULT=DOD_QUALIFIED
 
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
-| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassen, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Governance/Contracts + Baseline Report | Springmaster | in-progress |
+| M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassen, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Governance/Contracts + A002 Baseline + Trusted-Host-Qualification + Acceptance 000267 + Post-Accept-Review-Closure | Springmaster | completed |
 | M-002 | Kanonischer Producer, State Truth, Runner und Source-Diff | REQ-008..010, REQ-014..018 | Producer->Preflight PASS; State eindeutig; Runner/Scope-Fixtures PASS | Tooling Code + IT/Evidence | Springmaster | planned |
 | M-003 | Engineering-/Delivery-Trennung und Progressive Qualification | REQ-006..007, REQ-011..013, REQ-019 | normaler Change ohne Vorab-cpatch; Delivery weiter fail-closed | Tooling/Governance + Regression | Springmaster | planned |
 | M-004 | DEV-/Build-Portabilität und projekt-eigenes Tooling | REQ-020..025, REQ-028..029 | Fresh Checkout, Env/DB/Build und project-owned tooling qualifiziert | Managed-Project Fixtures + Host Tests | Springmaster | planned |
@@ -273,3 +273,4 @@ Keine.
 |---|---|---|---|
 | 2026-09-01 | - | planned | Post-S005-Problemraum aus Personnel-/ZBM-Feldfeedback und Enabling-Governance-Ziel abgeleitet. |
 | 2026-09-01 | planned | active | Auftrag, Prioritäten, DoR/DoD, Nichtziele und Stop-Kriterien für die Recovery-/Simplification-Stufe bestätigt. |
+| 2026-09-02 | active | active | M-001 nach Trusted-Host-Qualification, Acceptance 000267 und Post-Accept-Review-Closure abgeschlossen; Sprint bleibt für M-002 bis M-007 aktiv. |

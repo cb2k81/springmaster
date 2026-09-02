@@ -236,7 +236,36 @@ for expected in expectations:
         shutil.rmtree(contract_root)
     elif case_id.startswith("recovery-"):
         value = recovery_record("a" * 64)
-        if case_id == "recovery-positive-self-repair":
+        if case_id == "recovery-positive-isolated-branch":
+            value["isolatedWorktree"]["detached"] = False
+        elif case_id == "recovery-blocked-valid":
+            value["actualRepairPaths"] = []
+            value["usedCapabilities"] = ["read-source", "run-unaffected-bootstrap"]
+            value["targetedQualification"]["status"] = "blocked"
+            value["targetedQualification"]["exitCode"] = 23
+            value["targetedQualification"]["reportRefs"] = ["fixture/targeted-blocked.txt"]
+            value["finalQualification"]["status"] = "not-executed"
+            value["finalQualification"]["exitCode"] = 0
+            value["finalQualification"]["reportRefs"] = []
+            value["disposition"] = {"integration": "not-requested", "delivery": "not-requested"}
+            value["recoverability"] = {
+                "recoverable": False,
+                "maintenanceAllowed": False,
+                "safeNextAction": "Escalate the blocked tooling defect without mutating the integration worktree.",
+            }
+        elif case_id == "recovery-empty-worktree-path":
+            value["isolatedWorktree"]["path"] = ""
+        elif case_id == "recovery-empty-integration-ref":
+            value["baseline"]["integrationRef"] = ""
+        elif case_id == "recovery-passed-empty-report-refs":
+            value["targetedQualification"]["reportRefs"] = []
+        elif case_id == "recovery-unrecoverable-qualified":
+            value["recoverability"]["recoverable"] = False
+            value["recoverability"]["maintenanceAllowed"] = False
+        elif case_id == "recovery-maintenance-without-recoverability":
+            value["recoverability"]["recoverable"] = False
+            value["recoverability"]["maintenanceAllowed"] = True
+        elif case_id == "recovery-positive-self-repair":
             integration_root = case_dir / "integration-main"
             isolated_root = case_dir / "isolated-repair"
             gate = integration_root / "bin/defective-gate.sh"

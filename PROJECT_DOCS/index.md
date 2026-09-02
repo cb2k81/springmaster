@@ -191,8 +191,8 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SPRINT_BRIEF.md` — active Sprint-006 problem space, 32 requirements, DoR/DoD, real-world canaries and P0/P1/P2 priorities
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SOLUTION_PLAN.md` — active solution plan for canonical producers, recovery, Engineering/Delivery separation, DEV portability and managed-project qualification
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/STATUS.md` — current Sprint-006 status; M-001 in progress, M-002..M-007 planned
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/COMPLETION_REPORT.md` — draft/non-terminal completion evidence; no S006 product completion claimed
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/STATUS.md` — current Sprint-006 status; M-001 completed/accepted and post-accept review closed, M-002 next planned, M-003..M-007 planned
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/COMPLETION_REPORT.md` — draft/non-terminal Sprint completion evidence; M-001 accepted, no overall S006 completion claimed
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/WORK/ANALYSES/S006_P0_TOOLING_INVENTORY.md` — immutable A002 P0 authority/gap inventory and M-001 recovery disposition
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/SPRINT_BRIEF.md` — archivierter Problem- und Anforderungsraum des qualifiziert abgeschlossenen Autonomous-Repair-Loop-Sprints
 - `PROJECT_DOCS/SPRINTS/ARCHIVE/2026/SPRINGMASTER-SPRINT-005/COMPLETION_REPORT.md` — finaler Sprint-005-Nachweis für 28/28 Requirements, realen Repair-Canary bis PREACCEPT, Product Acceptance und Trusted-Host-Closure
@@ -300,3 +300,4 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 | 2026-08-20 | active | active | M-001-Acceptance 000224 und technische M2-M7-DoD-Qualification mit separater trusted Integration reflektiert. |
 | 2026-08-22 | active | active | Sprint 003 nach akzeptiertem Patch 000242 und Post-Accept-Verifikation archiviert; Sprint 004 mit field-proven Backend Contracts und Runtime Primitives aktiviert. |
 | 2026-09-02 | active | active | Sprint-006-P0-Inventur und ADR-0020-Maintenance-Recovery-Guide indexiert. |
+| 2026-09-02 | active | active | M-001-Acceptance 000267 und Post-Accept-Review-Closure der Recovery-Contract-Semantik reflektiert; M-002 ist nächster geplanter Slice. |
