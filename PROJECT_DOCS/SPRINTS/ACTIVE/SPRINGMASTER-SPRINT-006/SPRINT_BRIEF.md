@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-09-01
 validFrom: 2026-09-01
-lastReviewedAt: 2026-09-01
+lastReviewedAt: 2026-09-02
 reviewBy: 2026-09-30
 supersedes: []
 supersededBy: null
@@ -64,7 +64,7 @@ Feldinputs:
 
 ## Problemstellung und Stakeholder
 
-Die Sprints 001 bis 005 haben starke Sicherheits-, Qualification-, Evidence- und autonome Repair-Mechanismen aufgebaut. Reale Nutzung in Personnel und ZBM zeigt jedoch, dass ein Teil dieser Mechanismen inzwischen mehr nicht-fachliche Arbeit erzeugt als die eigentliche Änderung. Besonders problematisch sind Situationen, in denen ein Validator einen komplexen Vertrag erzwingt, aber kein kanonischer Producer existiert, oder ein Tool nur durch den von ihm selbst blockierten Pfad repariert werden dürfte.
+Die Sprints 001 bis 005 haben starke Sicherheits-, Qualification-, Evidence- und autonome Repair-Mechanismen aufgebaut. Reale Nutzung in Personnel und ZBM zeigt jedoch, dass ein Teil dieser Mechanismen inzwischen mehr nicht-fachliche Arbeit erzeugt als die eigentliche Änderung. Besonders problematisch sind veraltete oder nicht adoptierte Producer-/Contract-Stände sowie Situationen, in denen ein Tool nur durch den von ihm selbst blockierten Pfad repariert werden dürfte.
 
 Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte, KI-Agenten/Operatoren, Architektur-/Security-Reviewer und Betreiber lokaler DEV-/Build-Umgebungen.
 
@@ -79,9 +79,9 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 | `S006-REQ-005` | Mindestens ein absichtlich defekter Springmaster-Toolpfad wird über den Recovery-Pfad repariert und anschließend vollständig qualifiziert, ohne Safety Invariants zu umgehen. |
 | `S006-REQ-006` | Normale lokale Engineering-Arbeit kann Branch/Worktree -> Change -> gezielte Verifikation -> risikogerechte Qualification -> Commit durchlaufen, ohne vorher ein Patchartefakt erzeugen zu müssen. |
 | `S006-REQ-007` | cpatch bleibt der qualifizierte Delivery-/Acceptance-/Cross-Repository-Mechanismus; seine Sicherheitsgrenzen werden nicht als allgemeiner Development Hot Path missverstanden. |
-| `S006-REQ-008` | Springmaster stellt einen kanonischen Patch-Artifact-Producer bereit, der Candidate-Diff, Scope, new/modified/deleted, Before-Hashes, Artifact-ID, Manifest und ZIP-Layout selbst deterministisch erzeugt und danach den eigenen Preflight aufruft. |
+| `S006-REQ-008` | Es existiert genau ein kanonischer Patch-Artifact-Producer. Ist er im Live-Stand vorhanden, wird kein zweiter implementiert. M-002 schließt nur nachgewiesene Model-, Caller-, Distribution-, Adoption-, Documentation- oder DX-Gaps. Alle Caller verwenden dieselbe versionierte Artifact-Contract-Quelle. |
 | `S006-REQ-009` | Patch-Artifact-Producer und Validator/Preflight verwenden dasselbe interne Patch Artifact Model oder eine nachweislich gemeinsame Vertragsquelle; Produzenten müssen das Format nicht aus Validatorfehlern rückwärts ableiten. |
-| `S006-REQ-010` | Git HEAD, Foundation-/Tooling-Version, PLATFORM_STATE_PATCH und ausgelieferter Patch-/Toolingstand sind aus versionierten Quellen eindeutig rekonstruierbar; konkurrierende Latest-Wahrheiten werden beseitigt. |
+| `S006-REQ-010` | State Truth wird zuerst gegen aktuelle versionierte Quellen bewiesen. Ist die Springmaster-Wahrheit für Git HEAD, Foundation-/Tooling-Version, `PLATFORM_STATE_PATCH` und ausgelieferten Patch-/Toolingstand eindeutig, wird kein neuer State Store eingeführt. Offene Arbeit betrifft dann Distribution/Adoption und korrekte Zielprojekt-Komponentenstände. |
 | `S006-REQ-011` | Qualification ist progressiv und risikobasiert: Syntax/Static -> betroffene Tests -> Slice -> Contract/Integration -> Full Qualification an definierter Integrations-/Release-Grenze. |
 | `S006-REQ-012` | Change-/Risikoklasse und konkrete Authority bestimmen die erforderliche Qualification-Breite; historische Tooling-Kopplung allein rechtfertigt keine unnötig breite frühe Prüfung. |
 | `S006-REQ-013` | Success-Evidence bleibt kompakt; Fehlerdiagnostik enthält nur relevante Zustände und referenziert unveränderliche historische Evidence statt Repository-, Export-, Patcharchiv- oder Buildbestände pauschal zu kopieren. |
@@ -91,25 +91,29 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 | `S006-REQ-017` | FAILED_STAGE beziehungsweise Phase wird unmittelbar vor der tatsächlich risikobehafteten Operation gesetzt; Follow/Watch-Fehler dürfen die autoritative Result-/Diagnostic-Phase nicht überspringen oder maskieren. |
 | `S006-REQ-018` | Git-/Scope-Gates vergleichen semantische Source-Diff-Mengen statt positionsabhängiger sortierter Arrays und unterscheiden Source-Änderungen von definierten Laufartefakten; die Prüfung ist Locale-unabhängig. |
 | `S006-REQ-019` | Normale Delivery-/Qualification-Abläufe bleiben terminalschonend und mit einer einzigen gestarteten Benutzerinteraktion ausführbar; notwendige Human-Trust-Entscheidungen dürfen innerhalb dieses laufenden Ablaufs explizit bleiben. |
-| `S006-REQ-020` | Ein gemanagtes Projekt ist nach normalem Git-Checkout mit den im Projekt versionierten Tooling-Komponenten selbstständig arbeitsfähig; Springmaster-, Personnel- oder andere Nachbarcheckouts sind keine Runtime-/Engineering-Voraussetzung. |
+| `S006-REQ-020` | Project-owned Tools, Contracts und Consumer-Handoff-Pakete sind nach Installation selbstständig qualifizierbar; Springmaster-, GWC-, Personnel- oder andere Nachbarcheckouts sind keine normale Runtime-/Engineering-/Qualification-Voraussetzung. Externe Contract-Versionen werden explizit und content-addressed gebunden. |
 | `S006-REQ-021` | .env.example bleibt getrackte secret-freie Defaultvorlage; .env bleibt lokaler Override. Ein Sync ergänzt/aktualisiert nur definierte Keys, erhält lokale/unknown Keys und Secrets und trackt .env niemals automatisch. |
 | `S006-REQ-022` | DBTool besitzt explizite, validierte lokale Adminmodi wie sudo, socket und password sowie einen generischen DEV-Bootstrap für DB/User/Grant/Schema; destruktive Aktionen bleiben separat autorisiert. |
 | `S006-REQ-023` | Der generische DB-Qualifikationspfad bleibt Fresh Schema -> Liquibase apply -> Hibernate validate -> Persistence/Integration Tests; Hibernate update ist keine stillschweigende Schema-Reparatur. |
 | `S006-REQ-024` | Build, Packaging und Remote Deployment besitzen getrennte Side-Effect-Grenzen; ein Qualification-Build kann Deployment explizit deaktivieren, ohne lokale Secrets oder persistente Projektkonfiguration zu überschreiben. |
 | `S006-REQ-025` | Tooling-/Managed-Project-Releasequalification enthält Fresh-Checkout-Fälle ohne .env sowie mit lokalem .env-Bootstrap; lokale Secrets bleiben erhalten und der Checkout benötigt keinen Springmaster-Nachbarcheckout. |
-| `S006-REQ-026` | Personnel dient als Real-World-Canary: Ein realer Produktfehler/Change wird weiterhin korrekt gefunden, aber nicht-fachliche Interaktionen, wiederholte Teststarts, Shadow-/Evidence-Größe und Recovery-Schritte werden gegenüber dem aktuellen P3-Muster messbar reduziert. |
-| `S006-REQ-027` | Der aktuelle ZBM-Blocker wird zuerst forensisch als PRODUCT, TOOLING, ENVIRONMENT oder GOVERNANCE klassifiziert, dann über Normal- oder Recovery-Pfad geschlossen und durch mindestens einen anschließenden realen Entwicklungschange validiert. |
+| `S006-REQ-026` | Personnel ist Real-World-Canary und Non-Regression-Canary: Ein realer Produktfehler/Change wird weiterhin korrekt gefunden, während bestehende Public Contracts und lokale Compatibility Locks identisch bleiben oder nur durch eine separat autorisierte Migration geändert werden; nicht-fachliche Interaktionen, wiederholte Teststarts, Shadow-/Evidence-Größe und Recovery-Schritte werden gegenüber dem aktuellen P3-Muster messbar reduziert. |
+| `S006-REQ-027` | ZBM ist Recovery- und Non-Regression-Canary: Der aktuelle Blocker wird zuerst forensisch als PRODUCT, TOOLING, ENVIRONMENT oder GOVERNANCE klassifiziert, dann über Normal- oder Recovery-Pfad geschlossen und durch mindestens einen realen Entwicklungschange validiert; bestehende Public Contracts und lokale Compatibility Locks bleiben identisch oder werden nur durch eine separat autorisierte Migration geändert. |
 | `S006-REQ-028` | Portable Managed Development umfasst Project Adapter sowie install/update/repair/rollback des projekt-eigenen Toolingstands; projektbezogene Runs, Worktrees und Artefakte bleiben getrennt. |
 | `S006-REQ-029` | Cross-Project-Mutationen, automatische Pushes, direkte Agent-Mutation der Integrationsbranch und falsche PASS-/Qualification-Aussagen bleiben verboten; Vergleichsprojekte sind Evidence-Quelle, keine Runtime-Abhängigkeit. |
-| `S006-REQ-030` | SPRINGMASTER_CONFORMANT und GWC_CONFORMANT bleiben getrennte Aussagen; ein Managed Project kann die für seinen GWC-Usecase benötigte Capability-Menge explizit deklarieren und qualifizieren. |
-| `S006-REQ-031` | Der GWC-Conformance-Nachweis startet report-only mit positiver/negativer Evidence und darf erst nach bestehender Gate-Promotion-Governance strict werden; P0/P1 darf dadurch nicht blockiert werden. |
+| `S006-REQ-030` | `SPRINGMASTER_CONFORMANT` und `GWC_CONFORMANT` bleiben getrennte, capability- und Contract-Version-spezifische Aussagen. Ein Backend-Handoff-Subset darf qualifiziert werden, ohne volle GWC-Produktion oder UI-Codegeneration zu behaupten. |
+| `S006-REQ-031` | Der GWC-Conformance-Nachweis startet report-only mit positiver/negativer Evidence und darf erst nach bestehender Gate-Promotion-Governance strict werden; P0/P1 darf dadurch nicht blockiert werden. Current-GWC-Conformance bindet die aktuelle GWC-owned Contract-Version und darf UI Spec 1.2 nicht als bereits adoptierte GWC-Produktwahrheit voraussetzen. |
 | `S006-REQ-032` | Code, Tooling, Contracts, ADRs/Governance, Roadmap, Sprintstatus, Completion Evidence und finale Version Truth treffen bei Sprint-Closure dieselbe Aussage; temporäre Dokumente und Deferrals sind explizit disponiert. |
+| `S006-REQ-033` | **NON-REGRESSION COMPATIBILITY BOUNDARY:** Standardisierung ist additiv und opt-in, solange keine separate Migration autorisiert ist. Öffentliche Transport-, DTO-, Error-, Security-, Persistence- und Identity-Verträge werden nicht implizit geändert. Nicht-additive Abweichungen benötigen Compatibility Decision, Regressionsevidence und eine eigene Trust-/Acceptance-Grenze. |
+| `S006-REQ-034` | **VERSIONED BACKEND CONSUMER HANDOFF:** Springmaster definiert einen projektneutralen versionierten Backend-Consumer-Handoff, deterministisch abgeleitet aus autoritativen Backendquellen. Er transportiert mindestens Operationsidentität, technische Verifikation, Request-/Response-/Parameter-/Error-Bindings, Security-/Capability-Metadaten, Resource Semantics und Provenienz/Hashes. Er dupliziert keine UI-Semantik und benötigt nach Installation keinen Springmaster-/GWC-Nachbarcheckout. |
+| `S006-REQ-035` | **OPERATION IDENTITY COMPATIBILITY:** `operationKey` ist für profilierte Operationen die stabile additive Semantikidentität. Method/Path/`operationId` bleiben technische Verifikationsidentität und werden zur Standardisierung nicht umbenannt. Für Contract-Versionen ohne natives `operationKey` wird eine deterministische, fail-closed Compatibility-/Alias-Auflösung verwendet. Unprofilierte bestehende Operationen bleiben gültig. |
+| `S006-REQ-036` | **GWC/BACKEND AUTHORITY BOUNDARY:** Objektbezogene Authorization/RLS bleibt ausschließlich Backend-Verantwortung. GWC-Capabilities und Prechecks sind UX-Evidence, kein Autorisierungsnachweis. Der Springmaster-Handoff erzeugt weder Client-RLS/target-aware Authorization noch UI-Reload-Graph oder Workspace-Semantik. |
 
 ## Qualitätsanforderungen
 
 - Keine Abschwächung von Safety Invariants, Human-Accept, Baseline-/Scope-Schutz, Secret-Schutz oder Cross-Project-Mutationsgrenzen.
 - Keine neue zweite Control Plane nur zur Umgehung der bestehenden Control Plane.
-- Neue Producer, Scaffolds und Runner müssen deterministisch, lokal und mit möglichst wenigen externen Abhängigkeiten funktionieren.
+- Producer-/Contract-Konvergenz, Scaffolds und Runner müssen deterministisch, lokal und mit möglichst wenigen externen Abhängigkeiten funktionieren.
 - Jede neue harte Gate-Regel benennt Authority, reales Risiko, erforderliche Phase und Recovery-/Remediation-Pfad.
 - Metriken dienen der Developer-Experience-Verbesserung und dürfen nicht selbst zu neuer Bürokratie werden.
 - Reale Canaries unterscheiden Produktfehler, Toolingfehler, Environmentfehler und Governancefehler.
@@ -117,8 +121,8 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 ## In Scope
 
 - Enabling-Governance- und Recovery-Contracts;
-- kanonischer Patch Artifact Producer und gemeinsame Patch-Model-Quelle;
-- vereinheitlichte Patch-/Tooling-State-Wahrheit;
+- Konvergenz aller Patch-Artifact-Caller auf den vorhandenen kanonischen Producer und dieselbe versionierte Contract-Quelle;
+- Nachweis der Patch-/Tooling-State-Wahrheit und Schließung realer Distribution-/Adoption-Gaps ohne zweiten State Store;
 - Engineering-/Candidate- versus Delivery-/Acceptance-Workflow;
 - gemeinsame Runner-/Expected-Failure-/Phase-/Diagnose-Semantik;
 - semantische Source-Diff-Gates;
@@ -129,6 +133,7 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 - Personnel- und ZBM-Feldcanaries;
 - Portable Managed Development Foundation;
 - report-only GWC-Conformance-Profil, sofern P0/P1 nicht verzögert werden.
+- versionierter projektneutraler Backend-Consumer-Handoff und additive Compatibility-Grenzen.
 
 ## Out of Scope
 
@@ -172,9 +177,9 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 
 ## Definition of Done
 
-- [ ] Alle `S006-REQ-001` bis `S006-REQ-032` sind auf akzeptierte Evidence gemappt und bewertet.
-- [ ] Ein kanonischer Patch Artifact Producer erzeugt ohne manuelle Manifest-/ZIP-Rekonstruktion ein vom eigenen Preflight akzeptiertes Artefakt.
-- [ ] Patch-/Tooling-State ist in einem Fresh Checkout eindeutig aus versionierten Quellen rekonstruierbar.
+- [ ] Alle `S006-REQ-001` bis `S006-REQ-036` sind auf akzeptierte Evidence gemappt und bewertet.
+- [ ] Der vorhandene kanonische Patch Artifact Producer und alle relevanten Caller verwenden dieselbe versionierte Artifact-Contract-Quelle; kein zweiter Producer wurde eingeführt.
+- [ ] Patch-/Tooling-State ist in einem Fresh Checkout eindeutig aus versionierten Quellen rekonstruierbar; bei eindeutiger Springmaster-Wahrheit wurde kein zweiter State Store eingeführt.
 - [ ] Ein absichtlich defektes Springmaster-Tool kann über den Maintenance-/Recovery-Pfad repariert und vollständig qualifiziert werden, ohne sich selbst als einzige Reparaturvoraussetzung zu benötigen.
 - [ ] Ein normaler lokaler Engineering-Change benötigt vor der Delivery-Grenze kein Patchartefakt.
 - [ ] Progressive Qualification und proportionale Evidence besitzen positive, negative und Tool-Error-/Recovery-Fixtures.
@@ -187,6 +192,7 @@ Stakeholder sind Springmaster-Maintainer, Entwickler gemanagter Backend-Projekte
 - [ ] ZBM-Blocker ist klassifiziert/geschlossen und ein anschließender realer Change läuft über den neuen Happy Path.
 - [ ] Managed-Project-Portability basiert auf projekt-eigenem versioniertem Tooling mit install/update/repair/rollback.
 - [ ] GWC-Conformance ist mindestens report-only qualifiziert oder kontrolliert deferriert, ohne falsche Reifeaussage.
+- [ ] Der versionierte Backend-Consumer-Handoff und die additive Non-Regression-/Operation-Identity-/Backend-Authority-Grenze sind report-only qualifiziert, ohne volle GWC-Produktion oder UI-Codegeneration zu behaupten.
 - [ ] Keine unautorisierte Target-Mutation, kein Push, keine falsche PASS-/Qualification-Aussage und keine abgeschwächte Safety Invariant.
 - [ ] Trusted-Host-Qualification, Version Truth, Completion Report, Index und Archivzustand sind konsistent geschlossen.
 
@@ -226,12 +232,12 @@ SPRINT006_RESULT=DOD_QUALIFIED
 | ID | Ergebnis | Anforderungen | Acceptance | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|
 | M-001 | Governance-/Tooling-Reibungsinventur und Recovery Contract | REQ-001..005 | Regelklassen, Feldbaseline, Recovery Contract und Self-Repair-Canary definiert | Governance/Contracts + A002 Baseline + Trusted-Host-Qualification + Acceptance 000267 + Post-Accept-Review-Closure | Springmaster | completed |
-| M-002 | Kanonischer Producer, State Truth, Runner und Source-Diff | REQ-008..010, REQ-014..018 | Producer->Preflight PASS; State eindeutig; Runner/Scope-Fixtures PASS | Tooling Code + IT/Evidence | Springmaster | planned |
-| M-003 | Engineering-/Delivery-Trennung und Progressive Qualification | REQ-006..007, REQ-011..013, REQ-019 | normaler Change ohne Vorab-cpatch; Delivery weiter fail-closed | Tooling/Governance + Regression | Springmaster | planned |
-| M-004 | DEV-/Build-Portabilität und projekt-eigenes Tooling | REQ-020..025, REQ-028..029 | Fresh Checkout, Env/DB/Build und project-owned tooling qualifiziert | Managed-Project Fixtures + Host Tests | Springmaster | planned |
-| M-005 | Personnel- und ZBM-Feldqualification | REQ-026..027 | zwei reale Canaries; Produktfehler weiter sichtbar; Reibung reduziert | Field Qualification Evidence | Trusted Host | planned |
-| M-006 | Portable Managed Development Foundation | REQ-028..029, REQ-032 | Project Adapter + install/update/repair/rollback und isolierte Runs | Managed-Project Qualification | Springmaster | planned |
-| M-007 | GWC Conformance Profile | REQ-030..031 | report-only `GWC_CONFORMANT`-Nachweis oder dokumentierte P2-Deferral | Contract/Gate Fixtures | Springmaster | planned |
+| M-002 | Current Tooling Convergence: Producer, State Truth, Runner und Source Diff | REQ-008..010, REQ-014..018 | M-002-A001 bestimmt `TRUE_GAP_CURRENT` je Teilproblem; nur nachgewiesene Gaps werden als writable Slices geschlossen | Current-State Inventory + gezielte Tooling-/Contract-Evidence | Springmaster | planned |
+| M-003 | Engineering/Delivery Separation, Progressive Qualification and Compatibility Lock | REQ-006..007, REQ-011..013, REQ-019, REQ-033..036 | normaler Engineering Hot Path ohne Vorab-cpatch; cpatch an Delivery/Acceptance; Non-Regression-Klassifikation; Backend Consumer Handoff report-only | Tooling/Governance + Compatibility Regression | Springmaster | planned |
+| M-004 | Project-local DEV and Fresh-Checkout Portability | REQ-020..025, REQ-029, REQ-034 | Env/DB/Build/Fresh Checkout und project-lokal installierte Tools/Contracts qualifiziert; kein Nachbarcheckout erforderlich | Project-local Fixtures + Host Tests | Springmaster | planned |
+| M-005 | Personnel/ZBM Non-Regression Field Qualification | REQ-026..027, REQ-033 | zwei reale Canaries; Public Contracts und Compatibility Locks unverändert oder separat migriert; Reibung reduziert | Read-only Field Evidence + autorisierte Canary-Qualification | Trusted Host | planned |
+| M-006 | Managed Project Adoption and Lifecycle | REQ-028..029, REQ-032..034 | Project Adapter, Capability/Profile Adoption, Adoption Record/Managed State, Compatibility Decision und install/update/repair/rollback qualifiziert | Managed-Project Qualification | Springmaster | planned |
+| M-007 | GWC Cross-Repository Conformance and Adoption Evidence | REQ-030..031, REQ-034..036 | getrennte `SPRINGMASTER_CONFORMANT`-/`GWC_CONFORMANT`-Evidence gegen aktuelle GWC-owned Contract-Version; P2/report-only, kein Productive Source Overwrite | Contract-/Compatibility-Fixtures + Personnel-/ZBM-Evidence | Springmaster | planned |
 
 ## SemVer-Auswirkung
 
@@ -254,7 +260,7 @@ Die konkreten Werte und `PLATFORM_STATE_PATCH` werden erst aus den tatsächlich 
 
 1. eine notwendige Vereinfachung würde eine akzeptierte Safety-/Architecture-ADR materiell brechen;
 2. ein Recovery-Pfad erfordert unkontrollierte Main-, Target- oder Push-Mutation;
-3. der Artifact Producer kann nicht dasselbe Vertragsmodell wie der Validator nutzen und würde eine zweite Formatwahrheit erzeugen;
+3. Producer und Caller können nicht dieselbe versionierte Vertragsquelle nutzen und würden eine zweite Formatwahrheit erzeugen;
 4. projekt-autonomes Tooling wäre nur mit einer permanenten externen Springmaster-Abhängigkeit möglich;
 5. Environment-/Bootstrap-Automation könnte lokale Secrets nicht zuverlässig erhalten;
 6. eine Cross-Project-Canary müsste ein nicht autorisiertes Ziel mutieren;
@@ -265,7 +271,15 @@ Normale Produkt-, Tooling- oder Fixture-Fehler innerhalb eines autorisierten Sli
 
 ## Amendments
 
-Keine.
+### AMEND-001
+
+- Datum: 2026-09-02
+- Anlass: Die immutable A002-Current-State-Inventur und die aktuelle Repository-Evidence widersprechen der aktiven Planungsannahme eines fehlenden kanonischen Producers. Sie weisen `PATCH_PRODUCER_GAP_CLASS=VERSION_SKEW+DISTRIBUTION_GAP+ADOPTION_GAP+DOC_GAP+DX_GAP`, `TRUE_GAP_CURRENT=false` und `STATE_TRUTH_GAP_COUNT=0` aus; Springmaster besitzt bereits den kanonischen `cpatch create`-Pfad.
+- Alte Aussage: M-002 implementiert einen fehlenden kanonischen Patch-Artifact-Producer und vereinheitlicht eine als offen angenommene State Truth; die nachfolgenden Milestones koppeln Portabilität, Managed Lifecycle und GWC-Conformance ohne ausdrückliche additive Compatibility-/Backend-Handoff-Grenze.
+- Neue Aussage: M-002 beginnt mit `M-002-A001 Current-State Inventory`, bestimmt `TRUE_GAP_CURRENT` je Producer-, Model-, Caller-, State-, Runner- und Source-Diff-Teilproblem und materialisiert erst daraus konkrete writable Slices. Es werden weder ein zweiter Producer noch ein zweiter State Store gebaut. M-003 bis M-007 werden auf Engineering-/Delivery-Trennung, additive Non-Regression, einen versionierten Backend-Consumer-Handoff, project-lokale Portabilität, Field Canaries, Managed Adoption/Lifecycle sowie capability- und Contract-Version-spezifische GWC-Conformance neu geschnitten.
+- Auswirkungen: `CURRENT_MILESTONE=M-002` und der abgeschlossene/akzeptierte Zustand von M-001 bleiben unverändert. `S006-REQ-008`, `S006-REQ-010`, `S006-REQ-020`, `S006-REQ-026`, `S006-REQ-027`, `S006-REQ-030` und `S006-REQ-031` werden präzisiert; `S006-REQ-033` bis `S006-REQ-036` werden ergänzt. Personnel, ZBM und GWC bleiben in diesem Slice read-only Evidence. Es wird keine M-002-Implementierung, Qualification, Sprint-Closure, Public-Contract-Migration oder Current-GWC-Adoption von UI Spec 1.2 behauptet.
+- Entscheidung: accepted; die materielle Scope-/Requirement-Rebaseline gilt ab Acceptance dieses Amendments, `lastDriftResult=accepted`, und der nächste kontrollierte Schritt ist exakt `M-002-A001 Current-State Inventory`.
+- Freigaben: Springmaster-Maintainer als Sprint Owner und verantwortliches Scope-Review gemäß dem autorisierten Rebaseline-Auftrag; bestehende ADR-, Trust-, Delivery- und Human-Accept-Grenzen bleiben unverändert.
 
 ## Lifecycle
 
@@ -274,3 +288,4 @@ Keine.
 | 2026-09-01 | - | planned | Post-S005-Problemraum aus Personnel-/ZBM-Feldfeedback und Enabling-Governance-Ziel abgeleitet. |
 | 2026-09-01 | planned | active | Auftrag, Prioritäten, DoR/DoD, Nichtziele und Stop-Kriterien für die Recovery-/Simplification-Stufe bestätigt. |
 | 2026-09-02 | active | active | M-001 nach Trusted-Host-Qualification, Acceptance 000267 und Post-Accept-Review-Closure abgeschlossen; Sprint bleibt für M-002 bis M-007 aktiv. |
+| 2026-09-02 | active | active | AMEND-001 rebaselined M-002 bis M-007 auf aktuelle Producer-/State-Truth, additive Compatibility und versionierten Backend-Consumer-Handoff; nächster Schritt ist M-002-A001 Current-State Inventory. |

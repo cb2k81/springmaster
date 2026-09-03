@@ -12,7 +12,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-09-01
 validFrom: 2026-09-01
-lastReviewedAt: 2026-09-01
+lastReviewedAt: 2026-09-02
 reviewBy: 2026-09-30
 supersedes: []
 supersededBy: null
@@ -32,19 +32,20 @@ Verworfen. Dadurch würde die heute beobachtete Komplexität lediglich schneller
 
 Verworfen. Ad-hoc-Bypässe würden Safety Invariants, Reproduzierbarkeit und gemeinsame Standards schwächen und erneut projektspezifische Sonderwege erzeugen.
 
-### Option C - Enabling Governance, kanonische Producer und getrennte Engineering-/Delivery-Flows
+### Option C - Enabling Governance, Current Tooling Convergence und getrennte Engineering-/Delivery-Flows
 
-Ausgewählt. Sicherheits- und Trust-Boundaries bleiben erhalten; Standardfälle erhalten kanonische Producer/Runner, kontrollierte Recovery und progressive Qualification. Erst diese vereinfachte Toolchain wird portabel gemacht.
+Ausgewählt. Sicherheits- und Trust-Boundaries bleiben erhalten; vorhandene kanonische Producer-/State-Wahrheit wird zuerst gegen aktuelle versionierte Quellen bewiesen. Nur reale Model-, Caller-, Distribution-, Adoption-, Documentation-, DX-, Runner- oder Source-Diff-Gaps werden geschlossen. Erst diese konvergierte Toolchain wird portabel gemacht.
 
 ## Architektur- und Contract-Auswirkungen
 
 - ADR-0020 wird praktische Authority für Enabling Governance, Self-Recovery, progressive Qualification und Development-/Delivery-Trennung.
-- Patch Artifact Builder und Preflight teilen ein kanonisches Datenmodell beziehungsweise eine gemeinsame Contract-Quelle.
-- Patch-/Tooling-State erhält eine versionierte Truth-Kette von Git HEAD über Plattform-/Toolingversion bis State Patch.
+- Der vorhandene kanonische Patch-Artifact-Producer, seine Caller und der Preflight verwenden dieselbe versionierte Artifact-Contract-Quelle; ein zweiter Producer wird nicht eingeführt.
+- Patch-/Tooling-State wird zuerst entlang der versionierten Truth-Kette von Git HEAD über Plattform-/Toolingversion bis State Patch nachgewiesen; bei eindeutiger Wahrheit entsteht kein zweiter State Store.
 - Managed Projects verwenden project-owned versioniertes Tooling; Springmaster ist Producer/Releasequelle, keine Runtime-Abhängigkeit.
 - Runner erhalten gemeinsame Semantik für required success, expected failure, Phase, Capture, Diagnose und Ergebnisabschluss.
 - Source-Diff-, Runtime-Artefakt- und Final-Cleanliness-Semantik werden getrennt.
 - Environment, DBTool und Build-Side-Effects werden als portable Tooling-Verträge präzisiert.
+- Der Backend-Consumer-Handoff wird projektneutral, versioniert, content-addressed und additiv aus autoritativen Backendquellen abgeleitet; UI-Semantik und objektbezogene Authorization/RLS bleiben außerhalb seiner Authority.
 
 ## ADR- und Standardbedarf
 
@@ -66,15 +67,17 @@ Status: `completed` nach vollständiger Trusted-Host-Qualification, Acceptance 0
 - Positive Canary: absichtlich defektes kopiertes Gate über unabhängigen Bootstrap im isolierten Fixture reparieren, targeted und anschließend am normalen vollständigen Fixture-Boundary prüfen; Integration und fremde Dateien bleiben byte-identisch.
 - Positive/negative Oracles: detached worktree und attached isolated branch sind zulässig; ein blockierter Record bleibt ohne Integrations-/Delivery-Disposition valide. Pfad-/Capability-Ausweitung, direkte Main-Mutation, Push, falscher PASS, fehlende finale Qualification vor Disposition, leere Baseline-/Worktree-Bindings, fehlende PASS-Evidence und widersprüchliche Recoverability werden fail-closed abgelehnt.
 
-### M-002 - Kanonischer Producer, Patch-State-Truth, Runner und Source-Diff
+### M-002 - Current Tooling Convergence: Producer, State Truth, Runner und Source Diff
 
-- kanonischen Patch Artifact Builder auf gemeinsamer Model-/Contract-Quelle implementieren;
-- `new`/`modified`/`deleted`, Before-Hashes, Artifact-ID und Layout aus Candidate/Ziel ableiten;
-- State Truth für Fresh Checkout vereinheitlichen;
-- `run_required`, `run_expected_failure`, `run_capture`, `phase`, `fail`, `diagnose` oder funktional äquivalente gemeinsame Semantik bereitstellen;
-- Gate-/Scope-Mengen semantisch und Locale-unabhängig vergleichen.
+M-002 beginnt zwingend mit `M-002-A001 Current-State Inventory`. Die Inventur bindet aktuelle versionierte Quellen und bestimmt `TRUE_GAP_CURRENT` separat für Producer, Artifact Model/Contract, Caller, Distribution/Adoption, State Truth, Runner und Source Diff. Erst danach werden konkrete writable Slices festgelegt.
 
-### M-003 - Development Hot Path und Progressive Qualification
+- den vorhandenen kanonischen `cpatch create`-Pfad und seine Artifact-Contract-Quelle nachweisen;
+- nur nachgewiesene Model-, Caller-, Distribution-, Adoption-, Documentation- oder DX-Gaps schließen und alle Caller auf dieselbe versionierte Contract-Quelle konvergieren;
+- State Truth für Fresh Checkout beweisen und nur reale Distribution-/Adoption-Gaps beziehungsweise falsche Zielprojekt-Komponentenstände schließen, ohne zweiten State Store;
+- reale Runner-Gaps in `required success`, `expected failure`, Capture, Phase, Diagnose und Rollback-Evidence bestimmen und anschließend gezielt schließen;
+- reale Source-Diff-Gaps für semantische, artefaktbewusste und Locale-unabhängige Mengenvergleiche bestimmen und anschließend gezielt schließen.
+
+### M-003 - Engineering/Delivery Separation, Progressive Qualification and Compatibility Lock
 
 Engineering:
 
@@ -92,8 +95,10 @@ qualified Commit -> artifact-build/create -> preflight/plan -> dry-run -> Human 
 - progressive Qualification und proportionale Evidence implementieren;
 - Result-/Diagnostic-Phase unabhängig vom Follow-Exit sicherstellen;
 - `patches/work` current-only und `patches/logs` durable durchsetzen.
+- Changes als additiv/opt-in oder separat migrationspflichtig klassifizieren und bestehende Public Contracts/Compatibility Locks regressionsprüfen;
+- einen versionierten Backend-Consumer-Handoff zunächst report-only aus autoritativen Backendquellen ableiten, ohne UI-Semantik oder Client-Authorization zu erzeugen.
 
-### M-004 - DEV-/Build-Portabilität und project-owned Tooling
+### M-004 - Project-local DEV and Fresh-Checkout Portability
 
 - `.env.example`/`.env` selective-sync mit Secret-Erhalt;
 - DBTool-Adminmodi `sudo|socket|password` oder funktional äquivalent;
@@ -101,52 +106,58 @@ qualified Commit -> artifact-build/create -> preflight/plan -> dry-run -> Human 
 - Fresh Schema -> Liquibase -> Hibernate validate -> Integration Tests;
 - Build/Package/Deploy getrennte Side Effects;
 - Fresh Checkout ohne/mit lokaler Config;
-- install/update/repair/rollback eines im Projekt versionierten Toolingstands ohne Springmaster-Nachbarcheckout.
+- project-lokal installierte Tools, Contracts und Consumer-Handoff-Pakete ohne Springmaster-/GWC-Nachbarcheckout qualifizieren;
+- externe Contract-Versionen explizit und content-addressed binden.
 
-### M-005 - Personnel- und ZBM-Recovery-Qualification
+Der vollständige `install/update/repair/rollback`-Lifecycle gehört primär zu M-006, nicht zu M-004.
+
+### M-005 - Personnel/ZBM Non-Regression Field Qualification
 
 Personnel:
 
-- realen Produktfehler/Change korrekt diagnostizieren und qualifizieren;
+- einen realen kleinen Produktfehler/Change korrekt diagnostizieren und qualifizieren;
+- bestehende Public Contracts und lokale Compatibility Locks unverändert nachweisen oder eine separate Migration verlangen;
 - nicht-fachliche Schritte, wiederholte Starts, Shadow-/Evidence-Größe und Recovery-Kosten gegenüber aktueller P3-Evidence messen.
 
 ZBM:
 
 - aktuellen Blocker read-only inventarisieren und klassifizieren;
-- Normal-/Recovery-Pfad schließen;
-- anschließenden realen Change mit project-owned Tooling und neuem Happy Path qualifizieren.
+- project-owned Handoff/Tooling und reduzierte Nachbarcheckout-Abhängigkeit qualifizieren;
+- `UNSUPPORTED` wahrheitsgemäß fail-closed/report-only behandeln;
+- bestehenden Public Contract und lokalen Compatibility Lock unverändert nachweisen oder eine separate Migration verlangen.
 
-### M-006 - Portable Managed Development Foundation
+### M-006 - Managed Project Adoption and Lifecycle
 
-- Project Adapter und Capability-/Profile-Auswahl;
-- Compatibility Plan/Preflight;
-- install/update/repair/rollback;
+- Project Adapter und Capability-/Profile-Adoption;
+- Adoption Record/Managed State und Compatibility Decision;
+- install/update/repair/rollback des project-owned Stands;
 - project-scoped Runs/Worktrees/Evidence/Artifacts;
+- Deviations und Target-Apply-Grenze;
 - keine fremden Projektcheckouts als generische Gate-Voraussetzung.
 
-### M-007 - GWC Conformance Profile
+### M-007 - GWC Cross-Repository Conformance and Adoption Evidence
 
 Nur wenn P0/P1 nicht verzögert werden:
 
-- `SPRINGMASTER_CONFORMANT` und `GWC_CONFORMANT` trennen;
-- Capability-Menge deklarieren;
-- OpenAPI/operationKey/UI-Spec-Bindung prüfen;
-- report-only positive/negative Evidence;
-- Strict erst nach bestehender Promotion-Governance.
+- `SPRINGMASTER_CONFORMANT` und `GWC_CONFORMANT` als capability- und Contract-Version-spezifische Aussagen trennen;
+- die aktuelle GWC-owned Contract-Version explizit und content-addressed binden, ohne UI Spec 1.2 als aktuelle GWC-Produktwahrheit vorauszusetzen;
+- den Backend-Consumer-Handoff gegen diese Version prüfen, ohne volle GWC-Produktion oder UI-Codegeneration zu behaupten;
+- positive und negative Compatibility-Fälle sowie Personnel-/ZBM-Evidence erfassen;
+- P2/report-only bleiben, kein Productive Source Overwrite ausführen und Strict erst nach bestehender Promotion-Governance erwägen.
 
 ## Reihenfolge und Abhängigkeiten
 
 1. M-001 schafft Authority, Feldbaseline und Recovery-Vertrag.
-2. M-002 behebt die heute größten Producer-/State-/Runner-/Gate-Reibungen.
-3. M-003 trennt Engineering und Delivery und reduziert Qualification-/Evidence-Aufwand.
-4. M-004 macht die vereinfachte Toolchain DEV-/Fresh-Checkout-fähig und projekt-autonom.
-5. M-005 beweist Nutzen an Personnel und ZBM.
-6. M-006 abstrahiert erst den feldbewährten Stand zur Managed-Project-Plattform.
-7. M-007 bleibt nachgeordnet/report-only und darf P0/P1 nicht blockieren.
+2. M-002 beweist zuerst den Current State und schließt ausschließlich daraus abgeleitete reale Producer-/State-/Runner-/Source-Diff-Gaps.
+3. M-003 trennt Engineering und Delivery, reduziert Qualification-/Evidence-Aufwand und etabliert additive Compatibility sowie den report-only Backend-Consumer-Handoff.
+4. M-004 macht Tools, Contracts und Handoff DEV-/Fresh-Checkout-fähig und project-lokal qualifizierbar.
+5. M-005 beweist Non-Regression und Nutzen an Personnel und ZBM.
+6. M-006 führt den feldbewährten Stand in Managed Adoption und den vollständigen Lifecycle über.
+7. M-007 bleibt nachgeordnet/report-only, bindet die aktuelle GWC-owned Contract-Version und darf P0/P1 nicht blockieren.
 
 ## Teststrategie und Zwischenverifikationen
 
-Jeder Slice startet mit kleinster aussagekräftiger Verifikation und erweitert bis zur Integrationsgrenze. Tooling-Slices benötigen positive, negative, Tool-Error- und Recovery-Fixtures. Für Producer/Validator sind insbesondere Format-Parität, Baseline-/Hash-Konflikte, Delete/New/Modify, Pfade/Berechtigungen und deterministischer Rebuild zu testen.
+Jeder Slice startet mit kleinster aussagekräftiger Verifikation und erweitert bis zur Integrationsgrenze. Tooling-Slices benötigen positive, negative, Tool-Error- und Recovery-Fixtures. M-002-A001 muss vor jedem writable M-002-Slice dessen `TRUE_GAP_CURRENT` belegen. Für den vorhandenen Producer, seine Caller und den Validator sind insbesondere Contract-/Format-Parität, Baseline-/Hash-Konflikte, Delete/New/Modify, Pfade/Berechtigungen und deterministischer Rebuild zu testen.
 
 Für Runner werden expected-success/expected-failure, ERR-Trap-Interaktion, Phasenstatus, Follow-/Result-Trennung und Diagnose-vor-Rollback getestet. Source-Diff-Fixtures laufen mindestens unter `LC_ALL=C` und einer UTF-8-Locale.
 
@@ -171,7 +182,7 @@ Die Metriken sind Evidence für Vereinfachung, keine neue permanente Pflicht fü
 ## Migration und Rollback
 
 - Bestehende Tooling-Versionen bleiben bis zur qualifizierten neuen Version reproduzierbar.
-- Neue Producer/Runner werden zunächst parallel gegen bestehende Validatoren qualifiziert; kein Big-Bang-Umschreiben historischer Archive.
+- Producer-/Caller-/Runner-Anpassungen werden gegen die bestehende versionierte Contract- und Validator-Wahrheit qualifiziert; kein zweiter Producer, kein zweiter State Store und kein Big-Bang-Umschreiben historischer Archive.
 - Managed Projects aktualisieren versioniert und kontrolliert; Update/Repair besitzt expliziten Rollback-/Recovery-Pfad.
 - Ein fehlgeschlagener Slice darf den vorherigen qualifizierten Projekt-/Toolingstand nicht unbrauchbar machen.
 - Environment-Sync verändert keine unbekannten lokalen Keys/Secrets destruktiv.
@@ -206,18 +217,19 @@ Patchnummern werden live vergeben; Sprintplanung erfindet keine IDs.
 | Schnitt | Inhalt |
 |---|---|
 | S006-01 | Recovery Contract, Regelklassifikation, Feld-/DX-Baseline |
-| S006-02 | Artifact Producer, State Truth, Runner-/Source-Diff-Grundlagen |
-| S006-03 | Engineering-/Delivery-Trennung, Progressive Qualification, Evidence-Lifecycle |
-| S006-04 | Env/DBTool/DEV-Bootstrap/Build/Fresh-Checkout/project-owned Tooling |
-| S006-05 | Personnel-/ZBM-Field Qualification |
-| S006-06 | Managed-Project-Portability-Foundation |
-| S006-07 | optional report-only GWC-Conformance-Profil |
+| S006-02 | Current-State Inventory und daraus nachgewiesene Producer-/State-/Runner-/Source-Diff-Konvergenz |
+| S006-03 | Engineering-/Delivery-Trennung, Progressive Qualification, Compatibility Lock und report-only Backend Consumer Handoff |
+| S006-04 | project-lokale Env/DBTool/Build/Fresh-Checkout-/Tool-/Contract-/Handoff-Portabilität |
+| S006-05 | Personnel-/ZBM-Non-Regression-Field-Qualification |
+| S006-06 | Managed-Project-Adoption und install/update/repair/rollback-Lifecycle |
+| S006-07 | optionale report-only GWC-Cross-Repository-Conformance gegen aktuelle GWC-owned Contract-Version |
 | S006-Closure | Full Qualification, Version Truth, Completion, Archivierung |
 
 ## Unsicherheiten und Entscheidungszeitpunkte
 
 - Die konkrete ZBM-Live-Root-Cause wird nicht aus dem Handoff erfunden; sie wird im Feldslice belegt.
-- Der genaue interne Ort des gemeinsamen Patch Artifact Models wird nach Inventur der aktuellen cpatch-/Toolkit-Grenzen entschieden.
+- M-002-A001 entscheidet für jedes Teilproblem, ob ein aktueller Gap besteht; ohne `TRUE_GAP_CURRENT=true` entsteht kein writable Implementierungsslice.
+- Der genaue gemeinsame Artifact-Contract-Bindungspunkt für alle Caller wird erst nach Inventur der aktuellen cpatch-/Toolkit-Grenzen festgelegt; der vorhandene Producer bleibt kanonisch.
 - Ob einzelne alte Gates entfernt, herabgestuft oder nur mit Producer/Recovery ergänzt werden, hängt von ihrer realen Risiko-/Authority-Klassifikation ab.
 - GWC-Conformance bleibt P2 und kann ohne falsche Reifeaussage deferriert werden.
 - Materielle Änderung einer akzeptierten Trust-/Patch-/Managed-Project-ADR löst `stop-and-replan` aus.
@@ -229,3 +241,4 @@ Patchnummern werden live vergeben; Sprintplanung erfindet keine IDs.
 | 2026-09-01 | Solution Framing | Enabling Governance, kanonische Producer und getrennte Engineering-/Delivery-Flows als S006-Lösungsrichtung bestätigt. |
 | 2026-09-02 | M-001 implementation candidate | ADR-0020 als bestehender Engineering-Recovery-Record mit hermetischer Self-Repair-Canary und negativen Scope-/Capability-/Truth-Oracles materialisiert. |
 | 2026-09-02 | M-001 accepted and review-hardened | Trusted-Host-Qualification und Acceptance 000267 abgeschlossen; Post-Accept-Review richtet Branch/Worktree-, Blocking-, Evidence- und Recoverability-Semantik exakt an ADR-0020 aus. |
+| 2026-09-02 | AMEND-001 accepted | M-002 bis M-007 auf Current-State-first, additive Compatibility, versionierten Backend-Consumer-Handoff, project-lokale Portabilität, Managed Adoption/Lifecycle und Contract-Version-spezifische GWC-Evidence rebaselined. |
