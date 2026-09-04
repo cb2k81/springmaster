@@ -13,7 +13,7 @@ appliesTo:
 owner: springmaster-maintainers
 createdAt: 2026-07-20
 validFrom: 2026-07-22
-lastReviewedAt: 2026-08-25
+lastReviewedAt: 2026-09-03
 reviewBy: 2026-10-22
 supersedes: []
 supersededBy: null
@@ -189,7 +189,7 @@ This index covers every non-archived Markdown document under `PROJECT_DOCS/` and
 
 ### SPRINGMASTER-SPRINT-006 - active
 
-- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SPRINT_BRIEF.md` — active Sprint-006 problem space, 32 requirements, DoR/DoD, real-world canaries and P0/P1/P2 priorities
+- `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SPRINT_BRIEF.md` — active Sprint-006 problem space, 36 requirements, DoR/DoD, real-world canaries and P0/P1/P2 priorities
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/SOLUTION_PLAN.md` — active solution plan for canonical producers, recovery, Engineering/Delivery separation, DEV portability and managed-project qualification
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/STATUS.md` — current Sprint-006 status; M-001 completed/accepted and post-accept review closed, M-002 next planned, M-003..M-007 planned
 - `PROJECT_DOCS/SPRINTS/ACTIVE/SPRINGMASTER-SPRINT-006/COMPLETION_REPORT.md` — draft/non-terminal Sprint completion evidence; M-001 accepted, no overall S006 completion claimed
