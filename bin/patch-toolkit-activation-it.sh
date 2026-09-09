@@ -2,10 +2,10 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-WORK_ROOT="${PROJECT_ROOT}/target/patch-toolkit-activation-it"
+WORK_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/springmaster-patch-toolkit-activation-it.XXXXXX")"
 FIXTURE="${WORK_ROOT}/repo"
 
-rm -rf "${WORK_ROOT}"
+trap 'rm -rf "${WORK_ROOT}"' EXIT
 mkdir -p "${FIXTURE}"
 
 "${PROJECT_ROOT}/bin/patch-toolkit-activation.sh" \
@@ -63,6 +63,24 @@ then
 fi
 
 grep -q 'PROJECT_ENV_MISMATCH' "${WORK_ROOT}/negative.json"
+
+python3 - "${FIXTURE}/contracts/governance/tooling/patch-toolkit-activation-contract.json" <<'PY_ARTIFACT_MODEL'
+from pathlib import Path
+import json,sys
+path=Path(sys.argv[1])
+data=json.loads(path.read_text(encoding="utf-8"))
+data["artifactModel"]["platformUpdateLegacyV2Adapter"]["selectionPolicy"]="unbounded"
+path.write_text(json.dumps(data,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+PY_ARTIFACT_MODEL
+if python3 "${FIXTURE}/bin/patch-toolkit-activation.py" \
+  --root "${FIXTURE}" --check --out "${WORK_ROOT}/artifact-model-negative.json" >/dev/null 2>&1
+then
+  echo "[ERROR] Activation check accepted legacy adapter contract drift" >&2
+  exit 1
+fi
+grep -q 'LEGACY_V2_ADAPTER_CONTRACT_MISMATCH' "${WORK_ROOT}/artifact-model-negative.json"
+cp "${PROJECT_ROOT}/contracts/governance/tooling/patch-toolkit-activation-contract.json" \
+  "${FIXTURE}/contracts/governance/tooling/patch-toolkit-activation-contract.json"
 
 set +e
 LEGACY_OUTPUT="$("${PROJECT_ROOT}/bin/patch.sh" accept /nonexistent/patch.zip 2>&1)"

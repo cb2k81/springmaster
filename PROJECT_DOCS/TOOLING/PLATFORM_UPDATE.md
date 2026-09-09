@@ -386,3 +386,26 @@ profile rule -> compatibility decision -> generated payload + version/provenance
 ```
 
 Generated manifests use the schema required by the live target patch engine. This supports Project-New targets whose patch schema is project-key-specific and targets already cut over to the Springmaster schema. Tooling selfchecks are capability-aware so a target does not need Springmaster-only Platform-Update source files.
+
+## Activation-bound artifact model
+
+Platform Update no longer assembles its own current manifest or ZIP semantics.
+`generate` and `compatibility-plan` derive operations from staged candidate
+bytes and the target baseline, validate them with the activation-bound Toolkit
+Patch Manifest V5 model, and use the Toolkit writer and reader before emitting
+target-compatible output. Add, modify, delete and mode-only modify therefore
+share the canonical operation, hash and mode rules.
+
+The emitted target ZIP remains Patch Manifest V2 only when the target-local
+engine explicitly declares a schema ending in `.patch-manifest.v2`. This is the
+versioned legacy target adapter, not another canonical producer. Its
+`canonicalArtifactModel` projection binds the same `artifactId`, `patchId`,
+target, scope, operations and baseline. Producer preflight, Platform Update
+field reads and target-apply evidence validate that parity through the same
+adapter reader. Missing target capability, duplicate paths, baseline drift and
+an empty effective payload fail closed.
+
+Legacy V2 readability and dry-run compatibility remain available for managed
+targets that have not adopted the current Toolkit model. Removing that adapter
+requires later managed-adoption evidence. The explicit Human Accept and
+`target-apply` boundaries are unchanged.

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -27,7 +28,6 @@ also creates and verifies one full ZIP export.
 
 MISSING_MARKERS = {"", "-", "missing", "absent", "none", "null", "not-exists", "not_exists"}
 ALLOWED_ROOTS = ("files/", "delete/", "logs/")
-PATCH_MANIFEST_SCHEMA = "springmaster.patch-manifest.v2"
 ARTIFACT_ID_PREFIX = "urn:uuid:"
 
 BASE_SCOPE_LOG_DIRS = {
@@ -51,6 +51,40 @@ BASE_SCOPE_LOG_DIRS = {
 
 class PreflightError(RuntimeError):
     pass
+
+
+def activation_artifact_contract() -> tuple[Path, dict, dict]:
+    source_root = Path(__file__).resolve().parents[1]
+    contract_path = source_root / "contracts/governance/tooling/patch-toolkit-activation-contract.json"
+    try:
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"PATCH_ARTIFACT_MODEL_CONTRACT_INVALID: {exc}")
+    model = contract.get("artifactModel")
+    adapter = model.get("platformUpdateLegacyV2Adapter") if isinstance(model, dict) else None
+    if not isinstance(model, dict) or not isinstance(adapter, dict):
+        fail("PATCH_ARTIFACT_MODEL_CONTRACT_INVALID: legacy V2 adapter is missing")
+    return source_root, model, adapter
+
+
+def validate_canonical_projection(zip_path: Path, manifest: dict) -> None:
+    source_root, _model, adapter = activation_artifact_contract()
+    projection_field = adapter.get("canonicalProjectionField")
+    if projection_field not in manifest:
+        return
+    artifact_tool = source_root / "platform/update/tools/finalize-target-patch.py"
+    spec = importlib.util.spec_from_file_location("platform_update_artifact_model", artifact_tool)
+    if spec is None or spec.loader is None:
+        fail(f"PATCH_ARTIFACT_MODEL_READER_MISSING: {artifact_tool}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    try:
+        spec.loader.exec_module(module)
+        inspected = module.inspect_legacy_artifact(zip_path, source_root)
+    except Exception as exc:
+        fail(f"PATCH_ARTIFACT_MODEL_PARITY_INVALID: {exc}")
+    if inspected.get("canonical") is None:
+        fail("PATCH_ARTIFACT_MODEL_PARITY_INVALID: canonical projection was not resolved")
 
 
 def fail(message: str, code: int = 1) -> None:
@@ -253,11 +287,13 @@ def parse_patch(
     except zipfile.BadZipFile as exc:
         fail(f"PATCH_ARTIFACT_ZIP_INVALID: {exc}")
 
+    _source_root, _model, adapter = activation_artifact_contract()
     schema_version = manifest.get("schemaVersion")
-    if schema_version != PATCH_MANIFEST_SCHEMA:
+    schema_suffix = adapter.get("schemaSuffix")
+    if not isinstance(schema_version, str) or not isinstance(schema_suffix, str) or not schema_version.endswith(schema_suffix):
         fail(
             "PATCH_ARTIFACT_IDENTITY_INVALID: manifest.schemaVersion must be "
-            f"{PATCH_MANIFEST_SCHEMA}, got {schema_version!r}"
+            f"a target-declared legacy V2 schema ending in {schema_suffix!r}, got {schema_version!r}"
         )
     artifact_id = validate_artifact_id(manifest.get("artifactId"))
     patch_id = manifest.get("patchId")
@@ -325,6 +361,7 @@ def parse_patch(
     targets = [operation["target"] for operation in operations]
     if len(targets) != len(set(targets)):
         fail("PATCH_ARTIFACT_DUPLICATE_TARGET: multiple operations address the same target")
+    validate_canonical_projection(zip_path, manifest)
     return manifest, operations, payload, payload_modes
 
 

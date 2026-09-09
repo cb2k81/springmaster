@@ -14,6 +14,27 @@
     "list",
     "show"
   ],
+  "artifactModel": {
+    "canonicalSchemaVersion": "cocondo.patch-manifest.v5",
+    "inspectionFunction": "inspect_patch",
+    "manifestClass": "PatchManifest",
+    "manifestModule": "cocondo_toolkit.manifest",
+    "operationClass": "PatchOperation",
+    "platformUpdateLegacyV2Adapter": {
+      "adapterId": "springmaster.platform-update.legacy-v2-target-adapter.v1",
+      "canonicalProjectionField": "canonicalArtifactModel",
+      "legacyArchiveRoots": [
+        "files/",
+        "delete/",
+        "logs/"
+      ],
+      "schemaSuffix": ".patch-manifest.v2",
+      "selectionPolicy": "target-capability-only"
+    },
+    "runtimePath": ".cocondo/tooling/cocondo-toolkit.pyz",
+    "writerFunction": "write_patch",
+    "writerModule": "cocondo_toolkit.artifact"
+  },
   "canonicalMutatingEntrypoint": "bin/cpatch",
   "codexCutoverFoundationAcceptance": {
     "acceptanceEvidenceSource": "live-delivery-inventory",

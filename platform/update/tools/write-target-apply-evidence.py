@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
-import zipfile
+import sys
 from pathlib import Path
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -34,24 +35,37 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def inspect_platform_update_artifact(path: Path) -> dict:
+    tool = Path(__file__).resolve().with_name("finalize-target-patch.py")
+    spec = importlib.util.spec_from_file_location("platform_update_artifact_model", tool)
+    if spec is None or spec.loader is None:
+        raise SystemExit(f"cannot load Platform Update artifact adapter: {tool}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    try:
+        result = module.inspect_legacy_artifact(path)
+    except module.FinalizeError as exc:
+        raise SystemExit(f"invalid Platform Update artifact: {exc}") from exc
+    if result.get("canonical") is None:
+        raise SystemExit("current Platform Update apply evidence requires a canonical artifact-model projection")
+    return result
+
+
 def main() -> int:
     args = parse_args()
     patch_zip = args.patch_zip.resolve()
     if not patch_zip.is_file():
         raise SystemExit(f"patch ZIP missing: {patch_zip}")
-    with zipfile.ZipFile(patch_zip) as archive:
-        try:
-            manifest = json.loads(archive.read("manifest.json"))
-        except (KeyError, json.JSONDecodeError) as exc:
-            raise SystemExit(f"invalid patch manifest: {exc}") from exc
+    inspected = inspect_platform_update_artifact(patch_zip)
+    manifest = inspected["manifest"]
+    canonical = inspected["canonical"]
     artifact_id = manifest.get("artifactId")
     patch_id = manifest.get("patchId")
     scope = manifest.get("scope")
     requires = manifest.get("requires") or {}
     expected = (manifest.get("baseline") or {}).get("expectedBeforeSha256")
     manifest_schema = manifest.get("schemaVersion")
-    if not isinstance(manifest_schema, str) or not manifest_schema.endswith(".patch-manifest.v2"):
-        raise SystemExit(f"manifest.schemaVersion is not a supported v2 patch schema: {manifest_schema!r}")
     if not isinstance(artifact_id, str) or not artifact_id.startswith("urn:uuid:"):
         raise SystemExit("manifest.artifactId missing or invalid")
     if not isinstance(patch_id, str) or not patch_id:
@@ -66,7 +80,8 @@ def main() -> int:
         raise SystemExit("manifest profile does not match generated profile")
     if not isinstance(expected, dict) or not expected:
         raise SystemExit("manifest baseline.expectedBeforeSha256 missing")
-    changed_paths = sorted(expected)
+    changed_paths = canonical.paths
+    deleted_paths = sorted(op.path for op in canonical.operations if op.type == "delete")
     target_root = args.target_root.resolve()
     state_path = target_root / "platform/update/managed-state.json"
     version_path = target_root / "platform/versions/platform.env"
@@ -86,6 +101,8 @@ def main() -> int:
         "patchId": patch_id,
         "patchSha256": sha256_file(patch_zip),
         "patchScope": scope,
+        "canonicalArtifactModelSchema": canonical.schema_version,
+        "legacyTargetAdapter": inspected["adapter"]["adapterId"],
         "generatedProfile": args.generated_profile,
         "acceptProfile": args.accept_profile,
         "fullTest": args.full_test == "True",
@@ -95,7 +112,7 @@ def main() -> int:
         "targetAccept": "SUCCESS",
         "sourceTargetGitHead": args.source_target_git_head,
         "changedPaths": changed_paths,
-        "deletedPaths": [],
+        "deletedPaths": deleted_paths,
         "managedState": managed_state,
         "managedStateSha256": sha256_file(state_path),
         "platformVersionStateSha256": sha256_file(version_path),

@@ -4,7 +4,8 @@ umask 0002
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-RUN_DIR="${PROJECT_ROOT}/build/patch-artifact-preflight-it/$(date +%Y%m%d_%H%M%S)_$$"
+RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/springmaster-patch-artifact-preflight-it.XXXXXX")"
+trap 'rm -rf "${RUN_DIR}"' EXIT
 FIXTURE="${RUN_DIR}/fixture"
 PATCH_DIR="${RUN_DIR}/patches"
 LOG_DIR="${RUN_DIR}/logs"
@@ -14,6 +15,13 @@ cp "${SCRIPT_DIR}/patch.py" "${FIXTURE}/bin/patch.py"
 cp "${SCRIPT_DIR}/patch.sh" "${FIXTURE}/bin/patch.sh"
 cp "${SCRIPT_DIR}/patch-artifact-preflight.py" "${FIXTURE}/bin/patch-artifact-preflight.py"
 chmod +x "${FIXTURE}/bin/patch.py" "${FIXTURE}/bin/patch.sh" "${FIXTURE}/bin/patch-artifact-preflight.py"
+mkdir -p "${FIXTURE}/contracts/governance/tooling" "${FIXTURE}/platform/update/tools" "${FIXTURE}/.cocondo/tooling"
+cp "${PROJECT_ROOT}/contracts/governance/tooling/patch-toolkit-activation-contract.json" \
+  "${FIXTURE}/contracts/governance/tooling/patch-toolkit-activation-contract.json"
+cp "${PROJECT_ROOT}/platform/update/tools/finalize-target-patch.py" \
+  "${FIXTURE}/platform/update/tools/finalize-target-patch.py"
+cp "${PROJECT_ROOT}/.cocondo/tooling/cocondo-toolkit.pyz" \
+  "${FIXTURE}/.cocondo/tooling/cocondo-toolkit.pyz"
 
 cat > "${FIXTURE}/.gitignore" <<'EOF'
 build/
@@ -268,15 +276,12 @@ rm -f "${FIXTURE}/dirty.txt"
 
 test -z "$(cd "${FIXTURE}" && git status --porcelain=v1 --untracked-files=all)"
 
-(
-  cd "${FIXTURE}"
-  ./bin/patch.sh apply "${PATCH_DIR}/000001_fixture_valid.zip" > "${LOG_DIR}/direct-apply-mode.log" 2>&1
-)
+run_expect_pass direct-apply-dry-run \
+  ./bin/patch.sh apply --dry-run "${PATCH_DIR}/000001_fixture_valid.zip"
 test "$(stat -c '%a' "${FIXTURE}/custom/existing.txt")" = "664"
 test "$(stat -c '%a' "${FIXTURE}/custom/tool.bash")" = "775"
-test "$(stat -c '%a' "${FIXTURE}/custom/fixture_valid.txt")" = "664"
-test "$(stat -c '%a' "${FIXTURE}/patches/logs/custom/CHANGELOG-000001_fixture_valid.md")" = "664"
-echo "GIT_MODE_CONTRACT=PASS nonexec=100644 executable=100755 hostModes=664,775"
+test ! -e "${FIXTURE}/custom/fixture_valid.txt"
+echo "GIT_MODE_CONTRACT=PASS nonexec=100644 executable=100755 dryRunMutation=NONE hostModes=664,775"
 
 echo "PATCH_ARTIFACT_PREFLIGHT_IT=PASS"
 echo "LOG_DIR=${LOG_DIR}"

@@ -142,3 +142,22 @@ Patch `000033_springmaster_platform_update_target_compatibility_plan` ergänzt d
 ```
 
 Der Befehl erzeugt einen nicht-invasiven Plan und ein Kompatibilitäts-ZIP. Erst nach bewusster Ausführung des erzeugten Skripts im Zielprojekt soll der ursprüngliche Core-Payload-Patch erneut per `preflight` geprüft werden.
+
+## Current artifact-model source
+
+The current generation path uses the artifact model declared by
+`patch-toolkit-activation-contract.json` and implemented by the digest-bound
+Cocondo Patch Toolkit runtime. The local finalizer collects the effective
+target delta, but schema, operation, hash, mode and canonical ZIP validation
+come from Toolkit Patch Manifest V5, `write_patch` and `inspect_patch`.
+
+For a target that declares a project-specific Patch Manifest V2 capability,
+the finalizer applies the contract's named legacy-V2 adapter. The resulting ZIP
+retains the target schema and scope while embedding the canonical model
+projection from which its legacy layout was derived. Compatibility packaging
+uses the same path; it does not hand-write a second manifest or ZIP model.
+
+Generation rejects duplicate target paths, no-op payloads, unsupported target
+schemas and baseline/hash drift. Producer preflight and all planning commands
+remain non-mutating for the target. Version projection and release closure are
+outside this artifact-model change.

@@ -208,3 +208,22 @@ Sprint 005 qualifies the autonomous Logical-Run repair orchestration without cha
 The release-closing candidate applies the accumulated compatible minor impact once: aggregate Platform advances from `0.26.0-foundation` to `0.27.0-foundation`, Maven to `0.27.0-foundation-SNAPSHOT`, and Tooling from `0.15.1` to `0.16.0`. `PLATFORM_STATE_PATCH` becomes `000262_s005-trusted-closure`. Core `0.6.0`, Template `0.3.1`, Demo `0.3.0` and Update `0.10.0` remain unchanged. The Activation Contract `versionClosure` is updated atomically with these values; immutable historical cutover acceptance evidence is not rewritten.
 
 The closure also records follow-up requirements for risk-based qualification planning, cheap preflight, durable receipts outside writer-owned workspaces, delivery hygiene and safe evidence reuse. Those are future R5 requirements and do not alter Toolkit/process-ops security authority in this closure.
+
+## 19. Platform Update artifact-model convergence
+
+The versioned Activation Contract now identifies the Patch Manifest V5 model,
+`PatchManifest`/`PatchOperation`, `write_patch` and `inspect_patch` from the
+digest-bound Toolkit runtime as the one current artifact-model source. Platform
+Update loads that exact runtime and validates its digest and schema before it
+constructs or reads an artifact. This extends the activation contract; it does
+not change the packaged Toolkit runtime or establish a second producer.
+
+Targets whose local patch engine still declares a project-specific Patch
+Manifest V2 schema are served through the explicitly named
+`springmaster.platform-update.legacy-v2-target-adapter.v1`. The adapter is
+selected only from the target's declared capability. It projects canonical
+identity, target binding, scope, add/modify/delete operations, hashes and modes
+into the legacy `files/`, `delete/` and `logs/` layout. The embedded canonical
+projection is validated again by producer preflight and apply-evidence readers.
+Legacy V2 artifacts without that projection remain readable, but current
+Platform Update artifacts must be derived through the adapter.

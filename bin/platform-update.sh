@@ -15,6 +15,7 @@ PROFILE_RULES_FILE="${PLATFORM_UPDATE_PROFILE_RULES_FILE:-${PROJECT_ROOT}/platfo
 PROFILE_RULES_TOOL="${PROJECT_ROOT}/platform/update/tools/profile-rules.py"
 COMPATIBILITY_MATRIX_FILE="${PLATFORM_UPDATE_COMPATIBILITY_MATRIX_FILE:-${PROJECT_ROOT}/platform/update/compatibility/platform-compatibility-matrix.json}"
 COMPATIBILITY_MATRIX_TOOL="${PROJECT_ROOT}/platform/update/tools/compatibility-matrix.py"
+PLATFORM_UPDATE_ARTIFACT_TOOL="${PROJECT_ROOT}/platform/update/tools/finalize-target-patch.py"
 
 print_usage() {
   cat <<'USAGE'
@@ -275,27 +276,7 @@ resolve_update_path() {
 read_patch_manifest_field() {
   local zip_path="$1"
   local field="$2"
-  python3 - "${zip_path}" "${field}" <<'PY_FIELD'
-import json
-import sys
-import zipfile
-
-zip_path = sys.argv[1]
-field = sys.argv[2]
-with zipfile.ZipFile(zip_path) as zf:
-    with zf.open("manifest.json") as fh:
-        manifest = json.load(fh)
-value = manifest
-for part in field.split("."):
-    if not isinstance(value, dict):
-        value = ""
-        break
-    value = value.get(part, "")
-if isinstance(value, (dict, list)):
-    print(json.dumps(value, ensure_ascii=False))
-else:
-    print(value)
-PY_FIELD
+  python3 "${PLATFORM_UPDATE_ARTIFACT_TOOL}" --inspect "${zip_path}" --field "${field}"
 }
 
 write_target_compatibility_decision() {
@@ -516,11 +497,8 @@ run_producer_artifact_preflight() {
   local zip_path="$1"
   local output_dir="$2"
   local preflight_tool engine
-  preflight_tool="${TARGET_PATH}/bin/patch-artifact-preflight.py"
+  preflight_tool="${PROJECT_ROOT}/bin/patch-artifact-preflight.py"
   engine="${TARGET_PATH}/bin/patch.py"
-  if [[ ! -f "${preflight_tool}" ]]; then
-    preflight_tool="${PROJECT_ROOT}/bin/patch-artifact-preflight.py"
-  fi
   if [[ ! -f "${engine}" ]]; then
     engine="${PROJECT_ROOT}/bin/patch.py"
   fi
@@ -692,8 +670,8 @@ create_target_plan_patch() {
     ensure_build_workspace
     mkdir -p "${UPDATE_OUTPUT_DIR}"
   fi
-  mkdir -p "${PROJECT_ROOT}/tmp"
-  tmp_dir="$(mktemp -d "${PROJECT_ROOT}/tmp/platform-update-generate.XXXXXX")"
+  mkdir -p "${BUILD_WORKSPACE_DIR}"
+  tmp_dir="$(mktemp -d "${BUILD_WORKSPACE_DIR}/platform-update-generate.XXXXXX")"
   trap '[[ -n "${tmp_dir:-}" ]] && rm -rf "${tmp_dir}"' RETURN
 
   mkdir -p "${tmp_dir}/files/$(dirname "${doc_rel}")" "${tmp_dir}/logs"
@@ -821,30 +799,18 @@ CHANGELOG_EOF
   finalizer_summary="$(python3 "${PROJECT_ROOT}/platform/update/tools/finalize-target-patch.py" \
     --root "${tmp_dir}" \
     --target-root "${TARGET_PATH}" \
+    --output "${zip_path}" \
     --patch-id "${target_patch_id}" \
     --artifact-id "${target_artifact_id}" \
     --name "${target_patch_name}" \
     --scope "${generated_scope}" \
     --target-name "${TARGET_NAME}" \
     --profile "${UPDATE_PROFILE}" \
+    --description "Generated Springmaster platform-update patch for target ${TARGET_NAME} and profile ${UPDATE_PROFILE}." \
     --master-platform-version "${PLATFORM_VERSION:-}" \
     --master-core-version "${PLATFORM_CORE_VERSION:-}" \
     --master-tooling-version "${PLATFORM_TOOLING_VERSION:-}" \
     --master-platform-update-version "${PLATFORM_UPDATE_VERSION:-}")"
-
-  python3 - "${tmp_dir}" "${zip_path}" <<'ZIP_PY'
-import pathlib
-import sys
-import zipfile
-
-root = pathlib.Path(sys.argv[1])
-zip_path = pathlib.Path(sys.argv[2])
-zip_path.parent.mkdir(parents=True, exist_ok=True)
-with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-    for path in sorted(root.rglob("*")):
-        if path.is_file():
-            zf.write(path, path.relative_to(root).as_posix())
-ZIP_PY
 
   producer_preflight_dir="${MANIFEST_DIR}/${target_patch_id}_producer_preflight"
   run_producer_artifact_preflight "${zip_path}" "${producer_preflight_dir}" >/dev/null
@@ -1060,36 +1026,19 @@ parse_compatibility_plan_args() {
   [[ -f "${UPDATE_PATCH_ZIP}" ]] || fail_update "Generated patch ZIP not found: ${UPDATE_PATCH_ZIP}"
 }
 
-target_patch_manifest_schema() {
-  python3 - "${TARGET_PATH}/bin/patch.py" <<'PY_SCHEMA'
-import re
-import sys
-from pathlib import Path
-path = Path(sys.argv[1])
-if not path.is_file():
-    print("springmaster.patch-manifest.v2")
-    raise SystemExit(0)
-match = re.search(r'^PATCH_MANIFEST_SCHEMA\s*=\s*["\']([^"\']+)["\']\s*$', path.read_text(encoding="utf-8"), re.MULTILINE)
-if not match or not match.group(1).endswith('.patch-manifest.v2'):
-    raise SystemExit(f"cannot resolve target patch schema from {path}")
-print(match.group(1))
-PY_SCHEMA
-}
-
 create_target_compatibility_patch_zip() {
   local target_patch_id="$1"
   local target_patch_name="$2"
   local requested_scope="$3"
   local zip_path="$4"
-  local tmp_dir doc_rel changelog_rel manifest_path target_artifact_id target_manifest_schema
+  local tmp_dir doc_rel changelog_rel target_artifact_id
 
   target_artifact_id="$(python3 -c 'import uuid; print(f"urn:uuid:{uuid.uuid4()}")')"
-  target_manifest_schema="$(target_patch_manifest_schema)"
 
-  tmp_dir="$(mktemp -d)"
-  doc_rel="$(generated_doc_rel_for_profile "${UPDATE_PROFILE}" "${target_patch_id}")"
+  tmp_dir="$(mktemp -d "${BUILD_WORKSPACE_DIR}/platform-update-compatibility.XXXXXX")"
+  trap '[[ -n "${tmp_dir:-}" ]] && rm -rf "${tmp_dir}"' RETURN
+  doc_rel="PROJECT_DOCS/PLATFORM_UPDATES/${target_patch_id}.md"
   changelog_rel="logs/CHANGELOG-${target_patch_id}.md"
-  manifest_path="${tmp_dir}/manifest.json"
 
   mkdir -p "${tmp_dir}/files/bin"
   cp "${PROJECT_ROOT}/bin/patch.py" "${tmp_dir}/files/bin/patch.py"
@@ -1145,44 +1094,20 @@ Generated by Springmaster \`platform-update compatibility-plan\`.
 * Project-specific additional scopes must be configured in the target project's \`.env\`.
 CHANGELOG_EOF
 
-  cat > "${manifest_path}" <<MANIFEST_EOF
-{
-  "schemaVersion": "${target_manifest_schema}",
-  "artifactId": "${target_artifact_id}",
-  "id": "${target_patch_id}",
-  "patchId": "${target_patch_id}",
-  "name": "${target_patch_name}",
-  "scope": "root",
-  "description": "Generated Springmaster compatibility patch for target ${TARGET_NAME}; updates target-local patch tooling before applying ${requested_scope} updates.",
-  "type": "platform-update-compatibility",
-  "requires": {
-    "target": "${TARGET_NAME}",
-    "requestedPatchScope": "${requested_scope}",
-    "masterPlatformVersion": "${PLATFORM_VERSION:-}",
-    "masterPlatformUpdateVersion": "${PLATFORM_UPDATE_VERSION:-}"
-  },
-  "changes": [
-    "Updates bin/patch.py to the current Springmaster patch engine",
-    "Updates bin/patch.sh to the current Springmaster patch entrypoint",
-    "Documents project-local scope extension via .env"
-  ]
-}
-MANIFEST_EOF
-
-  python3 - "${tmp_dir}" "${zip_path}" <<'ZIP_PY'
-import pathlib
-import sys
-import zipfile
-
-root = pathlib.Path(sys.argv[1])
-zip_path = pathlib.Path(sys.argv[2])
-with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-    for path in sorted(root.rglob("*")):
-        if path.is_file():
-            zf.write(path, path.relative_to(root).as_posix())
-ZIP_PY
-
-  rm -rf "${tmp_dir}"
+  python3 "${PLATFORM_UPDATE_ARTIFACT_TOOL}" \
+    --root "${tmp_dir}" \
+    --target-root "${TARGET_PATH}" \
+    --output "${zip_path}" \
+    --patch-id "${target_patch_id}" \
+    --artifact-id "${target_artifact_id}" \
+    --name "${target_patch_name}" \
+    --scope root \
+    --target-name "${TARGET_NAME}" \
+    --kind platform-update-compatibility \
+    --requested-scope "${requested_scope}" \
+    --description "Generated Springmaster compatibility patch for target ${TARGET_NAME}; updates target-local patch tooling before applying ${requested_scope} updates." \
+    --master-platform-version "${PLATFORM_VERSION:-}" \
+    --master-platform-update-version "${PLATFORM_UPDATE_VERSION:-}" >/dev/null
 }
 
 create_compatibility_plan() {
@@ -1201,8 +1126,8 @@ create_compatibility_plan() {
   ensure_build_workspace
   mkdir -p "${UPDATE_OUTPUT_DIR}" "${GENERATED_DIR}"
   timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  compatibility_id="${timestamp}_springmaster_platform_update_compatibility_for_${TARGET_NAME}"
   compatibility_name="springmaster_platform_update_compatibility_for_${TARGET_NAME}"
+  compatibility_id="$(next_target_patch_number)_${compatibility_name}"
   compatibility_zip="${GENERATED_DIR}/${compatibility_id}.zip"
   plan_base="${timestamp}_${TARGET_NAME}_${patch_id}_compatibility_plan"
   plan_md="${UPDATE_OUTPUT_DIR}/${plan_base}.md"

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import hashlib
+import importlib
 import json
 import re
+import sys
 from pathlib import Path
 
 HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -127,6 +129,66 @@ def main() -> int:
     else:
         findings.append({"code": "RUNTIME_FILE_MISSING", "path": runtime_path.relative_to(root).as_posix()})
 
+    artifact_model = contract.get("artifactModel") if isinstance(contract.get("artifactModel"), dict) else {}
+    legacy_adapter = (
+        artifact_model.get("platformUpdateLegacyV2Adapter")
+        if isinstance(artifact_model.get("platformUpdateLegacyV2Adapter"), dict)
+        else {}
+    )
+    expected_artifact_model = {
+        "canonicalSchemaVersion": "cocondo.patch-manifest.v5",
+        "runtimePath": ".cocondo/tooling/cocondo-toolkit.pyz",
+        "manifestModule": "cocondo_toolkit.manifest",
+        "manifestClass": "PatchManifest",
+        "operationClass": "PatchOperation",
+        "writerModule": "cocondo_toolkit.artifact",
+        "writerFunction": "write_patch",
+        "inspectionFunction": "inspect_patch",
+    }
+    for key, expected in expected_artifact_model.items():
+        actual = artifact_model.get(key)
+        if actual != expected:
+            add_mismatch(findings, "ARTIFACT_MODEL_CONTRACT_MISMATCH", expected, actual, key=key)
+    expected_adapter = {
+        "adapterId": "springmaster.platform-update.legacy-v2-target-adapter.v1",
+        "canonicalProjectionField": "canonicalArtifactModel",
+        "legacyArchiveRoots": ["files/", "delete/", "logs/"],
+        "schemaSuffix": ".patch-manifest.v2",
+        "selectionPolicy": "target-capability-only",
+    }
+    for key, expected in expected_adapter.items():
+        actual = legacy_adapter.get(key)
+        if actual != expected:
+            add_mismatch(findings, "LEGACY_V2_ADAPTER_CONTRACT_MISMATCH", expected, actual, key=key)
+
+    configured_runtime_path = artifact_model.get("runtimePath")
+    if isinstance(configured_runtime_path, str) and (root / configured_runtime_path).resolve() == runtime_path.resolve() \
+            and runtime_path.is_file() and sha256(runtime_path) == expected_runtime:
+        try:
+            sys.path.insert(0, str(runtime_path))
+            manifest_module = importlib.import_module(str(artifact_model.get("manifestModule")))
+            writer_module = importlib.import_module(str(artifact_model.get("writerModule")))
+            if getattr(manifest_module, "PATCH_SCHEMA", None) != artifact_model.get("canonicalSchemaVersion"):
+                add_mismatch(
+                    findings,
+                    "ARTIFACT_MODEL_RUNTIME_SCHEMA_MISMATCH",
+                    artifact_model.get("canonicalSchemaVersion"),
+                    getattr(manifest_module, "PATCH_SCHEMA", None),
+                )
+            for module, name in (
+                (manifest_module, artifact_model.get("manifestClass")),
+                (manifest_module, artifact_model.get("operationClass")),
+                (writer_module, artifact_model.get("writerFunction")),
+                (writer_module, artifact_model.get("inspectionFunction")),
+            ):
+                if not isinstance(name, str) or not hasattr(module, name):
+                    findings.append({"code": "ARTIFACT_MODEL_RUNTIME_API_MISSING", "member": name})
+        except Exception as exc:
+            findings.append({"code": "ARTIFACT_MODEL_RUNTIME_LOAD_FAILED", "detail": str(exc)})
+        finally:
+            if sys.path and sys.path[0] == str(runtime_path):
+                sys.path.pop(0)
+
     sidecar_path = root / ".cocondo/tooling/cocondo-toolkit.pyz.sha256"
     if sidecar_path.is_file():
         sidecar_value = sidecar_path.read_text(encoding="utf-8").split()[0]
@@ -197,6 +259,18 @@ def main() -> int:
             actual = evidence.get(key)
             if actual != expected:
                 add_mismatch(findings, "ACTIVATION_EVIDENCE_MISMATCH", expected, actual, key=key)
+        model_evidence = evidence.get("artifactModel") if isinstance(evidence.get("artifactModel"), dict) else {}
+        expected_model_evidence = {
+            "canonicalSchemaVersion": artifact_model.get("canonicalSchemaVersion"),
+            "canonicalSource": "activation-bound Cocondo Patch Toolkit runtime",
+            "platformUpdateLegacyV2Adapter": legacy_adapter.get("adapterId"),
+            "platformUpdateWriterAndReaderParity": "PASS",
+            "targetCapabilitySelection": legacy_adapter.get("selectionPolicy"),
+        }
+        for key, expected in expected_model_evidence.items():
+            actual = model_evidence.get(key)
+            if actual != expected:
+                add_mismatch(findings, "ARTIFACT_MODEL_EVIDENCE_MISMATCH", expected, actual, key=key)
         qualification = evidence.get("installationQualification")
         if not isinstance(qualification, dict) or qualification.get("status") != "PASS":
             findings.append({"code": "INSTALLATION_QUALIFICATION_NOT_PASS"})
