@@ -967,8 +967,9 @@ def accepted_patch_identity(
     *,
     run_claims_by_artifact: dict[str, list[dict[str, Any]]],
     policy: dict[str, Any],
+    legacy_noncanonical_policy: dict[str, Any],
     project_id: str,
-) -> tuple[int, str, str]:
+) -> tuple[int | None, str, str]:
     if record.get("schemaVersion") != policy.get("recordSchema"):
         raise ProcessOpsError(
             "DELIVERY_ACCEPTED_RECORD_INVALID",
@@ -1015,10 +1016,20 @@ def accepted_patch_identity(
         return patch_number, patch_id, artifact_id
 
     numeric_pattern = policy.get("numericPatchIdPattern")
+    noncanonical_pattern = legacy_noncanonical_policy.get("patchIdPattern")
+    if (
+        isinstance(patch_id_value, str)
+        and isinstance(numeric_pattern, str)
+        and re.fullmatch(numeric_pattern, patch_id_value) is None
+        and isinstance(noncanonical_pattern, str)
+        and re.fullmatch(noncanonical_pattern, patch_id_value) is not None
+    ):
+        return None, patch_id_value, artifact_id
+
     if not isinstance(patch_id_value, str) or not isinstance(numeric_pattern, str) or re.fullmatch(numeric_pattern, patch_id_value) is None:
         raise ProcessOpsError(
             "DELIVERY_ACCEPTED_PATCH_ID_INVALID",
-            "Accepted patch ID is neither canonical nor a supported legacy numeric ID",
+            "Accepted patch ID is neither canonical, supported legacy numeric nor verified historical noncanonical",
             path=str(record_path),
             patchId=patch_id_value,
         )
@@ -1062,6 +1073,8 @@ def build_delivery_inventory(
         "genericRunRecord": "IGNORE_AND_COUNT",
         "patchRunRecord": "RESERVE",
         "legacyNumericPatchRunRecord": "RESERVE",
+        "legacyAcceptedNoncanonicalPatchRunRecord": "IGNORE_AND_COUNT",
+        "legacyAcceptedNoncanonicalPatchRecord": "IGNORE_AND_COUNT",
         "acceptedPatchRecord": "RESERVE",
         "historicalFailedRunUnderAcceptedOwner": "IGNORE_AND_COUNT",
         "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",
@@ -1078,6 +1091,25 @@ def build_delivery_inventory(
     legacy_policy = policy.get("legacyNumericPatchRunCompatibility")
     if not isinstance(legacy_policy, dict) or legacy_policy.get("policy") != "RESERVE":
         raise ProcessOpsError("DELIVERY_INVENTORY_POLICY_INVALID", "Legacy numeric patch-run compatibility policy is missing")
+    legacy_accepted_policy = policy.get("legacyAcceptedNoncanonicalPatchCompatibility")
+    expected_legacy_accepted_policy = {
+        "policy": "IGNORE_AND_COUNT",
+        "runRecordSchema": "cocondo.run-record.v1",
+        "patchIdPattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+        "artifactIdPattern": "^urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+        "dryRunCommand": "patch-dry-run",
+        "dryRunStatus": "DRY_RUN_SUCCEEDED",
+        "acceptCommand": "patch-accept",
+        "acceptStatus": "SUCCEEDED",
+        "requireExactPatchIdAndArtifactId": True,
+        "reserveCanonicalNumber": False,
+        "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR",
+    }
+    if legacy_accepted_policy != expected_legacy_accepted_policy:
+        raise ProcessOpsError(
+            "DELIVERY_INVENTORY_POLICY_INVALID",
+            "Legacy accepted noncanonical patch compatibility policy is missing or inconsistent",
+        )
     accepted_policy = policy.get("acceptedPatchAuthority")
     expected_accepted_policy = {
         "policy": "RESERVE",
@@ -1105,9 +1137,14 @@ def build_delivery_inventory(
     generic_run_count = 0
     patch_run_count = 0
     legacy_numeric_patch_run_count = 0
+    legacy_accepted_noncanonical_patch_run_count = 0
+    legacy_accepted_noncanonical_patch_record_count = 0
     accepted_patch_record_count = 0
     accepted_owner_count = 0
     historical_failed_attempt_count = 0
+    pending_noncanonical_runs: list[tuple[Path, dict[str, Any]]] = []
+    consumed_noncanonical_run_paths: set[str] = set()
+    legacy_accepted_patch_ids: set[str] = set()
 
     for entry in sorted(context.process_delivery_root.iterdir(), key=lambda item: item.name):
         mode = entry.lstat().st_mode
@@ -1206,6 +1243,14 @@ def build_delivery_inventory(
             policy=legacy_policy,
         )
         if legacy_identity is None:
+            noncanonical_pattern = legacy_accepted_policy["patchIdPattern"]
+            if (
+                isinstance(patch_id_value, str)
+                and PATCH_ID_PATTERN.fullmatch(patch_id_value) is None
+                and re.fullmatch(noncanonical_pattern, patch_id_value) is not None
+            ):
+                pending_noncanonical_runs.append((run_dir, record))
+                continue
             patch_number, patch_id = canonical_patch_identity(patch_id_value, source=str(record_path))
             entry_type = "patch-run"
         else:
@@ -1259,8 +1304,100 @@ def build_delivery_inventory(
             record,
             run_claims_by_artifact=run_claims_by_artifact,
             policy=accepted_policy,
+            legacy_noncanonical_policy=legacy_accepted_policy,
             project_id=context.project_id,
         )
+        if patch_number is None:
+            if patch_id in legacy_accepted_patch_ids:
+                raise ProcessOpsError(
+                    "DELIVERY_LEGACY_ACCEPTED_PATCH_CONFLICT",
+                    "One historical noncanonical patch ID has multiple accepted records",
+                    path=str(accepted_path),
+                    patchId=patch_id,
+                )
+            matching_runs = [
+                (run_dir, run_record)
+                for run_dir, run_record in pending_noncanonical_runs
+                if run_record.get("patchId") == patch_id
+            ]
+            expected_run_schema = legacy_accepted_policy["runRecordSchema"]
+            expected_artifact_pattern = legacy_accepted_policy["artifactIdPattern"]
+            allowed_commands = {
+                legacy_accepted_policy["dryRunCommand"],
+                legacy_accepted_policy["acceptCommand"],
+            }
+            for run_dir, run_record in matching_runs:
+                run_record_path = run_dir / "run.json"
+                run_artifact_id = run_record.get("artifactId")
+                if (
+                    run_record.get("schemaVersion") != expected_run_schema
+                    or run_artifact_id != artifact_id
+                    or not isinstance(run_artifact_id, str)
+                    or re.fullmatch(expected_artifact_pattern, run_artifact_id) is None
+                    or run_record.get("command") not in allowed_commands
+                    or run_record.get("status") not in TERMINAL_STATES
+                ):
+                    raise ProcessOpsError(
+                        "DELIVERY_LEGACY_ACCEPTED_PATCH_CONFLICT",
+                        "Historical noncanonical patch run conflicts with accepted identity",
+                        path=str(run_record_path),
+                        patchId=patch_id,
+                        artifactId=run_artifact_id,
+                        acceptedArtifactId=artifact_id,
+                        command=run_record.get("command"),
+                        status=run_record.get("status"),
+                    )
+            dry_run_successes = [
+                item
+                for item in matching_runs
+                if item[1].get("command") == legacy_accepted_policy["dryRunCommand"]
+                and item[1].get("status") == legacy_accepted_policy["dryRunStatus"]
+            ]
+            accept_successes = [
+                item
+                for item in matching_runs
+                if item[1].get("command") == legacy_accepted_policy["acceptCommand"]
+                and item[1].get("status") == legacy_accepted_policy["acceptStatus"]
+            ]
+            if not dry_run_successes or not accept_successes:
+                raise ProcessOpsError(
+                    "DELIVERY_LEGACY_ACCEPTED_PATCH_UNVERIFIED",
+                    "Historical noncanonical accepted patch lacks successful dry-run and accept evidence",
+                    path=str(accepted_path),
+                    patchId=patch_id,
+                    artifactId=artifact_id,
+                    dryRunSuccessCount=len(dry_run_successes),
+                    acceptSuccessCount=len(accept_successes),
+                )
+            legacy_accepted_patch_ids.add(patch_id)
+            for run_dir, run_record in matching_runs:
+                consumed_noncanonical_run_paths.add(run_dir.name)
+                patch_run_count += 1
+                legacy_accepted_noncanonical_patch_run_count += 1
+                entries.append({
+                    "source": "run",
+                    "path": run_dir.name,
+                    "entryType": "legacy-accepted-noncanonical-patch-run",
+                    "runId": run_record.get("runId"),
+                    "patchId": patch_id,
+                    "artifactId": artifact_id,
+                    "command": run_record.get("command"),
+                    "status": run_record.get("status"),
+                    "acceptedRecord": accepted_path.name,
+                    "policy": "IGNORE_AND_COUNT",
+                })
+            accepted_patch_record_count += 1
+            legacy_accepted_noncanonical_patch_record_count += 1
+            entries.append({
+                "source": "accepted",
+                "path": accepted_path.name,
+                "entryType": "legacy-accepted-noncanonical-patch-record",
+                "artifactId": artifact_id,
+                "patchId": patch_id,
+                "status": "ACCEPTED",
+                "policy": "IGNORE_AND_COUNT",
+            })
+            continue
         reserved_numbers.add(patch_number)
         accepted_patch_record_count += 1
         entry_record = {
@@ -1281,6 +1418,18 @@ def build_delivery_inventory(
             "artifactId": artifact_id,
             "entry": entry_record,
         })
+
+    unconsumed_noncanonical_runs = [
+        (run_dir, run_record)
+        for run_dir, run_record in pending_noncanonical_runs
+        if run_dir.name not in consumed_noncanonical_run_paths
+    ]
+    if unconsumed_noncanonical_runs:
+        run_dir, run_record = unconsumed_noncanonical_runs[0]
+        canonical_patch_identity(
+            run_record.get("patchId"),
+            source=str(run_dir / "run.json"),
+        )
 
     conflicts: dict[str, list[str]] = {}
     for number, claims in sorted(identity_claims.items()):
@@ -1340,6 +1489,8 @@ def build_delivery_inventory(
             "genericRunCount": generic_run_count,
             "patchRunCount": patch_run_count,
             "legacyNumericPatchRunCount": legacy_numeric_patch_run_count,
+            "legacyAcceptedNoncanonicalPatchRunCount": legacy_accepted_noncanonical_patch_run_count,
+            "legacyAcceptedNoncanonicalPatchRecordCount": legacy_accepted_noncanonical_patch_record_count,
             "acceptedPatchRecordCount": accepted_patch_record_count,
             "acceptedOwnerCount": accepted_owner_count,
             "historicalFailedAttemptCount": historical_failed_attempt_count,
@@ -1354,6 +1505,8 @@ def build_delivery_inventory(
             "genericRun": "IGNORE_AND_COUNT",
             "patchRun": "RESERVE",
             "legacyNumericPatchRun": "RESERVE_WITH_CANONICAL_ARTIFACT_EVIDENCE",
+            "legacyAcceptedNoncanonicalPatchRun": "IGNORE_AND_COUNT_WITH_ACCEPTANCE_EVIDENCE",
+            "legacyAcceptedNoncanonicalPatch": "IGNORE_AND_COUNT_WITH_ACCEPTANCE_EVIDENCE",
             "acceptedPatch": "RESERVE_AS_CANONICAL_NUMBER_OWNER",
             "historicalFailedRunUnderAcceptedOwner": "IGNORE_AND_COUNT",
             "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",

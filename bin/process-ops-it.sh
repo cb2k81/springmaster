@@ -617,6 +617,36 @@ cat > "${REPO}/.git/cocondo-toolkit/accepted/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeee
   "patchId": "000994"
 }
 JSON_ACCEPTED_OWNER
+mkdir -p "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-noncanonical-dry"
+cat > "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-noncanonical-dry/run.json" <<'JSON_LEGACY_ACCEPTED_NONCANONICAL_DRY'
+{
+  "schemaVersion": "cocondo.run-record.v1",
+  "runId": "run-legacy-accepted-noncanonical-dry",
+  "command": "patch-dry-run",
+  "patchId": "s006-r0-legacy-accepted",
+  "artifactId": "urn:uuid:bbbbbbbb-cccc-4ddd-8eee-ffffffffffff",
+  "status": "DRY_RUN_SUCCEEDED"
+}
+JSON_LEGACY_ACCEPTED_NONCANONICAL_DRY
+mkdir -p "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-noncanonical-accept"
+cat > "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-noncanonical-accept/run.json" <<'JSON_LEGACY_ACCEPTED_NONCANONICAL_ACCEPT'
+{
+  "schemaVersion": "cocondo.run-record.v1",
+  "runId": "run-legacy-accepted-noncanonical-accept",
+  "command": "patch-accept",
+  "patchId": "s006-r0-legacy-accepted",
+  "artifactId": "urn:uuid:bbbbbbbb-cccc-4ddd-8eee-ffffffffffff",
+  "status": "SUCCEEDED"
+}
+JSON_LEGACY_ACCEPTED_NONCANONICAL_ACCEPT
+cat > "${REPO}/.git/cocondo-toolkit/accepted/bbbbbbbb-cccc-4ddd-8eee-ffffffffffff.json" <<'JSON_LEGACY_ACCEPTED_NONCANONICAL_RECORD'
+{
+  "schemaVersion": "cocondo.patch-acceptance.v2",
+  "projectId": "fixture-project",
+  "artifactId": "urn:uuid:bbbbbbbb-cccc-4ddd-8eee-ffffffffffff",
+  "patchId": "s006-r0-legacy-accepted"
+}
+JSON_LEGACY_ACCEPTED_NONCANONICAL_RECORD
 printf 'uuid=123456 random=654321\n' > "${REPO}/.git/cocondo-process/deliveries/000181-example-accept-discovery.env"
 mkdir -p "${REPO}/.git/cocondo-process/deliveries/000997-failed-delivery"
 mkdir -p "${REPO}/.git/cocondo-process/deliveries/000998-current-delivery"
@@ -635,9 +665,11 @@ assert v["currentDeliveryExceptionCount"] == 1, v
 assert v["summary"]["knownMetadataEntryCount"] == 1, v
 assert v["summary"]["deliveryDirectoryCount"] == 2, v
 assert v["summary"]["genericRunCount"] >= 1, v
-assert v["summary"]["patchRunCount"] == 4, v
+assert v["summary"]["patchRunCount"] == 6, v
 assert v["summary"]["legacyNumericPatchRunCount"] == 2, v
-assert v["summary"]["acceptedPatchRecordCount"] == 1, v
+assert v["summary"]["legacyAcceptedNoncanonicalPatchRunCount"] == 2, v
+assert v["summary"]["legacyAcceptedNoncanonicalPatchRecordCount"] == 1, v
+assert v["summary"]["acceptedPatchRecordCount"] == 2, v
 assert v["summary"]["acceptedOwnerCount"] == 1, v
 assert v["summary"]["historicalFailedAttemptCount"] == 1, v
 legacy=[e for e in v["entries"] if e.get("entryType") == "legacy-numeric-patch-run"]
@@ -648,6 +680,14 @@ assert legacy_996[0]["patchId"] == "000996_legacy-qualified", legacy_996
 accepted=[e for e in v["entries"] if e.get("entryType") == "accepted-patch-record"]
 assert len(accepted) == 1, accepted
 assert accepted[0]["patchId"] == "000994_final", accepted
+legacy_accepted_runs=[e for e in v["entries"] if e.get("entryType") == "legacy-accepted-noncanonical-patch-run"]
+assert len(legacy_accepted_runs) == 2, legacy_accepted_runs
+assert {e["patchId"] for e in legacy_accepted_runs} == {"s006-r0-legacy-accepted"}, legacy_accepted_runs
+assert all(e["policy"] == "IGNORE_AND_COUNT" for e in legacy_accepted_runs), legacy_accepted_runs
+legacy_accepted_records=[e for e in v["entries"] if e.get("entryType") == "legacy-accepted-noncanonical-patch-record"]
+assert len(legacy_accepted_records) == 1, legacy_accepted_records
+assert legacy_accepted_records[0]["patchId"] == "s006-r0-legacy-accepted", legacy_accepted_records
+assert legacy_accepted_records[0]["policy"] == "IGNORE_AND_COUNT", legacy_accepted_records
 failed=[e for e in v["entries"] if e.get("entryType") == "historical-failed-patch-run"]
 assert len(failed) == 1, failed
 assert failed[0]["patchId"] == "000994_old", failed
@@ -868,6 +908,23 @@ set -e
 test "${DELIVERY_RECORD_JSON_RC}" -eq 9
 grep -F 'errorCode=DELIVERY_RECORD_INVALID' "${TMP_ROOT}/delivery-record-json.out" >/dev/null
 rm -rf "${REPO}/.git/cocondo-process/deliveries/000996-invalid-record"
+
+mkdir -p "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-missing-accept"
+printf '%s\n' '{"schemaVersion":"cocondo.run-record.v1","runId":"run-legacy-accepted-missing-accept","command":"patch-dry-run","patchId":"legacy-accepted-missing-accept","artifactId":"urn:uuid:44444444-5555-4666-8777-888888888888","status":"DRY_RUN_SUCCEEDED"}' > "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-missing-accept/run.json"
+cat > "${REPO}/.git/cocondo-toolkit/accepted/44444444-5555-4666-8777-888888888888.json" <<'JSON_LEGACY_ACCEPTED_MISSING_ACCEPT'
+{"schemaVersion":"cocondo.patch-acceptance.v2","projectId":"fixture-project","artifactId":"urn:uuid:44444444-5555-4666-8777-888888888888","patchId":"legacy-accepted-missing-accept"}
+JSON_LEGACY_ACCEPTED_MISSING_ACCEPT
+set +e
+(
+  cd "${FEATURE}"
+  ./bin/process-ops.sh delivery-inventory > "${TMP_ROOT}/inventory-legacy-accepted-missing-accept.out" 2>&1
+)
+LEGACY_ACCEPTED_MISSING_ACCEPT_RC=$?
+set -e
+test "${LEGACY_ACCEPTED_MISSING_ACCEPT_RC}" -eq 9
+grep -F 'errorCode=DELIVERY_LEGACY_ACCEPTED_PATCH_UNVERIFIED' "${TMP_ROOT}/inventory-legacy-accepted-missing-accept.out" >/dev/null
+rm -rf "${REPO}/.git/cocondo-toolkit/runs/run-legacy-accepted-missing-accept"
+rm -f "${REPO}/.git/cocondo-toolkit/accepted/44444444-5555-4666-8777-888888888888.json"
 
 mkdir -p "${REPO}/.git/cocondo-toolkit/runs/run-invalid-patch-id"
 printf '%s\n' '{"runId":"run-invalid-patch-id","patchId":"999_bad"}' > "${REPO}/.git/cocondo-toolkit/runs/run-invalid-patch-id/run.json"

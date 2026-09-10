@@ -253,6 +253,8 @@
       "genericRunRecord": "IGNORE_AND_COUNT",
       "patchRunRecord": "RESERVE",
       "legacyNumericPatchRunRecord": "RESERVE",
+      "legacyAcceptedNoncanonicalPatchRunRecord": "IGNORE_AND_COUNT",
+      "legacyAcceptedNoncanonicalPatchRecord": "IGNORE_AND_COUNT",
       "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",
       "unknownRegularFile": "BLOCKING_TOOL_ERROR",
       "symlink": "BLOCKING_TOOL_ERROR",
@@ -302,6 +304,19 @@
       "artifactIdPattern": "^urn:uuid:(?P<artifactToken>[0-9a-fA-F]{8})-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       "requirePatchNumberMatch": true,
       "requireArtifactTokenMatch": true,
+      "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR"
+    },
+    "legacyAcceptedNoncanonicalPatchCompatibility": {
+      "policy": "IGNORE_AND_COUNT",
+      "runRecordSchema": "cocondo.run-record.v1",
+      "patchIdPattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "artifactIdPattern": "^urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "dryRunCommand": "patch-dry-run",
+      "dryRunStatus": "DRY_RUN_SUCCEEDED",
+      "acceptCommand": "patch-accept",
+      "acceptStatus": "SUCCEEDED",
+      "requireExactPatchIdAndArtifactId": true,
+      "reserveCanonicalNumber": false,
       "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR"
     },
     "acceptedPatchAuthority": {

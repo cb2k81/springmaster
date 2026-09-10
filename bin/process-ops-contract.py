@@ -171,6 +171,8 @@ def main() -> int:
         "genericRunRecord": "IGNORE_AND_COUNT",
         "patchRunRecord": "RESERVE",
         "legacyNumericPatchRunRecord": "RESERVE",
+        "legacyAcceptedNoncanonicalPatchRunRecord": "IGNORE_AND_COUNT",
+        "legacyAcceptedNoncanonicalPatchRecord": "IGNORE_AND_COUNT",
         "acceptedPatchRecord": "RESERVE",
         "historicalFailedRunUnderAcceptedOwner": "IGNORE_AND_COUNT",
         "currentDelivery": "CURRENT_DELIVERY_EXCEPTION",
@@ -201,6 +203,21 @@ def main() -> int:
     }
     if inventory_policy.get("legacyNumericPatchRunCompatibility") != legacy_expected:
         findings.append({"code": "PROCESS_DELIVERY_LEGACY_NUMERIC_POLICY_MISMATCH"})
+    legacy_accepted_expected = {
+        "policy": "IGNORE_AND_COUNT",
+        "runRecordSchema": "cocondo.run-record.v1",
+        "patchIdPattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+        "artifactIdPattern": "^urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+        "dryRunCommand": "patch-dry-run",
+        "dryRunStatus": "DRY_RUN_SUCCEEDED",
+        "acceptCommand": "patch-accept",
+        "acceptStatus": "SUCCEEDED",
+        "requireExactPatchIdAndArtifactId": True,
+        "reserveCanonicalNumber": False,
+        "unverifiedOrConflicting": "BLOCKING_TOOL_ERROR",
+    }
+    if inventory_policy.get("legacyAcceptedNoncanonicalPatchCompatibility") != legacy_accepted_expected:
+        findings.append({"code": "PROCESS_DELIVERY_LEGACY_ACCEPTED_NONCANONICAL_POLICY_MISMATCH"})
     accepted_expected = {
         "policy": "RESERVE",
         "recordSchema": "cocondo.patch-acceptance.v2",
